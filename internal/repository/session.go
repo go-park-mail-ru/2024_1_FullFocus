@@ -11,7 +11,7 @@ var (
 )
 
 type SessionRepo struct {
-	*sync.Mutex
+	sync.Mutex
 	sessions map[string]uint
 }
 
@@ -21,7 +21,7 @@ func NewSessionRepo() *SessionRepo {
 	}
 }
 
-func (r *SessionRepo) CreateSession(login string, userID uint) string {
+func (r *SessionRepo) CreateSession(userID uint) string {
 	sID := uuidgen.RandStringRunes(32)
 	r.Lock()
 	r.sessions[sID] = userID
@@ -29,17 +29,17 @@ func (r *SessionRepo) CreateSession(login string, userID uint) string {
 	return sID
 }
 
-func (r *SessionRepo) SessionExists(login string) bool {
-	_, ok := r.sessions[login]
+func (r *SessionRepo) SessionExists(sID string) bool {
+	_, ok := r.sessions[sID]
 	return ok
 }
 
-func (r *SessionRepo) DeleteSession(login string) error {
+func (r *SessionRepo) DeleteSession(sID string) error {
 	r.Lock()
 	defer r.Unlock()
-	if _, ok := r.sessions[login]; !ok {
+	if _, ok := r.sessions[sID]; !ok {
 		return ErrNoSession
 	}
-	delete(r.sessions, login)
+	delete(r.sessions, sID)
 	return nil
 }

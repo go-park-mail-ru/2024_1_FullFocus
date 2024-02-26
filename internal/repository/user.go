@@ -1,10 +1,10 @@
 package repository
 
 import (
-	"github.com/pkg/errors"
 	"sync"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	"github.com/pkg/errors"
 )
 
 var (
@@ -13,9 +13,9 @@ var (
 )
 
 type UserRepo struct {
-	*sync.Mutex
+	nextID uint
+	sync.Mutex
 	storage map[string]models.User
-	nextID  uint
 }
 
 func NewUserRepo() *UserRepo {
