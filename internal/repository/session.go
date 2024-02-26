@@ -1,9 +1,10 @@
 package repository
 
 import (
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/uuidgen"
-	"github.com/pkg/errors"
 	"sync"
+
+	"github.com/google/uuid"
+	"github.com/pkg/errors"
 )
 
 var (
@@ -22,7 +23,7 @@ func NewSessionRepo() *SessionRepo {
 }
 
 func (r *SessionRepo) CreateSession(userID uint) string {
-	sID := uuidgen.RandStringRunes(32)
+	sID := uuid.New().String()
 	r.Lock()
 	r.sessions[sID] = userID
 	r.Unlock()
