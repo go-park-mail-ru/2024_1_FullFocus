@@ -17,6 +17,13 @@ type AuthUsecase struct {
 	sessionRepo repository.Sessions
 }
 
+func NewAuthUsecase(ur repository.Users, sr repository.Sessions) *AuthUsecase {
+	return &AuthUsecase{
+		userRepo:    ur,
+		sessionRepo: sr,
+	}
+}
+
 func (u *AuthUsecase) Login(login string, password string) (string, error) {
 	user, err := u.userRepo.GetUser(login)
 	if err != nil {
@@ -25,7 +32,7 @@ func (u *AuthUsecase) Login(login string, password string) (string, error) {
 	if password != user.Password {
 		return "", ErrWrongPassword
 	}
-	return u.sessionRepo.CreateSession(login, user.ID), nil
+	return u.sessionRepo.CreateSession(user.ID), nil
 }
 
 func (u *AuthUsecase) Signup(login string, password string) (string, string, error) {
@@ -37,7 +44,7 @@ func (u *AuthUsecase) Signup(login string, password string) (string, string, err
 	if err != nil {
 		return "", "", err
 	}
-	sID := u.sessionRepo.CreateSession(login, uID)
+	sID := u.sessionRepo.CreateSession(uID)
 
 	uIDHash := md5.Sum([]byte(strconv.Itoa(int(uID))))
 	stringUID := hex.EncodeToString(uIDHash[:])
@@ -45,10 +52,10 @@ func (u *AuthUsecase) Signup(login string, password string) (string, string, err
 	return sID, stringUID, nil
 }
 
-func (u *AuthUsecase) Logout(login string) error {
-	return u.sessionRepo.DeleteSession(login)
+func (u *AuthUsecase) Logout(sID string) error {
+	return u.sessionRepo.DeleteSession(sID)
 }
 
-func (u *AuthUsecase) IsLoggedIn(login string) bool {
-	return u.sessionRepo.SessionExists(login)
+func (u *AuthUsecase) IsLoggedIn(sID string) bool {
+	return u.sessionRepo.SessionExists(sID)
 }

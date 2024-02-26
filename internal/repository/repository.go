@@ -8,7 +8,7 @@ type Users interface {
 }
 
 type Sessions interface {
-	CreateSession(login string, userID uint) string
-	SessionExists(login string) bool
-	DeleteSession(login string) error
+	CreateSession(userID uint) string
+	SessionExists(sID string) bool
+	DeleteSession(sID string) error
 }
