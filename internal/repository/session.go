@@ -31,7 +31,9 @@ func (r *SessionRepo) CreateSession(userID uint) string {
 }
 
 func (r *SessionRepo) SessionExists(sID string) bool {
+	r.Lock()
 	_, ok := r.sessions[sID]
+	r.Unlock()
 	return ok
 }
 

@@ -41,7 +41,7 @@ func (u *AuthUsecase) Signup(login string, password string) (string, string, err
 		Username: login,
 		Password: password,
 	}
-	uID, err := u.userRepo.CreateUser(user)
+	uID, err := u.userRepo.CreateUser(&user)
 	if err != nil {
 		return "", "", err
 	}

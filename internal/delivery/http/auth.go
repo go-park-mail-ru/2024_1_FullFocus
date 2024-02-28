@@ -1,10 +1,11 @@
 package delivery
 
 import (
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
-	"github.com/pkg/errors"
 	"net/http"
 	"time"
+
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -59,11 +60,11 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	session, err := r.Cookie("session_id")
 	if errors.Is(err, http.ErrNoCookie) {
-		http.Error(w, `no session`, 401)
+		http.Error(w, `no session`, http.StatusUnauthorized)
 		return
 	}
 	if !h.usecase.IsLoggedIn(session.Value) {
-		http.Error(w, `no session`, 401)
+		http.Error(w, `no session`, http.StatusUnauthorized)
 		return
 	}
 	_ = h.usecase.Logout(session.Value)
