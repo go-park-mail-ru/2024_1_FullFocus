@@ -1,14 +1,10 @@
 package repository
 
 import (
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"sync"
 
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
-)
-
-var (
-	ErrNoSession = errors.New("no session")
 )
 
 type SessionRepo struct {
@@ -41,7 +37,7 @@ func (r *SessionRepo) DeleteSession(sID string) error {
 	r.Lock()
 	defer r.Unlock()
 	if _, ok := r.sessions[sID]; !ok {
-		return ErrNoSession
+		return models.ErrNoSession
 	}
 	delete(r.sessions, sID)
 	return nil
