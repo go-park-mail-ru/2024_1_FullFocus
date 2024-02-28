@@ -2,16 +2,17 @@ package main
 
 import (
 	"context"
-	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
+	"github.com/gorilla/mux"
 )
 
 func run() {
