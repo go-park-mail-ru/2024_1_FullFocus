@@ -3,11 +3,12 @@ package usecase
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"log"
+	"strconv"
+
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
 	"github.com/pkg/errors"
-	"log"
-	"strconv"
 )
 
 var ErrWrongPassword = errors.New("wrong password")
@@ -40,7 +41,7 @@ func (u *AuthUsecase) Signup(login string, password string) (string, string, err
 		Username: login,
 		Password: password,
 	}
-	uID, err := u.userRepo.CreateUser(user)
+	uID, err := u.userRepo.CreateUser(&user)
 	if err != nil {
 		return "", "", err
 	}
