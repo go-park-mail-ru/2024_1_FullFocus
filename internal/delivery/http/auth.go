@@ -1,6 +1,9 @@
 package delivery
 
 import (
+	"context"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	"github.com/gorilla/mux"
 	"net/http"
 	"time"
 
@@ -13,13 +16,34 @@ const (
 )
 
 type AuthHandler struct {
+	srv     *http.Server
+	router  *mux.Router
 	usecase usecase.Auth
 }
 
-func NewAuthHandler(uc usecase.Auth) *AuthHandler {
+func NewAuthHandler(s *http.Server, uc usecase.Auth) *AuthHandler {
 	return &AuthHandler{
+		srv:     s,
+		router:  mux.NewRouter(),
 		usecase: uc,
 	}
+}
+
+func (h *AuthHandler) InitRouter(r *mux.Router) {
+	h.router = r.PathPrefix("/auth").Subrouter()
+	{
+		h.router.Handle("/login", http.HandlerFunc(h.Login)).Methods("GET", "POST", "OPTIONS")
+		h.router.Handle("/signup", http.HandlerFunc(h.Signup)).Methods("GET", "POST", "OPTIONS")
+		h.router.Handle("/logout", http.HandlerFunc(h.Logout)).Methods("GET", "OPTIONS")
+	}
+}
+
+func (h *AuthHandler) Run() error {
+	return h.srv.ListenAndServe()
+}
+
+func (h *AuthHandler) Stop() error {
+	return h.srv.Shutdown(context.Background())
 }
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
@@ -31,30 +55,32 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 400)
 	}
 	cookie := &http.Cookie{
-		Name:    "session_id",
-		Value:   sID,
-		Expires: time.Now().Add(SessionTTL),
+		Name:     "session_id",
+		Value:    sID,
+		Secure:   true,
+		HttpOnly: true,
+		Expires:  time.Now().Add(SessionTTL),
 	}
 	http.SetCookie(w, cookie)
-	w.Write([]byte(sID))
 }
 
 func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	login := r.FormValue("login")
 	password := r.FormValue("password")
 
-	sID, uID, err := h.usecase.Signup(login, password)
+	sID, _, err := h.usecase.Signup(login, password)
 	if err != nil {
 		http.Error(w, err.Error(), 400)
 		return
 	}
 	cookie := &http.Cookie{
-		Name:    "session_id",
-		Value:   sID,
-		Expires: time.Now().Add(SessionTTL),
+		Name:     "session_id",
+		Value:    sID,
+		Secure:   true,
+		HttpOnly: true,
+		Expires:  time.Now().Add(SessionTTL),
 	}
 	http.SetCookie(w, cookie)
-	w.Write([]byte(uID))
 }
 
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
@@ -63,11 +89,10 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, `no session`, http.StatusUnauthorized)
 		return
 	}
-	if !h.usecase.IsLoggedIn(session.Value) {
+	err = h.usecase.Logout(session.Value)
+	if errors.Is(err, models.ErrNoSession) {
 		http.Error(w, `no session`, http.StatusUnauthorized)
-		return
 	}
-	_ = h.usecase.Logout(session.Value)
 	session.Expires = time.Now().AddDate(0, 0, -1)
 	http.SetCookie(w, session)
 }
