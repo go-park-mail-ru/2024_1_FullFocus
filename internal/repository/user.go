@@ -24,15 +24,15 @@ func NewUserRepo() *UserRepo {
 	}
 }
 
-func (r *UserRepo) CreateUser(user *models.User) (uint, error) {
+func (r *UserRepo) CreateUser(user models.User) (uint, error) {
 	r.Lock()
 	defer r.Unlock()
 	if _, ok := r.storage[user.Username]; ok {
 		return 0, ErrUserAlreadyExists
 	}
 	r.nextID++
-	user.ID = r.nextID
-	r.storage[user.Username] = *user
+	// user.ID = r.nextID
+	r.storage[user.Username] = user
 	return user.ID, nil
 }
 

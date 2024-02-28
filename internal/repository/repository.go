@@ -3,7 +3,7 @@ package repository
 import "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 
 type Users interface {
-	CreateUser(user *models.User) (uint, error)
+	CreateUser(user models.User) (uint, error)
 	GetUser(login string) (models.User, error)
 }
 
