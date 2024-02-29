@@ -41,7 +41,7 @@ func TestParsingJson(t *testing.T) {
 	for i := 0; i < len(cases); i++ {
 		w := httptest.NewRecorder()
 
-		if cases[i].StatusCode/100 == 2 {
+		if cases[i].StatusCode == 200 {
 			jsonTest, _ := json.Marshal(cases[i].Message)
 			expect = fmt.Sprintf(`{"status":%d,"data":%v}`, cases[i].StatusCode, string(jsonTest))
 		} else {
