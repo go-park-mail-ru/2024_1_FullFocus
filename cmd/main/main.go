@@ -25,8 +25,7 @@ func run() {
 	})
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"},
-		AllowCredentials: true,
+		AllowedOrigins: []string{"*"},
 	})
 
 	handler := c.Handler(r)
