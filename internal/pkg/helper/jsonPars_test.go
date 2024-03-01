@@ -2,7 +2,6 @@ package helper
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http/httptest"
 	"testing"
 )
@@ -43,7 +42,6 @@ func TestParsingJson(t *testing.T) {
 		if w.Body.String() != string(expect) {
 			t.Errorf("%v != %v", string(expect), w.Body.String())
 		}
-		fmt.Println(string(expect))
 	}
 }
 
