@@ -51,18 +51,22 @@ func (h *ProductsHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	if ok {
 		intLim, err := strconv.Atoi(qlim[0])
 		if err == nil && intLim > 0 && intLim < 20 {
-			lastID = intLim
+			limit = intLim
 		}
 	}
 	prods, err := h.usecase.GetProducts(lastID, limit)
-	if err != nil {
+	if err == models.ErrNoProduct {
+		helper.JSONResponse(w, 200, models.ErrResponse{
+			Status: 404,
+			Msg:    "not found",
+			MsgRus: "по данному запросу товары не найдены"})
 		return
 	}
 	err = helper.JSONResponse(w, 200, models.SuccessResponse{
 		Status: 200,
 		Data:   prods,
 	})
-	// TODO
+	// ?
 	if err != nil {
 		_ = err
 	}
