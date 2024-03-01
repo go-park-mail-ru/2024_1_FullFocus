@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"sync"
 
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/google/uuid"
 )
 
@@ -24,6 +24,16 @@ func (r *SessionRepo) CreateSession(userID uint) string {
 	r.sessions[sID] = userID
 	r.Unlock()
 	return sID
+}
+
+func (r *SessionRepo) GetUserIDBySessionID(sID string) (uint, error) {
+	r.Lock()
+	defer r.Unlock()
+	uID, ok := r.sessions[sID]
+	if !ok {
+		return 0, models.ErrNoSession
+	}
+	return uID, nil
 }
 
 func (r *SessionRepo) SessionExists(sID string) bool {
