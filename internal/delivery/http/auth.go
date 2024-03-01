@@ -34,7 +34,7 @@ func (h *AuthHandler) InitRouter(r *mux.Router) {
 	{
 		h.router.Handle("/login", http.HandlerFunc(h.Login)).Methods("GET", "POST", "OPTIONS")
 		h.router.Handle("/signup", http.HandlerFunc(h.Signup)).Methods("GET", "POST", "OPTIONS")
-		h.router.Handle("/logout", http.HandlerFunc(h.Logout)).Methods("GET", "OPTIONS")
+		h.router.Handle("/logout", http.HandlerFunc(h.Logout)).Methods("POST", "OPTIONS")
 	}
 }
 
