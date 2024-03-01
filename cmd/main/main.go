@@ -1,7 +1,6 @@
 package main
 
 import (
-	middleware "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/cors"
 	"log"
 	"net/http"
 	"os"
@@ -10,6 +9,7 @@ import (
 	"time"
 
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
+	middleware "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/cors"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 	"github.com/gorilla/mux"
