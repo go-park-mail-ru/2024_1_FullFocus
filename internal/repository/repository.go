@@ -12,3 +12,7 @@ type Sessions interface {
 	SessionExists(sID string) bool
 	DeleteSession(sID string) error
 }
+
+type Products interface {
+	GetProducts(lastID, limit int) ([]models.Product, error)
+}
