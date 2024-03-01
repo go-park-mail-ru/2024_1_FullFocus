@@ -42,7 +42,7 @@ func (r *ProductRepo) GetProducts(lastID, limit int) ([]models.Product, error) {
 	r.Lock()
 	defer r.Unlock()
 	prods := make([]models.Product, 0, limit)
-	for i := lastID; i < len(r.products) && i < lastID+limit; i++ {
+	for i := lastID - 1; i < len(r.products) && i < lastID+limit-1; i++ {
 		prods = append(prods, r.products[i])
 	}
 	if count := len(prods); count == 0 {
