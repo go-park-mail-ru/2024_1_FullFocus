@@ -9,6 +9,10 @@ import (
 	"github.com/pkg/errors"
 )
 
+type UserKey string
+
+const ContextUserKey UserKey = "user_id"
+
 func NewAuthMiddleware(uc usecase.Auth) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -18,7 +22,7 @@ func NewAuthMiddleware(uc usecase.Auth) mux.MiddlewareFunc {
 				return
 			}
 			userID, err := uc.GetUserIDBySessionID(sessionID.Value)
-			ctx := context.WithValue(context.Background(), "user_id", userID)
+			ctx := context.WithValue(context.Background(), ContextUserKey, userID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
