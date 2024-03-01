@@ -1,9 +1,10 @@
 package middleware
 
 import (
-	"github.com/gorilla/mux"
 	"net/http"
 	"slices"
+
+	"github.com/gorilla/mux"
 )
 
 func CORSMiddleware(allowedHosts []string) mux.MiddlewareFunc {
