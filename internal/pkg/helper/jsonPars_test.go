@@ -2,33 +2,23 @@ package helper
 
 import (
 	"encoding/json"
+	model "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"net/http/httptest"
 	"testing"
 )
-
-type SuccessResponse struct {
-	Status int
-	Data   interface{}
-}
-
-type ErrResponse struct {
-	Status int
-	Msg    string
-	MsgRus string
-}
 
 type Test struct {
 	StatusCode int
 	Message    interface{}
 }
 
-func TestParsingJson(t *testing.T) {
+func TestJSONResponse(t *testing.T) {
 	cases := []Test{
-		{200, ErrResponse{404, "not valid data", "Проверь данные"}},
-		{200, ErrResponse{505, "server err", "Сервак лежит"}},
-		{200, ErrResponse{404, "Auth err", "Ошибка, надо перезайти"}},
-		{200, SuccessResponse{200, map[string]string{"abc": "abc", "bcd": "bcd"}}},
-		{400, SuccessResponse{203, map[string]interface{}{"key": "123", "key2": 123}}},
+		{200, model.ErrResponse{Status: 404, Msg: "not valid data", MsgRus: "Проверь данные"}},
+		{200, model.ErrResponse{Status: 505, Msg: "server err", MsgRus: "Сервак лежит"}},
+		{200, model.ErrResponse{Status: 404, Msg: "Auth err", MsgRus: "Ошибка, надо перезайти"}},
+		{200, model.SuccessResponse{Status: 200, Data: map[string]string{"abc": "abc", "bcd": "bcd"}}},
+		{400, model.SuccessResponse{Status: 203, Data: map[string]interface{}{"key": "123", "key2": 123}}},
 	}
 
 	for _, item := range cases {
@@ -45,7 +35,7 @@ func TestParsingJson(t *testing.T) {
 	}
 }
 
-func TestParsingJson2(t *testing.T) {
+func TestJSONResponseErr(t *testing.T) {
 	data := make(map[string]interface{})
 	data["key"] = data
 	statusCode := 200
