@@ -1,6 +1,7 @@
 package main
 
 import (
+	middleware "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/cors"
 	"log"
 	"net/http"
 	"os"
@@ -12,7 +13,6 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 	"github.com/gorilla/mux"
-	"github.com/rs/cors"
 )
 
 func run() {
@@ -24,17 +24,13 @@ func run() {
 		http.Error(w, `Not found`, 404)
 	})
 
-	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"*"},
-	})
-
-	handler := c.Handler(r)
+	r.Use(middleware.CORSMiddleware([]string{}))
 
 	// Server init
 
 	srv := &http.Server{
 		Addr:              ":8080",
-		Handler:           handler,
+		Handler:           r,
 		ReadTimeout:       1 * time.Second,
 		WriteTimeout:      1 * time.Second,
 		IdleTimeout:       30 * time.Second,
