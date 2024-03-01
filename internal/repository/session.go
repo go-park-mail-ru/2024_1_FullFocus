@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"sync"
 
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/google/uuid"
 )
 

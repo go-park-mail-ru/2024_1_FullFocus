@@ -8,10 +8,7 @@ import (
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
-	"github.com/pkg/errors"
 )
-
-var ErrWrongPassword = errors.New("wrong password")
 
 type AuthUsecase struct {
 	userRepo    repository.Users
@@ -31,7 +28,7 @@ func (u *AuthUsecase) Login(login string, password string) (string, error) {
 		return "", err
 	}
 	if password != user.Password {
-		return "", ErrWrongPassword
+		return "", models.ErrWrongPassword
 	}
 	return u.sessionRepo.CreateSession(user.ID), nil
 }
