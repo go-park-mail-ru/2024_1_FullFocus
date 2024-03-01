@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"net/http"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
@@ -22,6 +23,10 @@ func NewAuthMiddleware(uc usecase.Auth) mux.MiddlewareFunc {
 				return
 			}
 			userID, err := uc.GetUserIDBySessionID(sessionID.Value)
+			if errors.Is(err, models.ErrNoSession) {
+				http.Error(w, "no session", http.StatusUnauthorized)
+				return
+			}
 			ctx := context.WithValue(context.Background(), ContextUserKey, userID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
