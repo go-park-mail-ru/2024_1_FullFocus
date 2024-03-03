@@ -20,6 +20,7 @@ func run() {
 	// Router init
 
 	r := mux.NewRouter()
+	apir := r.PathPrefix("/api").Subrouter()
 
 	r.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, `Not found`, 404)
@@ -44,12 +45,12 @@ func run() {
 
 	// Layers init
 	// Auth
-	authr := r.PathPrefix("/api").Subrouter()
+
 	userRepo := repository.NewUserRepo()
 	sessionRepo := repository.NewSessionRepo()
 	authUsecase := usecase.NewAuthUsecase(userRepo, sessionRepo)
 	authHandler := delivery.NewAuthHandler(srv, authUsecase)
-	authHandler.InitRouter(authr)
+	authHandler.InitRouter(apir)
 
 	// Products
 

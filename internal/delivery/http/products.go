@@ -39,7 +39,7 @@ func (h *ProductsHandler) Stop() error {
 }
 
 func (h *ProductsHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
-	var lastID, limit int = 0, 10
+	var lastID, limit int = 1, 10
 	qID, ok := r.URL.Query()["lastid"]
 	if ok {
 		intID, err := strconv.Atoi(qID[0])
