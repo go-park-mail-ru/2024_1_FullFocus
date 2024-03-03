@@ -4,27 +4,72 @@ import (
 	"testing"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
+	mock_repository "github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/mocks"
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 )
 
 func TestNewProductsUsecase(t *testing.T) {
 	t.Run("Check Products Usecase creation", func(t *testing.T) {
-		pu := NewProductsUsecase(repository.NewProductRepo())
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		pu := NewProductsUsecase(mock_repository.NewMockProducts(ctrl))
 		require.NotEmpty(t, pu, "product repo not created")
 	})
 }
 
 func TestGetProducts(t *testing.T) {
-	t.Run("Check single get", func(t *testing.T) {
-		pu := NewProductsUsecase(repository.NewProductRepo())
-		prods, err := pu.GetProducts(14, 1)
-		require.Equal(t, nil, err, "product not found")
-		require.Equal(t, models.Product{PrID: 14, Name: "Конус фишка разметочная из пластика", Price: 275, Category: "Спорт и отдых", Description: "Страна-изготовитель - Россия", Img: "https://ir.ozone.ru/s3/multimedia-u/wc1000/6220554498.jpg"}, prods[0], "product not found")
-	})
-	t.Run("Check big lastid", func(t *testing.T) {
-		pu := NewProductsUsecase(repository.NewProductRepo())
-		_, err := pu.GetProducts(28, 2)
-		require.Equal(t, models.ErrNoProduct, err, "unexpected product found")
-	})
+	testCases := []struct {
+		name           string
+		lastID         int
+		limit          int
+		mockBehavior   func(*mock_repository.MockProducts, int, int)
+		expectedResult []models.Product
+		expectedErr    error
+	}{
+		{
+			name:   "Check single product get",
+			lastID: 1,
+			limit:  1,
+			mockBehavior: func(r *mock_repository.MockProducts, lastID, limit int) {
+				r.EXPECT().GetProducts(lastID, limit).Return([]models.Product{{}}, nil)
+			},
+			expectedResult: []models.Product{{}},
+			expectedErr:    nil,
+		},
+		{
+			name:   "Check several products get",
+			lastID: 1,
+			limit:  3,
+			mockBehavior: func(r *mock_repository.MockProducts, lastID, limit int) {
+				r.EXPECT().GetProducts(lastID, limit).Return([]models.Product{{}, {}, {}}, nil)
+			},
+			expectedResult: []models.Product{{}, {}, {}},
+			expectedErr:    nil,
+		},
+		{
+			name:   "Check no products get",
+			lastID: 1,
+			limit:  0,
+			mockBehavior: func(r *mock_repository.MockProducts, lastID, limit int) {
+				r.EXPECT().GetProducts(lastID, limit).Return(nil, models.ErrNoProduct)
+			},
+			expectedResult: nil,
+			expectedErr:    models.ErrNoProduct,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			mockProductRepo := mock_repository.NewMockProducts(ctrl)
+			testCase.mockBehavior(mockProductRepo, testCase.lastID, testCase.limit)
+			pu := NewProductsUsecase(mockProductRepo)
+			prods, err := pu.GetProducts(testCase.lastID, testCase.limit)
+
+			require.Equal(t, testCase.expectedResult, prods)
+			require.Equal(t, testCase.expectedErr, err)
+		})
+	}
 }
