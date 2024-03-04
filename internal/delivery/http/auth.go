@@ -2,12 +2,12 @@ package delivery
 
 import (
 	"context"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-	"github.com/gorilla/mux"
 	"net/http"
 	"time"
 
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
+	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 )
 
