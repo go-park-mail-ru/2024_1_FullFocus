@@ -58,6 +58,10 @@ func (u *AuthUsecase) Signup(login string, password string) (string, string, err
 	return sID, stringUID, nil
 }
 
+func (u *AuthUsecase) GetUserIDBySessionID(sID string) (uint, error) {
+	return u.sessionRepo.GetUserIDBySessionID(sID)
+}
+
 func (u *AuthUsecase) Logout(sID string) error {
 	return u.sessionRepo.DeleteSession(sID)
 }

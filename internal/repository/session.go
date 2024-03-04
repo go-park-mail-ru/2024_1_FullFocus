@@ -26,6 +26,16 @@ func (r *SessionRepo) CreateSession(userID uint) string {
 	return sID
 }
 
+func (r *SessionRepo) GetUserIDBySessionID(sID string) (uint, error) {
+	r.Lock()
+	defer r.Unlock()
+	uID, ok := r.sessions[sID]
+	if !ok {
+		return 0, models.ErrNoSession
+	}
+	return uID, nil
+}
+
 func (r *SessionRepo) SessionExists(sID string) bool {
 	r.Lock()
 	_, ok := r.sessions[sID]

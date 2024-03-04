@@ -9,6 +9,7 @@ type Users interface {
 
 type Sessions interface {
 	CreateSession(userID uint) string
+	GetUserIDBySessionID(sID string) (uint, error)
 	SessionExists(sID string) bool
 	DeleteSession(sID string) error
 }

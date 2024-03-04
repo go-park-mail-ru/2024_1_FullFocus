@@ -10,4 +10,5 @@ var (
 	ErrNoProduct         = errors.New("no product")
 	ErrShortUsername     = errors.New("too short username")
 	ErrWeakPassword      = errors.New("too weak password")
+	ErrNoUserID          = errors.New("no user ID")
 )

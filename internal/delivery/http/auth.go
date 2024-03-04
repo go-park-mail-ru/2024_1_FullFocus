@@ -7,9 +7,8 @@ import (
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
-	"github.com/gorilla/mux"
-
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
+	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 )
 
