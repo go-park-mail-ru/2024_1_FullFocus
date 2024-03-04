@@ -44,8 +44,8 @@ func run() {
 	}
 
 	// Layers init
-	// Auth
 
+	// Auth
 	userRepo := repository.NewUserRepo()
 	sessionRepo := repository.NewSessionRepo()
 	authUsecase := usecase.NewAuthUsecase(userRepo, sessionRepo)
@@ -53,11 +53,10 @@ func run() {
 	authHandler.InitRouter(apir)
 
 	// Products
-
 	productRepo := repository.NewProductRepo()
 	productUsecase := usecase.NewProductsUsecase(productRepo)
 	productHandler := delivery.NewProductsHandler(srv, productUsecase)
-	productHandler.InitRouter(r)
+	productHandler.InitRouter(apir)
 
 	// Run server
 

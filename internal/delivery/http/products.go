@@ -26,7 +26,7 @@ func NewProductsHandler(srv *http.Server, u usecase.Products) *ProductsHandler {
 }
 
 func (h *ProductsHandler) InitRouter(r *mux.Router) {
-	h.router = r
+	h.router = r.PathPrefix("/products").Subrouter()
 	h.router.Handle("/", http.HandlerFunc(h.GetProducts)).Methods("GET", "OPTIONS")
 }
 
