@@ -53,12 +53,21 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 
 	sID, err := h.usecase.Login(login, password)
-	if err != nil {
+	switch err {
+	case models.ErrNoUser:
 		helper.JSONResponse(w, 200, models.ErrResponse{
-			Status: 400,
-			Msg:    "user already exists",
-			MsgRus: "невозможно создать пользователя с таким логином, такой уже существует",
+			Status: 401,
+			Msg:    "wrong login",
+			MsgRus: "логин введен неправильно или учетная запись не существует",
 		})
+		return
+	case models.ErrWrongPassword:
+		helper.JSONResponse(w, 200, models.ErrResponse{
+			Status: 401,
+			Msg:    "wrong password",
+			MsgRus: "введен неверный пароль",
+		})
+		return
 	}
 	cookie := &http.Cookie{
 		Name:     "session_id",
@@ -75,18 +84,11 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 	sID, _, err := h.usecase.Signup(login, password)
 	switch err {
-	case models.ErrNoUser:
+	case models.ErrUserAlreadyExists:
 		helper.JSONResponse(w, 200, models.ErrResponse{
-			Status: 401,
-			Msg:    "wrong login",
-			MsgRus: "логин введен неправильно или учетная запись не существует",
-		})
-		return
-	case models.ErrWrongPassword:
-		helper.JSONResponse(w, 200, models.ErrResponse{
-			Status: 401,
-			Msg:    "wrong password",
-			MsgRus: "введен неверный пароль",
+			Status: 400,
+			Msg:    "user already exists",
+			MsgRus: "невозможно создать пользователя с таким логином, такой уже существует",
 		})
 		return
 	case models.ErrShortUsername:
@@ -115,14 +117,23 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
-	session, err := r.Cookie("session_id")
-	if errors.Is(err, http.ErrNoCookie) {
-		http.Error(w, `no session`, http.StatusUnauthorized)
+	session, errSession := r.Cookie("session_id")
+	if errors.Is(errSession, http.ErrNoCookie) {
+		helper.JSONResponse(w, 200, models.ErrResponse{
+			Status: 401,
+			Msg:    "no session",
+			MsgRus: "авторизация отсутствует",
+		})
 		return
 	}
-	err = h.usecase.Logout(session.Value)
-	if errors.Is(err, models.ErrNoSession) {
-		http.Error(w, `no session`, http.StatusUnauthorized)
+	errUsecase := h.usecase.Logout(session.Value)
+	if errors.Is(errUsecase, models.ErrNoSession) {
+		helper.JSONResponse(w, 200, models.ErrResponse{
+			Status: 401,
+			Msg:    "no session",
+			MsgRus: "авторизация отсутствует",
+		})
+		return
 	}
 	session.Expires = time.Now().AddDate(0, 0, -1)
 	http.SetCookie(w, session)
