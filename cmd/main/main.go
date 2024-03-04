@@ -15,6 +15,13 @@ import (
 	"github.com/rs/cors"
 )
 
+// @Title API Ozon
+// @description Server API Ozon Application
+// @version 1.0
+
+// @host      http://62.233.46.235:8080
+// @BasePath  /api
+
 func run() {
 
 	// Router init

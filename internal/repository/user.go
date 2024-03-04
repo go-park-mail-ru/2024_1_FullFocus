@@ -18,12 +18,23 @@ type UserRepo struct {
 	storage map[string]models.User
 }
 
+// User godoc
+// @Tags User
+// @Summary Make new user rep
+// @Success 200 {object} map[string]models.User
+// @Router /NewUserRepo [post]
 func NewUserRepo() *UserRepo {
 	return &UserRepo{
 		storage: make(map[string]models.User),
 	}
 }
 
+// User godoc
+// @Tags User
+// @Summary Make new user
+// @Success 200 {object} int
+// @Failure 400 {object} error
+// @Router /CreateUser [post]
 func (r *UserRepo) CreateUser(user models.User) (uint, error) {
 	r.Lock()
 	defer r.Unlock()
@@ -36,6 +47,12 @@ func (r *UserRepo) CreateUser(user models.User) (uint, error) {
 	return user.ID, nil
 }
 
+// User godoc
+// @Tags User
+// @Summary Get user by name
+// @Success 200 {object} models.User
+// @Failure 400 {object} error
+// @Router /GetUser [post]
 func (r *UserRepo) GetUser(username string) (models.User, error) {
 	r.Lock()
 	user, ok := r.storage[username]

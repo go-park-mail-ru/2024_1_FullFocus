@@ -1,0 +1,646 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Server API Ozon Application",
+        "title": "API Ozon",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "http://62.233.46.235:8080",
+    "basePath": "/api",
+    "paths": {
+        "/CreateSession": {
+            "post": {
+                "tags": [
+                    "Session"
+                ],
+                "summary": "Make new session",
+                "parameters": [
+                    {
+                        "description": "UserID",
+                        "name": "userID",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/CreateUser": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Make new user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/DeleteSession": {
+            "post": {
+                "tags": [
+                    "Session"
+                ],
+                "summary": "Delete session",
+                "parameters": [
+                    {
+                        "description": "sID",
+                        "name": "sID",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/GetUser": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get user by name",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/LoginFunc": {
+            "post": {
+                "tags": [
+                    "AuthFunc"
+                ],
+                "summary": "Make new session",
+                "parameters": [
+                    {
+                        "description": "Status code",
+                        "name": "login",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "Status code",
+                        "name": "password",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/NewAuthUsecase": {
+            "post": {
+                "tags": [
+                    "AuthFunc"
+                ],
+                "summary": "Make new auth rep",
+                "parameters": [
+                    {
+                        "description": "UserID",
+                        "name": "repUsers",
+                        "in": "body",
+                        "required": true,
+                        "schema": {}
+                    },
+                    {
+                        "description": "UserID",
+                        "name": "repSessions",
+                        "in": "body",
+                        "required": true,
+                        "schema": {}
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "new AuthUsecase",
+                        "schema": {
+                            "$ref": "#/definitions/usecase.AuthUsecase"
+                        }
+                    }
+                }
+            }
+        },
+        "/NewSessionRepo": {
+            "post": {
+                "tags": [
+                    "Session"
+                ],
+                "summary": "Make new session Rep",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/NewUserRepo": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Make new user rep",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "$ref": "#/definitions/models.User"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/SessionExists": {
+            "post": {
+                "tags": [
+                    "Session"
+                ],
+                "summary": "Checking for a created session",
+                "parameters": [
+                    {
+                        "description": "sID",
+                        "name": "sID",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                }
+            }
+        },
+        "/SignupFunc": {
+            "post": {
+                "tags": [
+                    "AuthFunc"
+                ],
+                "summary": "Make new user and his first session",
+                "parameters": [
+                    {
+                        "description": "Status code",
+                        "name": "login",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "Status code",
+                        "name": "password",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    }
+                }
+            }
+        },
+        "/auth": {
+            "get": {
+                "description": "init new router",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Init router",
+                "parameters": [
+                    {
+                        "description": "*mux.Router",
+                        "name": "r",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/auth/login": {
+            "get": {
+                "description": "let login",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login",
+                "parameters": [
+                    {
+                        "description": "ResponseWriter",
+                        "name": "w",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    {
+                        "description": "Request",
+                        "name": "r",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {}
+            },
+            "post": {
+                "description": "let login",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login",
+                "parameters": [
+                    {
+                        "description": "ResponseWriter",
+                        "name": "w",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    {
+                        "description": "Request",
+                        "name": "r",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {}
+            },
+            "options": {
+                "description": "let login",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login",
+                "parameters": [
+                    {
+                        "description": "ResponseWriter",
+                        "name": "w",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    {
+                        "description": "Request",
+                        "name": "r",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "description": "let logout",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout",
+                "parameters": [
+                    {
+                        "description": "ResponseWriter",
+                        "name": "w",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    {
+                        "description": "Request",
+                        "name": "r",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {}
+            },
+            "options": {
+                "description": "let logout",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout",
+                "parameters": [
+                    {
+                        "description": "ResponseWriter",
+                        "name": "w",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    {
+                        "description": "Request",
+                        "name": "r",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/auth/signup": {
+            "get": {
+                "description": "let signup",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Signup",
+                "parameters": [
+                    {
+                        "description": "ResponseWriter",
+                        "name": "w",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    {
+                        "description": "Request",
+                        "name": "r",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {}
+            },
+            "post": {
+                "description": "let signup",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Signup",
+                "parameters": [
+                    {
+                        "description": "ResponseWriter",
+                        "name": "w",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    {
+                        "description": "Request",
+                        "name": "r",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/auth/singnup": {
+            "options": {
+                "description": "let signup",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Signup",
+                "parameters": [
+                    {
+                        "description": "ResponseWriter",
+                        "name": "w",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    {
+                        "description": "Request",
+                        "name": "r",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/json": {
+            "put": {
+                "description": "Parses response value to JSON and writes in ResponseWriter.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Json"
+                ],
+                "summary": "Make JSON response",
+                "parameters": [
+                    {
+                        "description": "ResponseWriter",
+                        "name": "w",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    {
+                        "description": "Status code",
+                        "name": "statusCode",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "description": "Response message",
+                        "name": "message",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.ErrResponse": {
+            "type": "object",
+            "properties": {
+                "msg": {
+                    "type": "string"
+                },
+                "msgRus": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "usecase.AuthUsecase": {
+            "type": "object"
+        }
+    }
+}

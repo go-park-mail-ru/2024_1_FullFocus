@@ -12,12 +12,23 @@ type SessionRepo struct {
 	sessions map[string]uint
 }
 
+// Session godoc
+// @Tags Session
+// @Summary Make new session Rep
+// @Success 200 {object} map[string]uint
+// @Router /NewSessionRepo [post]
 func NewSessionRepo() *SessionRepo {
 	return &SessionRepo{
 		sessions: make(map[string]uint, 10),
 	}
 }
 
+// Session godoc
+// @Tags Session
+// @Summary Make new session
+// @Param userID body uint true "UserID"
+// @Success 200 {object} string
+// @Router /CreateSession [post]
 func (r *SessionRepo) CreateSession(userID uint) string {
 	sID := uuid.New().String()
 	r.Lock()
@@ -26,6 +37,12 @@ func (r *SessionRepo) CreateSession(userID uint) string {
 	return sID
 }
 
+// Session godoc
+// @Tags Session
+// @Summary Checking for a created session
+// @Param sID body string true "sID"
+// @Success 200 {object} bool
+// @Router /SessionExists [post]
 func (r *SessionRepo) SessionExists(sID string) bool {
 	r.Lock()
 	_, ok := r.sessions[sID]
@@ -33,6 +50,12 @@ func (r *SessionRepo) SessionExists(sID string) bool {
 	return ok
 }
 
+// Session godoc
+// @Tags Session
+// @Summary Delete session
+// @Param sID body string true "sID"
+// @Success 200
+// @Router /DeleteSession [post]
 func (r *SessionRepo) DeleteSession(sID string) error {
 	r.Lock()
 	defer r.Unlock()

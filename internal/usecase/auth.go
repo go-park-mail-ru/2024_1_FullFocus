@@ -18,6 +18,13 @@ type AuthUsecase struct {
 	sessionRepo repository.Sessions
 }
 
+// Auth godoc
+// @Tags AuthFunc
+// @Summary Make new auth rep
+// @Param repUsers body repository.Users true "UserID"
+// @Param repSessions body repository.Sessions true "UserID"
+// @Success 200 {object} AuthUsecase "new AuthUsecase"
+// @Router /NewAuthUsecase [post]
 func NewAuthUsecase(ur repository.Users, sr repository.Sessions) *AuthUsecase {
 	return &AuthUsecase{
 		userRepo:    ur,
@@ -25,6 +32,14 @@ func NewAuthUsecase(ur repository.Users, sr repository.Sessions) *AuthUsecase {
 	}
 }
 
+// Auth godoc
+// @Tags AuthFunc
+// @Summary Make new session
+// @Success 200 {object} string
+// @Success 400 {object} error
+// @Param login body string true "Status code"
+// @Param password body string true "Status code"
+// @Router /LoginFunc [post]
 func (u *AuthUsecase) Login(login string, password string) (string, error) {
 	user, err := u.userRepo.GetUser(login)
 	if err != nil {
@@ -36,6 +51,14 @@ func (u *AuthUsecase) Login(login string, password string) (string, error) {
 	return u.sessionRepo.CreateSession(user.ID), nil
 }
 
+// Auth godoc
+// @Tags AuthFunc
+// @Summary Make new user and his first session
+// @Success 200 {object} []string
+// @Success 400 {object} error
+// @Param login body string true "Status code"
+// @Param password body string true "Status code"
+// @Router /SignupFunc [post]
 func (u *AuthUsecase) Signup(login string, password string) (string, string, error) {
 	user := models.User{
 		Username: login,

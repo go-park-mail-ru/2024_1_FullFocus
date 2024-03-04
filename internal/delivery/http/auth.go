@@ -29,6 +29,12 @@ func NewAuthHandler(s *http.Server, uc usecase.Auth) *AuthHandler {
 	}
 }
 
+// Auth godoc
+// @Tags Auth
+// @Summary Init router
+// @Description init new router
+// @Param r body object true "*mux.Router"
+// @Router /auth [get]
 func (h *AuthHandler) InitRouter(r *mux.Router) {
 	h.router = r.PathPrefix("/auth").Subrouter()
 	{
@@ -38,14 +44,29 @@ func (h *AuthHandler) InitRouter(r *mux.Router) {
 	}
 }
 
+// Auth godoc
+// @Tags Auth
+// @Summary Run server
 func (h *AuthHandler) Run() error {
 	return h.srv.ListenAndServe()
 }
 
+// Auth godoc
+// @Tags Auth
+// @Summary Stop server
 func (h *AuthHandler) Stop() error {
 	return h.srv.Shutdown(context.Background())
 }
 
+// Auth godoc
+// @Tags Auth
+// @Summary Login
+// @Description let login
+// @Param w body object true "ResponseWriter"
+// @Param r body object true "Request"
+// @Router /auth/login [post]
+// @Router /auth/login [get]
+// @Router /auth/login [options]
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	login := r.FormValue("login")
 	password := r.FormValue("password")
@@ -64,6 +85,15 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, cookie)
 }
 
+// Auth godoc
+// @Tags Auth
+// @Summary Signup
+// @Description let signup
+// @Param w body object true "ResponseWriter"
+// @Param r body object true "Request"
+// @Router /auth/signup [post]
+// @Router /auth/signup [get]
+// @Router /auth/singnup [options]
 func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	login := r.FormValue("login")
 	password := r.FormValue("password")
@@ -83,6 +113,14 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, cookie)
 }
 
+// Auth godoc
+// @Tags Auth
+// @Summary Logout
+// @Description let logout
+// @Param w body object true "ResponseWriter"
+// @Param r body object true "Request"
+// @Router /auth/logout [post]
+// @Router /auth/logout [options]
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	session, err := r.Cookie("session_id")
 	if errors.Is(err, http.ErrNoCookie) {

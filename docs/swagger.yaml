@@ -1,0 +1,424 @@
+basePath: /api
+definitions:
+  models.ErrResponse:
+    properties:
+      msg:
+        type: string
+      msgRus:
+        type: string
+      status:
+        type: integer
+    type: object
+  models.SuccessResponse:
+    properties:
+      data: {}
+      status:
+        type: integer
+    type: object
+  models.User:
+    properties:
+      id:
+        type: integer
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  usecase.AuthUsecase:
+    type: object
+host: http://62.233.46.235:8080
+info:
+  contact: {}
+  description: Server API Ozon Application
+  title: API Ozon
+  version: "1.0"
+paths:
+  /CreateSession:
+    post:
+      parameters:
+      - description: UserID
+        in: body
+        name: userID
+        required: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Make new session
+      tags:
+      - Session
+  /CreateUser:
+    post:
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema: {}
+      summary: Make new user
+      tags:
+      - User
+  /DeleteSession:
+    post:
+      parameters:
+      - description: sID
+        in: body
+        name: sID
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+      summary: Delete session
+      tags:
+      - Session
+  /GetUser:
+    post:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema: {}
+      summary: Get user by name
+      tags:
+      - User
+  /LoginFunc:
+    post:
+      parameters:
+      - description: Status code
+        in: body
+        name: login
+        required: true
+        schema:
+          type: string
+      - description: Status code
+        in: body
+        name: password
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema: {}
+      summary: Make new session
+      tags:
+      - AuthFunc
+  /NewAuthUsecase:
+    post:
+      parameters:
+      - description: UserID
+        in: body
+        name: repUsers
+        required: true
+        schema: {}
+      - description: UserID
+        in: body
+        name: repSessions
+        required: true
+        schema: {}
+      responses:
+        "200":
+          description: new AuthUsecase
+          schema:
+            $ref: '#/definitions/usecase.AuthUsecase'
+      summary: Make new auth rep
+      tags:
+      - AuthFunc
+  /NewSessionRepo:
+    post:
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+      summary: Make new session Rep
+      tags:
+      - Session
+  /NewUserRepo:
+    post:
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              $ref: '#/definitions/models.User'
+            type: object
+      summary: Make new user rep
+      tags:
+      - User
+  /SessionExists:
+    post:
+      parameters:
+      - description: sID
+        in: body
+        name: sID
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+      summary: Checking for a created session
+      tags:
+      - Session
+  /SignupFunc:
+    post:
+      parameters:
+      - description: Status code
+        in: body
+        name: login
+        required: true
+        schema:
+          type: string
+      - description: Status code
+        in: body
+        name: password
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "400":
+          description: Bad Request
+          schema: {}
+      summary: Make new user and his first session
+      tags:
+      - AuthFunc
+  /auth:
+    get:
+      description: init new router
+      parameters:
+      - description: '*mux.Router'
+        in: body
+        name: r
+        required: true
+        schema:
+          type: object
+      responses: {}
+      summary: Init router
+      tags:
+      - Auth
+  /auth/login:
+    get:
+      description: let login
+      parameters:
+      - description: ResponseWriter
+        in: body
+        name: w
+        required: true
+        schema:
+          type: object
+      - description: Request
+        in: body
+        name: r
+        required: true
+        schema:
+          type: object
+      responses: {}
+      summary: Login
+      tags:
+      - Auth
+    options:
+      description: let login
+      parameters:
+      - description: ResponseWriter
+        in: body
+        name: w
+        required: true
+        schema:
+          type: object
+      - description: Request
+        in: body
+        name: r
+        required: true
+        schema:
+          type: object
+      responses: {}
+      summary: Login
+      tags:
+      - Auth
+    post:
+      description: let login
+      parameters:
+      - description: ResponseWriter
+        in: body
+        name: w
+        required: true
+        schema:
+          type: object
+      - description: Request
+        in: body
+        name: r
+        required: true
+        schema:
+          type: object
+      responses: {}
+      summary: Login
+      tags:
+      - Auth
+  /auth/logout:
+    options:
+      description: let logout
+      parameters:
+      - description: ResponseWriter
+        in: body
+        name: w
+        required: true
+        schema:
+          type: object
+      - description: Request
+        in: body
+        name: r
+        required: true
+        schema:
+          type: object
+      responses: {}
+      summary: Logout
+      tags:
+      - Auth
+    post:
+      description: let logout
+      parameters:
+      - description: ResponseWriter
+        in: body
+        name: w
+        required: true
+        schema:
+          type: object
+      - description: Request
+        in: body
+        name: r
+        required: true
+        schema:
+          type: object
+      responses: {}
+      summary: Logout
+      tags:
+      - Auth
+  /auth/signup:
+    get:
+      description: let signup
+      parameters:
+      - description: ResponseWriter
+        in: body
+        name: w
+        required: true
+        schema:
+          type: object
+      - description: Request
+        in: body
+        name: r
+        required: true
+        schema:
+          type: object
+      responses: {}
+      summary: Signup
+      tags:
+      - Auth
+    post:
+      description: let signup
+      parameters:
+      - description: ResponseWriter
+        in: body
+        name: w
+        required: true
+        schema:
+          type: object
+      - description: Request
+        in: body
+        name: r
+        required: true
+        schema:
+          type: object
+      responses: {}
+      summary: Signup
+      tags:
+      - Auth
+  /auth/singnup:
+    options:
+      description: let signup
+      parameters:
+      - description: ResponseWriter
+        in: body
+        name: w
+        required: true
+        schema:
+          type: object
+      - description: Request
+        in: body
+        name: r
+        required: true
+        schema:
+          type: object
+      responses: {}
+      summary: Signup
+      tags:
+      - Auth
+  /json:
+    put:
+      description: Parses response value to JSON and writes in ResponseWriter.
+      parameters:
+      - description: ResponseWriter
+        in: body
+        name: w
+        required: true
+        schema:
+          type: object
+      - description: Status code
+        in: body
+        name: statusCode
+        required: true
+        schema:
+          type: integer
+      - description: Response message
+        in: body
+        name: message
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrResponse'
+      summary: Make JSON response
+      tags:
+      - Json
+swagger: "2.0"
