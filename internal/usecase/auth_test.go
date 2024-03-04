@@ -20,7 +20,7 @@ func TestNewAuthUsecase(t *testing.T) {
 	})
 }
 
-func TestSignup(t *testing.T) {
+func TestSignUp(t *testing.T) {
 	log.SetOutput(io.Discard)
 
 	testCases := []struct {
@@ -31,32 +31,53 @@ func TestSignup(t *testing.T) {
 		sessionMockBehavior func(*mock_repository.MockSessions, uint)
 		expectedSID         string
 		expectedErr         error
+		callUserMock        bool
+		callSessionMock     bool
 	}{
 		{
 			name:     "Check valid user signup",
-			login:    "test",
-			password: "test",
+			login:    "test123",
+			password: "Qa5yAbrLhkwT4Y9u",
 			userMockBehavior: func(r *mock_repository.MockUsers, user models.User) {
 				r.EXPECT().CreateUser(user).Return(uint(0), nil)
 			},
 			sessionMockBehavior: func(r *mock_repository.MockSessions, userID uint) {
 				r.EXPECT().CreateSession(userID).Return("123")
 			},
-			expectedSID: "123",
-			expectedErr: nil,
+			expectedSID:     "123",
+			expectedErr:     nil,
+			callUserMock:    true,
+			callSessionMock: true,
 		},
 		{
 			name:     "Check duplicate user signup",
-			login:    "test",
-			password: "test",
+			login:    "test123",
+			password: "Qa5yAbrLhkwT4Y9u",
 			userMockBehavior: func(r *mock_repository.MockUsers, user models.User) {
 				r.EXPECT().CreateUser(user).Return(uint(0), models.ErrUserAlreadyExists)
 			},
-			sessionMockBehavior: func(r *mock_repository.MockSessions, userID uint) {
-				r.EXPECT().CreateSession(userID).Return("")
-			},
-			expectedSID: "",
-			expectedErr: models.ErrUserAlreadyExists,
+			expectedSID:     "",
+			expectedErr:     models.ErrUserAlreadyExists,
+			callUserMock:    true,
+			callSessionMock: false,
+		},
+		{
+			name:            "Check short username signup",
+			login:           "t",
+			password:        "test",
+			expectedSID:     "",
+			expectedErr:     models.ErrShortUsername,
+			callUserMock:    false,
+			callSessionMock: false,
+		},
+		{
+			name:            "Check weak password signup",
+			login:           "test123",
+			password:        "12345",
+			expectedSID:     "",
+			expectedErr:     models.ErrWeakPassword,
+			callUserMock:    false,
+			callSessionMock: false,
 		},
 	}
 
@@ -71,9 +92,11 @@ func TestSignup(t *testing.T) {
 				Username: testCase.login,
 				Password: testCase.password,
 			}
-			testCase.userMockBehavior(mockUserRepo, testUser)
-			if testCase.expectedErr == nil {
-				testCase.sessionMockBehavior(mockSessionRepo, testUser.ID)
+			if testCase.callUserMock {
+				testCase.userMockBehavior(mockUserRepo, testUser)
+				if testCase.callSessionMock {
+					testCase.sessionMockBehavior(mockSessionRepo, testUser.ID)
+				}
 			}
 			au := NewAuthUsecase(mockUserRepo, mockSessionRepo)
 			sID, _, err := au.Signup(testCase.login, testCase.password)
@@ -92,6 +115,8 @@ func TestLogin(t *testing.T) {
 		sessionMockBehavior func(*mock_repository.MockSessions, uint)
 		expectedSID         string
 		expectedErr         error
+		callUserMock        bool
+		callSessionMock     bool
 	}{
 		{
 			name:     "Check valid user login",
@@ -103,8 +128,10 @@ func TestLogin(t *testing.T) {
 			sessionMockBehavior: func(r *mock_repository.MockSessions, userID uint) {
 				r.EXPECT().CreateSession(userID).Return("123")
 			},
-			expectedSID: "123",
-			expectedErr: nil,
+			expectedSID:     "123",
+			expectedErr:     nil,
+			callUserMock:    true,
+			callSessionMock: true,
 		},
 		{
 			name:     "Check invalid user login",
@@ -113,11 +140,10 @@ func TestLogin(t *testing.T) {
 			userMockBehavior: func(r *mock_repository.MockUsers, username string) {
 				r.EXPECT().GetUser(username).Return(models.User{}, models.ErrNoUser)
 			},
-			sessionMockBehavior: func(r *mock_repository.MockSessions, userID uint) {
-				r.EXPECT().CreateSession(userID).Return("")
-			},
-			expectedSID: "",
-			expectedErr: models.ErrNoUser,
+			expectedSID:     "",
+			expectedErr:     models.ErrNoUser,
+			callUserMock:    true,
+			callSessionMock: false,
 		},
 		{
 			name:     "Check wrong password login",
@@ -126,11 +152,10 @@ func TestLogin(t *testing.T) {
 			userMockBehavior: func(r *mock_repository.MockUsers, username string) {
 				r.EXPECT().GetUser(username).Return(models.User{ID: 0, Username: "test", Password: "test"}, nil)
 			},
-			sessionMockBehavior: func(r *mock_repository.MockSessions, userID uint) {
-				r.EXPECT().CreateSession(userID).Return("")
-			},
-			expectedSID: "",
-			expectedErr: models.ErrWrongPassword,
+			expectedSID:     "",
+			expectedErr:     models.ErrWrongPassword,
+			callUserMock:    true,
+			callSessionMock: false,
 		},
 	}
 
@@ -145,9 +170,11 @@ func TestLogin(t *testing.T) {
 				Username: testCase.login,
 				Password: testCase.password,
 			}
-			testCase.userMockBehavior(mockUserRepo, testUser.Username)
-			if testCase.expectedErr == nil {
-				testCase.sessionMockBehavior(mockSessionRepo, testUser.ID)
+			if testCase.callUserMock {
+				testCase.userMockBehavior(mockUserRepo, testUser.Username)
+				if testCase.callSessionMock {
+					testCase.sessionMockBehavior(mockSessionRepo, testUser.ID)
+				}
 			}
 			au := NewAuthUsecase(mockUserRepo, mockSessionRepo)
 			sID, err := au.Login(testCase.login, testCase.password)

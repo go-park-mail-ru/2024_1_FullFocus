@@ -67,7 +67,6 @@ func TestGetProducts(t *testing.T) {
 			testCase.mockBehavior(mockProductRepo, testCase.lastID, testCase.limit)
 			pu := NewProductsUsecase(mockProductRepo)
 			prods, err := pu.GetProducts(testCase.lastID, testCase.limit)
-
 			require.Equal(t, testCase.expectedResult, prods)
 			require.Equal(t, testCase.expectedErr, err)
 		})
