@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
+	passwordvalidator "github.com/wagslane/go-password-validator"
 )
 
 type AuthUsecase struct {
@@ -34,6 +35,13 @@ func (u *AuthUsecase) Login(login string, password string) (string, error) {
 }
 
 func (u *AuthUsecase) Signup(login string, password string) (string, string, error) {
+	const passwordStrength = 50
+	switch {
+	case len(login) < 5:
+		return "", "", models.ErrShortUsername
+	case passwordvalidator.Validate(password, passwordStrength) != nil:
+		return "", "", models.ErrWeakPassword
+	}
 	user := models.User{
 		Username: login,
 		Password: password,

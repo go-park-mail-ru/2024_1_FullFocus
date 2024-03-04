@@ -2,10 +2,12 @@ package delivery
 
 import (
 	"context"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-	"github.com/gorilla/mux"
 	"net/http"
 	"time"
+
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
+	"github.com/gorilla/mux"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 	"github.com/pkg/errors"
@@ -52,7 +54,11 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	sID, err := h.usecase.Login(login, password)
 	if err != nil {
-		http.Error(w, err.Error(), 400)
+		helper.JSONResponse(w, 200, models.ErrResponse{
+			Status: 400,
+			Msg:    "user already exists",
+			MsgRus: "невозможно создать пользователя с таким логином, такой уже существует",
+		})
 	}
 	cookie := &http.Cookie{
 		Name:     "session_id",
@@ -67,10 +73,35 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	login := r.FormValue("login")
 	password := r.FormValue("password")
-
 	sID, _, err := h.usecase.Signup(login, password)
-	if err != nil {
-		http.Error(w, err.Error(), 400)
+	switch err {
+	case models.ErrNoUser:
+		helper.JSONResponse(w, 200, models.ErrResponse{
+			Status: 401,
+			Msg:    "wrong login",
+			MsgRus: "логин введен неправильно или учетная запись не существует",
+		})
+		return
+	case models.ErrWrongPassword:
+		helper.JSONResponse(w, 200, models.ErrResponse{
+			Status: 401,
+			Msg:    "wrong password",
+			MsgRus: "введен неверный пароль",
+		})
+		return
+	case models.ErrShortUsername:
+		helper.JSONResponse(w, 200, models.ErrResponse{
+			Status: 400,
+			Msg:    "too short username",
+			MsgRus: "логин должен содержать больше 5 символов",
+		})
+		return
+	case models.ErrWeakPassword:
+		helper.JSONResponse(w, 200, models.ErrResponse{
+			Status: 400,
+			Msg:    "too weak password",
+			MsgRus: "пароль слишком простой",
+		})
 		return
 	}
 	cookie := &http.Cookie{
