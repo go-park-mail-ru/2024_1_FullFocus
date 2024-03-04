@@ -115,6 +115,21 @@ func (mr *MockSessionsMockRecorder) DeleteSession(sID interface{}) *gomock.Call 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSession", reflect.TypeOf((*MockSessions)(nil).DeleteSession), sID)
 }
 
+// GetUserIDBySessionID mocks base method.
+func (m *MockSessions) GetUserIDBySessionID(sID string) (uint, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserIDBySessionID", sID)
+	ret0, _ := ret[0].(uint)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserIDBySessionID indicates an expected call of GetUserIDBySessionID.
+func (mr *MockSessionsMockRecorder) GetUserIDBySessionID(sID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserIDBySessionID", reflect.TypeOf((*MockSessions)(nil).GetUserIDBySessionID), sID)
+}
+
 // SessionExists mocks base method.
 func (m *MockSessions) SessionExists(sID string) bool {
 	m.ctrl.T.Helper()

@@ -34,6 +34,21 @@ func (m *MockAuth) EXPECT() *MockAuthMockRecorder {
 	return m.recorder
 }
 
+// GetUserIDBySessionID mocks base method.
+func (m *MockAuth) GetUserIDBySessionID(sID string) (uint, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserIDBySessionID", sID)
+	ret0, _ := ret[0].(uint)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserIDBySessionID indicates an expected call of GetUserIDBySessionID.
+func (mr *MockAuthMockRecorder) GetUserIDBySessionID(sID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserIDBySessionID", reflect.TypeOf((*MockAuth)(nil).GetUserIDBySessionID), sID)
+}
+
 // IsLoggedIn mocks base method.
 func (m *MockAuth) IsLoggedIn(isID string) bool {
 	m.ctrl.T.Helper()
