@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -53,7 +52,7 @@ func TestSignUp(t *testing.T) {
 				u.EXPECT().Signup(login, password).Return("", "", models.ErrWrongUsername)
 			},
 			expectedStatus: 400,
-			expectedErr:    "invalid username",
+			expectedErr:    "unavailable username",
 			expectedCookie: "",
 		},
 		{
@@ -64,18 +63,18 @@ func TestSignUp(t *testing.T) {
 				u.EXPECT().Signup(login, password).Return("", "", models.ErrWrongUsername)
 			},
 			expectedStatus: 400,
-			expectedErr:    "invalid username",
+			expectedErr:    "unavailable username",
 			expectedCookie: "",
 		},
 		{
-			name:     "Weak password",
+			name:     "Invalid password",
 			login:    "test",
 			password: "12345",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
 				u.EXPECT().Signup(login, password).Return("", "", models.ErrWeakPassword)
 			},
 			expectedStatus: 400,
-			expectedErr:    "too weak password",
+			expectedErr:    "unavailable password",
 			expectedCookie: "",
 		},
 		{
@@ -117,10 +116,12 @@ func TestSignUp(t *testing.T) {
 				require.Equal(t, testCase.expectedStatus, errResp.Status)
 				require.Equal(t, testCase.expectedErr, errResp.Msg)
 			} else {
-				st, _ := strconv.Atoi(strings.Split(r.Result().Status, " ")[0])
-				require.Equal(t, testCase.expectedStatus, st)
+				var successResp models.SuccessResponse
+				err := json.NewDecoder(r.Body).Decode(&successResp)
+				require.Equal(t, nil, err)
+				require.Equal(t, testCase.expectedStatus, successResp.Status)
 				cookie := r.Result().Cookies()
-				err := cookie[0].Valid()
+				err = cookie[0].Valid()
 				require.Equal(t, nil, err)
 			}
 
@@ -199,10 +200,12 @@ func TestLogin(t *testing.T) {
 				require.Equal(t, testCase.expectedStatus, errResp.Status)
 				require.Equal(t, testCase.expectedErr, errResp.Msg)
 			} else {
-				st, _ := strconv.Atoi(strings.Split(r.Result().Status, " ")[0])
-				require.Equal(t, testCase.expectedStatus, st)
+				var successResp models.SuccessResponse
+				err := json.NewDecoder(r.Body).Decode(&successResp)
+				require.Equal(t, nil, err)
+				require.Equal(t, testCase.expectedStatus, successResp.Status)
 				cookie := r.Result().Cookies()
-				err := cookie[0].Valid()
+				err = cookie[0].Valid()
 				require.Equal(t, nil, err)
 			}
 
@@ -283,8 +286,10 @@ func TestLogout(t *testing.T) {
 				require.Equal(t, testCase.expectedStatus, errResp.Status)
 				require.Equal(t, testCase.expectedErr, errResp.Msg)
 			} else {
-				st, _ := strconv.Atoi(strings.Split(r.Result().Status, " ")[0])
-				require.Equal(t, testCase.expectedStatus, st)
+				var successResp models.SuccessResponse
+				err := json.NewDecoder(r.Body).Decode(&successResp)
+				require.Equal(t, nil, err)
+				require.Equal(t, testCase.expectedStatus, successResp.Status)
 				diff := time.Now().AddDate(0, 0, -1).UTC().Sub(r.Result().Cookies()[0].Expires.UTC()).Seconds()
 				require.Less(t, diff, float64(1))
 			}

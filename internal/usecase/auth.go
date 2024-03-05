@@ -9,7 +9,6 @@ import (
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
-	passwordvalidator "github.com/wagslane/go-password-validator"
 )
 
 type AuthUsecase struct {
@@ -36,18 +35,30 @@ func (u *AuthUsecase) Login(login string, password string) (string, error) {
 }
 
 func (u *AuthUsecase) Signup(login string, password string) (string, string, error) {
-	const passwordStrength = 10
-	switch {
-	case len(login) < 5 || len(login) > 15:
-		return "", "", models.ErrWrongUsername
-	case passwordvalidator.Validate(password, passwordStrength) != nil:
-		return "", "", models.ErrWeakPassword
-	}
+	var validationErr bool
+	// login
 	for _, r := range login {
 		if !unicode.IsLetter(r) && !unicode.IsDigit(r) {
-			return "", "", models.ErrWrongUsername
+			validationErr = true
+			break
 		}
 	}
+	if validationErr || len(login) < 5 || len(login) > 15 {
+		return "", "", models.ErrWrongUsername
+	}
+
+	// password
+	for _, r := range password {
+		if !unicode.IsLetter(r) && !unicode.IsDigit(r) {
+			validationErr = true
+			break
+		}
+	}
+	// TODO качетсвенные универсальные ошибки
+	if validationErr || len(password) < 8 || len(password) > 32 {
+		return "", "", models.ErrWeakPassword
+	}
+
 	user := models.User{
 		Username: login,
 		Password: password,

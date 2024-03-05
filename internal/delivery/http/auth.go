@@ -94,15 +94,16 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	} else if errors.Is(err, models.ErrWrongUsername) {
 		helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 400,
-			Msg:    "invalid username",
-			MsgRus: "логин должен состоять из 5-15 символов английского алфавита или цифр",
+			Msg:    "unavailable username",
+			MsgRus: "имя пользователя должно состоять из 5-15 символов английского алфавита или цифр",
 		})
 		return
 	} else if errors.Is(err, models.ErrWeakPassword) {
+		// TODO убрать weak password
 		helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 400,
-			Msg:    "too weak password",
-			MsgRus: "пароль слишком простой",
+			Msg:    "unavailable password",
+			MsgRus: "пароль должен содержать от 8 до 32 символов английского алфавита или цифр",
 		})
 		return
 	}
