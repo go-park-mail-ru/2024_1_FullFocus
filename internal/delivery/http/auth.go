@@ -56,7 +56,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 401,
 			Msg:    "wrong login",
-			MsgRus: "логин введен неправильно или учетная запись не существует",
+			MsgRus: "пользователь не найден",
 		})
 		return
 	} else if errors.Is(err, models.ErrWrongPassword) {
@@ -88,7 +88,7 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 		helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 400,
 			Msg:    "user already exists",
-			MsgRus: "невозможно создать пользователя с таким логином, такой уже существует",
+			MsgRus: "пользователь уже существует",
 		})
 		return
 	} else if errors.Is(err, models.ErrWrongUsername) {
