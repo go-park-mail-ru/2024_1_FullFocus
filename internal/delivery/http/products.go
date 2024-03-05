@@ -2,6 +2,7 @@ package delivery
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -55,19 +56,15 @@ func (h *ProductsHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	prods, err := h.usecase.GetProducts(lastID, limit)
-	if err == models.ErrNoProduct {
+	if errors.Is(err, models.ErrNoProduct) {
 		helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 404,
 			Msg:    "not found",
 			MsgRus: "по данному запросу товары не найдены"})
 		return
 	}
-	err = helper.JSONResponse(w, 200, models.SuccessResponse{
+	helper.JSONResponse(w, 200, models.SuccessResponse{
 		Status: 200,
 		Data:   prods,
 	})
-	// ?
-	if err != nil {
-		_ = err
-	}
 }

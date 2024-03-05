@@ -52,15 +52,14 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 
 	sID, err := h.usecase.Login(login, password)
-	switch err {
-	case models.ErrNoUser:
+	if errors.Is(err, models.ErrNoUser) {
 		helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 401,
 			Msg:    "wrong login",
 			MsgRus: "логин введен неправильно или учетная запись не существует",
 		})
 		return
-	case models.ErrWrongPassword:
+	} else if errors.Is(err, models.ErrWrongPassword) {
 		helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 401,
 			Msg:    "wrong password",
@@ -76,28 +75,30 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		Expires:  time.Now().Add(SessionTTL),
 	}
 	http.SetCookie(w, cookie)
+	helper.JSONResponse(w, 200, models.SuccessResponse{
+		Status: 200,
+	})
 }
 
 func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	login := r.FormValue("login")
 	password := r.FormValue("password")
 	sID, _, err := h.usecase.Signup(login, password)
-	switch err {
-	case models.ErrUserAlreadyExists:
+	if errors.Is(err, models.ErrUserAlreadyExists) {
 		helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 400,
 			Msg:    "user already exists",
 			MsgRus: "невозможно создать пользователя с таким логином, такой уже существует",
 		})
 		return
-	case models.ErrShortUsername:
+	} else if errors.Is(err, models.ErrShortUsername) {
 		helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 400,
 			Msg:    "too short username",
 			MsgRus: "логин должен содержать больше 5 символов",
 		})
 		return
-	case models.ErrWeakPassword:
+	} else if errors.Is(err, models.ErrWeakPassword) {
 		helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 400,
 			Msg:    "too weak password",
@@ -113,11 +114,14 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 		Expires:  time.Now().Add(SessionTTL),
 	}
 	http.SetCookie(w, cookie)
+	helper.JSONResponse(w, 200, models.SuccessResponse{
+		Status: 200,
+	})
 }
 
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
-	session, errSession := r.Cookie("session_id")
-	if errors.Is(errSession, http.ErrNoCookie) {
+	session, err := r.Cookie("session_id")
+	if errors.Is(err, http.ErrNoCookie) {
 		helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 401,
 			Msg:    "no session",
@@ -125,8 +129,8 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	errUsecase := h.usecase.Logout(session.Value)
-	if errors.Is(errUsecase, models.ErrNoSession) {
+	err = h.usecase.Logout(session.Value)
+	if errors.Is(err, models.ErrNoSession) {
 		helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 401,
 			Msg:    "no session",
@@ -136,4 +140,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	}
 	session.Expires = time.Now().AddDate(0, 0, -1)
 	http.SetCookie(w, session)
+	helper.JSONResponse(w, 200, models.SuccessResponse{
+		Status: 200,
+	})
 }
