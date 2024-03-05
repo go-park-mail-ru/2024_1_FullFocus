@@ -72,6 +72,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		Value:    sID,
 		HttpOnly: true,
 		Expires:  time.Now().Add(SessionTTL),
+		Path:     "/",
 	}
 	http.SetCookie(w, cookie)
 	helper.JSONResponse(w, 200, models.SuccessResponse{
@@ -110,6 +111,7 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 		Value:    sID,
 		HttpOnly: true,
 		Expires:  time.Now().Add(SessionTTL),
+		Path:     "/",
 	}
 	http.SetCookie(w, cookie)
 	helper.JSONResponse(w, 200, models.SuccessResponse{
