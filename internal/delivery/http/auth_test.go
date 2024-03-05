@@ -50,10 +50,10 @@ func TestSignUp(t *testing.T) {
 			login:    "",
 			password: "",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(login, password).Return("", "", models.ErrShortUsername)
+				u.EXPECT().Signup(login, password).Return("", "", models.ErrWrongUsername)
 			},
 			expectedStatus: 400,
-			expectedErr:    "too short username",
+			expectedErr:    "invalid username",
 			expectedCookie: "",
 		},
 		{
@@ -61,10 +61,10 @@ func TestSignUp(t *testing.T) {
 			login:    "test",
 			password: "",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(login, password).Return("", "", models.ErrShortUsername)
+				u.EXPECT().Signup(login, password).Return("", "", models.ErrWrongUsername)
 			},
 			expectedStatus: 400,
-			expectedErr:    "too short username",
+			expectedErr:    "invalid username",
 			expectedCookie: "",
 		},
 		{

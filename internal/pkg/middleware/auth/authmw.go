@@ -2,9 +2,10 @@ package middleware
 
 import (
 	"context"
+	"net/http"
+
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
-	"net/http"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 	"github.com/gorilla/mux"

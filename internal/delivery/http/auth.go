@@ -90,11 +90,11 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 			MsgRus: "невозможно создать пользователя с таким логином, такой уже существует",
 		})
 		return
-	} else if errors.Is(err, models.ErrShortUsername) {
+	} else if errors.Is(err, models.ErrWrongUsername) {
 		helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 400,
-			Msg:    "too short username",
-			MsgRus: "логин должен содержать больше 5 символов",
+			Msg:    "invalid username",
+			MsgRus: "логин должен состоять из 5-15 символов английского алфавита или цифр",
 		})
 		return
 	} else if errors.Is(err, models.ErrWeakPassword) {

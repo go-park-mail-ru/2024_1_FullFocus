@@ -50,6 +50,21 @@ func TestSignUp(t *testing.T) {
 			callSessionMock: true,
 		},
 		{
+			name:     "Check valid user signup",
+			login:    "test123",
+			password: "testtest1",
+			userMockBehavior: func(r *mock_repository.MockUsers, user models.User) {
+				r.EXPECT().CreateUser(user).Return(uint(0), nil)
+			},
+			sessionMockBehavior: func(r *mock_repository.MockSessions, userID uint) {
+				r.EXPECT().CreateSession(userID).Return("123")
+			},
+			expectedSID:     "123",
+			expectedErr:     nil,
+			callUserMock:    true,
+			callSessionMock: true,
+		},
+		{
 			name:     "Check duplicate user signup",
 			login:    "test123",
 			password: "Qa5yAbrLhkwT4Y9u",
@@ -66,7 +81,7 @@ func TestSignUp(t *testing.T) {
 			login:           "t",
 			password:        "test",
 			expectedSID:     "",
-			expectedErr:     models.ErrShortUsername,
+			expectedErr:     models.ErrWrongUsername,
 			callUserMock:    false,
 			callSessionMock: false,
 		},
@@ -76,6 +91,15 @@ func TestSignUp(t *testing.T) {
 			password:        "12345",
 			expectedSID:     "",
 			expectedErr:     models.ErrWeakPassword,
+			callUserMock:    false,
+			callSessionMock: false,
+		},
+		{
+			name:            "Check invalid login signup",
+			login:           "test123!@!@$#@#$%@!#$",
+			password:        "12345",
+			expectedSID:     "",
+			expectedErr:     models.ErrWrongUsername,
 			callUserMock:    false,
 			callSessionMock: false,
 		},

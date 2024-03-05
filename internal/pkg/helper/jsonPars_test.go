@@ -2,9 +2,10 @@ package helper
 
 import (
 	"encoding/json"
-	model "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"net/http/httptest"
 	"testing"
+
+	model "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 )
 
 type Test struct {
