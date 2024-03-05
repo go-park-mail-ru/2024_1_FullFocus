@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"net/http"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
@@ -19,12 +20,20 @@ func NewAuthMiddleware(uc usecase.Auth) mux.MiddlewareFunc {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			sessionID, err := r.Cookie("session_id")
 			if errors.Is(err, http.ErrNoCookie) {
-				http.Error(w, "no session", http.StatusUnauthorized)
+				helper.JSONResponse(w, 200, models.ErrResponse{
+					Status: 401,
+					Msg:    "no session",
+					MsgRus: "авторизация отсутствует",
+				})
 				return
 			}
 			userID, err := uc.GetUserIDBySessionID(sessionID.Value)
 			if errors.Is(err, models.ErrNoSession) {
-				http.Error(w, "no session", http.StatusUnauthorized)
+				helper.JSONResponse(w, 200, models.ErrResponse{
+					Status: 401,
+					Msg:    "no session",
+					MsgRus: "авторизация отсутствует",
+				})
 				return
 			}
 			ctx := context.WithValue(context.Background(), ContextUserKey, userID)
