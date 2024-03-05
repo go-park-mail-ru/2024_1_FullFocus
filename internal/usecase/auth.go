@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"log"
 	"strconv"
+	"unicode"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
@@ -35,12 +36,17 @@ func (u *AuthUsecase) Login(login string, password string) (string, error) {
 }
 
 func (u *AuthUsecase) Signup(login string, password string) (string, string, error) {
-	const passwordStrength = 50
+	const passwordStrength = 10
 	switch {
-	case len(login) < 5:
-		return "", "", models.ErrShortUsername
+	case len(login) < 5 || len(login) > 15:
+		return "", "", models.ErrWrongUsername
 	case passwordvalidator.Validate(password, passwordStrength) != nil:
 		return "", "", models.ErrWeakPassword
+	}
+	for _, r := range login {
+		if !unicode.IsLetter(r) && !unicode.IsDigit(r) {
+			return "", "", models.ErrWrongUsername
+		}
 	}
 	user := models.User{
 		Username: login,
