@@ -10,10 +10,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-type UserKey string
-
-const ContextUserKey UserKey = "user_id"
-
 func NewAuthMiddleware(uc usecase.Auth) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -27,7 +23,7 @@ func NewAuthMiddleware(uc usecase.Auth) mux.MiddlewareFunc {
 				http.Error(w, "no session", http.StatusUnauthorized)
 				return
 			}
-			ctx := context.WithValue(context.Background(), ContextUserKey, userID)
+			ctx := context.WithValue(context.Background(), models.ContextUserKey, userID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
