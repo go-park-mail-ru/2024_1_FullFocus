@@ -22,8 +22,8 @@ func NewAuthMiddleware(uc usecase.Auth) mux.MiddlewareFunc {
 			if errors.Is(err, http.ErrNoCookie) {
 				helper.JSONResponse(w, 200, models.ErrResponse{
 					Status: 401,
-					Msg:    "not authorized",
-					MsgRus: "Нет авторизации",
+					Msg:    "no session",
+					MsgRus: "авторизация отсутствует",
 				})
 				return
 			}
@@ -31,8 +31,8 @@ func NewAuthMiddleware(uc usecase.Auth) mux.MiddlewareFunc {
 			if errors.Is(err, models.ErrNoSession) {
 				helper.JSONResponse(w, 200, models.ErrResponse{
 					Status: 401,
-					Msg:    "not authorized",
-					MsgRus: "Нет авторизации",
+					Msg:    "no session",
+					MsgRus: "авторизация отсутствует",
 				})
 				return
 			}
