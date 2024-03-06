@@ -66,6 +66,21 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 			MsgRus: "введен неверный пароль",
 		})
 		return
+	} else if errors.Is(err, models.ErrWrongUsername) {
+		helper.JSONResponse(w, 200, models.ErrResponse{
+			Status: 400,
+			Msg:    "unavailable username",
+			MsgRus: "имя пользователя должно состоять из 5-15 символов английского алфавита или цифр",
+		})
+		return
+	} else if errors.Is(err, models.ErrWeakPassword) {
+		// TODO убрать weak password
+		helper.JSONResponse(w, 200, models.ErrResponse{
+			Status: 400,
+			Msg:    "unavailable password",
+			MsgRus: "пароль должен содержать от 8 до 32 символов английского алфавита или цифр",
+		})
+		return
 	}
 	cookie := &http.Cookie{
 		Name:     "session_id",

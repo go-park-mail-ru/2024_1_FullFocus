@@ -24,6 +24,28 @@ func NewAuthUsecase(ur repository.Users, sr repository.Sessions) *AuthUsecase {
 }
 
 func (u *AuthUsecase) Login(login string, password string) (string, error) {
+	var validationErr bool
+	for _, r := range login {
+		if !unicode.IsLetter(r) && !unicode.IsDigit(r) {
+			validationErr = true
+			break
+		}
+	}
+	if validationErr || len(login) < 5 || len(login) > 15 {
+		return "", models.ErrWrongUsername
+	}
+
+	// password
+	for _, r := range password {
+		if !unicode.IsLetter(r) && !unicode.IsDigit(r) {
+			validationErr = true
+			break
+		}
+	}
+	// TODO качетсвенные универсальные ошибки
+	if validationErr || len(password) < 8 || len(password) > 32 {
+		return "", models.ErrWeakPassword
+	}
 	user, err := u.userRepo.GetUser(login)
 	if err != nil {
 		return "", err
