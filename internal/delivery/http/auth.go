@@ -59,7 +59,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 400,
 			Msg:    err.Error(),
-			MsgRus: "Internal server error",
+			MsgRus: "Неверный логин или пароль",
 		})
 		return
 	}
@@ -88,7 +88,7 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 		helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 400,
 			Msg:    err.Error(),
-			MsgRus: "Internal server error",
+			MsgRus: "Пользователь уже существует",
 		})
 		return
 	}
@@ -111,7 +111,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 401,
 			Msg:    err.Error(),
-			MsgRus: "авторизация отсутствует",
+			MsgRus: "Авторизация отсутствует",
 		})
 		return
 	}
@@ -120,7 +120,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 401,
 			Msg:    err.Error(),
-			MsgRus: "авторизация отсутствует",
+			MsgRus: "Авторизация отсутствует",
 		})
 		return
 	}
