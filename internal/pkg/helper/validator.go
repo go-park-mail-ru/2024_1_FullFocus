@@ -1,19 +1,18 @@
 package helper
 
 import (
-	"unicode"
+	"regexp"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 )
 
 func ValidateField(value string, minLength, maxLength int) error {
-	if len(value) < minLength || len(value) > maxLength {
+	onlyValidSymbols := regexp.MustCompile(`^[A-Za-z0-9_]*$`).MatchString
+	if !onlyValidSymbols(value) {
 		return models.ErrInvalidField
 	}
-	for _, r := range value {
-		if !unicode.IsLetter(r) && !unicode.IsDigit(r) {
-			return models.ErrInvalidField
-		}
+	if len(value) < minLength || len(value) > maxLength {
+		return models.ErrInvalidField
 	}
 	return nil
 }
