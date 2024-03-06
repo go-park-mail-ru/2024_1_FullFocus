@@ -5,10 +5,17 @@ import (
 	"encoding/hex"
 	"log"
 	"strconv"
-	"unicode"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
+)
+
+const (
+	_minLoginLength    = 4
+	_maxLoginLength    = 32
+	_minPasswordLength = 8
+	_maxPasswordLength = 32
 )
 
 type AuthUsecase struct {
@@ -24,70 +31,44 @@ func NewAuthUsecase(ur repository.Users, sr repository.Sessions) *AuthUsecase {
 }
 
 func (u *AuthUsecase) Login(login string, password string) (string, error) {
-	var validationErr bool
-	for _, r := range login {
-		if !unicode.IsLetter(r) && !unicode.IsDigit(r) {
-			validationErr = true
-			break
-		}
+	err := helper.ValidateField(login, _minLoginLength, _maxLoginLength)
+	if err != nil {
+		return "", models.NewValidationError("invalid login input",
+			"Логин должен содержать от 4 до 32 букв английского алфавита или цифр")
 	}
-	if validationErr || len(login) < 5 || len(login) > 15 {
-		return "", models.ErrWrongUsername
-	}
-
-	// password
-	for _, r := range password {
-		if !unicode.IsLetter(r) && !unicode.IsDigit(r) {
-			validationErr = true
-			break
-		}
-	}
-	// TODO качетсвенные универсальные ошибки
-	if validationErr || len(password) < 8 || len(password) > 32 {
-		return "", models.ErrWeakPassword
+	err = helper.ValidateField(password, _minPasswordLength, _maxPasswordLength)
+	if err != nil {
+		return "", models.NewValidationError("invalid password input",
+			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
 	}
 	user, err := u.userRepo.GetUser(login)
 	if err != nil {
-		return "", err
+		return "", models.ErrNoUser // models.NewValidationError(err.Error(), "Пользователь не найден")
 	}
 	if password != user.Password {
-		return "", models.ErrWrongPassword
+		return "", models.ErrWrongPassword // models.NewValidationError("wrong password", "Неверный пароль")
 	}
 	return u.sessionRepo.CreateSession(user.ID), nil
 }
 
 func (u *AuthUsecase) Signup(login string, password string) (string, string, error) {
-	var validationErr bool
-	// login
-	for _, r := range login {
-		if !unicode.IsLetter(r) && !unicode.IsDigit(r) {
-			validationErr = true
-			break
-		}
+	err := helper.ValidateField(login, _minLoginLength, _maxLoginLength)
+	if err != nil {
+		return "", "", models.NewValidationError("invalid login input",
+			"Логин должен содержать от 4 до 32 букв английского алфавита или цифр")
 	}
-	if validationErr || len(login) < 5 || len(login) > 15 {
-		return "", "", models.ErrWrongUsername
+	err = helper.ValidateField(password, _minPasswordLength, _maxPasswordLength)
+	if err != nil {
+		return "", "", models.NewValidationError("invalid password input",
+			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
 	}
-
-	// password
-	for _, r := range password {
-		if !unicode.IsLetter(r) && !unicode.IsDigit(r) {
-			validationErr = true
-			break
-		}
-	}
-	// TODO качетсвенные универсальные ошибки
-	if validationErr || len(password) < 8 || len(password) > 32 {
-		return "", "", models.ErrWeakPassword
-	}
-
 	user := models.User{
 		Username: login,
 		Password: password,
 	}
 	uID, err := u.userRepo.CreateUser(user)
 	if err != nil {
-		return "", "", err
+		return "", "", models.ErrUserAlreadyExists // models.NewValidationError(err.Error(), "Пользователь с таким логином уже существует")
 	}
 	sID := u.sessionRepo.CreateSession(uID)
 

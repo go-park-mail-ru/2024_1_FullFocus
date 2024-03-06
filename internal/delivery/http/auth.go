@@ -50,35 +50,16 @@ func (h *AuthHandler) Stop() error {
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	login := r.FormValue("login")
 	password := r.FormValue("password")
-
 	sID, err := h.usecase.Login(login, password)
-	if errors.Is(err, models.ErrNoUser) {
-		helper.JSONResponse(w, 200, models.ErrResponse{
-			Status: 401,
-			Msg:    "wrong login",
-			MsgRus: "пользователь не найден",
-		})
-		return
-	} else if errors.Is(err, models.ErrWrongPassword) {
-		helper.JSONResponse(w, 200, models.ErrResponse{
-			Status: 401,
-			Msg:    "wrong password",
-			MsgRus: "введен неверный пароль",
-		})
-		return
-	} else if errors.Is(err, models.ErrWrongUsername) {
+	if err != nil {
+		if validationError := new(models.ValidationError); errors.As(err, &validationError) {
+			helper.JSONResponse(w, 200, validationError.WithCode(400))
+			return
+		}
 		helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 400,
-			Msg:    "unavailable username",
-			MsgRus: "имя пользователя должно состоять из 5-15 символов английского алфавита или цифр",
-		})
-		return
-	} else if errors.Is(err, models.ErrWeakPassword) {
-		// TODO убрать weak password
-		helper.JSONResponse(w, 200, models.ErrResponse{
-			Status: 400,
-			Msg:    "unavailable password",
-			MsgRus: "пароль должен содержать от 8 до 32 символов английского алфавита или цифр",
+			Msg:    err.Error(),
+			MsgRus: "Internal server error",
 		})
 		return
 	}
@@ -99,26 +80,15 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	login := r.FormValue("login")
 	password := r.FormValue("password")
 	sID, _, err := h.usecase.Signup(login, password)
-	if errors.Is(err, models.ErrUserAlreadyExists) {
+	if err != nil {
+		if validationError := new(models.ValidationError); errors.As(err, &validationError) {
+			helper.JSONResponse(w, 200, validationError.WithCode(400))
+			return
+		}
 		helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 400,
-			Msg:    "user already exists",
-			MsgRus: "пользователь уже существует",
-		})
-		return
-	} else if errors.Is(err, models.ErrWrongUsername) {
-		helper.JSONResponse(w, 200, models.ErrResponse{
-			Status: 400,
-			Msg:    "unavailable username",
-			MsgRus: "имя пользователя должно состоять из 5-15 символов английского алфавита или цифр",
-		})
-		return
-	} else if errors.Is(err, models.ErrWeakPassword) {
-		// TODO убрать weak password
-		helper.JSONResponse(w, 200, models.ErrResponse{
-			Status: 400,
-			Msg:    "unavailable password",
-			MsgRus: "пароль должен содержать от 8 до 32 символов английского алфавита или цифр",
+			Msg:    err.Error(),
+			MsgRus: "Internal server error",
 		})
 		return
 	}
@@ -140,7 +110,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	if errors.Is(err, http.ErrNoCookie) {
 		helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 401,
-			Msg:    "no session",
+			Msg:    err.Error(),
 			MsgRus: "авторизация отсутствует",
 		})
 		return
@@ -149,7 +119,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	if errors.Is(err, models.ErrNoSession) {
 		helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 401,
-			Msg:    "no session",
+			Msg:    err.Error(),
 			MsgRus: "авторизация отсутствует",
 		})
 		return
