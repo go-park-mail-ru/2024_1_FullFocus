@@ -144,10 +144,10 @@ func TestLogin(t *testing.T) {
 	}{
 		{
 			name:     "Check valid user login",
-			login:    "test",
-			password: "test",
+			login:    "test123",
+			password: "test12345",
 			userMockBehavior: func(r *mock_repository.MockUsers, username string) {
-				r.EXPECT().GetUser(username).Return(models.User{ID: 0, Username: "test", Password: "test"}, nil)
+				r.EXPECT().GetUser(username).Return(models.User{ID: 0, Username: "test123", Password: "test12345"}, nil)
 			},
 			sessionMockBehavior: func(r *mock_repository.MockSessions, userID uint) {
 				r.EXPECT().CreateSession(userID).Return("123")
@@ -158,9 +158,27 @@ func TestLogin(t *testing.T) {
 			callSessionMock: true,
 		},
 		{
-			name:     "Check invalid user login",
-			login:    "test",
-			password: "test",
+			name:            "Check invalid username login",
+			login:           "test",
+			password:        "test",
+			expectedSID:     "",
+			expectedErr:     models.ErrWrongUsername,
+			callUserMock:    false,
+			callSessionMock: false,
+		},
+		{
+			name:            "Check invalid password login",
+			login:           "test123",
+			password:        "test%^",
+			expectedSID:     "",
+			expectedErr:     models.ErrWeakPassword,
+			callUserMock:    false,
+			callSessionMock: false,
+		},
+		{
+			name:     "Check not existing user login",
+			login:    "test123",
+			password: "wrongpass",
 			userMockBehavior: func(r *mock_repository.MockUsers, username string) {
 				r.EXPECT().GetUser(username).Return(models.User{}, models.ErrNoUser)
 			},
@@ -171,10 +189,10 @@ func TestLogin(t *testing.T) {
 		},
 		{
 			name:     "Check wrong password login",
-			login:    "test",
+			login:    "test123",
 			password: "wrongpass",
 			userMockBehavior: func(r *mock_repository.MockUsers, username string) {
-				r.EXPECT().GetUser(username).Return(models.User{ID: 0, Username: "test", Password: "test"}, nil)
+				r.EXPECT().GetUser(username).Return(models.User{ID: 0, Username: "test123", Password: "test"}, nil)
 			},
 			expectedSID:     "",
 			expectedErr:     models.ErrWrongPassword,
