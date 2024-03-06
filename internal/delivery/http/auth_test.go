@@ -296,3 +296,77 @@ func TestLogout(t *testing.T) {
 		})
 	}
 }
+
+func TestCheckAuth(t *testing.T) {
+	testCases := []struct {
+		name           string
+		session        string
+		mockBehavior   func(*mock_usecase.MockAuth, string)
+		expectedStatus int
+		expectedErr    string
+		setCookie      bool
+	}{
+		{
+			name:    "Check logged user",
+			session: "test",
+			mockBehavior: func(u *mock_usecase.MockAuth, sID string) {
+				u.EXPECT().IsLoggedIn(sID).Return(true)
+			},
+			expectedStatus: 200,
+			expectedErr:    "",
+			setCookie:      true,
+		},
+		{
+			name:           "Check no cookie",
+			session:        "",
+			expectedStatus: 401,
+			expectedErr:    "no session",
+			setCookie:      false,
+		},
+		{
+			name:    "Check no session",
+			session: "test",
+			mockBehavior: func(u *mock_usecase.MockAuth, sID string) {
+				u.EXPECT().IsLoggedIn(sID).Return(false)
+			},
+			expectedStatus: 401,
+			expectedErr:    "no session",
+			setCookie:      true,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			mockAuthUsecase := mock_usecase.NewMockAuth(ctrl)
+			srv := &http.Server{}
+			ah := NewAuthHandler(srv, mockAuthUsecase)
+			req := httptest.NewRequest("POST", "/api/auth/check", nil)
+			if testCase.setCookie {
+				testCase.mockBehavior(mockAuthUsecase, testCase.session)
+				req.AddCookie(&http.Cookie{
+					Name:  "session_id",
+					Value: testCase.session,
+				})
+			}
+
+			r := httptest.NewRecorder()
+			handler := http.HandlerFunc(ah.CheckAuth)
+			handler.ServeHTTP(r, req)
+
+			if testCase.expectedStatus != 200 {
+				var errResp models.ErrResponse
+				err := json.NewDecoder(r.Body).Decode(&errResp)
+				require.Equal(t, nil, err)
+				require.Equal(t, testCase.expectedStatus, errResp.Status)
+				require.Equal(t, testCase.expectedErr, errResp.Msg)
+			} else {
+				var successResp models.SuccessResponse
+				err := json.NewDecoder(r.Body).Decode(&successResp)
+				require.Equal(t, nil, err)
+				require.Equal(t, testCase.expectedStatus, successResp.Status)
+			}
+		})
+	}
+}

@@ -36,6 +36,7 @@ func (h *AuthHandler) InitRouter(r *mux.Router) {
 		h.router.Handle("/login", http.HandlerFunc(h.Login)).Methods("GET", "POST", "OPTIONS")
 		h.router.Handle("/signup", http.HandlerFunc(h.Signup)).Methods("GET", "POST", "OPTIONS")
 		h.router.Handle("/logout", http.HandlerFunc(h.Logout)).Methods("POST", "OPTIONS")
+		h.router.Handle("/check", http.HandlerFunc(h.CheckAuth)).Methods("GET", "OPTIONS")
 	}
 }
 
@@ -156,6 +157,29 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	}
 	session.Expires = time.Now().AddDate(0, 0, -1)
 	http.SetCookie(w, session)
+	helper.JSONResponse(w, 200, models.SuccessResponse{
+		Status: 200,
+	})
+}
+
+func (h *AuthHandler) CheckAuth(w http.ResponseWriter, r *http.Request) {
+	session, err := r.Cookie("session_id")
+	if errors.Is(err, http.ErrNoCookie) {
+		helper.JSONResponse(w, 200, models.ErrResponse{
+			Status: 401,
+			Msg:    "no session",
+			MsgRus: "авторизация отсутствует",
+		})
+		return
+	}
+	if !h.usecase.IsLoggedIn(session.Value) {
+		helper.JSONResponse(w, 200, models.ErrResponse{
+			Status: 401,
+			Msg:    "no session",
+			MsgRus: "авторизация отсутствует",
+		})
+		return
+	}
 	helper.JSONResponse(w, 200, models.SuccessResponse{
 		Status: 200,
 	})
