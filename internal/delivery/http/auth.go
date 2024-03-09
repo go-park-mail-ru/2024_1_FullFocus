@@ -2,6 +2,7 @@ package delivery
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"time"
 
@@ -20,6 +21,11 @@ type AuthHandler struct {
 	srv     *http.Server
 	router  *mux.Router
 	usecase usecase.Auth
+}
+
+type LoginData struct {
+	login    string `json:"login"`
+	password string `json:"password"`
 }
 
 func NewAuthHandler(s *http.Server, uc usecase.Auth) *AuthHandler {
@@ -49,9 +55,18 @@ func (h *AuthHandler) Stop() error {
 }
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
-	login := r.FormValue("login")
-	password := r.FormValue("password")
-	sID, err := h.usecase.Login(login, password)
+	var logindata LoginData
+	err := json.NewDecoder(r.Body).Decode(&logindata)
+	if err != nil {
+		helper.JSONResponse(w, 200, models.ErrResponse{
+			Status: 400,
+			Msg:    err.Error(),
+			MsgRus: "Ошибка обработки данных",
+		})
+		return
+	}
+
+	sID, err := h.usecase.Login(logindata.login, logindata.password)
 	if err != nil {
 		if validationError := new(models.ValidationError); errors.As(err, &validationError) {
 			helper.JSONResponse(w, 200, validationError.WithCode(400))
@@ -78,9 +93,18 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
-	login := r.FormValue("login")
-	password := r.FormValue("password")
-	sID, _, err := h.usecase.Signup(login, password)
+	var logindata LoginData
+	err := json.NewDecoder(r.Body).Decode(&logindata)
+	if err != nil {
+		helper.JSONResponse(w, 200, models.ErrResponse{
+			Status: 400,
+			Msg:    err.Error(),
+			MsgRus: "Ошибка обработки данных",
+		})
+		return
+	}
+
+	sID, _, err := h.usecase.Signup(logindata.login, logindata.password)
 	if err != nil {
 		if validationError := new(models.ValidationError); errors.As(err, &validationError) {
 			helper.JSONResponse(w, 200, validationError.WithCode(400))
