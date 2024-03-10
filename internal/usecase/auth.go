@@ -43,10 +43,10 @@ func (u *AuthUsecase) Login(login string, password string) (string, error) {
 	}
 	user, err := u.userRepo.GetUser(login)
 	if err != nil {
-		return "", models.ErrNoUser // models.NewValidationError(err.Error(), "Пользователь не найден")
+		return "", models.ErrNoUser
 	}
 	if password != user.Password {
-		return "", models.ErrWrongPassword // models.NewValidationError("wrong password", "Неверный пароль")
+		return "", models.ErrWrongPassword
 	}
 	return u.sessionRepo.CreateSession(user.ID), nil
 }
@@ -68,7 +68,7 @@ func (u *AuthUsecase) Signup(login string, password string) (string, string, err
 	}
 	uID, err := u.userRepo.CreateUser(user)
 	if err != nil {
-		return "", "", models.ErrUserAlreadyExists // models.NewValidationError(err.Error(), "Пользователь с таким логином уже существует")
+		return "", "", models.ErrUserAlreadyExists
 	}
 	sID := u.sessionRepo.CreateSession(uID)
 
