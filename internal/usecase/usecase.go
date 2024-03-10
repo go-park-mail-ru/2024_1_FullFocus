@@ -13,3 +13,10 @@ type Auth interface {
 type Products interface {
 	GetProducts(lastID, limit int) ([]models.Product, error)
 }
+
+type Profile interface {
+	GetProfile(userID uint) (models.User, error)
+	UploadAvatar(userID uint) error
+	// ? ChangePassword
+	// ? Change username/phone/...
+}
