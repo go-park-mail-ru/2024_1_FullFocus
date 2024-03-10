@@ -1,18 +1,16 @@
 # More info on config here: https://golangci-lint.run/usage/configuration/#config-file
 run:
+  modules-download-mode: vendor
   timeout: 10s
   issues-exit-code: 1
-  tests: true
+#  tests: true
   skip-dirs:
     - bin
     - vendor
     - var
     - tmp
   skip-files:
-    - \.pb\.go$
-    - \.pb\.gw\.go$
-    - \.pb\.scratch\.go$
-    - \.pb\.goclay\.go$
+    - \.pb\*
 
 output:
   format: colored-line-number
@@ -22,8 +20,6 @@ output:
 linters-settings:
   govet:
     check-shadowing: true
-  dupl:
-    threshold: 100
   goconst:
     min-len:         2
     min-occurrences: 2
@@ -31,17 +27,14 @@ linters-settings:
 linters:
   disable-all: true
   enable:
-    # - dupl - it's very slow, enable if you really know why you need it
     - errcheck
     - goconst
-    # - goimports - your IDE should do this automatically as 'On save' action anyways
-    - gosec
+    - gosimple
+    - goimports
     - govet
-    - ineffassign
+    - gofmt
+    # - structcheck
     # - megacheck (staticcheck + gosimple + unused in one linter) - enable before push
-    - revive
-    - typecheck
-    - unused # will be used insted of varcheck + deadcode + structcheck. More info https://github.com/golangci/golangci-lint/issues/1841
 
 issues:
   exclude-use-default: false
