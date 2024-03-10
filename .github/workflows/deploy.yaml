@@ -1,0 +1,21 @@
+name: Deploy
+
+on:
+  push:
+    branches: [deploy-setting]
+  pull_request:
+    branches: [deploy-setting]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21.x'
+      - name: Install dependencies
+      - run: go get .
+      - name: Run tests
+      - run: make test
