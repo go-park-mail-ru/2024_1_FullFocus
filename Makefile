@@ -3,7 +3,7 @@
 .PHONY: run lint test
 
 lint:
-	golangci-lint run
+	golangci-lint run ./...
 
 run:
 	go run cmd/main/main.go
