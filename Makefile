@@ -1,12 +1,15 @@
 .DEFAULT_GOAL:=run
 
-.PHONY: run lint test
+.PHONY: lint run build test
 
 lint:
 	golangci-lint run ./...
 
 run:
 	go run cmd/main/main.go
+
+build:
+	go build -o ./bin/app ./cmd/main/main.go
 
 test:
 	@go test ./... -cover > testresult.txt

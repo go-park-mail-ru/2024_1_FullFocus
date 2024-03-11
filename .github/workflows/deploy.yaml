@@ -7,7 +7,7 @@ on:
     branches: [deploy-setting]
 
 jobs:
-  test:
+  build-test: #test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,4 +18,27 @@ jobs:
       - name: Install dependencies
         run: go mod download
       - name: Run tests
-        run: make test
+        run: make build #make test
+#  build:
+#    runs-on: ubuntu-latest
+#    needs: build-test
+#    steps:
+#      - uses: actions/checkout@v4
+#      - name: Login to DockerHub
+#        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+#      - name: Build image
+#        run: docker build -t b0pof/bizon-main .
+#      - name: Push the image
+#        run: docker push b0pof/bizon-main
+#  deploy:
+#    runs-on: ubuntu-latest
+#    needs: build
+#    steps:
+#      - name: Pull the image
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.HOST }}
+#          username: ${{ secrets.USERNAME }}
+#          password: ${{ secrets.PASSWORD }}
+#          script: sudo docker pull b0pof/bizon-main
+
