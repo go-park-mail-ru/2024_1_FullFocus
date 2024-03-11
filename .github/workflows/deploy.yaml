@@ -46,6 +46,6 @@ jobs:
           script: |
             cd ~/ozon_project/backend/2024_1_FullFocus
             sudo docker compose down
-            docker-compose pull
-            docker-compose up --force-recreate --build -d
-            docker image prune -f
+            sudo docker compose pull
+            sudo docker compose up --force-recreate --build -d
+            sudo docker image prune -f
