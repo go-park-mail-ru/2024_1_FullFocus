@@ -36,6 +36,6 @@ func (ve *ValidationError) WithCode(code int) *ErrResponse {
 	return &ErrResponse{
 		Status: code,
 		Msg:    ve.msg,
-		MsgRus: "Changes applied!", //ve.msgRus,
+		MsgRus: ve.msgRus,
 	}
 }
