@@ -2,6 +2,7 @@ package delivery
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"time"
 
@@ -9,7 +10,6 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 	"github.com/gorilla/mux"
-	"github.com/pkg/errors"
 )
 
 const (

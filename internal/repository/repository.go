@@ -17,3 +17,7 @@ type Sessions interface {
 type Products interface {
 	GetProducts(lastID, limit int) ([]models.Product, error)
 }
+
+type Profiles interface {
+	GetProfile(profileID uint) (models.Profile, error)
+}

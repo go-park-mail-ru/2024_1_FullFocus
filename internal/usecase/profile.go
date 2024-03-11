@@ -5,11 +5,13 @@ import (
 )
 
 type ProfileUsecase struct {
-	userRepo repository.Users
+	userRepo    repository.Users
+	profileRepo repository.Profiles
 }
 
-func NewProfileUsecase(ur repository.Users) *ProfileUsecase {
+func NewProfileUsecase(ur repository.Users, pr repository.Profiles) *ProfileUsecase {
 	return &ProfileUsecase{
-		userRepo: ur,
+		userRepo:    ur,
+		profileRepo: pr,
 	}
 }
