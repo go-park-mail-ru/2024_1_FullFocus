@@ -3,7 +3,6 @@ package middleware
 import (
 	"context"
 	"fmt"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"net/http"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
@@ -18,7 +17,7 @@ func NewAuthMiddleware(uc usecase.Auth) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
-			l := logger.GetLoggerFromContext(ctx)
+			l := helper.GetLoggerFromContext(ctx)
 
 			sessionID, err := r.Cookie("session_id")
 			if errors.Is(err, http.ErrNoCookie) {

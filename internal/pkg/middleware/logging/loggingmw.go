@@ -3,6 +3,7 @@ package middleware
 import (
 	"bufio"
 	"context"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/pkg/errors"
 	"log/slog"
 	"net"
@@ -10,8 +11,6 @@ import (
 	"sync/atomic"
 
 	"github.com/gorilla/mux"
-
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 )
 
 var ErrHijackAssertion = errors.New("type assertion to http.Hijacker failed")
@@ -52,7 +51,7 @@ func NewLoggingMiddleware(l *slog.Logger) mux.MiddlewareFunc {
 				ResponseWriter: w,
 				statusCode:     200,
 			}
-			ctx := logger.ContextWithLogger(context.Background(), requestLogger)
+			ctx := helper.ContextWithLogger(context.Background(), requestLogger)
 			next.ServeHTTP(wi, r.WithContext(ctx))
 			requestLogger.Info("response", slog.Int("statusCode", wi.statusCode))
 		})
