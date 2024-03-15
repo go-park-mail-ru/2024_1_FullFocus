@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"sync"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
@@ -42,7 +42,7 @@ func NewProductRepo() *ProductRepo {
 }
 
 func (r *ProductRepo) GetProducts(ctx context.Context, lastID, limit int) ([]models.Product, error) {
-	l := logger.GetLoggerFromContext(ctx)
+	l := helper.GetLoggerFromContext(ctx)
 	r.Lock()
 	defer r.Unlock()
 	prods := make([]models.Product, 0, limit)

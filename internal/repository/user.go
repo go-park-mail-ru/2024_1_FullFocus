@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"sync"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
@@ -22,7 +22,7 @@ func NewUserRepo() *UserRepo {
 }
 
 func (r *UserRepo) CreateUser(ctx context.Context, user models.User) (uint, error) {
-	l := logger.GetLoggerFromContext(ctx)
+	l := helper.GetLoggerFromContext(ctx)
 	r.Lock()
 	defer r.Unlock()
 	if _, ok := r.storage[user.Username]; ok {
@@ -36,7 +36,7 @@ func (r *UserRepo) CreateUser(ctx context.Context, user models.User) (uint, erro
 }
 
 func (r *UserRepo) GetUser(ctx context.Context, username string) (models.User, error) {
-	l := logger.GetLoggerFromContext(ctx)
+	l := helper.GetLoggerFromContext(ctx)
 	r.Lock()
 	user, ok := r.storage[username]
 	r.Unlock()

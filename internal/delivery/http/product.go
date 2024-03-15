@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"net/http"
 	"strconv"
 
@@ -43,7 +42,7 @@ func (h *ProductHandler) Stop() error {
 
 func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	l := logger.GetLoggerFromContext(ctx)
+	l := helper.GetLoggerFromContext(ctx)
 
 	var lastID, limit int = 1, 10
 	qID, ok := r.URL.Query()["lastid"]

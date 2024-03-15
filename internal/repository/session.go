@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"sync"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
@@ -22,7 +22,7 @@ func NewSessionRepo() *SessionRepo {
 }
 
 func (r *SessionRepo) CreateSession(ctx context.Context, userID uint) string {
-	l := logger.GetLoggerFromContext(ctx)
+	l := helper.GetLoggerFromContext(ctx)
 	sID := uuid.New().String()
 	r.Lock()
 	r.sessions[sID] = userID
@@ -32,7 +32,7 @@ func (r *SessionRepo) CreateSession(ctx context.Context, userID uint) string {
 }
 
 func (r *SessionRepo) GetUserIDBySessionID(ctx context.Context, sID string) (uint, error) {
-	l := logger.GetLoggerFromContext(ctx)
+	l := helper.GetLoggerFromContext(ctx)
 	r.Lock()
 	defer r.Unlock()
 	uID, ok := r.sessions[sID]
@@ -45,7 +45,7 @@ func (r *SessionRepo) GetUserIDBySessionID(ctx context.Context, sID string) (uin
 }
 
 func (r *SessionRepo) SessionExists(ctx context.Context, sID string) bool {
-	l := logger.GetLoggerFromContext(ctx)
+	l := helper.GetLoggerFromContext(ctx)
 	r.Lock()
 	_, ok := r.sessions[sID]
 	r.Unlock()
@@ -54,7 +54,7 @@ func (r *SessionRepo) SessionExists(ctx context.Context, sID string) bool {
 }
 
 func (r *SessionRepo) DeleteSession(ctx context.Context, sID string) error {
-	l := logger.GetLoggerFromContext(ctx)
+	l := helper.GetLoggerFromContext(ctx)
 	r.Lock()
 	defer r.Unlock()
 	if _, ok := r.sessions[sID]; !ok {

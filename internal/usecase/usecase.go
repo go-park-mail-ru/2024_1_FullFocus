@@ -5,6 +5,7 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 )
 
+//go:generate mockgen -source=usecase.go -destination=./mocks/usecase_mock.go
 type Auth interface {
 	Login(ctx context.Context, login string, password string) (string, error)
 	Signup(ctx context.Context, login string, password string) (string, string, error)
@@ -13,6 +14,7 @@ type Auth interface {
 	IsLoggedIn(ctx context.Context, isID string) bool
 }
 
+//go:generate mockgen -source=usecase.go -destination=./mocks/usecase_mock.go
 type Products interface {
 	GetProducts(ctx context.Context, lastID, limit int) ([]models.Product, error)
 }
