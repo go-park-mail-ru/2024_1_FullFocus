@@ -37,7 +37,7 @@ func TestGetUser(t *testing.T) {
 		Password: "test",
 	}
 	t.Run("Check existing user error", func(t *testing.T) {
-		ur.CreateUser(testUser1)
+		_, _ = ur.CreateUser(testUser1)
 		_, err := ur.GetUser(testUser1.Username)
 		require.Equal(t, nil, err, "existing user not found")
 	})

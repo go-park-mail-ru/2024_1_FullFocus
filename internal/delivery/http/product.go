@@ -3,6 +3,7 @@ package delivery
 import (
 	"context"
 	"errors"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -57,14 +58,20 @@ func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	}
 	prods, err := h.usecase.GetProducts(lastID, limit)
 	if errors.Is(err, models.ErrNoProduct) {
-		helper.JSONResponse(w, 200, models.ErrResponse{
+		err := helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 404,
 			Msg:    "not found",
 			MsgRus: "по данному запросу товары не найдены"})
+		if err != nil {
+			log.Printf("marshall error: %v", err)
+		}
 		return
 	}
-	helper.JSONResponse(w, 200, models.SuccessResponse{
+	err = helper.JSONResponse(w, 200, models.SuccessResponse{
 		Status: 200,
 		Data:   prods,
 	})
+	if err != nil {
+		log.Printf("marshall error: %v", err)
+	}
 }

@@ -1,6 +1,8 @@
 module github.com/go-park-mail-ru/2024_1_FullFocus
 
-go 1.18
+go 1.21
+
+toolchain go1.22.0
 
 require (
 	github.com/golang/mock v1.6.0
@@ -12,6 +14,7 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/golangci/golangci-lint v1.56.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
