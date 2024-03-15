@@ -1,6 +1,9 @@
 package repository
 
 import (
+	"context"
+	"fmt"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"sync"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
@@ -38,7 +41,8 @@ func NewProductRepo() *ProductRepo {
 	return r
 }
 
-func (r *ProductRepo) GetProducts(lastID, limit int) ([]models.Product, error) {
+func (r *ProductRepo) GetProducts(ctx context.Context, lastID, limit int) ([]models.Product, error) {
+	l := logger.LoggerFromContext(ctx)
 	r.Lock()
 	defer r.Unlock()
 	prods := make([]models.Product, 0, limit)
@@ -46,7 +50,9 @@ func (r *ProductRepo) GetProducts(lastID, limit int) ([]models.Product, error) {
 		prods = append(prods, r.products[i])
 	}
 	if count := len(prods); count == 0 {
+		l.Error("no products found")
 		return nil, models.ErrNoProduct
 	}
+	l.Info(fmt.Sprintf("%d products fround", len(prods)))
 	return prods, nil
 }

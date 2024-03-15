@@ -3,7 +3,8 @@ package delivery
 import (
 	"context"
 	"errors"
-	"log"
+	"fmt"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"net/http"
 	"strconv"
 
@@ -41,6 +42,9 @@ func (h *ProductHandler) Stop() error {
 }
 
 func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	l := logger.LoggerFromContext(ctx)
+
 	var lastID, limit int = 1, 10
 	qID, ok := r.URL.Query()["lastid"]
 	if ok {
@@ -56,14 +60,14 @@ func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 			limit = intLim
 		}
 	}
-	prods, err := h.usecase.GetProducts(lastID, limit)
+	prods, err := h.usecase.GetProducts(ctx, lastID, limit)
 	if errors.Is(err, models.ErrNoProduct) {
 		err := helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 404,
 			Msg:    "not found",
 			MsgRus: "по данному запросу товары не найдены"})
 		if err != nil {
-			log.Printf("marshall error: %v", err)
+			l.Error(fmt.Sprintf("marshall error: %v", err))
 		}
 		return
 	}
@@ -72,6 +76,6 @@ func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 		Data:   prods,
 	})
 	if err != nil {
-		log.Printf("marshall error: %v", err)
+		l.Error(fmt.Sprintf("marshall error: %v", err))
 	}
 }

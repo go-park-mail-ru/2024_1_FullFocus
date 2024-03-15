@@ -6,7 +6,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func CORSMiddleware(allowedHosts []string) mux.MiddlewareFunc {
+func NewCORSMiddleware(allowedHosts []string) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			origin := r.Header.Get("Origin")

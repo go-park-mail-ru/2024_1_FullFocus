@@ -1,15 +1,18 @@
 package usecase
 
-import "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+import (
+	"context"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+)
 
 type Auth interface {
-	Login(login string, password string) (string, error)
-	Signup(login string, password string) (string, string, error)
-	GetUserIDBySessionID(sID string) (uint, error)
-	Logout(sID string) error
-	IsLoggedIn(isID string) bool
+	Login(ctx context.Context, login string, password string) (string, error)
+	Signup(ctx context.Context, login string, password string) (string, string, error)
+	GetUserIDBySessionID(ctx context.Context, sID string) (uint, error)
+	Logout(ctx context.Context, sID string) error
+	IsLoggedIn(ctx context.Context, isID string) bool
 }
 
 type Products interface {
-	GetProducts(lastID, limit int) ([]models.Product, error)
+	GetProducts(ctx context.Context, lastID, limit int) ([]models.Product, error)
 }

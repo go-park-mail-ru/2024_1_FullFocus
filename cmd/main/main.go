@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"log"
 	"net/http"
 	"os"
@@ -8,11 +9,13 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gorilla/mux"
+
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
-	middleware "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/cors"
+	corsmw "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/cors"
+	logmw "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/logging"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
-	"github.com/gorilla/mux"
 )
 
 func run() {
@@ -26,7 +29,12 @@ func run() {
 		http.Error(w, `Not found`, 404)
 	})
 
-	r.Use(middleware.CORSMiddleware([]string{}))
+	// Logger
+
+	l := logger.NewLogger()
+
+	r.Use(corsmw.NewCORSMiddleware([]string{}))
+	r.Use(logmw.NewLoggingMiddleware(l))
 
 	// Server init
 

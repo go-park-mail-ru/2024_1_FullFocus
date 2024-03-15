@@ -1,19 +1,22 @@
 package repository
 
-import "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+import (
+	"context"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+)
 
 type Users interface {
-	CreateUser(user models.User) (uint, error)
-	GetUser(login string) (models.User, error)
+	CreateUser(ctx context.Context, user models.User) (uint, error)
+	GetUser(ctx context.Context, login string) (models.User, error)
 }
 
 type Sessions interface {
-	CreateSession(userID uint) string
-	GetUserIDBySessionID(sID string) (uint, error)
-	SessionExists(sID string) bool
-	DeleteSession(sID string) error
+	CreateSession(ctx context.Context, userID uint) string
+	GetUserIDBySessionID(ctx context.Context, sID string) (uint, error)
+	SessionExists(ctx context.Context, sID string) bool
+	DeleteSession(ctx context.Context, sID string) error
 }
 
 type Products interface {
-	GetProducts(lastID, limit int) ([]models.Product, error)
+	GetProducts(ctx context.Context, lastID, limit int) ([]models.Product, error)
 }
