@@ -46,7 +46,7 @@ func NewLoggingMiddleware(l *slog.Logger) mux.MiddlewareFunc {
 			atomic.AddUint64(&currRequestID, 1)
 			reqGroup := slog.Group("request", slog.Uint64("requestID", currRequestID))
 			requestLogger := l.With(reqGroup)
-			requestLogger.Info("new request",
+			requestLogger.Info("new",
 				slog.String("method", r.Method),
 				slog.String("uri", r.RequestURI))
 			wi := &responseWriterInterceptor{
@@ -55,7 +55,7 @@ func NewLoggingMiddleware(l *slog.Logger) mux.MiddlewareFunc {
 			}
 			ctx := logger.ContextWithLogger(context.Background(), requestLogger)
 			next.ServeHTTP(wi, r.WithContext(ctx))
-			requestLogger.Info("request processed", slog.Int("statusCode", wi.statusCode))
+			requestLogger.Info("response", slog.Int("statusCode", wi.statusCode))
 		})
 	}
 }

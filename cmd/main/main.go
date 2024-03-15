@@ -1,8 +1,8 @@
 package main
 
 import (
+	"fmt"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -33,8 +33,8 @@ func run() {
 
 	l := logger.NewLogger()
 
-	r.Use(corsmw.NewCORSMiddleware([]string{}))
 	r.Use(logmw.NewLoggingMiddleware(l))
+	r.Use(corsmw.NewCORSMiddleware([]string{}))
 
 	// Server init
 
@@ -65,9 +65,9 @@ func run() {
 	// Run server
 
 	go func() {
-		log.Printf("server is running...")
+		l.Info("server is running...")
 		if err := authHandler.Run(); err != nil {
-			log.Printf("HTTP server ListenAndServe Error: %s", err.Error())
+			l.Error(fmt.Sprintf("HTTP server ListenAndServe Error: %s", err.Error()))
 		}
 	}()
 
@@ -78,9 +78,9 @@ func run() {
 
 	<-exit
 
-	log.Printf("shutting down...")
+	l.Info("shutting down...")
 	if err := authHandler.Stop(); err != nil {
-		log.Printf("HTTP Server Shutdown Error: %v", err)
+		l.Error(fmt.Sprintf("HTTP Server Shutdown Error: %v", err))
 	}
 }
 

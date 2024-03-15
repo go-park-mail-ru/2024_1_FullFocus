@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/hex"
-	"log"
 	"strconv"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
@@ -75,7 +74,6 @@ func (u *AuthUsecase) Signup(ctx context.Context, login string, password string)
 
 	uIDHash := md5.Sum([]byte(strconv.Itoa(int(uID))))
 	stringUID := hex.EncodeToString(uIDHash[:])
-	log.Printf("User ID hash: %s", stringUID)
 	return sID, stringUID, nil
 }
 

@@ -42,7 +42,7 @@ func NewProductRepo() *ProductRepo {
 }
 
 func (r *ProductRepo) GetProducts(ctx context.Context, lastID, limit int) ([]models.Product, error) {
-	l := logger.LoggerFromContext(ctx)
+	l := logger.GetLoggerFromContext(ctx)
 	r.Lock()
 	defer r.Unlock()
 	prods := make([]models.Product, 0, limit)

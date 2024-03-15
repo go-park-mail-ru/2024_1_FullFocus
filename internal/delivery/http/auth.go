@@ -52,7 +52,7 @@ func (h *AuthHandler) Stop() error {
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	l := logger.LoggerFromContext(ctx)
+	l := logger.GetLoggerFromContext(ctx)
 
 	login := r.FormValue("login")
 	password := r.FormValue("password")
@@ -94,7 +94,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	l := logger.LoggerFromContext(ctx)
+	l := logger.GetLoggerFromContext(ctx)
 
 	login := r.FormValue("login")
 	password := r.FormValue("password")
@@ -135,7 +135,7 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	l := logger.LoggerFromContext(ctx)
+	l := logger.GetLoggerFromContext(ctx)
 
 	session, err := r.Cookie("session_id")
 	if errors.Is(err, http.ErrNoCookie) {
@@ -173,7 +173,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) CheckAuth(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	l := logger.LoggerFromContext(ctx)
+	l := logger.GetLoggerFromContext(ctx)
 
 	session, err := r.Cookie("session_id")
 	if errors.Is(err, http.ErrNoCookie) {

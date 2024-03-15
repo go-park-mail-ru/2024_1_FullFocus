@@ -43,7 +43,7 @@ func (h *ProductHandler) Stop() error {
 
 func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	l := logger.LoggerFromContext(ctx)
+	l := logger.GetLoggerFromContext(ctx)
 
 	var lastID, limit int = 1, 10
 	qID, ok := r.URL.Query()["lastid"]
