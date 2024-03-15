@@ -1,6 +1,7 @@
 package delivery
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -37,7 +38,7 @@ func TestGetProducts(t *testing.T) {
 			lastIDstr: "3",
 			limitStr:  "6",
 			mockBehavior: func(u *mock_usecase.MockProducts, lastId, limit int) {
-				u.EXPECT().GetProducts(lastId, limit).Return([]models.Product{}, nil)
+				u.EXPECT().GetProducts(context.Background(), lastId, limit).Return([]models.Product{}, nil)
 			},
 			expectedStatus: 200,
 		},
@@ -48,7 +49,7 @@ func TestGetProducts(t *testing.T) {
 			lastIDstr: "",
 			limitStr:  "",
 			mockBehavior: func(u *mock_usecase.MockProducts, lastId, limit int) {
-				u.EXPECT().GetProducts(lastId, limit).Return([]models.Product{}, nil)
+				u.EXPECT().GetProducts(context.Background(), lastId, limit).Return([]models.Product{}, nil)
 			},
 			expectedStatus: 200,
 		},
@@ -59,7 +60,7 @@ func TestGetProducts(t *testing.T) {
 			lastIDstr: "freferf",
 			limitStr:  "3123123dwed",
 			mockBehavior: func(u *mock_usecase.MockProducts, lastId, limit int) {
-				u.EXPECT().GetProducts(lastId, limit).Return([]models.Product{}, nil)
+				u.EXPECT().GetProducts(context.Background(), lastId, limit).Return([]models.Product{}, nil)
 			},
 			expectedStatus: 200,
 		},
@@ -70,7 +71,7 @@ func TestGetProducts(t *testing.T) {
 			lastIDstr: "90",
 			limitStr:  "",
 			mockBehavior: func(u *mock_usecase.MockProducts, lastId, limit int) {
-				u.EXPECT().GetProducts(lastId, limit).Return(nil, models.ErrNoProduct)
+				u.EXPECT().GetProducts(context.Background(), lastId, limit).Return(nil, models.ErrNoProduct)
 			},
 			expectedStatus: 404,
 		},

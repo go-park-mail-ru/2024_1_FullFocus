@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"io"
 	"log"
 	"testing"
@@ -39,10 +40,10 @@ func TestSignUp(t *testing.T) {
 			login:    "test123",
 			password: "Qa5yAbrLhkwT4Y9u",
 			userMockBehavior: func(r *mock_repository.MockUsers, user models.User) {
-				r.EXPECT().CreateUser(user).Return(uint(0), nil)
+				r.EXPECT().CreateUser(context.Background(), user).Return(uint(0), nil)
 			},
 			sessionMockBehavior: func(r *mock_repository.MockSessions, userID uint) {
-				r.EXPECT().CreateSession(userID).Return("123")
+				r.EXPECT().CreateSession(context.Background(), userID).Return("123")
 			},
 			expectedSID:     "123",
 			expectedErr:     nil,
@@ -54,10 +55,10 @@ func TestSignUp(t *testing.T) {
 			login:    "test123",
 			password: "testtest1",
 			userMockBehavior: func(r *mock_repository.MockUsers, user models.User) {
-				r.EXPECT().CreateUser(user).Return(uint(0), nil)
+				r.EXPECT().CreateUser(context.Background(), user).Return(uint(0), nil)
 			},
 			sessionMockBehavior: func(r *mock_repository.MockSessions, userID uint) {
-				r.EXPECT().CreateSession(userID).Return("123")
+				r.EXPECT().CreateSession(context.Background(), userID).Return("123")
 			},
 			expectedSID:     "123",
 			expectedErr:     nil,
@@ -69,7 +70,7 @@ func TestSignUp(t *testing.T) {
 			login:    "test123",
 			password: "Qa5yAbrLhkwT4Y9u",
 			userMockBehavior: func(r *mock_repository.MockUsers, user models.User) {
-				r.EXPECT().CreateUser(user).Return(uint(0), models.ErrUserAlreadyExists)
+				r.EXPECT().CreateUser(context.Background(), user).Return(uint(0), models.ErrUserAlreadyExists)
 			},
 			expectedSID:     "",
 			expectedErr:     models.ErrUserAlreadyExists,
@@ -123,7 +124,7 @@ func TestSignUp(t *testing.T) {
 				}
 			}
 			au := NewAuthUsecase(mockUserRepo, mockSessionRepo)
-			sID, _, err := au.Signup(testCase.login, testCase.password)
+			sID, _, err := au.Signup(context.Background(), testCase.login, testCase.password)
 			require.Equal(t, testCase.expectedErr, err)
 			require.Equal(t, testCase.expectedSID, sID)
 		})
@@ -147,10 +148,10 @@ func TestLogin(t *testing.T) {
 			login:    "test123",
 			password: "test12345",
 			userMockBehavior: func(r *mock_repository.MockUsers, username string) {
-				r.EXPECT().GetUser(username).Return(models.User{ID: 0, Username: "test123", Password: "test12345"}, nil)
+				r.EXPECT().GetUser(context.Background(), username).Return(models.User{ID: 0, Username: "test123", Password: "test12345"}, nil)
 			},
 			sessionMockBehavior: func(r *mock_repository.MockSessions, userID uint) {
-				r.EXPECT().CreateSession(userID).Return("123")
+				r.EXPECT().CreateSession(context.Background(), userID).Return("123")
 			},
 			expectedSID:     "123",
 			expectedErr:     nil,
@@ -180,7 +181,7 @@ func TestLogin(t *testing.T) {
 			login:    "test123",
 			password: "wrongpass",
 			userMockBehavior: func(r *mock_repository.MockUsers, username string) {
-				r.EXPECT().GetUser(username).Return(models.User{}, models.ErrNoUser)
+				r.EXPECT().GetUser(context.Background(), username).Return(models.User{}, models.ErrNoUser)
 			},
 			expectedSID:     "",
 			expectedErr:     models.ErrNoUser,
@@ -192,7 +193,7 @@ func TestLogin(t *testing.T) {
 			login:    "test123",
 			password: "wrongpass",
 			userMockBehavior: func(r *mock_repository.MockUsers, username string) {
-				r.EXPECT().GetUser(username).Return(models.User{ID: 0, Username: "test123", Password: "test"}, nil)
+				r.EXPECT().GetUser(context.Background(), username).Return(models.User{ID: 0, Username: "test123", Password: "test"}, nil)
 			},
 			expectedSID:     "",
 			expectedErr:     models.ErrWrongPassword,
@@ -219,7 +220,7 @@ func TestLogin(t *testing.T) {
 				}
 			}
 			au := NewAuthUsecase(mockUserRepo, mockSessionRepo)
-			sID, err := au.Login(testCase.login, testCase.password)
+			sID, err := au.Login(context.Background(), testCase.login, testCase.password)
 			require.Equal(t, testCase.expectedErr, err)
 			require.Equal(t, testCase.expectedSID, sID)
 		})
@@ -237,7 +238,7 @@ func TestIsLogout(t *testing.T) {
 			name: "Check existing user logout",
 			sID:  "test",
 			sessionMockBehavior: func(r *mock_repository.MockSessions, sID string) {
-				r.EXPECT().DeleteSession(sID).Return(nil)
+				r.EXPECT().DeleteSession(context.Background(), sID).Return(nil)
 			},
 			expectedErr: nil,
 		},
@@ -245,7 +246,7 @@ func TestIsLogout(t *testing.T) {
 			name: "Check not existing user logout",
 			sID:  "test",
 			sessionMockBehavior: func(r *mock_repository.MockSessions, sID string) {
-				r.EXPECT().DeleteSession(sID).Return(models.ErrNoSession)
+				r.EXPECT().DeleteSession(context.Background(), sID).Return(models.ErrNoSession)
 			},
 			expectedErr: models.ErrNoSession,
 		},
@@ -259,7 +260,7 @@ func TestIsLogout(t *testing.T) {
 			mockSessionRepo := mock_repository.NewMockSessions(ctrl)
 			testCase.sessionMockBehavior(mockSessionRepo, testCase.sID)
 			au := NewAuthUsecase(mockUserRepo, mockSessionRepo)
-			err := au.Logout(testCase.sID)
+			err := au.Logout(context.Background(), testCase.sID)
 			require.Equal(t, testCase.expectedErr, err)
 		})
 	}
@@ -276,7 +277,7 @@ func TestIsLoggedIn(t *testing.T) {
 			name: "Check existing user logged in",
 			sID:  "test",
 			sessionMockBehavior: func(r *mock_repository.MockSessions, sID string) {
-				r.EXPECT().SessionExists(sID).Return(true)
+				r.EXPECT().SessionExists(context.Background(), sID).Return(true)
 			},
 			expectedResult: true,
 		},
@@ -284,7 +285,7 @@ func TestIsLoggedIn(t *testing.T) {
 			name: "Check not existing user logged in",
 			sID:  "test",
 			sessionMockBehavior: func(r *mock_repository.MockSessions, sID string) {
-				r.EXPECT().SessionExists(sID).Return(false)
+				r.EXPECT().SessionExists(context.Background(), sID).Return(false)
 			},
 			expectedResult: false,
 		},
@@ -298,7 +299,7 @@ func TestIsLoggedIn(t *testing.T) {
 			mockSessionRepo := mock_repository.NewMockSessions(ctrl)
 			testCase.sessionMockBehavior(mockSessionRepo, testCase.sID)
 			au := NewAuthUsecase(mockUserRepo, mockSessionRepo)
-			ok := au.IsLoggedIn(testCase.sID)
+			ok := au.IsLoggedIn(context.Background(), testCase.sID)
 			require.Equal(t, testCase.expectedResult, ok)
 		})
 	}

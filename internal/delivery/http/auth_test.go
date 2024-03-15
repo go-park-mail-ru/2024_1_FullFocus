@@ -1,6 +1,7 @@
 package delivery
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -38,7 +39,7 @@ func TestSignUp(t *testing.T) {
 			login:    "test",
 			password: "test",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(login, password).Return("test", "test", nil)
+				u.EXPECT().Signup(context.Background(), login, password).Return("test", "test", nil)
 			},
 			expectedStatus: 200,
 			expectedErr:    "",
@@ -49,7 +50,7 @@ func TestSignUp(t *testing.T) {
 			login:    "",
 			password: "",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(login, password).Return("", "", models.NewValidationError("unavailable username", "неправильное имя пользователя"))
+				u.EXPECT().Signup(context.Background(), login, password).Return("", "", models.NewValidationError("unavailable username", "неправильное имя пользователя"))
 			},
 			expectedStatus: 400,
 			expectedErr:    "unavailable username",
@@ -60,7 +61,7 @@ func TestSignUp(t *testing.T) {
 			login:    "test",
 			password: "",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(login, password).Return("", "", models.NewValidationError("unavailable username", "неправильное имя пользователя"))
+				u.EXPECT().Signup(context.Background(), login, password).Return("", "", models.NewValidationError("unavailable username", "неправильное имя пользователя"))
 			},
 			expectedStatus: 400,
 			expectedErr:    "unavailable username",
@@ -71,7 +72,7 @@ func TestSignUp(t *testing.T) {
 			login:    "test",
 			password: "12345",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(login, password).Return("", "", models.NewValidationError("unavailable password", "слишком короткий пароль"))
+				u.EXPECT().Signup(context.Background(), login, password).Return("", "", models.NewValidationError("unavailable password", "слишком короткий пароль"))
 			},
 			expectedStatus: 400,
 			expectedErr:    "unavailable password",
@@ -82,7 +83,7 @@ func TestSignUp(t *testing.T) {
 			login:    "test",
 			password: "12345",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(login, password).Return("", "", models.ErrUserAlreadyExists)
+				u.EXPECT().Signup(context.Background(), login, password).Return("", "", models.ErrUserAlreadyExists)
 			},
 			expectedStatus: 400,
 			expectedErr:    "user exists",
@@ -144,7 +145,7 @@ func TestLogin(t *testing.T) {
 			login:    "test",
 			password: "test",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Login(login, password).Return("test", nil)
+				u.EXPECT().Login(context.Background(), login, password).Return("test", nil)
 			},
 			expectedStatus: 200,
 			expectedErr:    "",
@@ -155,7 +156,7 @@ func TestLogin(t *testing.T) {
 			login:    "test",
 			password: "test",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Login(login, password).Return("", models.ErrNoUser)
+				u.EXPECT().Login(context.Background(), login, password).Return("", models.ErrNoUser)
 			},
 			expectedStatus: 400,
 			expectedErr:    "no user",
@@ -166,7 +167,7 @@ func TestLogin(t *testing.T) {
 			login:    "test",
 			password: "test",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Login(login, password).Return("", models.ErrWrongPassword)
+				u.EXPECT().Login(context.Background(), login, password).Return("", models.ErrWrongPassword)
 			},
 			expectedStatus: 400,
 			expectedErr:    "wrong password",
@@ -227,7 +228,7 @@ func TestLogout(t *testing.T) {
 			name:    "Successful logout",
 			session: "test",
 			mockBehavior: func(u *mock_usecase.MockAuth, sID string) {
-				u.EXPECT().Logout(sID).Return(nil)
+				u.EXPECT().Logout(context.Background(), sID).Return(nil)
 			},
 			expectedStatus: 200,
 			expectedErr:    "",
@@ -238,7 +239,7 @@ func TestLogout(t *testing.T) {
 			name:    "No session",
 			session: "test",
 			mockBehavior: func(u *mock_usecase.MockAuth, sID string) {
-				u.EXPECT().Logout(sID).Return(models.ErrNoSession)
+				u.EXPECT().Logout(context.Background(), sID).Return(models.ErrNoSession)
 			},
 			expectedStatus: 401,
 			expectedErr:    "no session",
@@ -249,7 +250,7 @@ func TestLogout(t *testing.T) {
 			name:    "No session",
 			session: "",
 			mockBehavior: func(u *mock_usecase.MockAuth, sID string) {
-				u.EXPECT().Logout(sID).Return(nil)
+				u.EXPECT().Logout(context.Background(), sID).Return(nil)
 			},
 			expectedStatus: 401,
 			expectedErr:    "http: named cookie not present", // no session?
@@ -310,7 +311,7 @@ func TestCheckAuth(t *testing.T) {
 			name:    "Check logged user",
 			session: "test",
 			mockBehavior: func(u *mock_usecase.MockAuth, sID string) {
-				u.EXPECT().IsLoggedIn(sID).Return(true)
+				u.EXPECT().IsLoggedIn(context.Background(), sID).Return(true)
 			},
 			expectedStatus: 200,
 			expectedErr:    "",
@@ -327,7 +328,7 @@ func TestCheckAuth(t *testing.T) {
 			name:    "Check no session",
 			session: "test",
 			mockBehavior: func(u *mock_usecase.MockAuth, sID string) {
-				u.EXPECT().IsLoggedIn(sID).Return(false)
+				u.EXPECT().IsLoggedIn(context.Background(), sID).Return(false)
 			},
 			expectedStatus: 401,
 			expectedErr:    "no session",

@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"testing"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
@@ -30,7 +31,7 @@ func TestGetProducts(t *testing.T) {
 	t.Run("Check single get", func(t *testing.T) {
 		pr := NewProductRepo()
 		pr.products = append(pr.products, testProd1)
-		prods, err := pr.GetProducts(21, 1)
+		prods, err := pr.GetProducts(context.Background(), 21, 1)
 		require.Equal(t, nil, err, "product not found")
 		require.Equal(t, testProd1, prods[0], "product not found")
 	})
@@ -39,7 +40,7 @@ func TestGetProducts(t *testing.T) {
 		pr.products = append(pr.products, testProd1)
 		pr.products = append(pr.products, testProd2)
 		pr.products = append(pr.products, testProd3)
-		prods, err := pr.GetProducts(21, 3)
+		prods, err := pr.GetProducts(context.Background(), 21, 3)
 		require.Equal(t, nil, err, "product not found")
 		require.Equal(t, testProd1, prods[0], "product not found")
 		require.Equal(t, testProd2, prods[1], "product not found")
@@ -50,7 +51,7 @@ func TestGetProducts(t *testing.T) {
 		pr.products = append(pr.products, testProd1)
 		pr.products = append(pr.products, testProd2)
 		pr.products = append(pr.products, testProd3)
-		prods, err := pr.GetProducts(21, 25)
+		prods, err := pr.GetProducts(context.Background(), 21, 25)
 		require.Equal(t, nil, err, "product not found")
 		require.Equal(t, testProd1, prods[0], "product not found")
 		require.Equal(t, testProd2, prods[1], "product not found")
@@ -60,7 +61,7 @@ func TestGetProducts(t *testing.T) {
 	t.Run("Check big lastid", func(t *testing.T) {
 		pr := NewProductRepo()
 		pr.products = append(pr.products, testProd1)
-		_, err := pr.GetProducts(28, 2)
+		_, err := pr.GetProducts(context.Background(), 28, 2)
 		require.Equal(t, models.ErrNoProduct, err, "unexpected product found")
 	})
 }
