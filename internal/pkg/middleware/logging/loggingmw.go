@@ -44,8 +44,7 @@ func NewLoggingMiddleware(l *slog.Logger) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			atomic.AddUint64(&currRequestID, 1)
-			reqGroup := slog.Group("request", slog.Uint64("requestID", currRequestID))
-			requestLogger := l.With(reqGroup)
+			requestLogger := l.With(slog.Uint64("requestID", currRequestID))
 			requestLogger.Info("new",
 				slog.String("method", r.Method),
 				slog.String("uri", r.RequestURI))
