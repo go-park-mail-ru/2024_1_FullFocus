@@ -12,34 +12,34 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type ProductsHandler struct {
+type ProductHandler struct {
 	srv     *http.Server
 	router  *mux.Router
 	usecase usecase.Products
 }
 
-func NewProductsHandler(srv *http.Server, u usecase.Products) *ProductsHandler {
-	return &ProductsHandler{
+func NewProductHandler(srv *http.Server, u usecase.Products) *ProductHandler {
+	return &ProductHandler{
 		srv:     srv,
 		router:  mux.NewRouter(),
 		usecase: u,
 	}
 }
 
-func (h *ProductsHandler) InitRouter(r *mux.Router) {
+func (h *ProductHandler) InitRouter(r *mux.Router) {
 	h.router = r.PathPrefix("/products").Subrouter()
 	h.router.Handle("/", http.HandlerFunc(h.GetProducts)).Methods("GET", "OPTIONS")
 }
 
-func (h *ProductsHandler) Run() error {
+func (h *ProductHandler) Run() error {
 	return h.srv.ListenAndServe()
 }
 
-func (h *ProductsHandler) Stop() error {
+func (h *ProductHandler) Stop() error {
 	return h.srv.Shutdown(context.Background())
 }
 
-func (h *ProductsHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
+func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	var lastID, limit int = 1, 10
 	qID, ok := r.URL.Query()["lastid"]
 	if ok {

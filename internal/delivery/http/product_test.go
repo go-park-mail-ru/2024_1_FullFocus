@@ -16,7 +16,7 @@ func TestNewProductsHandler(t *testing.T) {
 	t.Run("Check new products handler creation", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		require.NotEmpty(t, NewProductsHandler(&http.Server{}, mock_usecase.NewMockProducts(ctrl)))
+		require.NotEmpty(t, NewProductHandler(&http.Server{}, mock_usecase.NewMockProducts(ctrl)))
 	})
 }
 
@@ -83,7 +83,7 @@ func TestGetProducts(t *testing.T) {
 			mockProductsUsecase := mock_usecase.NewMockProducts(ctrl)
 			testCase.mockBehavior(mockProductsUsecase, testCase.lastID, testCase.limit)
 			srv := &http.Server{}
-			ph := NewProductsHandler(srv, mockProductsUsecase)
+			ph := NewProductHandler(srv, mockProductsUsecase)
 
 			req := httptest.NewRequest("GET", "/api/products", nil)
 			q := req.URL.Query()

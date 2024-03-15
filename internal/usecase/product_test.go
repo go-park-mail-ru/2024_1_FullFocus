@@ -13,7 +13,7 @@ func TestNewProductsUsecase(t *testing.T) {
 	t.Run("Check Products Usecase creation", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		pu := NewProductsUsecase(mock_repository.NewMockProducts(ctrl))
+		pu := NewProductUsecase(mock_repository.NewMockProducts(ctrl))
 		require.NotEmpty(t, pu, "product repo not created")
 	})
 }
@@ -65,7 +65,7 @@ func TestGetProducts(t *testing.T) {
 			defer ctrl.Finish()
 			mockProductRepo := mock_repository.NewMockProducts(ctrl)
 			testCase.mockBehavior(mockProductRepo, testCase.lastID, testCase.limit)
-			pu := NewProductsUsecase(mockProductRepo)
+			pu := NewProductUsecase(mockProductRepo)
 			prods, err := pu.GetProducts(testCase.lastID, testCase.limit)
 			require.Equal(t, testCase.expectedResult, prods)
 			require.Equal(t, testCase.expectedErr, err)

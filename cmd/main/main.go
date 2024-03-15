@@ -50,8 +50,8 @@ func run() {
 
 	// Products
 	productRepo := repository.NewProductRepo()
-	productUsecase := usecase.NewProductsUsecase(productRepo)
-	productHandler := delivery.NewProductsHandler(srv, productUsecase)
+	productUsecase := usecase.NewProductUsecase(productRepo)
+	productHandler := delivery.NewProductHandler(srv, productUsecase)
 	productHandler.InitRouter(apir)
 
 	// Run server
