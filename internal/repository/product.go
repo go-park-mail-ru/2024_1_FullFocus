@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
+	"log/slog"
 	"sync"
+	"time"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 )
@@ -45,14 +47,18 @@ func (r *ProductRepo) GetProducts(ctx context.Context, lastID, limit int) ([]mod
 	l := helper.GetLoggerFromContext(ctx)
 	r.Lock()
 	defer r.Unlock()
+	l.Info(`SELECT * FROM products WHERE id > $1 ORDER BY id LIMIT $2;`,
+		slog.String("args", fmt.Sprintf("$1 = %d, $2 = %d", lastID, limit)))
+
+	start := time.Now()
 	prods := make([]models.Product, 0, limit)
 	for i := lastID - 1; i < len(r.products) && i < lastID+limit-1; i++ {
 		prods = append(prods, r.products[i])
 	}
-	if count := len(prods); count == 0 {
-		l.Error("no products found")
+	l.Info(fmt.Sprintf("%d products found in %s", len(prods), time.Since(start)))
+
+	if len(prods) == 0 {
 		return nil, models.ErrNoProduct
 	}
-	l.Info(fmt.Sprintf("%d products fround", len(prods)))
 	return prods, nil
 }
