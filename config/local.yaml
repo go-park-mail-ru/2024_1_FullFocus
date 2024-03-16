@@ -1,0 +1,6 @@
+env: "local"
+session_ttl: 1h
+server:
+  port: ":8080"
+  timeout: 10s
+  idle_timeout: 60s
