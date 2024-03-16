@@ -5,8 +5,9 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/google/uuid"
+
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/stretchr/testify/require"
 )
 

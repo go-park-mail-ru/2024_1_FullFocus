@@ -1,16 +1,16 @@
 package delivery
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
+
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
-	"github.com/gorilla/mux"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -18,14 +18,12 @@ const (
 )
 
 type AuthHandler struct {
-	srv     *http.Server
 	router  *mux.Router
 	usecase usecase.Auth
 }
 
-func NewAuthHandler(s *http.Server, uc usecase.Auth) *AuthHandler {
+func NewAuthHandler(uc usecase.Auth) *AuthHandler {
 	return &AuthHandler{
-		srv:     s,
 		router:  mux.NewRouter(),
 		usecase: uc,
 	}
@@ -39,14 +37,6 @@ func (h *AuthHandler) InitRouter(r *mux.Router) {
 		h.router.Handle("/logout", http.HandlerFunc(h.Logout)).Methods("POST", "OPTIONS")
 		h.router.Handle("/check", http.HandlerFunc(h.CheckAuth)).Methods("GET", "OPTIONS")
 	}
-}
-
-func (h *AuthHandler) Run() error {
-	return h.srv.ListenAndServe()
-}
-
-func (h *AuthHandler) Stop() error {
-	return h.srv.Shutdown(context.Background())
 }
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {

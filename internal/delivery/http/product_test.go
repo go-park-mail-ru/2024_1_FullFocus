@@ -7,17 +7,18 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-	mock_usecase "github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
+
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	mock_usecase "github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase/mocks"
 )
 
 func TestNewProductsHandler(t *testing.T) {
 	t.Run("Check new products handler creation", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		require.NotEmpty(t, NewProductHandler(&http.Server{}, mock_usecase.NewMockProducts(ctrl)))
+		require.NotEmpty(t, NewProductHandler(mock_usecase.NewMockProducts(ctrl)))
 	})
 }
 
@@ -83,8 +84,7 @@ func TestGetProducts(t *testing.T) {
 			defer ctrl.Finish()
 			mockProductsUsecase := mock_usecase.NewMockProducts(ctrl)
 			testCase.mockBehavior(mockProductsUsecase, testCase.lastID, testCase.limit)
-			srv := &http.Server{}
-			ph := NewProductHandler(srv, mockProductsUsecase)
+			ph := NewProductHandler(mockProductsUsecase)
 
 			req := httptest.NewRequest("GET", "/api/products", nil)
 			q := req.URL.Query()

@@ -3,13 +3,14 @@ package repository
 import (
 	"context"
 	"fmt"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"log/slog"
 	"sync"
 	"time"
 
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/google/uuid"
+
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 )
 
 type SessionRepo struct {

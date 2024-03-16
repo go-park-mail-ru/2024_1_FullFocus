@@ -4,10 +4,11 @@ import (
 	"context"
 	"testing"
 
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-	mock_repository "github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
+
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	mock_repository "github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/mocks"
 )
 
 func TestNewProductsUsecase(t *testing.T) {

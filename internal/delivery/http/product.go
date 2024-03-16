@@ -1,27 +1,25 @@
 package delivery
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
 
+	"github.com/gorilla/mux"
+
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
-	"github.com/gorilla/mux"
 )
 
 type ProductHandler struct {
-	srv     *http.Server
 	router  *mux.Router
 	usecase usecase.Products
 }
 
-func NewProductHandler(srv *http.Server, u usecase.Products) *ProductHandler {
+func NewProductHandler(u usecase.Products) *ProductHandler {
 	return &ProductHandler{
-		srv:     srv,
 		router:  mux.NewRouter(),
 		usecase: u,
 	}
@@ -29,15 +27,9 @@ func NewProductHandler(srv *http.Server, u usecase.Products) *ProductHandler {
 
 func (h *ProductHandler) InitRouter(r *mux.Router) {
 	h.router = r.PathPrefix("/products").Subrouter()
-	h.router.Handle("/", http.HandlerFunc(h.GetProducts)).Methods("GET", "OPTIONS")
-}
-
-func (h *ProductHandler) Run() error {
-	return h.srv.ListenAndServe()
-}
-
-func (h *ProductHandler) Stop() error {
-	return h.srv.Shutdown(context.Background())
+	{
+		h.router.Handle("/", http.HandlerFunc(h.GetProducts)).Methods("GET", "OPTIONS")
+	}
 }
 
 func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
