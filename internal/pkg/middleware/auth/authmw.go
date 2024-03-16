@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
-
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
+
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 )
 
 func NewAuthMiddleware(uc usecase.Auth) mux.MiddlewareFunc {

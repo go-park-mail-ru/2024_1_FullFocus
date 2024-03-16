@@ -3,14 +3,15 @@ package middleware
 import (
 	"bufio"
 	"context"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
-	"github.com/pkg/errors"
 	"log/slog"
 	"net"
 	"net/http"
 	"sync/atomic"
 
 	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
+
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 )
 
 var ErrHijackAssertion = errors.New("type assertion to http.Hijacker failed")
