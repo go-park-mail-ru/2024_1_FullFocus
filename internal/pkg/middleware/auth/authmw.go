@@ -43,7 +43,7 @@ func NewAuthMiddleware(uc usecase.Auth) mux.MiddlewareFunc {
 				}
 				return
 			}
-			ctx = context.WithValue(ctx, models.ContextUserKey, userID)
+			ctx = context.WithValue(ctx, helper.UserId{}, userID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
