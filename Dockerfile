@@ -14,4 +14,4 @@ COPY --from=build /project/bin/app /bin/
 
 WORKDIR /project
 
-CMD ["app"]
+CMD ["app", "--config_path=./config/prod.yaml"]
