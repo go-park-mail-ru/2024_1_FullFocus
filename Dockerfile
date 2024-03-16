@@ -12,4 +12,6 @@ FROM alpine:latest
 
 COPY --from=build /project/bin/app /bin/
 
+WORKDIR /project
+
 CMD ["app"]
