@@ -1,9 +1,14 @@
 package repository
 
 import (
+	"context"
+	"fmt"
+	"log/slog"
 	"sync"
+	"time"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 )
 
 type ProductRepo struct {
@@ -38,14 +43,21 @@ func NewProductRepo() *ProductRepo {
 	return r
 }
 
-func (r *ProductRepo) GetProducts(lastID, limit int) ([]models.Product, error) {
+func (r *ProductRepo) GetProducts(ctx context.Context, lastID, limit int) ([]models.Product, error) {
+	l := helper.GetLoggerFromContext(ctx)
 	r.Lock()
 	defer r.Unlock()
+	l.Info(`SELECT * FROM products WHERE id > $1 ORDER BY id LIMIT $2;`,
+		slog.String("args", fmt.Sprintf("$1 = %d, $2 = %d", lastID, limit)))
+
+	start := time.Now()
 	prods := make([]models.Product, 0, limit)
 	for i := lastID - 1; i < len(r.products) && i < lastID+limit-1; i++ {
 		prods = append(prods, r.products[i])
 	}
-	if count := len(prods); count == 0 {
+	l.Info(fmt.Sprintf("%d products found in %s", len(prods), time.Since(start)))
+
+	if len(prods) == 0 {
 		return nil, models.ErrNoProduct
 	}
 	return prods, nil

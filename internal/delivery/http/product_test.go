@@ -1,22 +1,24 @@
 package delivery
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-	mock_usecase "github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
+
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	mock_usecase "github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase/mocks"
 )
 
 func TestNewProductsHandler(t *testing.T) {
 	t.Run("Check new products handler creation", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		require.NotEmpty(t, NewProductsHandler(&http.Server{}, mock_usecase.NewMockProducts(ctrl)))
+		require.NotEmpty(t, NewProductHandler(mock_usecase.NewMockProducts(ctrl)))
 	})
 }
 
@@ -37,7 +39,7 @@ func TestGetProducts(t *testing.T) {
 			lastIDstr: "3",
 			limitStr:  "6",
 			mockBehavior: func(u *mock_usecase.MockProducts, lastId, limit int) {
-				u.EXPECT().GetProducts(lastId, limit).Return([]models.Product{}, nil)
+				u.EXPECT().GetProducts(context.Background(), lastId, limit).Return([]models.Product{}, nil)
 			},
 			expectedStatus: 200,
 		},
@@ -48,7 +50,7 @@ func TestGetProducts(t *testing.T) {
 			lastIDstr: "",
 			limitStr:  "",
 			mockBehavior: func(u *mock_usecase.MockProducts, lastId, limit int) {
-				u.EXPECT().GetProducts(lastId, limit).Return([]models.Product{}, nil)
+				u.EXPECT().GetProducts(context.Background(), lastId, limit).Return([]models.Product{}, nil)
 			},
 			expectedStatus: 200,
 		},
@@ -59,7 +61,7 @@ func TestGetProducts(t *testing.T) {
 			lastIDstr: "freferf",
 			limitStr:  "3123123dwed",
 			mockBehavior: func(u *mock_usecase.MockProducts, lastId, limit int) {
-				u.EXPECT().GetProducts(lastId, limit).Return([]models.Product{}, nil)
+				u.EXPECT().GetProducts(context.Background(), lastId, limit).Return([]models.Product{}, nil)
 			},
 			expectedStatus: 200,
 		},
@@ -70,7 +72,7 @@ func TestGetProducts(t *testing.T) {
 			lastIDstr: "90",
 			limitStr:  "",
 			mockBehavior: func(u *mock_usecase.MockProducts, lastId, limit int) {
-				u.EXPECT().GetProducts(lastId, limit).Return(nil, models.ErrNoProduct)
+				u.EXPECT().GetProducts(context.Background(), lastId, limit).Return(nil, models.ErrNoProduct)
 			},
 			expectedStatus: 404,
 		},
@@ -82,8 +84,7 @@ func TestGetProducts(t *testing.T) {
 			defer ctrl.Finish()
 			mockProductsUsecase := mock_usecase.NewMockProducts(ctrl)
 			testCase.mockBehavior(mockProductsUsecase, testCase.lastID, testCase.limit)
-			srv := &http.Server{}
-			ph := NewProductsHandler(srv, mockProductsUsecase)
+			ph := NewProductHandler(mockProductsUsecase)
 
 			req := httptest.NewRequest("GET", "/api/products", nil)
 			q := req.URL.Query()

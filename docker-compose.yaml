@@ -6,3 +6,6 @@ services:
     image: b0pof/bizon-main
     ports:
       - '8080:8080'
+    volumes:
+      - "${PWD}/logs:/project/logs"
+      - "${PWD}/config:/project/config"

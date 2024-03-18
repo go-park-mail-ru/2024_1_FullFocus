@@ -1,9 +1,14 @@
 package repository
 
 import (
+	"context"
+	"fmt"
+	"log/slog"
 	"sync"
+	"time"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 )
 
 type UserRepo struct {
@@ -18,10 +23,19 @@ func NewUserRepo() *UserRepo {
 	}
 }
 
-func (r *UserRepo) CreateUser(user models.User) (uint, error) {
+func (r *UserRepo) CreateUser(ctx context.Context, user models.User) (uint, error) {
+	l := helper.GetLoggerFromContext(ctx)
+	l.Info(`INSERT INTO user (username, password) VALUES ($1, $2);`,
+		slog.String("args", fmt.Sprintf("$1 = %s, $2 = %s", user.Username, user.Password)))
+
+	start := time.Now()
+	defer func() {
+		l.Info(fmt.Sprintf("created in %s", time.Since(start)))
+	}()
 	r.Lock()
 	defer r.Unlock()
 	if _, ok := r.storage[user.Username]; ok {
+		l.Error("user already exists")
 		return 0, models.ErrUserAlreadyExists
 	}
 	r.nextID++
@@ -29,12 +43,19 @@ func (r *UserRepo) CreateUser(user models.User) (uint, error) {
 	return user.ID, nil
 }
 
-func (r *UserRepo) GetUser(username string) (models.User, error) {
+func (r *UserRepo) GetUser(ctx context.Context, username string) (models.User, error) {
+	l := helper.GetLoggerFromContext(ctx)
+	l.Info(`SELECT * FROM user WHERE usename = $1;`,
+		slog.String("args", fmt.Sprintf("$1 = %s", username)))
+
+	start := time.Now()
 	r.Lock()
 	user, ok := r.storage[username]
 	r.Unlock()
 	if !ok {
+		l.Error("user not found")
 		return models.User{}, models.ErrNoUser
 	}
+	l.Info(fmt.Sprintf("queried in %s", time.Since(start)))
 	return user, nil
 }

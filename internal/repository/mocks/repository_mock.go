@@ -5,6 +5,7 @@
 package mock_repository
 
 import (
+	context "context"
 	reflect "reflect"
 
 	models "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
@@ -35,33 +36,33 @@ func (m *MockUsers) EXPECT() *MockUsersMockRecorder {
 }
 
 // CreateUser mocks base method.
-func (m *MockUsers) CreateUser(user models.User) (uint, error) {
+func (m *MockUsers) CreateUser(ctx context.Context, user models.User) (uint, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateUser", user)
+	ret := m.ctrl.Call(m, "CreateUser", ctx, user)
 	ret0, _ := ret[0].(uint)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateUser indicates an expected call of CreateUser.
-func (mr *MockUsersMockRecorder) CreateUser(user interface{}) *gomock.Call {
+func (mr *MockUsersMockRecorder) CreateUser(ctx, user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockUsers)(nil).CreateUser), user)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockUsers)(nil).CreateUser), ctx, user)
 }
 
 // GetUser mocks base method.
-func (m *MockUsers) GetUser(login string) (models.User, error) {
+func (m *MockUsers) GetUser(ctx context.Context, login string) (models.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUser", login)
+	ret := m.ctrl.Call(m, "GetUser", ctx, login)
 	ret0, _ := ret[0].(models.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetUser indicates an expected call of GetUser.
-func (mr *MockUsersMockRecorder) GetUser(login interface{}) *gomock.Call {
+func (mr *MockUsersMockRecorder) GetUser(ctx, login interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockUsers)(nil).GetUser), login)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockUsers)(nil).GetUser), ctx, login)
 }
 
 // MockSessions is a mock of Sessions interface.
@@ -88,60 +89,60 @@ func (m *MockSessions) EXPECT() *MockSessionsMockRecorder {
 }
 
 // CreateSession mocks base method.
-func (m *MockSessions) CreateSession(userID uint) string {
+func (m *MockSessions) CreateSession(ctx context.Context, userID uint) string {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateSession", userID)
+	ret := m.ctrl.Call(m, "CreateSession", ctx, userID)
 	ret0, _ := ret[0].(string)
 	return ret0
 }
 
 // CreateSession indicates an expected call of CreateSession.
-func (mr *MockSessionsMockRecorder) CreateSession(userID interface{}) *gomock.Call {
+func (mr *MockSessionsMockRecorder) CreateSession(ctx, userID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSession", reflect.TypeOf((*MockSessions)(nil).CreateSession), userID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSession", reflect.TypeOf((*MockSessions)(nil).CreateSession), ctx, userID)
 }
 
 // DeleteSession mocks base method.
-func (m *MockSessions) DeleteSession(sID string) error {
+func (m *MockSessions) DeleteSession(ctx context.Context, sID string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteSession", sID)
+	ret := m.ctrl.Call(m, "DeleteSession", ctx, sID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteSession indicates an expected call of DeleteSession.
-func (mr *MockSessionsMockRecorder) DeleteSession(sID interface{}) *gomock.Call {
+func (mr *MockSessionsMockRecorder) DeleteSession(ctx, sID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSession", reflect.TypeOf((*MockSessions)(nil).DeleteSession), sID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSession", reflect.TypeOf((*MockSessions)(nil).DeleteSession), ctx, sID)
 }
 
 // GetUserIDBySessionID mocks base method.
-func (m *MockSessions) GetUserIDBySessionID(sID string) (uint, error) {
+func (m *MockSessions) GetUserIDBySessionID(ctx context.Context, sID string) (uint, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserIDBySessionID", sID)
+	ret := m.ctrl.Call(m, "GetUserIDBySessionID", ctx, sID)
 	ret0, _ := ret[0].(uint)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetUserIDBySessionID indicates an expected call of GetUserIDBySessionID.
-func (mr *MockSessionsMockRecorder) GetUserIDBySessionID(sID interface{}) *gomock.Call {
+func (mr *MockSessionsMockRecorder) GetUserIDBySessionID(ctx, sID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserIDBySessionID", reflect.TypeOf((*MockSessions)(nil).GetUserIDBySessionID), sID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserIDBySessionID", reflect.TypeOf((*MockSessions)(nil).GetUserIDBySessionID), ctx, sID)
 }
 
 // SessionExists mocks base method.
-func (m *MockSessions) SessionExists(sID string) bool {
+func (m *MockSessions) SessionExists(ctx context.Context, sID string) bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SessionExists", sID)
+	ret := m.ctrl.Call(m, "SessionExists", ctx, sID)
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
 // SessionExists indicates an expected call of SessionExists.
-func (mr *MockSessionsMockRecorder) SessionExists(sID interface{}) *gomock.Call {
+func (mr *MockSessionsMockRecorder) SessionExists(ctx, sID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SessionExists", reflect.TypeOf((*MockSessions)(nil).SessionExists), sID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SessionExists", reflect.TypeOf((*MockSessions)(nil).SessionExists), ctx, sID)
 }
 
 // MockProducts is a mock of Products interface.
@@ -168,16 +169,16 @@ func (m *MockProducts) EXPECT() *MockProductsMockRecorder {
 }
 
 // GetProducts mocks base method.
-func (m *MockProducts) GetProducts(lastID, limit int) ([]models.Product, error) {
+func (m *MockProducts) GetProducts(ctx context.Context, lastID, limit int) ([]models.Product, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetProducts", lastID, limit)
+	ret := m.ctrl.Call(m, "GetProducts", ctx, lastID, limit)
 	ret0, _ := ret[0].([]models.Product)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetProducts indicates an expected call of GetProducts.
-func (mr *MockProductsMockRecorder) GetProducts(lastID, limit interface{}) *gomock.Call {
+func (mr *MockProductsMockRecorder) GetProducts(ctx, lastID, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProducts", reflect.TypeOf((*MockProducts)(nil).GetProducts), lastID, limit)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProducts", reflect.TypeOf((*MockProducts)(nil).GetProducts), ctx, lastID, limit)
 }

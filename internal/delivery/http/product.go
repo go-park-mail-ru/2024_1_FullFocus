@@ -1,46 +1,41 @@
 package delivery
 
 import (
-	"context"
 	"errors"
-	"log"
+	"fmt"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
-	"github.com/gorilla/mux"
 )
 
-type ProductsHandler struct {
-	srv     *http.Server
+type ProductHandler struct {
 	router  *mux.Router
 	usecase usecase.Products
 }
 
-func NewProductsHandler(srv *http.Server, u usecase.Products) *ProductsHandler {
-	return &ProductsHandler{
-		srv:     srv,
+func NewProductHandler(u usecase.Products) *ProductHandler {
+	return &ProductHandler{
 		router:  mux.NewRouter(),
 		usecase: u,
 	}
 }
 
-func (h *ProductsHandler) InitRouter(r *mux.Router) {
+func (h *ProductHandler) InitRouter(r *mux.Router) {
 	h.router = r.PathPrefix("/products").Subrouter()
-	h.router.Handle("/", http.HandlerFunc(h.GetProducts)).Methods("GET", "OPTIONS")
+	{
+		h.router.Handle("/", http.HandlerFunc(h.GetProducts)).Methods("GET", "OPTIONS")
+	}
 }
 
-func (h *ProductsHandler) Run() error {
-	return h.srv.ListenAndServe()
-}
+func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	l := helper.GetLoggerFromContext(ctx)
 
-func (h *ProductsHandler) Stop() error {
-	return h.srv.Shutdown(context.Background())
-}
-
-func (h *ProductsHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	var lastID, limit int = 1, 10
 	qID, ok := r.URL.Query()["lastid"]
 	if ok {
@@ -56,14 +51,14 @@ func (h *ProductsHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 			limit = intLim
 		}
 	}
-	prods, err := h.usecase.GetProducts(lastID, limit)
+	prods, err := h.usecase.GetProducts(ctx, lastID, limit)
 	if errors.Is(err, models.ErrNoProduct) {
 		err := helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 404,
 			Msg:    "not found",
 			MsgRus: "по данному запросу товары не найдены"})
 		if err != nil {
-			log.Printf("marshall error: %v", err)
+			l.Error(fmt.Sprintf("marshall error: %v", err))
 		}
 		return
 	}
@@ -72,6 +67,6 @@ func (h *ProductsHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 		Data:   prods,
 	})
 	if err != nil {
-		log.Printf("marshall error: %v", err)
+		l.Error(fmt.Sprintf("marshall error: %v", err))
 	}
 }

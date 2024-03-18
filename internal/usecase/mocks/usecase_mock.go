@@ -5,6 +5,7 @@
 package mock_usecase
 
 import (
+	context "context"
 	reflect "reflect"
 
 	models "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
@@ -35,67 +36,67 @@ func (m *MockAuth) EXPECT() *MockAuthMockRecorder {
 }
 
 // GetUserIDBySessionID mocks base method.
-func (m *MockAuth) GetUserIDBySessionID(sID string) (uint, error) {
+func (m *MockAuth) GetUserIDBySessionID(ctx context.Context, sID string) (uint, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserIDBySessionID", sID)
+	ret := m.ctrl.Call(m, "GetUserIDBySessionID", ctx, sID)
 	ret0, _ := ret[0].(uint)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetUserIDBySessionID indicates an expected call of GetUserIDBySessionID.
-func (mr *MockAuthMockRecorder) GetUserIDBySessionID(sID interface{}) *gomock.Call {
+func (mr *MockAuthMockRecorder) GetUserIDBySessionID(ctx, sID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserIDBySessionID", reflect.TypeOf((*MockAuth)(nil).GetUserIDBySessionID), sID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserIDBySessionID", reflect.TypeOf((*MockAuth)(nil).GetUserIDBySessionID), ctx, sID)
 }
 
 // IsLoggedIn mocks base method.
-func (m *MockAuth) IsLoggedIn(isID string) bool {
+func (m *MockAuth) IsLoggedIn(ctx context.Context, isID string) bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "IsLoggedIn", isID)
+	ret := m.ctrl.Call(m, "IsLoggedIn", ctx, isID)
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
 // IsLoggedIn indicates an expected call of IsLoggedIn.
-func (mr *MockAuthMockRecorder) IsLoggedIn(isID interface{}) *gomock.Call {
+func (mr *MockAuthMockRecorder) IsLoggedIn(ctx, isID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsLoggedIn", reflect.TypeOf((*MockAuth)(nil).IsLoggedIn), isID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IsLoggedIn", reflect.TypeOf((*MockAuth)(nil).IsLoggedIn), ctx, isID)
 }
 
 // Login mocks base method.
-func (m *MockAuth) Login(login, password string) (string, error) {
+func (m *MockAuth) Login(ctx context.Context, login, password string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Login", login, password)
+	ret := m.ctrl.Call(m, "Login", ctx, login, password)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Login indicates an expected call of Login.
-func (mr *MockAuthMockRecorder) Login(login, password interface{}) *gomock.Call {
+func (mr *MockAuthMockRecorder) Login(ctx, login, password interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockAuth)(nil).Login), login, password)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockAuth)(nil).Login), ctx, login, password)
 }
 
 // Logout mocks base method.
-func (m *MockAuth) Logout(sID string) error {
+func (m *MockAuth) Logout(ctx context.Context, sID string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Logout", sID)
+	ret := m.ctrl.Call(m, "Logout", ctx, sID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Logout indicates an expected call of Logout.
-func (mr *MockAuthMockRecorder) Logout(sID interface{}) *gomock.Call {
+func (mr *MockAuthMockRecorder) Logout(ctx, sID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Logout", reflect.TypeOf((*MockAuth)(nil).Logout), sID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Logout", reflect.TypeOf((*MockAuth)(nil).Logout), ctx, sID)
 }
 
 // Signup mocks base method.
-func (m *MockAuth) Signup(login, password string) (string, string, error) {
+func (m *MockAuth) Signup(ctx context.Context, login, password string) (string, string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Signup", login, password)
+	ret := m.ctrl.Call(m, "Signup", ctx, login, password)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(string)
 	ret2, _ := ret[2].(error)
@@ -103,9 +104,9 @@ func (m *MockAuth) Signup(login, password string) (string, string, error) {
 }
 
 // Signup indicates an expected call of Signup.
-func (mr *MockAuthMockRecorder) Signup(login, password interface{}) *gomock.Call {
+func (mr *MockAuthMockRecorder) Signup(ctx, login, password interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Signup", reflect.TypeOf((*MockAuth)(nil).Signup), login, password)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Signup", reflect.TypeOf((*MockAuth)(nil).Signup), ctx, login, password)
 }
 
 // MockProducts is a mock of Products interface.
@@ -132,16 +133,16 @@ func (m *MockProducts) EXPECT() *MockProductsMockRecorder {
 }
 
 // GetProducts mocks base method.
-func (m *MockProducts) GetProducts(lastID, limit int) ([]models.Product, error) {
+func (m *MockProducts) GetProducts(ctx context.Context, lastID, limit int) ([]models.Product, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetProducts", lastID, limit)
+	ret := m.ctrl.Call(m, "GetProducts", ctx, lastID, limit)
 	ret0, _ := ret[0].([]models.Product)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetProducts indicates an expected call of GetProducts.
-func (mr *MockProductsMockRecorder) GetProducts(lastID, limit interface{}) *gomock.Call {
+func (mr *MockProductsMockRecorder) GetProducts(ctx, lastID, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProducts", reflect.TypeOf((*MockProducts)(nil).GetProducts), lastID, limit)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProducts", reflect.TypeOf((*MockProducts)(nil).GetProducts), ctx, lastID, limit)
 }

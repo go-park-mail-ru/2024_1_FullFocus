@@ -18,4 +18,8 @@
 # Go workspace file
 go.work
 
+# Logs
+logs/
+*.log
+
 .idea

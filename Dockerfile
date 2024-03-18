@@ -12,4 +12,6 @@ FROM alpine:latest
 
 COPY --from=build /project/bin/app /bin/
 
-CMD ["app"]
+WORKDIR /project
+
+CMD ["app", "--config_path=./config/prod.yaml"]
