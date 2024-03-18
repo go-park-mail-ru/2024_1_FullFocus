@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  main-app:
+    restart: always
+    image: b0pof/bizon-main
+    ports:
+      - '8080:8080'
