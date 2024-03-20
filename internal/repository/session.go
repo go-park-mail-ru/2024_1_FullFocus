@@ -15,12 +15,14 @@ import (
 
 type SessionRepo struct {
 	sync.Mutex
-	sessions map[string]uint
+	sessions   map[string]uint
+	sessionTTL time.Duration
 }
 
-func NewSessionRepo() *SessionRepo {
+func NewSessionRepo(sessTTL time.Duration) *SessionRepo {
 	return &SessionRepo{
-		sessions: make(map[string]uint, 10),
+		sessions:   make(map[string]uint, 10),
+		sessionTTL: sessTTL,
 	}
 }
 

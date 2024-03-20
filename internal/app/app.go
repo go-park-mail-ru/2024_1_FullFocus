@@ -65,9 +65,9 @@ func Init() *App {
 
 	// Auth
 	userRepo := repository.NewUserRepo()
-	sessionRepo := repository.NewSessionRepo()
+	sessionRepo := repository.NewSessionRepo(cfg.SessionTTL)
 	authUsecase := usecase.NewAuthUsecase(userRepo, sessionRepo)
-	authHandler := delivery.NewAuthHandler(authUsecase)
+	authHandler := delivery.NewAuthHandler(authUsecase, cfg.SessionTTL)
 	authHandler.InitRouter(apiRouter)
 
 	// Products
