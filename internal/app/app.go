@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -25,7 +26,14 @@ const (
 	_timeout = 5 * time.Second
 )
 
-func Run() {
+type App struct {
+	config *config.Config
+	server *server.Server
+	router *mux.Router
+	logger *slog.Logger
+}
+
+func Init() *App {
 
 	// Config
 
@@ -35,7 +43,7 @@ func Run() {
 
 	log := logger.NewLogger(cfg.Env)
 
-	// Router init
+	// Router
 
 	r := mux.NewRouter()
 	apiRouter := r.PathPrefix("/api").Subrouter()
@@ -49,11 +57,11 @@ func Run() {
 	r.Use(logmw.NewLoggingMiddleware(log))
 	r.Use(corsmw.NewCORSMiddleware([]string{}))
 
-	// Server init
+	// Server
 
 	srv := server.NewServer(cfg.Server, r)
 
-	// Layers init
+	// Layers
 
 	// Auth
 	userRepo := repository.NewUserRepo()
@@ -68,12 +76,19 @@ func Run() {
 	productHandler := delivery.NewProductHandler(productUsecase)
 	productHandler.InitRouter(apiRouter)
 
-	// Run server
+	return &App{
+		config: cfg,
+		server: srv,
+		router: r,
+		logger: log,
+	}
+}
 
+func (a *App) Run() {
 	go func() {
-		log.Info("server is running...")
-		if err := srv.Run(); err != nil {
-			log.Error(fmt.Sprintf("HTTP server ListenAndServe error: %s", err.Error()))
+		a.logger.Info("server is running...")
+		if err := a.server.Run(); err != nil {
+			a.logger.Error(fmt.Sprintf("HTTP server ListenAndServe error: %s", err.Error()))
 		}
 	}()
 
@@ -87,8 +102,8 @@ func Run() {
 	ctx, shutdown := context.WithTimeout(context.Background(), _timeout)
 	defer shutdown()
 
-	log.Info("shutting down...")
-	if err := srv.Stop(ctx); err != nil {
-		log.Error(fmt.Sprintf("HTTP server shutdown error: %v", err))
+	a.logger.Info("shutting down...")
+	if err := a.server.Stop(ctx); err != nil {
+		a.logger.Error(fmt.Sprintf("HTTP server shutdown error: %v", err))
 	}
 }
