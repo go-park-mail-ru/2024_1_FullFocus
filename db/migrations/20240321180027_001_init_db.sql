@@ -1,6 +1,16 @@
+-- +goose Up
+-- +goose StatementBegin
+SELECT 'up SQL query';
+-- +goose StatementEnd
+
+-- ozon schema definition
+
+CREATE SCHEMA IF NOT EXISTS ozon;
+-- SET search_path TO ozon, public;
+
 -- ozon.user definition
 
-CREATE TABLE IF NOT EXISTS user (
+CREATE TABLE IF NOT EXISTS default_user (
 	id uuid NOT NULL,
 	user_login text NOT NULL,
 	password_hash text NOT NULL,
@@ -8,12 +18,12 @@ CREATE TABLE IF NOT EXISTS user (
 	updated_at timetz DEFAULT now() NOT NULL,
 	CONSTRAINT user_check CHECK (char_length(user_login) BETWEEN 4 AND 32),
 	CONSTRAINT user_pk PRIMARY KEY (id),
-	CONSTRAINT user_unique UNIQUE (login)
+	CONSTRAINT user_unique UNIQUE (user_login)
 );
 
 -- ozon.profile definition
 
-CREATE TABLE IF NOT EXISTS profile (
+CREATE TABLE IF NOT EXISTS user_profile (
 	id uuid NOT NULL,
 	full_name text NOT NULL,
 	email text NOT NULL,
@@ -28,7 +38,7 @@ CREATE TABLE IF NOT EXISTS profile (
 	CONSTRAINT phone_length CHECK (char_length(phone_number) BETWEEN 5 AND 15),
 	CONSTRAINT phone_valid CHECK (phone_number ~ '\+?[0-9]+'),
 	CONSTRAINT profile_pk PRIMARY KEY (id),
-	CONSTRAINT profile_user_fk FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+	CONSTRAINT profile_user_fk FOREIGN KEY (user_id) REFERENCES default_user(id) ON DELETE CASCADE
 );
 
 -- ozon.product definition
@@ -44,7 +54,7 @@ CREATE TABLE IF NOT EXISTS product (
 	category_id int4 NOT NULL,
 	created_at timetz DEFAULT now() NOT NULL,
 	updated_at timetz DEFAULT now() NOT NULL,
-	CONSTRAINT descriprion_length CHECK (char_length(procust_description) BETWEEN 1 AND 255),
+	CONSTRAINT descriprion_length CHECK (char_length(product_description) BETWEEN 1 AND 255),
 	CONSTRAINT name_length CHECK (char_length(product_name) BETWEEN 1 AND 50),
 	CONSTRAINT price_positive CHECK (price > 0),
 	CONSTRAINT product_pk PRIMARY KEY (id)
@@ -100,5 +110,21 @@ CREATE TABLE IF NOT EXISTS ordering (
 	CONSTRAINT ordering_pk PRIMARY KEY (id),
 	CONSTRAINT sum_positive CHECK (sum >= 0),
 	CONSTRAINT order_item_fk FOREIGN KEY (order_item) REFERENCES order_item(id),
-	CONSTRAINT ordering_profile_fk FOREIGN KEY (profile_id) REFERENCES profile(id)
+	CONSTRAINT ordering_profile_fk FOREIGN KEY (profile_id) REFERENCES user_profile(id)
 );
+
+-- +goose Down
+-- +goose StatementBegin
+SELECT 'down SQL query';
+-- +goose StatementEnd
+
+DROP TABLE IF EXISTS ordering;
+DROP TABLE IF EXISTS order_item;
+DROP TABLE IF EXISTS user_profile;
+DROP TABLE IF EXISTS default_user;
+DROP TABLE IF EXISTS product_category;
+DROP TABLE IF EXISTS product;
+DROP TABLE IF EXISTS category;
+
+DROP SCHEMA ozon CASCADE;
+-- SET search_path TO public;
