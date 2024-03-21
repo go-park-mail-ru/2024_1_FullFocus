@@ -4,6 +4,7 @@ import (
 	"context"
 	"math/rand"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -11,23 +12,25 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const _sessionTTL = 24 * time.Hour
+
 func TestNewSessionRepo(t *testing.T) {
 	t.Run("Check SessionRepo creation", func(t *testing.T) {
-		sr := NewSessionRepo()
+		sr := NewSessionRepo(_sessionTTL)
 		require.NotEmpty(t, sr, "sessionrepo not created")
 	})
 }
 
 func TestCreateSession(t *testing.T) {
 	t.Run("Check valid sessionID by random userID", func(t *testing.T) {
-		sID := NewSessionRepo().CreateSession(context.Background(), uint(rand.Uint32()))
+		sID := NewSessionRepo(_sessionTTL).CreateSession(context.Background(), uint(rand.Uint32()))
 		_, err := uuid.Parse(sID)
 		require.Equal(t, nil, err, "got an empty sessionID")
 	})
 }
 
 func TestSessionExists(t *testing.T) {
-	sr := NewSessionRepo()
+	sr := NewSessionRepo(_sessionTTL)
 	t.Run("Check real sessionID in SessionRepo", func(t *testing.T) {
 		sID := sr.CreateSession(context.Background(), uint(rand.Uint32()))
 		got := sr.SessionExists(context.Background(), sID)
@@ -40,7 +43,7 @@ func TestSessionExists(t *testing.T) {
 }
 
 func TestDeleteSession(t *testing.T) {
-	sr := NewSessionRepo()
+	sr := NewSessionRepo(_sessionTTL)
 	t.Run("Check existing sessionID delete", func(t *testing.T) {
 		sID := sr.CreateSession(context.Background(), uint(rand.Uint32()))
 		err := sr.DeleteSession(context.Background(), sID)
