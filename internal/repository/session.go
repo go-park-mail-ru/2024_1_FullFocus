@@ -3,8 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
-	"log/slog"
-	"sync"
+	"github.com/go-redis/redis"
 	"time"
 
 	"github.com/google/uuid"
@@ -14,14 +13,13 @@ import (
 )
 
 type SessionRepo struct {
-	sync.Mutex
-	sessions   map[string]uint
+	client     *redis.Client
 	sessionTTL time.Duration
 }
 
-func NewSessionRepo(sessTTL time.Duration) *SessionRepo {
+func NewSessionRepo(c *redis.Client, sessTTL time.Duration) *SessionRepo {
 	return &SessionRepo{
-		sessions:   make(map[string]uint, 10),
+		client:     c,
 		sessionTTL: sessTTL,
 	}
 }
@@ -29,65 +27,48 @@ func NewSessionRepo(sessTTL time.Duration) *SessionRepo {
 func (r *SessionRepo) CreateSession(ctx context.Context, userID uint) string {
 	l := helper.GetLoggerFromContext(ctx)
 	sID := uuid.New().String()
-	l.Info(`INSERT INTO session (sess_id, user_id) VALUES ($1, $2);`,
-		slog.String("args", fmt.Sprintf("$1 = %s, $2 = %d", sID, userID)))
-
 	start := time.Now()
-	r.Lock()
-	r.sessions[sID] = userID
-	r.Unlock()
+	r.client.Set(sID, userID, r.sessionTTL)
 	l.Info(fmt.Sprintf("session inserted in %s", time.Since(start)))
-
 	return sID
 }
 
 func (r *SessionRepo) GetUserIDBySessionID(ctx context.Context, sID string) (uint, error) {
 	l := helper.GetLoggerFromContext(ctx)
-	l.Info(`SELECT user_id FROM session WHERE sess_id = $1;`,
-		slog.String("args", fmt.Sprintf("$1 = %s", sID)))
-
 	start := time.Now()
-	r.Lock()
-	uID, ok := r.sessions[sID]
-	r.Unlock()
+	uID, err := r.client.Get(sID).Uint64()
 	l.Info(fmt.Sprintf("user_id selected in %s", time.Since(start)))
-
-	if !ok {
+	if err != nil {
 		l.Error("no session found")
 		return 0, models.ErrNoSession
 	}
-	return uID, nil
+	return uint(uID), nil
 }
 
 func (r *SessionRepo) SessionExists(ctx context.Context, sID string) bool {
 	l := helper.GetLoggerFromContext(ctx)
-	l.Info(`SELECT COUNT(user_id) FROM session WHERE sess_id = $1;`,
-		slog.String("args", fmt.Sprintf("$1 = %s", sID)))
-
 	start := time.Now()
-	r.Lock()
-	_, ok := r.sessions[sID]
-	r.Unlock()
+	_, err := r.client.Get(sID).Uint64()
 	l.Info(fmt.Sprintf("session checked in %s", time.Since(start)))
-	return ok
+	if err != nil {
+		l.Info("session found")
+		return false
+	}
+	l.Info("no session")
+	return true
 }
 
 func (r *SessionRepo) DeleteSession(ctx context.Context, sID string) error {
 	l := helper.GetLoggerFromContext(ctx)
-	l.Info(`DELETE FROM session WHERE sess_id = $1;`,
-		slog.String("args", fmt.Sprintf("$1 = %s", sID)))
-
 	start := time.Now()
-	defer func() {
-		l.Info(fmt.Sprintf("session deleted in %s", time.Since(start)))
-	}()
-	r.Lock()
-	defer r.Unlock()
-	if _, ok := r.sessions[sID]; !ok {
+	if err := r.client.Get(sID).Err(); err != nil {
 		l.Error("no session found")
 		return models.ErrNoSession
 	}
-	delete(r.sessions, sID)
+	l.Info(fmt.Sprintf("session checked in %s", time.Since(start)))
+	start = time.Now()
+	r.client.Del(sID)
+	l.Info(fmt.Sprintf("session deleted in %s", time.Since(start)))
 
 	return nil
 }

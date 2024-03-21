@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/redis"
 	"log/slog"
 	"net/http"
 	"os"
@@ -57,7 +58,15 @@ func Init() *App {
 	r.Use(logmw.NewLoggingMiddleware(log))
 	r.Use(corsmw.NewCORSMiddleware([]string{}))
 
-	// Server
+	// Redis
+
+	redisClient := redis.NewClient(cfg.Redis)
+
+	if err := redisClient.Ping().Err(); err != nil {
+		panic("ping error: " + err.Error())
+	}
+
+	// Server init
 
 	srv := server.NewServer(cfg.Server, r)
 
@@ -65,7 +74,7 @@ func Init() *App {
 
 	// Auth
 	userRepo := repository.NewUserRepo()
-	sessionRepo := repository.NewSessionRepo(cfg.SessionTTL)
+	sessionRepo := repository.NewSessionRepo(redisClient, cfg.SessionTTL)
 	authUsecase := usecase.NewAuthUsecase(userRepo, sessionRepo)
 	authHandler := delivery.NewAuthHandler(authUsecase, cfg.SessionTTL)
 	authHandler.InitRouter(apiRouter)

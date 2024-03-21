@@ -13,12 +13,17 @@ type Config struct {
 	Env        string        `yaml:"env" env-required:"true"`
 	SessionTTL time.Duration `yaml:"session_ttl"`
 	Server     ServerConfig  `yaml:"server"`
+	Redis      RedisConfig   `yaml:"redis"`
 }
 
 type ServerConfig struct {
 	Port        string        `yaml:"port"`
 	Timeout     time.Duration `yaml:"timeout"`
 	IdleTimeout time.Duration `yaml:"idle_timeout"`
+}
+
+type RedisConfig struct {
+	Port string `yaml:"port"`
 }
 
 func MustLoad() *Config {

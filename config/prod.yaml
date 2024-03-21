@@ -4,3 +4,5 @@ server:
   port: ":8080"
   timeout: 5s
   idle_timeout: 60s
+redis:
+  port: "redis:6379"
