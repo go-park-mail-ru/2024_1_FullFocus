@@ -22,4 +22,7 @@ go.work
 logs/
 *.log
 
+# DB data
+redis_data/
+
 .idea
