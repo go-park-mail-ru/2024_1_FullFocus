@@ -1,12 +1,15 @@
-.DEFAULT_GOAL:=run
+.DEFAULT_GOAL:=up
 
-.PHONY: lint run build test
+.PHONY: lint up down build test clean
 
 lint:
 	golangci-lint run ./...
 
-run:
-	go run cmd/main/main.go --config_path=./config/local.yaml
+up:
+	docker compose up -d
+
+down:
+	docker compose down
 
 build:
 	go build -o ./bin/app ./cmd/main/main.go
@@ -22,3 +25,6 @@ test:
 	@sed -i '/models/d' testresult.txt
 	@cat testresult.txt
 	@rm testresult.txt
+
+clean:
+	rm testresult.txt

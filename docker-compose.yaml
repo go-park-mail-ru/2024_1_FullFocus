@@ -1,11 +1,22 @@
 version: '3.8'
 
 services:
+  redis:
+    image: 'redis'
+    restart: always
+    ports:
+      - '6379:6379'
+    volumes:
+      - '${PWD}/redis_data:/data'
   main-app:
+    depends_on:
+      - redis
     restart: always
     image: b0pof/bizon-main
+    environment:
+      - CONFIG_PATH=./config/prod.yaml
     ports:
       - '8080:8080'
     volumes:
-      - "${PWD}/logs:/project/logs"
-      - "${PWD}/config:/project/config"
+      - '${PWD}/logs:/project/logs'
+      - '${PWD}/config:/project/config'

@@ -17,11 +17,13 @@ import (
 	mock_usecase "github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase/mocks"
 )
 
+const _sessionTTL = 24 * time.Hour
+
 func TestNewAuthHandler(t *testing.T) {
 	t.Run("Check new auth handler creation", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		require.NotEmpty(t, NewAuthHandler(mock_usecase.NewMockAuth(ctrl)))
+		require.NotEmpty(t, NewAuthHandler(mock_usecase.NewMockAuth(ctrl), _sessionTTL))
 	})
 }
 
@@ -98,7 +100,7 @@ func TestSignUp(t *testing.T) {
 			defer ctrl.Finish()
 			mockAuthUsecase := mock_usecase.NewMockAuth(ctrl)
 			testCase.mockBehavior(mockAuthUsecase, testCase.login, testCase.password)
-			ah := NewAuthHandler(mockAuthUsecase)
+			ah := NewAuthHandler(mockAuthUsecase, _sessionTTL)
 
 			form := url.Values{}
 			form.Add("login", testCase.login)
@@ -181,7 +183,7 @@ func TestLogin(t *testing.T) {
 			defer ctrl.Finish()
 			mockAuthUsecase := mock_usecase.NewMockAuth(ctrl)
 			testCase.mockBehavior(mockAuthUsecase, testCase.login, testCase.password)
-			ah := NewAuthHandler(mockAuthUsecase)
+			ah := NewAuthHandler(mockAuthUsecase, _sessionTTL)
 
 			form := url.Values{}
 			form.Add("login", testCase.login)
@@ -263,7 +265,7 @@ func TestLogout(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 			mockAuthUsecase := mock_usecase.NewMockAuth(ctrl)
-			ah := NewAuthHandler(mockAuthUsecase)
+			ah := NewAuthHandler(mockAuthUsecase, _sessionTTL)
 			req := httptest.NewRequest("POST", "/api/auth/logout", nil)
 			if testCase.setCookie {
 				testCase.mockBehavior(mockAuthUsecase, testCase.session)
@@ -339,7 +341,7 @@ func TestCheckAuth(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 			mockAuthUsecase := mock_usecase.NewMockAuth(ctrl)
-			ah := NewAuthHandler(mockAuthUsecase)
+			ah := NewAuthHandler(mockAuthUsecase, _sessionTTL)
 			req := httptest.NewRequest("POST", "/api/auth/check", nil)
 			if testCase.setCookie {
 				testCase.mockBehavior(mockAuthUsecase, testCase.session)

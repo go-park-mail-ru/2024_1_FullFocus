@@ -13,19 +13,17 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 )
 
-const (
-	SessionTTL = time.Hour * 24
-)
-
 type AuthHandler struct {
-	router  *mux.Router
-	usecase usecase.Auth
+	router     *mux.Router
+	usecase    usecase.Auth
+	sessionTTL time.Duration
 }
 
-func NewAuthHandler(uc usecase.Auth) *AuthHandler {
+func NewAuthHandler(uc usecase.Auth, sessTTL time.Duration) *AuthHandler {
 	return &AuthHandler{
-		router:  mux.NewRouter(),
-		usecase: uc,
+		router:     mux.NewRouter(),
+		usecase:    uc,
+		sessionTTL: sessTTL,
 	}
 }
 
@@ -69,7 +67,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		Name:     "session_id",
 		Value:    sID,
 		HttpOnly: true,
-		Expires:  time.Now().Add(SessionTTL),
+		Expires:  time.Now().Add(h.sessionTTL),
 		Path:     "/",
 	}
 	http.SetCookie(w, cookie)
@@ -110,7 +108,7 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 		Name:     "session_id",
 		Value:    sID,
 		HttpOnly: true,
-		Expires:  time.Now().Add(SessionTTL),
+		Expires:  time.Now().Add(h.sessionTTL),
 		Path:     "/",
 	}
 	http.SetCookie(w, cookie)
