@@ -14,4 +14,7 @@ COPY --from=build /project/bin/app /bin/
 
 WORKDIR /project
 
+RUN apk add --no-cache tzdata
+ENV TZ="Europe/Moscow"
+
 CMD ["app"]
