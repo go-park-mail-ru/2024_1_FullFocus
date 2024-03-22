@@ -3,9 +3,9 @@ package repository
 import (
 	"context"
 	"fmt"
-	"github.com/go-redis/redis"
 	"time"
 
+	"github.com/go-redis/redis"
 	"github.com/google/uuid"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
