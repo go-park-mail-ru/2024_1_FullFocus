@@ -1,12 +1,10 @@
 -- +goose Up
 -- +goose StatementBegin
-SELECT 'up SQL query';
--- +goose StatementEnd
 
 -- ozon schema definition
 
 CREATE SCHEMA IF NOT EXISTS ozon;
--- SET search_path TO ozon, public;
+SET search_path TO ozon, public;
 
 -- ozon.user definition
 
@@ -100,11 +98,18 @@ CREATE TABLE IF NOT EXISTS order_item (
 
 -- ozon.ordering definition
 
+CREATE TYPE ordering_status AS ENUM (
+	'created',
+	'cancelled',
+	'ready'
+);
+
 CREATE TABLE IF NOT EXISTS ordering (
 	id uuid NOT NULL,
 	sum int4 DEFAULT 0 NOT NULL,
 	order_item uuid NOT NULL,
 	profile_id uuid NOT NULL,
+	order_status ordering_status NOT NULL,
 	created_at timetz DEFAULT now() NOT NULL,
 	updated_at timetz DEFAULT now() NOT NULL,
 	CONSTRAINT ordering_pk PRIMARY KEY (id),
@@ -113,12 +118,13 @@ CREATE TABLE IF NOT EXISTS ordering (
 	CONSTRAINT ordering_profile_fk FOREIGN KEY (profile_id) REFERENCES user_profile(id)
 );
 
--- +goose Down
--- +goose StatementBegin
-SELECT 'down SQL query';
 -- +goose StatementEnd
 
+-- +goose Down
+-- +goose StatementBegin
+
 DROP TABLE IF EXISTS ordering;
+DROP TYPE IF EXISTS ordering_status;
 DROP TABLE IF EXISTS order_item;
 DROP TABLE IF EXISTS user_profile;
 DROP TABLE IF EXISTS default_user;
@@ -127,4 +133,6 @@ DROP TABLE IF EXISTS product;
 DROP TABLE IF EXISTS category;
 
 DROP SCHEMA ozon CASCADE;
--- SET search_path TO public;
+SET search_path TO public;
+
+-- +goose StatementEnd
