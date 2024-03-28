@@ -14,6 +14,7 @@ type Config struct {
 	SessionTTL time.Duration `yaml:"session_ttl"`
 	Server     ServerConfig  `yaml:"server"`
 	Redis      RedisConfig   `yaml:"redis"`
+	Minio      MinioConfig   `yaml:"minio"`
 }
 
 type ServerConfig struct {
@@ -23,7 +24,13 @@ type ServerConfig struct {
 }
 
 type RedisConfig struct {
-	Port string `yaml:"port"`
+	Addr string `yaml:"addr"`
+}
+
+type MinioConfig struct {
+	Port          string `yaml:"port"`
+	MinioUser     string `yaml:"minio_user"`
+	MinioPassword string `yaml:"minio_password"`
 }
 
 func MustLoad() *Config {
