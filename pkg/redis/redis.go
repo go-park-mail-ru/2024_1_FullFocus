@@ -8,7 +8,7 @@ import (
 
 func NewClient(cfg config.RedisConfig) *redis.Client {
 	return redis.NewClient(&redis.Options{
-		Addr:     cfg.Port,
+		Addr:     cfg.Addr,
 		Password: "",
 		DB:       0,
 	})
