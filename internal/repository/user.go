@@ -4,58 +4,54 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"sync"
 	"time"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
+	"github.com/google/uuid"
 )
 
 type UserRepo struct {
-	nextID uint
-	sync.Mutex
-	storage map[string]models.User
+	storage db.Database
 }
 
-func NewUserRepo() *UserRepo {
+func NewUserRepo(dbClient db.Database) *UserRepo {
 	return &UserRepo{
-		storage: make(map[string]models.User),
+		storage: dbClient,
 	}
 }
 
-func (r *UserRepo) CreateUser(ctx context.Context, user models.User) (uint, error) {
+func (r *UserRepo) CreateUser(ctx context.Context, user models.User) (uuid.UUID, error) {
 	l := helper.GetLoggerFromContext(ctx)
-	l.Info(`INSERT INTO user (username, password) VALUES ($1, $2);`,
-		slog.String("args", fmt.Sprintf("$1 = %s, $2 = %s", user.Username, user.Password)))
-
+	userRow := ConvertUserToTable(user)
+	q := `INSERT INTO default_user (id, user_login, password_hash) VALUES ($1, $2, $3);`
+	l.Info(q, slog.String("args", fmt.Sprintf("$1 = %s $2 = %s, $3 = %s", userRow.Id, userRow.Login, userRow.Password_hash)))
 	start := time.Now()
 	defer func() {
 		l.Info(fmt.Sprintf("created in %s", time.Since(start)))
 	}()
-	r.Lock()
-	defer r.Unlock()
-	if _, ok := r.storage[user.Username]; ok {
+	_, err := r.storage.Exec(ctx, q, userRow)
+	if err != nil {
 		l.Error("user already exists")
-		return 0, models.ErrUserAlreadyExists
+		return uuid.Nil, models.ErrUserAlreadyExists
 	}
-	r.nextID++
-	r.storage[user.Username] = user
-	return user.ID, nil
+	return userRow.Id, nil
 }
 
 func (r *UserRepo) GetUser(ctx context.Context, username string) (models.User, error) {
 	l := helper.GetLoggerFromContext(ctx)
-	l.Info(`SELECT * FROM user WHERE usename = $1;`,
-		slog.String("args", fmt.Sprintf("$1 = %s", username)))
-
+	q := `SELECT id FROM default_user WHERE user_login = $1;`
+	l.Info(q, slog.String("args", fmt.Sprintf("$1 = %s", username)))
 	start := time.Now()
-	r.Lock()
-	user, ok := r.storage[username]
-	r.Unlock()
-	if !ok {
+	defer func() {
+		l.Info(fmt.Sprintf("queried in %s", time.Since(start)))
+	}()
+	userRow := &UserTable{}
+	err := r.storage.Get(ctx, userRow, q, username)
+	if err != nil {
 		l.Error("user not found")
 		return models.User{}, models.ErrNoUser
 	}
-	l.Info(fmt.Sprintf("queried in %s", time.Since(start)))
-	return user, nil
+	return ConvertTableToUser(*userRow), nil
 }
