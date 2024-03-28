@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"context"
 	"log/slog"
 	"os"
 )
@@ -13,6 +14,8 @@ const (
 const (
 	_logFile = "logs/info.log"
 )
+
+type ctxLogger struct{}
 
 func NewLogger(env string) *slog.Logger {
 	var log *slog.Logger
@@ -33,4 +36,33 @@ func NewLogger(env string) *slog.Logger {
 
 func DefaultLogger() *slog.Logger {
 	return NewLogger(_envProd)
+}
+
+func Debug(ctx context.Context, msg string, args ...any) {
+	getLoggerFromContext(ctx).Debug(msg, args...)
+}
+
+func Info(ctx context.Context, msg string, args ...any) {
+	getLoggerFromContext(ctx).Info(msg, args...)
+}
+
+func Warn(ctx context.Context, msg string, args ...any) {
+	getLoggerFromContext(ctx).Warn(msg, args...)
+}
+
+func Error(ctx context.Context, msg string, args ...any) {
+	getLoggerFromContext(ctx).Error(msg, args...)
+}
+
+// WithContext adds logger to context.
+func WithContext(ctx context.Context, l *slog.Logger) context.Context {
+	return context.WithValue(ctx, ctxLogger{}, l)
+}
+
+// getLoggerFromContext returns logger from context.
+func getLoggerFromContext(ctx context.Context) *slog.Logger {
+	if l, ok := ctx.Value(ctxLogger{}).(*slog.Logger); ok {
+		return l
+	}
+	return DefaultLogger()
 }

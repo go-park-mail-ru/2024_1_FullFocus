@@ -10,6 +10,7 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/dto"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 )
 
@@ -35,8 +36,6 @@ func (h *AvatarHandler) InitRouter(r *mux.Router) {
 
 func (h *AvatarHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	l := helper.GetLoggerFromContext(ctx)
-
 	src, hdr, err := r.FormFile("avatar")
 	if err != nil {
 		if jsonErr := helper.JSONResponse(w, 200, models.ErrResponse{
@@ -44,7 +43,7 @@ func (h *AvatarHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 			Msg:    err.Error(),
 			MsgRus: "Файл не загружен",
 		}); jsonErr != nil {
-			l.Error(fmt.Sprintf("marshall error: %v", jsonErr))
+			logger.Error(ctx, fmt.Sprintf("marshall error: %v", jsonErr))
 		}
 		return
 	}
@@ -58,21 +57,19 @@ func (h *AvatarHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 			Msg:    err.Error(),
 			MsgRus: "Ошибка загрузки фото",
 		}); jsonErr != nil {
-			l.Error(fmt.Sprintf("marshall error: %v", jsonErr))
+			logger.Error(ctx, fmt.Sprintf("marshall error: %v", jsonErr))
 		}
 		return
 	}
 	if err = helper.JSONResponse(w, 200, models.SuccessResponse{
 		Status: 200,
 	}); err != nil {
-		l.Error(fmt.Sprintf("marshall error: %v", err))
+		logger.Error(ctx, fmt.Sprintf("marshall error: %v", err))
 	}
 }
 
 func (h *AvatarHandler) DeleteAvatar(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	l := helper.GetLoggerFromContext(ctx)
-
 	if err := h.usecase.DeleteAvatar(ctx); err != nil {
 		if errors.Is(err, models.ErrNoAvatar) {
 			if jsonErr := helper.JSONResponse(w, 200, models.ErrResponse{
@@ -80,7 +77,7 @@ func (h *AvatarHandler) DeleteAvatar(w http.ResponseWriter, r *http.Request) {
 				Msg:    err.Error(),
 				MsgRus: "Аватар не найден",
 			}); jsonErr != nil {
-				l.Error(fmt.Sprintf("marshall error: %v", jsonErr))
+				logger.Error(ctx, fmt.Sprintf("marshall error: %v", jsonErr))
 			}
 			return
 		}
@@ -89,12 +86,12 @@ func (h *AvatarHandler) DeleteAvatar(w http.ResponseWriter, r *http.Request) {
 			Msg:    err.Error(),
 			MsgRus: "Ошибка удаления фото",
 		}); jsonErr != nil {
-			l.Error(fmt.Sprintf("marshall error: %v", jsonErr))
+			logger.Error(ctx, fmt.Sprintf("marshall error: %v", jsonErr))
 		}
 	}
 	if err := helper.JSONResponse(w, 200, models.SuccessResponse{
 		Status: 200,
 	}); err != nil {
-		l.Error(fmt.Sprintf("marshall error: %v", err))
+		logger.Error(ctx, fmt.Sprintf("marshall error: %v", err))
 	}
 }

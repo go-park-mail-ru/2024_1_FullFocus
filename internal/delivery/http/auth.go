@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 )
 
@@ -39,8 +40,6 @@ func (h *AuthHandler) InitRouter(r *mux.Router) {
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	l := helper.GetLoggerFromContext(ctx)
-
 	login := r.FormValue("login")
 	password := r.FormValue("password")
 
@@ -48,7 +47,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if validationError := new(models.ValidationError); errors.As(err, &validationError) {
 			if jsonErr := helper.JSONResponse(w, 200, validationError.WithCode(400)); jsonErr != nil {
-				l.Error(fmt.Sprintf("marshall error: %v", jsonErr))
+				logger.Error(ctx, fmt.Sprintf("marshall error: %v", jsonErr))
 			}
 			return
 		}
@@ -57,7 +56,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 			Msg:    err.Error(),
 			MsgRus: "Неверный логин или пароль",
 		}); jsonErr != nil {
-			l.Error(fmt.Sprintf("marshall error: %v", jsonErr))
+			logger.Error(ctx, fmt.Sprintf("marshall error: %v", jsonErr))
 		}
 
 		return
@@ -73,14 +72,12 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	if err = helper.JSONResponse(w, 200, models.SuccessResponse{
 		Status: 200,
 	}); err != nil {
-		l.Error(fmt.Sprintf("marshall error: %v", err))
+		logger.Error(ctx, fmt.Sprintf("marshall error: %v", err))
 	}
 }
 
 func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	l := helper.GetLoggerFromContext(ctx)
-
 	login := r.FormValue("login")
 	password := r.FormValue("password")
 
@@ -88,7 +85,7 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if validationError := new(models.ValidationError); errors.As(err, &validationError) {
 			if jsonErr := helper.JSONResponse(w, 200, validationError.WithCode(400)); jsonErr != nil {
-				l.Error(fmt.Sprintf("marshall error: %v", jsonErr))
+				logger.Error(ctx, fmt.Sprintf("marshall error: %v", jsonErr))
 			}
 			return
 		}
@@ -97,7 +94,7 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 			Msg:    err.Error(),
 			MsgRus: "Пользователь уже существует",
 		}); jsonErr != nil {
-			l.Error(fmt.Sprintf("marshall error: %v", jsonErr))
+			logger.Error(ctx, fmt.Sprintf("marshall error: %v", jsonErr))
 		}
 		return
 	}
@@ -112,14 +109,12 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	if err = helper.JSONResponse(w, 200, models.SuccessResponse{
 		Status: 200,
 	}); err != nil {
-		l.Error(fmt.Sprintf("marshall error: %v", err))
+		logger.Error(ctx, fmt.Sprintf("marshall error: %v", err))
 	}
 }
 
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	l := helper.GetLoggerFromContext(ctx)
-
 	session, err := r.Cookie("session_id")
 	if errors.Is(err, http.ErrNoCookie) {
 		if jsonErr := helper.JSONResponse(w, 200, models.ErrResponse{
@@ -127,7 +122,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 			Msg:    err.Error(),
 			MsgRus: "Авторизация отсутствует",
 		}); jsonErr != nil {
-			l.Error(fmt.Sprintf("marshall error: %v", jsonErr))
+			logger.Error(ctx, fmt.Sprintf("marshall error: %v", jsonErr))
 		}
 		return
 	}
@@ -138,7 +133,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 			Msg:    err.Error(),
 			MsgRus: "Авторизация отсутствует",
 		}); jsonErr != nil {
-			l.Error(fmt.Sprintf("marshall error: %v", jsonErr))
+			logger.Error(ctx, fmt.Sprintf("marshall error: %v", jsonErr))
 		}
 		return
 	}
@@ -147,14 +142,12 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	if err = helper.JSONResponse(w, 200, models.SuccessResponse{
 		Status: 200,
 	}); err != nil {
-		l.Error(fmt.Sprintf("marshall error: %v", err))
+		logger.Error(ctx, fmt.Sprintf("marshall error: %v", err))
 	}
 }
 
 func (h *AuthHandler) CheckAuth(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	l := helper.GetLoggerFromContext(ctx)
-
 	session, err := r.Cookie("session_id")
 	if errors.Is(err, http.ErrNoCookie) {
 		if jsonErr := helper.JSONResponse(w, 200, models.ErrResponse{
@@ -162,7 +155,7 @@ func (h *AuthHandler) CheckAuth(w http.ResponseWriter, r *http.Request) {
 			Msg:    "no session",
 			MsgRus: "авторизация отсутствует",
 		}); jsonErr != nil {
-			l.Error(fmt.Sprintf("marshall error: %v", jsonErr))
+			logger.Error(ctx, fmt.Sprintf("marshall error: %v", jsonErr))
 		}
 		return
 	}
@@ -172,13 +165,13 @@ func (h *AuthHandler) CheckAuth(w http.ResponseWriter, r *http.Request) {
 			Msg:    "no session",
 			MsgRus: "авторизация отсутствует",
 		}); err != nil {
-			l.Error(fmt.Sprintf("marshall error: %v", jsonErr))
+			logger.Error(ctx, fmt.Sprintf("marshall error: %v", jsonErr))
 		}
 		return
 	}
 	if err = helper.JSONResponse(w, 200, models.SuccessResponse{
 		Status: 200,
 	}); err != nil {
-		l.Error(fmt.Sprintf("marshall error: %v", err))
+		logger.Error(ctx, fmt.Sprintf("marshall error: %v", err))
 	}
 }

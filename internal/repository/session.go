@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 )
 
 type SessionRepo struct {
@@ -25,50 +25,46 @@ func NewSessionRepo(c *redis.Client, sessTTL time.Duration) *SessionRepo {
 }
 
 func (r *SessionRepo) CreateSession(ctx context.Context, userID uint) string {
-	l := helper.GetLoggerFromContext(ctx)
 	sID := uuid.New().String()
 	start := time.Now()
 	r.client.Set(sID, userID, r.sessionTTL)
-	l.Info(fmt.Sprintf("session inserted in %s", time.Since(start)))
+	logger.Info(ctx, fmt.Sprintf("session inserted in %s", time.Since(start)))
 	return sID
 }
 
 func (r *SessionRepo) GetUserIDBySessionID(ctx context.Context, sID string) (uint, error) {
-	l := helper.GetLoggerFromContext(ctx)
 	start := time.Now()
 	uID, err := r.client.Get(sID).Uint64()
-	l.Info(fmt.Sprintf("user_id selected in %s", time.Since(start)))
+	logger.Info(ctx, fmt.Sprintf("user_id selected in %s", time.Since(start)))
 	if err != nil {
-		l.Error("no session found")
+		logger.Error(ctx, "no session found")
 		return 0, models.ErrNoSession
 	}
 	return uint(uID), nil
 }
 
 func (r *SessionRepo) SessionExists(ctx context.Context, sID string) bool {
-	l := helper.GetLoggerFromContext(ctx)
 	start := time.Now()
 	_, err := r.client.Get(sID).Uint64()
-	l.Info(fmt.Sprintf("session checked in %s", time.Since(start)))
+	logger.Info(ctx, fmt.Sprintf("session checked in %s", time.Since(start)))
 	if err != nil {
-		l.Info("session found")
+		logger.Info(ctx, "no session")
 		return false
 	}
-	l.Info("no session")
+	logger.Info(ctx, "session found")
 	return true
 }
 
 func (r *SessionRepo) DeleteSession(ctx context.Context, sID string) error {
-	l := helper.GetLoggerFromContext(ctx)
 	start := time.Now()
 	if err := r.client.Get(sID).Err(); err != nil {
-		l.Error("no session found")
+		logger.Error(ctx, "no session found")
 		return models.ErrNoSession
 	}
-	l.Info(fmt.Sprintf("session checked in %s", time.Since(start)))
+	logger.Info(ctx, fmt.Sprintf("session checked in %s", time.Since(start)))
 	start = time.Now()
 	r.client.Del(sID)
-	l.Info(fmt.Sprintf("session deleted in %s", time.Since(start)))
+	logger.Info(ctx, fmt.Sprintf("session deleted in %s", time.Since(start)))
 
 	return nil
 }

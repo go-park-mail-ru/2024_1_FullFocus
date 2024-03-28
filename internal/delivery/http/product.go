@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 )
 
@@ -34,8 +35,6 @@ func (h *ProductHandler) InitRouter(r *mux.Router) {
 
 func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	l := helper.GetLoggerFromContext(ctx)
-
 	var lastID, limit = 1, 10
 	qID, ok := r.URL.Query()["lastid"]
 	if ok {
@@ -58,7 +57,7 @@ func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 			Msg:    "not found",
 			MsgRus: "по данному запросу товары не найдены",
 		}); jsonErr != nil {
-			l.Error(fmt.Sprintf("marshall error: %v", jsonErr))
+			logger.Error(ctx, fmt.Sprintf("marshall error: %v", jsonErr))
 		}
 		return
 	}
@@ -66,6 +65,6 @@ func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 		Status: 200,
 		Data:   prods,
 	}); err != nil {
-		l.Error(fmt.Sprintf("marshall error: %v", err))
+		logger.Error(ctx, fmt.Sprintf("marshall error: %v", err))
 	}
 }

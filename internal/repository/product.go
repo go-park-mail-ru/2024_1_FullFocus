@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 )
 
 type ProductRepo struct {
@@ -44,10 +44,9 @@ func NewProductRepo() *ProductRepo {
 }
 
 func (r *ProductRepo) GetProducts(ctx context.Context, lastID, limit int) ([]models.Product, error) {
-	l := helper.GetLoggerFromContext(ctx)
 	r.Lock()
 	defer r.Unlock()
-	l.Info(`SELECT * FROM Products WHERE id > $1 ORDER BY id LIMIT $2;`,
+	logger.Info(ctx, `SELECT * FROM Products WHERE id > $1 ORDER BY id LIMIT $2;`,
 		slog.String("args", fmt.Sprintf("$1 = %d, $2 = %d", lastID, limit)))
 
 	start := time.Now()
@@ -55,7 +54,7 @@ func (r *ProductRepo) GetProducts(ctx context.Context, lastID, limit int) ([]mod
 	for i := lastID - 1; i < len(r.Products) && i < lastID+limit-1; i++ {
 		prods = append(prods, r.Products[i])
 	}
-	l.Info(fmt.Sprintf("%d Products found in %s", len(prods), time.Since(start)))
+	logger.Info(ctx, fmt.Sprintf("%d Products found in %s", len(prods), time.Since(start)))
 
 	if len(prods) == 0 {
 		return nil, models.ErrNoProduct
