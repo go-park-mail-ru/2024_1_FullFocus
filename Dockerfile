@@ -16,4 +16,7 @@ RUN apk update && apk add bash
 
 WORKDIR /project
 
-CMD ["app", "--config_path=./config/prod.yaml"]
+RUN apk add --no-cache tzdata
+ENV TZ="Europe/Moscow"
+
+CMD ["app"]

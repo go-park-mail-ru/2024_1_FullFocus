@@ -7,6 +7,8 @@ services:
     - minio
    restart: always
    image: b0pof/bizon-main
+   env_file:
+      - '.env'
    environment:
      - CONFIG_PATH=./config/prod.yaml
    ports:
