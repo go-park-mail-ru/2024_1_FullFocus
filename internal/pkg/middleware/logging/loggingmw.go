@@ -7,11 +7,12 @@ import (
 	"net"
 	"net/http"
 	"sync/atomic"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 )
 
 var ErrHijackAssertion = errors.New("type assertion to http.Hijacker failed")
@@ -52,9 +53,12 @@ func NewLoggingMiddleware(l *slog.Logger) mux.MiddlewareFunc {
 				ResponseWriter: w,
 				statusCode:     200,
 			}
-			ctx := helper.ContextWithLogger(context.Background(), requestLogger)
+			ctx := logger.WithContext(context.Background(), requestLogger)
+			start := time.Now()
 			next.ServeHTTP(wi, r.WithContext(ctx))
-			requestLogger.Info("response", slog.Int("statusCode", wi.statusCode))
+			requestLogger.Info("response",
+				slog.Int("statusCode", wi.statusCode),
+				slog.String("duration", time.Since(start).String()))
 		})
 	}
 }

@@ -18,6 +18,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v4
         with:
+          args: --timeout=30m --config=golangci.prod.yaml
           version: v1.54
   test:
     runs-on: ubuntu-latest

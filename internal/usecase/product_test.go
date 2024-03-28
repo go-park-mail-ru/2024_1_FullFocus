@@ -1,4 +1,4 @@
-package usecase
+package usecase_test
 
 import (
 	"context"
@@ -9,13 +9,14 @@ import (
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	mock_repository "github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/mocks"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 )
 
 func TestNewProductsUsecase(t *testing.T) {
-	t.Run("Check Products Usecase creation", func(t *testing.T) {
+	t.Run("Check products Usecase creation", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		pu := NewProductUsecase(mock_repository.NewMockProducts(ctrl))
+		pu := usecase.NewProductUsecase(mock_repository.NewMockProducts(ctrl))
 		require.NotEmpty(t, pu, "product repo not created")
 	})
 }
@@ -67,7 +68,7 @@ func TestGetProducts(t *testing.T) {
 			defer ctrl.Finish()
 			mockProductRepo := mock_repository.NewMockProducts(ctrl)
 			testCase.mockBehavior(mockProductRepo, testCase.lastID, testCase.limit)
-			pu := NewProductUsecase(mockProductRepo)
+			pu := usecase.NewProductUsecase(mockProductRepo)
 			prods, err := pu.GetProducts(context.Background(), testCase.lastID, testCase.limit)
 			require.Equal(t, testCase.expectedResult, prods)
 			require.Equal(t, testCase.expectedErr, err)
