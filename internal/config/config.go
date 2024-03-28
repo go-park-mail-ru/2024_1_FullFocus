@@ -10,9 +10,19 @@ import (
 )
 
 type Config struct {
-	Env        string        `yaml:"env" env-required:"true"`
-	SessionTTL time.Duration `yaml:"session_ttl"`
-	Server     ServerConfig  `yaml:"server"`
+	Env        string         `yaml:"env" env-required:"true"`
+	SessionTTL time.Duration  `yaml:"session_ttl"`
+	Server     ServerConfig   `yaml:"server"`
+	Postgres   PostgresConfig `yaml:"postgres"`
+}
+
+type PostgresConfig struct {
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	Database string `yaml:"database"`
+	Sslmode  string `yaml:"sslmode"`
 }
 
 type ServerConfig struct {
