@@ -2,10 +2,12 @@ package config
 
 import (
 	"flag"
+	"log"
 	"os"
 	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
+	"github.com/joho/godotenv"
 	"github.com/pkg/errors"
 )
 
@@ -22,6 +24,10 @@ type ServerConfig struct {
 }
 
 func MustLoad() *Config {
+	err := godotenv.Load()
+	if err != nil {
+		log.Println(".env file not found")
+	}
 	path := parseConfigPath()
 	if path == "" {
 		panic("config path not specified")

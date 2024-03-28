@@ -22,4 +22,7 @@ go.work
 logs/
 *.log
 
+# Env files
+.env
+
 .idea
