@@ -3,7 +3,7 @@
 .PHONY: lint up down build test clean
 
 lint:
-	golangci-lint run ./... -c golangci.yml
+	golangci-lint run ./... -c golangci.yaml
 
 up:
 	docker compose up -d
