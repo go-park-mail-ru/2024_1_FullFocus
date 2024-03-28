@@ -26,4 +26,8 @@ logs/
 redis_data/
 minio-data/
 
+# Env files
+.env
+
+
 .idea
