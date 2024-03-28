@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/minio"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/redis"
 	"log/slog"
 	"net/http"
@@ -63,7 +64,15 @@ func Init() *App {
 	redisClient := redis.NewClient(cfg.Redis)
 
 	if err := redisClient.Ping().Err(); err != nil {
-		panic("ping error: " + err.Error())
+		panic("redis error: " + err.Error())
+	}
+
+	// Minio
+
+	minioClient, err := minio.NewClient(cfg.Minio)
+
+	if err != nil {
+		panic("minio connection error: " + err.Error())
 	}
 
 	// Server init
@@ -84,6 +93,12 @@ func Init() *App {
 	productUsecase := usecase.NewProductUsecase(productRepo)
 	productHandler := delivery.NewProductHandler(productUsecase)
 	productHandler.InitRouter(apiRouter)
+
+	// Avatar
+	avatarStorage := repository.NewAvatarStorage(minioClient)
+	avatarUsecase := usecase.NewAvatarUsecase(avatarStorage, userRepo)
+	avatarHandler := delivery.NewAvatarHandler(avatarUsecase)
+	avatarHandler.InitRouter(apiRouter)
 
 	return &App{
 		config: cfg,
