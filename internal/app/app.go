@@ -3,8 +3,6 @@ package app
 import (
 	"context"
 	"fmt"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/minio"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/redis"
 	"log/slog"
 	"net/http"
 	"os"
@@ -22,6 +20,8 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/server"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/minio"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/redis"
 )
 
 const (
@@ -36,7 +36,6 @@ type App struct {
 }
 
 func Init() *App {
-
 	// Config
 
 	cfg := config.MustLoad()
@@ -50,7 +49,7 @@ func Init() *App {
 	r := mux.NewRouter()
 	apiRouter := r.PathPrefix("/api").Subrouter()
 
-	r.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	r.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		http.Error(w, `Not found`, 404)
 	})
 
@@ -88,7 +87,7 @@ func Init() *App {
 	authHandler := delivery.NewAuthHandler(authUsecase, cfg.SessionTTL)
 	authHandler.InitRouter(apiRouter)
 
-	// Products
+	// products
 	productRepo := repository.NewProductRepo()
 	productUsecase := usecase.NewProductUsecase(productRepo)
 	productHandler := delivery.NewProductHandler(productUsecase)
@@ -112,7 +111,7 @@ func (a *App) Run() {
 	go func() {
 		a.logger.Info("server is running...")
 		if err := a.server.Run(); err != nil {
-			a.logger.Error(fmt.Sprintf("HTTP server ListenAndServe error: %s", err.Error()))
+			a.logger.Error("HTTP server ListenAndServe error: " + err.Error())
 		}
 	}()
 

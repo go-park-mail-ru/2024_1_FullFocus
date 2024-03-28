@@ -1,4 +1,4 @@
-package delivery
+package delivery_test
 
 import (
 	"context"
@@ -13,6 +13,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 
+	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	mock_usecase "github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase/mocks"
 )
@@ -23,7 +24,7 @@ func TestNewAuthHandler(t *testing.T) {
 	t.Run("Check new auth handler creation", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		require.NotEmpty(t, NewAuthHandler(mock_usecase.NewMockAuth(ctrl), _sessionTTL))
+		require.NotEmpty(t, delivery.NewAuthHandler(mock_usecase.NewMockAuth(ctrl), _sessionTTL))
 	})
 }
 
@@ -100,7 +101,7 @@ func TestSignUp(t *testing.T) {
 			defer ctrl.Finish()
 			mockAuthUsecase := mock_usecase.NewMockAuth(ctrl)
 			testCase.mockBehavior(mockAuthUsecase, testCase.login, testCase.password)
-			ah := NewAuthHandler(mockAuthUsecase, _sessionTTL)
+			ah := delivery.NewAuthHandler(mockAuthUsecase, _sessionTTL)
 
 			form := url.Values{}
 			form.Add("login", testCase.login)
@@ -115,19 +116,18 @@ func TestSignUp(t *testing.T) {
 			if testCase.expectedStatus != 200 {
 				var errResp models.ErrResponse
 				err := json.NewDecoder(r.Body).Decode(&errResp)
-				require.Equal(t, nil, err)
+				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, errResp.Status)
 				require.Equal(t, testCase.expectedErr, errResp.Msg)
 			} else {
 				var successResp models.SuccessResponse
 				err := json.NewDecoder(r.Body).Decode(&successResp)
-				require.Equal(t, nil, err)
+				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, successResp.Status)
 				cookie := r.Result().Cookies()
 				err = cookie[0].Valid()
-				require.Equal(t, nil, err)
+				require.NoError(t, err)
 			}
-
 		})
 	}
 }
@@ -183,7 +183,7 @@ func TestLogin(t *testing.T) {
 			defer ctrl.Finish()
 			mockAuthUsecase := mock_usecase.NewMockAuth(ctrl)
 			testCase.mockBehavior(mockAuthUsecase, testCase.login, testCase.password)
-			ah := NewAuthHandler(mockAuthUsecase, _sessionTTL)
+			ah := delivery.NewAuthHandler(mockAuthUsecase, _sessionTTL)
 
 			form := url.Values{}
 			form.Add("login", testCase.login)
@@ -198,19 +198,18 @@ func TestLogin(t *testing.T) {
 			if testCase.expectedStatus != 200 {
 				var errResp models.ErrResponse
 				err := json.NewDecoder(r.Body).Decode(&errResp)
-				require.Equal(t, nil, err)
+				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, errResp.Status)
 				require.Equal(t, testCase.expectedErr, errResp.Msg)
 			} else {
 				var successResp models.SuccessResponse
 				err := json.NewDecoder(r.Body).Decode(&successResp)
-				require.Equal(t, nil, err)
+				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, successResp.Status)
 				cookie := r.Result().Cookies()
 				err = cookie[0].Valid()
-				require.Equal(t, nil, err)
+				require.NoError(t, err)
 			}
-
 		})
 	}
 }
@@ -265,7 +264,7 @@ func TestLogout(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 			mockAuthUsecase := mock_usecase.NewMockAuth(ctrl)
-			ah := NewAuthHandler(mockAuthUsecase, _sessionTTL)
+			ah := delivery.NewAuthHandler(mockAuthUsecase, _sessionTTL)
 			req := httptest.NewRequest("POST", "/api/auth/logout", nil)
 			if testCase.setCookie {
 				testCase.mockBehavior(mockAuthUsecase, testCase.session)
@@ -283,13 +282,13 @@ func TestLogout(t *testing.T) {
 			if testCase.expectedStatus != 200 {
 				var errResp models.ErrResponse
 				err := json.NewDecoder(r.Body).Decode(&errResp)
-				require.Equal(t, nil, err)
+				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, errResp.Status)
 				require.Equal(t, testCase.expectedErr, errResp.Msg)
 			} else {
 				var successResp models.SuccessResponse
 				err := json.NewDecoder(r.Body).Decode(&successResp)
-				require.Equal(t, nil, err)
+				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, successResp.Status)
 				diff := time.Now().AddDate(0, 0, -1).UTC().Sub(r.Result().Cookies()[0].Expires.UTC()).Seconds()
 				require.Less(t, diff, float64(1))
@@ -341,7 +340,7 @@ func TestCheckAuth(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 			mockAuthUsecase := mock_usecase.NewMockAuth(ctrl)
-			ah := NewAuthHandler(mockAuthUsecase, _sessionTTL)
+			ah := delivery.NewAuthHandler(mockAuthUsecase, _sessionTTL)
 			req := httptest.NewRequest("POST", "/api/auth/check", nil)
 			if testCase.setCookie {
 				testCase.mockBehavior(mockAuthUsecase, testCase.session)
@@ -358,13 +357,13 @@ func TestCheckAuth(t *testing.T) {
 			if testCase.expectedStatus != 200 {
 				var errResp models.ErrResponse
 				err := json.NewDecoder(r.Body).Decode(&errResp)
-				require.Equal(t, nil, err)
+				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, errResp.Status)
 				require.Equal(t, testCase.expectedErr, errResp.Msg)
 			} else {
 				var successResp models.SuccessResponse
 				err := json.NewDecoder(r.Body).Decode(&successResp)
-				require.Equal(t, nil, err)
+				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, successResp.Status)
 			}
 		})

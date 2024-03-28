@@ -36,7 +36,7 @@ func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	l := helper.GetLoggerFromContext(ctx)
 
-	var lastID, limit int = 1, 10
+	var lastID, limit = 1, 10
 	qID, ok := r.URL.Query()["lastid"]
 	if ok {
 		intID, err := strconv.Atoi(qID[0])
@@ -53,20 +53,19 @@ func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	}
 	prods, err := h.usecase.GetProducts(ctx, lastID, limit)
 	if errors.Is(err, models.ErrNoProduct) {
-		err := helper.JSONResponse(w, 200, models.ErrResponse{
+		if jsonErr := helper.JSONResponse(w, 200, models.ErrResponse{
 			Status: 404,
 			Msg:    "not found",
-			MsgRus: "по данному запросу товары не найдены"})
-		if err != nil {
-			l.Error(fmt.Sprintf("marshall error: %v", err))
+			MsgRus: "по данному запросу товары не найдены",
+		}); jsonErr != nil {
+			l.Error(fmt.Sprintf("marshall error: %v", jsonErr))
 		}
 		return
 	}
-	err = helper.JSONResponse(w, 200, models.SuccessResponse{
+	if err = helper.JSONResponse(w, 200, models.SuccessResponse{
 		Status: 200,
 		Data:   prods,
-	})
-	if err != nil {
+	}); err != nil {
 		l.Error(fmt.Sprintf("marshall error: %v", err))
 	}
 }

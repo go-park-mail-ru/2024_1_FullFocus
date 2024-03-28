@@ -46,7 +46,7 @@ func (r *UserRepo) CreateUser(ctx context.Context, user models.User) (uint, erro
 func (r *UserRepo) GetUser(ctx context.Context, username string) (models.User, error) {
 	l := helper.GetLoggerFromContext(ctx)
 	l.Info(`SELECT * FROM user WHERE usename = $1;`,
-		slog.String("args", fmt.Sprintf("$1 = %s", username)))
+		slog.String("args", "$1 = "+username))
 
 	start := time.Now()
 	r.Lock()

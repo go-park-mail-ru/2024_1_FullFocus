@@ -109,7 +109,7 @@ func (mr *MockAuthMockRecorder) Signup(ctx, login, password interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Signup", reflect.TypeOf((*MockAuth)(nil).Signup), ctx, login, password)
 }
 
-// MockProducts is a mock of Products interface.
+// MockProducts is a mock of products interface.
 type MockProducts struct {
 	ctrl     *gomock.Controller
 	recorder *MockProductsMockRecorder

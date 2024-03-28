@@ -145,7 +145,7 @@ func (mr *MockSessionsMockRecorder) SessionExists(ctx, sID interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SessionExists", reflect.TypeOf((*MockSessions)(nil).SessionExists), ctx, sID)
 }
 
-// MockProducts is a mock of Products interface.
+// MockProducts is a mock of products interface.
 type MockProducts struct {
 	ctrl     *gomock.Controller
 	recorder *MockProductsMockRecorder

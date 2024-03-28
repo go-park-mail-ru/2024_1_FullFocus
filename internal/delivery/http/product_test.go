@@ -1,4 +1,4 @@
-package delivery
+package delivery_test
 
 import (
 	"context"
@@ -10,6 +10,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 
+	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	mock_usecase "github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase/mocks"
 )
@@ -18,7 +19,7 @@ func TestNewProductsHandler(t *testing.T) {
 	t.Run("Check new products handler creation", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		require.NotEmpty(t, NewProductHandler(mock_usecase.NewMockProducts(ctrl)))
+		require.NotEmpty(t, delivery.NewProductHandler(mock_usecase.NewMockProducts(ctrl)))
 	})
 }
 
@@ -84,7 +85,7 @@ func TestGetProducts(t *testing.T) {
 			defer ctrl.Finish()
 			mockProductsUsecase := mock_usecase.NewMockProducts(ctrl)
 			testCase.mockBehavior(mockProductsUsecase, testCase.lastID, testCase.limit)
-			ph := NewProductHandler(mockProductsUsecase)
+			ph := delivery.NewProductHandler(mockProductsUsecase)
 
 			req := httptest.NewRequest("GET", "/api/products", nil)
 			q := req.URL.Query()
@@ -104,10 +105,10 @@ func TestGetProducts(t *testing.T) {
 			if testCase.expectedStatus != 200 {
 				err = json.NewDecoder(r.Body).Decode(&errResp)
 				require.Equal(t, testCase.expectedStatus, errResp.Status)
-				require.Equal(t, nil, err)
+				require.NoError(t, err)
 			} else {
 				err = json.NewDecoder(r.Body).Decode(&successResp)
-				require.Equal(t, nil, err)
+				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, successResp.Status)
 			}
 		})

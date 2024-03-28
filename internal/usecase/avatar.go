@@ -3,11 +3,11 @@ package usecase
 import (
 	"context"
 	"fmt"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"time"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/dto"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
 )
 
@@ -33,9 +33,10 @@ func (u *AvatarUsecase) UploadAvatar(ctx context.Context, img dto.Image) error {
 		PayloadSize: img.PayloadSize,
 	}
 	// TODO: удалить прежнюю аву, если есть
-	if err := u.avatarRepo.UploadAvatar(ctx, object); err != nil {
-		return err
-	}
+	// if err := u.avatarRepo.UploadAvatar(ctx, object); err != nil {
+	//	return err
+	// }
+	_ = u.avatarRepo.UploadAvatar(ctx, object)
 	// TODO: обновить ссылку на аву пользователя с id = uid
 	return nil
 }

@@ -1,4 +1,4 @@
-package helper
+package helper_test
 
 import (
 	"encoding/json"
@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	model "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 )
 
 type Test struct {
@@ -26,7 +27,7 @@ func TestJSONResponse(t *testing.T) {
 		w := httptest.NewRecorder()
 		expect, _ := json.Marshal(item.Message)
 		expect = append(expect, byte(10))
-		err := JSONResponse(w, item.StatusCode, item.Message)
+		err := helper.JSONResponse(w, item.StatusCode, item.Message)
 		if err != nil {
 			t.Fatalf("err: %v", err)
 		}
@@ -41,7 +42,7 @@ func TestJSONResponseErr(t *testing.T) {
 	data["key"] = data
 	statusCode := 200
 	w := httptest.NewRecorder()
-	err := JSONResponse(w, statusCode, data)
+	err := helper.JSONResponse(w, statusCode, data)
 	if err.Error() != "json: unsupported value: encountered a cycle via map[string]interface {}" {
 		t.Fatalf("функция не обработала корректно ошибку %s", err)
 	}
