@@ -24,5 +24,6 @@ logs/
 
 # DB data
 redis_data/
+minio-data/
 
 .idea
