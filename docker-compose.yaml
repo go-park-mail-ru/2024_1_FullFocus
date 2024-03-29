@@ -5,7 +5,7 @@ services:
    depends_on:
     - redis
     - minio
-   restart: always
+#   restart: always
    image: b0pof/bizon-main
    env_file:
       - '.env'
@@ -34,7 +34,7 @@ services:
     volumes:
       - '${PWD}/redis_data:/data'
   minio:
-    image: minio/minio:latest
+    image: minio/minio:RELEASE.2024-01-18T22-51-28Z-cpuv1
     volumes:
       - ./minio-data:/data
     ports:
