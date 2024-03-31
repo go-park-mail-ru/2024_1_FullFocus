@@ -17,8 +17,8 @@ type PgxDatabase struct {
 	client *sqlx.DB
 }
 
-func NewPostgresClient(cfg config.PostgresConfig) *PgxDatabase {
-	dbUrl := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
+func NewPgxDatabase(ctx context.Context, cfg config.PostgresConfig) (database.Database, error) {
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		cfg.User,
 		cfg.Password,
 		cfg.Host,
@@ -26,24 +26,20 @@ func NewPostgresClient(cfg config.PostgresConfig) *PgxDatabase {
 		cfg.Database,
 		cfg.Sslmode,
 	)
-	return &PgxDatabase{
-		dsn: dbUrl,
-	}
-}
-
-func (db *PgxDatabase) GetRawDb() *sqlx.DB {
-	return db.client
-}
-
-func (db *PgxDatabase) Connect(ctx context.Context) (database.Database, error) {
-	dbClient, err := sqlx.ConnectContext(ctx, "postgres", db.dsn)
+	dbClient, err := sqlx.ConnectContext(ctx, "postgres", dsn)
 	if err != nil {
 		return nil, err
 	}
 	dbClient.SetMaxOpenConns(10)
 	dbClient.SetConnMaxIdleTime(10 * time.Second)
-	db.client = dbClient
-	return db, nil
+	return &PgxDatabase{
+		dsn:    dsn,
+		client: dbClient,
+	}, nil
+}
+
+func (db *PgxDatabase) GetRawDb() *sqlx.DB {
+	return db.client
 }
 
 func (db *PgxDatabase) Close() error {

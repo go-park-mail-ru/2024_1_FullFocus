@@ -24,9 +24,9 @@ func NewUserRepo(dbClient db.Database) *UserRepo {
 
 func (r *UserRepo) CreateUser(ctx context.Context, user models.User) (uuid.UUID, error) {
 	l := helper.GetLoggerFromContext(ctx)
-	userRow := ConvertUserToTable(user)
+	userRow := db.ConvertUserToTable(user)
 	q := `INSERT INTO default_user (id, user_login, password_hash) VALUES ($1, $2, $3);`
-	l.Info(q, slog.String("args", fmt.Sprintf("$1 = %s $2 = %s, $3 = %s", userRow.Id, userRow.Login, userRow.Password_hash)))
+	l.Info(q, slog.String("args", fmt.Sprintf("$1 = %s $2 = %s", userRow.Id, userRow.Login)))
 	start := time.Now()
 	defer func() {
 		l.Info(fmt.Sprintf("created in %s", time.Since(start)))
@@ -47,11 +47,11 @@ func (r *UserRepo) GetUser(ctx context.Context, username string) (models.User, e
 	defer func() {
 		l.Info(fmt.Sprintf("queried in %s", time.Since(start)))
 	}()
-	userRow := &UserTable{}
+	userRow := &db.UserTable{}
 	err := r.storage.Get(ctx, userRow, q, username)
 	if err != nil {
 		l.Error("user not found")
 		return models.User{}, models.ErrNoUser
 	}
-	return ConvertTableToUser(*userRow), nil
+	return db.ConvertTableToUser(*userRow), nil
 }

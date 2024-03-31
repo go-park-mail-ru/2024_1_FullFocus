@@ -19,7 +19,6 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/server"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/postgres"
 )
 
 const (
@@ -57,18 +56,8 @@ func Run() {
 
 	// Layers init
 
-	// Database
-	pgxClient := postgres.NewPostgresClient(cfg.Postgres)
-	ctxTimeout, cancel := context.WithTimeout(context.Background(), _connTimeout)
-	defer cancel()
-	db, err := pgxClient.Connect(ctxTimeout)
-	if err != nil {
-		log.Error(fmt.Sprintf("Postgres connection error: %s", err.Error()))
-	}
-	defer pgxClient.Close()
-
 	// Auth
-	userRepo := repository.NewUserRepo(db)
+	userRepo := repository.NewUserRepo()
 	sessionRepo := repository.NewSessionRepo()
 	authUsecase := usecase.NewAuthUsecase(userRepo, sessionRepo)
 	authHandler := delivery.NewAuthHandler(authUsecase)
