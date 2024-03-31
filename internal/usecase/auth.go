@@ -3,7 +3,9 @@ package usecase
 import (
 	"context"
 	"crypto/md5"
+	"crypto/rand"
 	"encoding/hex"
+	"golang.org/x/crypto/argon2"
 	"strconv"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
@@ -17,6 +19,10 @@ const (
 	_minPasswordLength = 8
 	_maxPasswordLength = 32
 )
+
+func PasswordArgon2(plainPassword []byte, salt []byte) []byte {
+	return argon2.IDKey(plainPassword, salt, 1, 64*1024, 4, 32)
+}
 
 type AuthUsecase struct {
 	userRepo    repository.Users
@@ -41,11 +47,14 @@ func (u *AuthUsecase) Login(ctx context.Context, login string, password string) 
 		return "", models.NewValidationError("invalid password input",
 			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
 	}
+
 	user, err := u.userRepo.GetUser(ctx, login)
 	if err != nil {
 		return "", models.ErrNoUser
 	}
-	if password != user.Password {
+
+	saltWhithPasswordHash := string(PasswordArgon2([]byte(password), user.Salt))
+	if saltWhithPasswordHash != user.Password {
 		return "", models.ErrWrongPassword
 	}
 	return u.sessionRepo.CreateSession(ctx, user.ID), nil
@@ -62,10 +71,17 @@ func (u *AuthUsecase) Signup(ctx context.Context, login string, password string)
 		return "", "", models.NewValidationError("invalid password input",
 			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
 	}
+
+	salt := make([]byte, 8)
+	rand.Read(salt)
+	saltWhithPasswordHash := string(PasswordArgon2([]byte(password), salt))
+
 	user := models.User{
 		Username: login,
-		Password: password,
+		Password: saltWhithPasswordHash,
+		Salt:     salt,
 	}
+
 	uID, err := u.userRepo.CreateUser(ctx, user)
 	if err != nil {
 		return "", "", models.ErrUserAlreadyExists

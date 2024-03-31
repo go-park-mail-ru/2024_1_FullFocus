@@ -2,6 +2,7 @@ package usecase_test
 
 import (
 	"context"
+	"golang.org/x/crypto/argon2"
 	"io"
 	"log"
 	"testing"
@@ -13,6 +14,10 @@ import (
 	mock_repository "github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/mocks"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 )
+
+func PasswordArgon2(plainPassword []byte, salt []byte) []byte {
+	return argon2.IDKey(plainPassword, salt, 1, 64*1024, 4, 32)
+}
 
 func TestNewAuthUsecase(t *testing.T) {
 	t.Run("Check Auth Usecase creation", func(t *testing.T) {
@@ -138,6 +143,7 @@ func TestLogin(t *testing.T) {
 		name                string
 		login               string
 		password            string
+		salt                []byte
 		userMockBehavior    func(*mock_repository.MockUsers, string)
 		sessionMockBehavior func(*mock_repository.MockSessions, uint)
 		expectedSID         string
@@ -149,8 +155,10 @@ func TestLogin(t *testing.T) {
 			name:     "Check valid user login",
 			login:    "test123",
 			password: "test12345",
+			salt:     []byte{0xd7, 0xc2, 0xf2, 0x51, 0xaa, 0x6a, 0x4e, 0x7b},
 			userMockBehavior: func(r *mock_repository.MockUsers, username string) {
-				r.EXPECT().GetUser(context.Background(), username).Return(models.User{ID: 0, Username: "test123", Password: "test12345"}, nil)
+				r.EXPECT().GetUser(context.Background(), username).Return(models.User{ID: 0, Username: "test123", Password: string(PasswordArgon2([]byte("test12345"), []byte{0xd7, 0xc2, 0xf2, 0x51, 0xaa, 0x6a, 0x4e, 0x7b})),
+					Salt: []byte{0xd7, 0xc2, 0xf2, 0x51, 0xaa, 0x6a, 0x4e, 0x7b}}, nil)
 			},
 			sessionMockBehavior: func(r *mock_repository.MockSessions, userID uint) {
 				r.EXPECT().CreateSession(context.Background(), userID).Return("123")
