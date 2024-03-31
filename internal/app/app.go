@@ -22,7 +22,8 @@ import (
 )
 
 const (
-	_timeout = 5 * time.Second
+	_timeout     = 5 * time.Second
+	_connTimeout = 10 * time.Second
 )
 
 func Run() {
