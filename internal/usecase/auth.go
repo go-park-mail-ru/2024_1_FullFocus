@@ -53,8 +53,8 @@ func (u *AuthUsecase) Login(ctx context.Context, login string, password string) 
 		return "", models.ErrNoUser
 	}
 
-	saltWhithPasswordHash := string(PasswordArgon2([]byte(password), user.Salt))
-	if saltWhithPasswordHash != user.Password {
+	saltWithPasswordHash := string(PasswordArgon2([]byte(password), user.Salt))
+	if saltWithPasswordHash != user.Password {
 		return "", models.ErrWrongPassword
 	}
 	return u.sessionRepo.CreateSession(ctx, user.ID), nil
@@ -74,11 +74,11 @@ func (u *AuthUsecase) Signup(ctx context.Context, login string, password string)
 
 	salt := make([]byte, 8)
 	rand.Read(salt)
-	saltWhithPasswordHash := string(PasswordArgon2([]byte(password), salt))
+	saltWithPasswordHash := string(PasswordArgon2([]byte(password), salt))
 
 	user := models.User{
 		Username: login,
-		Password: saltWhithPasswordHash,
+		Password: saltWithPasswordHash,
 		Salt:     salt,
 	}
 

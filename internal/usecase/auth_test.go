@@ -35,6 +35,7 @@ func TestSignUp(t *testing.T) {
 		name                string
 		login               string
 		password            string
+		salt                []byte
 		userMockBehavior    func(*mock_repository.MockUsers, models.User)
 		sessionMockBehavior func(*mock_repository.MockSessions, uint)
 		expectedSID         string
@@ -42,10 +43,11 @@ func TestSignUp(t *testing.T) {
 		callUserMock        bool
 		callSessionMock     bool
 	}{
-		{
+		{ // ругается на модель User, после слияния надо поправить
 			name:     "Check valid user signup",
 			login:    "test123",
 			password: "Qa5yAbrLhkwT4Y9u",
+			salt:     []byte{0xd7, 0xc2, 0xf2, 0x51, 0xaa, 0x6a, 0x4e, 0x7b},
 			userMockBehavior: func(r *mock_repository.MockUsers, user models.User) {
 				r.EXPECT().CreateUser(context.Background(), user).Return(uint(0), nil)
 			},
