@@ -3,46 +3,42 @@
 
 -- ozon schema definition
 
-CREATE SCHEMA IF NOT EXISTS ozon;
+CREATE SCHEMA ozon;
 SET search_path TO ozon, public;
 
 -- ozon.user definition
 
-CREATE TABLE IF NOT EXISTS default_user (
-	id uuid NOT NULL,
-	user_login text NOT NULL,
+CREATE TABLE default_user (
+	id uuid PRIMARY KEY,
+	user_login text NOT NULL UNIQUE,
 	password_hash text NOT NULL,
 	created_at timetz DEFAULT now() NOT NULL,
 	updated_at timetz DEFAULT now() NOT NULL,
-	CONSTRAINT user_check CHECK (char_length(user_login) BETWEEN 4 AND 32),
-	CONSTRAINT user_pk PRIMARY KEY (id),
-	CONSTRAINT user_unique UNIQUE (user_login)
+	CONSTRAINT user_check CHECK (char_length(user_login) BETWEEN 4 AND 32)
 );
 
 -- ozon.profile definition
 
-CREATE TABLE IF NOT EXISTS user_profile (
-	id uuid NOT NULL,
+CREATE TABLE user_profile (
+	id uuid PRIMARY KEY,
 	full_name text NOT NULL,
 	email text NOT NULL,
 	imgsrc text DEFAULT 'default-avatar.png' NOT NULL,
 	phone_number text NOT NULL,
-	user_id uuid NOT NULL,
+	user_id uuid NOT NULL REFERENCES default_user(id) ON DELETE CASCADE ON UPDATE CASCADE,
 	created_at timetz DEFAULT now() NOT NULL,
 	updated_at timetz DEFAULT now() NOT NULL,
 	CONSTRAINT email_lenght CHECK (char_length(email) BETWEEN 4 AND 255),
 	CONSTRAINT email_valid CHECK (email ~* '^[a-z0-9\.\-]+@[a-z0-9\.\-]+\.[a-z]+$'),
 	CONSTRAINT name_length CHECK (char_length(full_name) BETWEEN 5 AND 255),
 	CONSTRAINT phone_length CHECK (char_length(phone_number) BETWEEN 5 AND 15),
-	CONSTRAINT phone_valid CHECK (phone_number ~ '\+?[0-9]+'),
-	CONSTRAINT profile_pk PRIMARY KEY (id),
-	CONSTRAINT profile_user_fk FOREIGN KEY (user_id) REFERENCES default_user(id) ON DELETE CASCADE
+	CONSTRAINT phone_valid CHECK (phone_number ~ '\+?[0-9]+')
 );
 
 -- ozon.product definition
 
-CREATE TABLE IF NOT EXISTS product (
-	id uuid NOT NULL,
+CREATE TABLE product (
+	id uuid PRIMARY KEY,
 	product_name text NOT NULL,
 	product_description text NULL,
 	price numeric NOT NULL,
@@ -54,46 +50,38 @@ CREATE TABLE IF NOT EXISTS product (
 	updated_at timetz DEFAULT now() NOT NULL,
 	CONSTRAINT descriprion_length CHECK (char_length(product_description) BETWEEN 1 AND 255),
 	CONSTRAINT name_length CHECK (char_length(product_name) BETWEEN 1 AND 50),
-	CONSTRAINT price_positive CHECK (price > 0),
-	CONSTRAINT product_pk PRIMARY KEY (id)
+	CONSTRAINT price_positive CHECK (price > 0)
 );
 
 -- ozon.category definition
 
-CREATE TABLE IF NOT EXISTS category (
-	id smallserial NOT NULL,
-	category_name text NOT NULL,
-	parent_id int2 NOT NULL,
-	CONSTRAINT category_pk PRIMARY KEY (id),
-	CONSTRAINT category_unique UNIQUE (category_name),
-	CONSTRAINT name_length CHECK (char_length(category_name) BETWEEN 1 AND 50),
-	CONSTRAINT category_category_fk FOREIGN KEY (parent_id) REFERENCES category(id) ON DELETE CASCADE ON UPDATE CASCADE
+CREATE TABLE category (
+	id smallserial PRIMARY KEY,
+	category_name text NOT NULL UNIQUE,
+	parent_id int2 NOT NULL REFERENCES category(id) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT name_length CHECK (char_length(category_name) BETWEEN 1 AND 50)
 );
 
 -- ozon.product_category definition
 
-CREATE TABLE IF NOT EXISTS product_category (
-	product_id uuid NOT NULL,
-	category_id int2 NOT NULL,
+CREATE TABLE product_category (
+	product_id uuid NOT NULL REFERENCES product(id) ON DELETE CASCADE ON UPDATE CASCADE,
+	category_id int2 NOT NULL REFERENCES category(id) ON DELETE CASCADE ON UPDATE CASCADE,
 	product_category_pk int8 NOT NULL,
 	created_at timetz DEFAULT now() NULL,
 	updated_at timetz DEFAULT now() NOT NULL,
-	CONSTRAINT product_category_pk PRIMARY KEY (product_id, category_id),
-	CONSTRAINT product_category_category_fk FOREIGN KEY (category_id) REFERENCES category(id) ON DELETE CASCADE ON UPDATE CASCADE,
-	CONSTRAINT product_category_product_fk FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE ON UPDATE CASCADE
+	CONSTRAINT product_category_pk PRIMARY KEY (product_id, category_id)
 );
 
 -- ozon.order_item definition
 
-CREATE TABLE IF NOT EXISTS order_item (
-	id uuid NOT NULL,
-	product_id uuid NOT NULL,
+CREATE TABLE order_item (
+	id uuid PRIMARY KEY,
+	product_id uuid NOT NULL REFERENCES product(id),
 	count int2 DEFAULT 1 NOT NULL,
 	created_at timetz DEFAULT now() NOT NULL,
 	updated_at timetz DEFAULT now() NOT NULL,
-	CONSTRAINT count_positive CHECK (count >= 0),
-	CONSTRAINT order_item_pk PRIMARY KEY (id),
-	CONSTRAINT order_item_product_fk FOREIGN KEY (product_id) REFERENCES product(id)
+	CONSTRAINT count_positive CHECK (count >= 0)
 );
 
 -- ozon.ordering definition
@@ -104,18 +92,15 @@ CREATE TYPE ordering_status AS ENUM (
 	'ready'
 );
 
-CREATE TABLE IF NOT EXISTS ordering (
-	id uuid NOT NULL,
+CREATE TABLE ordering (
+	id uuid PRIMARY KEY,
 	sum int4 DEFAULT 0 NOT NULL,
-	order_item uuid NOT NULL,
-	profile_id uuid NOT NULL,
+	order_item uuid NOT NULL REFERENCES order_item(id),
+	profile_id uuid NOT NULL REFERENCES user_profile(id),
 	order_status ordering_status NOT NULL,
 	created_at timetz DEFAULT now() NOT NULL,
 	updated_at timetz DEFAULT now() NOT NULL,
-	CONSTRAINT ordering_pk PRIMARY KEY (id),
-	CONSTRAINT sum_positive CHECK (sum >= 0),
-	CONSTRAINT order_item_fk FOREIGN KEY (order_item) REFERENCES order_item(id),
-	CONSTRAINT ordering_profile_fk FOREIGN KEY (profile_id) REFERENCES user_profile(id)
+	CONSTRAINT sum_positive CHECK (sum >= 0)
 );
 
 -- +goose StatementEnd
@@ -132,7 +117,7 @@ DROP TABLE IF EXISTS product_category;
 DROP TABLE IF EXISTS product;
 DROP TABLE IF EXISTS category;
 
-DROP SCHEMA ozon CASCADE;
+DROP SCHEMA IF EXISTS ozon CASCADE;
 SET search_path TO public;
 
 -- +goose StatementEnd
