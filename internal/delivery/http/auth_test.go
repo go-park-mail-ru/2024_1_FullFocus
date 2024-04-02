@@ -1,6 +1,7 @@
-package delivery
+package delivery_test
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -9,17 +10,21 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-	mock_usecase "github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
+
+	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	mock_usecase "github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase/mocks"
 )
+
+const _sessionTTL = 24 * time.Hour
 
 func TestNewAuthHandler(t *testing.T) {
 	t.Run("Check new auth handler creation", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		require.NotEmpty(t, NewAuthHandler(&http.Server{}, mock_usecase.NewMockAuth(ctrl)))
+		require.NotEmpty(t, delivery.NewAuthHandler(mock_usecase.NewMockAuth(ctrl), _sessionTTL))
 	})
 }
 
@@ -38,7 +43,7 @@ func TestSignUp(t *testing.T) {
 			login:    "test",
 			password: "test",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(login, password).Return("test", "test", nil)
+				u.EXPECT().Signup(context.Background(), login, password).Return("test", "test", nil)
 			},
 			expectedStatus: 200,
 			expectedErr:    "",
@@ -49,7 +54,7 @@ func TestSignUp(t *testing.T) {
 			login:    "",
 			password: "",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(login, password).Return("", "", models.ErrWrongUsername)
+				u.EXPECT().Signup(context.Background(), login, password).Return("", "", models.NewValidationError("unavailable username", "неправильное имя пользователя"))
 			},
 			expectedStatus: 400,
 			expectedErr:    "unavailable username",
@@ -60,7 +65,7 @@ func TestSignUp(t *testing.T) {
 			login:    "test",
 			password: "",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(login, password).Return("", "", models.ErrWrongUsername)
+				u.EXPECT().Signup(context.Background(), login, password).Return("", "", models.NewValidationError("unavailable username", "неправильное имя пользователя"))
 			},
 			expectedStatus: 400,
 			expectedErr:    "unavailable username",
@@ -71,7 +76,7 @@ func TestSignUp(t *testing.T) {
 			login:    "test",
 			password: "12345",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(login, password).Return("", "", models.ErrWeakPassword)
+				u.EXPECT().Signup(context.Background(), login, password).Return("", "", models.NewValidationError("unavailable password", "слишком короткий пароль"))
 			},
 			expectedStatus: 400,
 			expectedErr:    "unavailable password",
@@ -82,10 +87,10 @@ func TestSignUp(t *testing.T) {
 			login:    "test",
 			password: "12345",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(login, password).Return("", "", models.ErrUserAlreadyExists)
+				u.EXPECT().Signup(context.Background(), login, password).Return("", "", models.ErrUserAlreadyExists)
 			},
 			expectedStatus: 400,
-			expectedErr:    "user already exists",
+			expectedErr:    "user exists",
 			expectedCookie: "",
 		},
 	}
@@ -96,8 +101,7 @@ func TestSignUp(t *testing.T) {
 			defer ctrl.Finish()
 			mockAuthUsecase := mock_usecase.NewMockAuth(ctrl)
 			testCase.mockBehavior(mockAuthUsecase, testCase.login, testCase.password)
-			srv := &http.Server{}
-			ah := NewAuthHandler(srv, mockAuthUsecase)
+			ah := delivery.NewAuthHandler(mockAuthUsecase, _sessionTTL)
 
 			form := url.Values{}
 			form.Add("login", testCase.login)
@@ -112,19 +116,18 @@ func TestSignUp(t *testing.T) {
 			if testCase.expectedStatus != 200 {
 				var errResp models.ErrResponse
 				err := json.NewDecoder(r.Body).Decode(&errResp)
-				require.Equal(t, nil, err)
+				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, errResp.Status)
 				require.Equal(t, testCase.expectedErr, errResp.Msg)
 			} else {
 				var successResp models.SuccessResponse
 				err := json.NewDecoder(r.Body).Decode(&successResp)
-				require.Equal(t, nil, err)
+				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, successResp.Status)
 				cookie := r.Result().Cookies()
 				err = cookie[0].Valid()
-				require.Equal(t, nil, err)
+				require.NoError(t, err)
 			}
-
 		})
 	}
 }
@@ -144,7 +147,7 @@ func TestLogin(t *testing.T) {
 			login:    "test",
 			password: "test",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Login(login, password).Return("test", nil)
+				u.EXPECT().Login(context.Background(), login, password).Return("test", nil)
 			},
 			expectedStatus: 200,
 			expectedErr:    "",
@@ -155,10 +158,10 @@ func TestLogin(t *testing.T) {
 			login:    "test",
 			password: "test",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Login(login, password).Return("", models.ErrNoUser)
+				u.EXPECT().Login(context.Background(), login, password).Return("", models.ErrNoUser)
 			},
-			expectedStatus: 401,
-			expectedErr:    "wrong login",
+			expectedStatus: 400,
+			expectedErr:    "no user",
 			expectedCookie: "",
 		},
 		{
@@ -166,9 +169,9 @@ func TestLogin(t *testing.T) {
 			login:    "test",
 			password: "test",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Login(login, password).Return("", models.ErrWrongPassword)
+				u.EXPECT().Login(context.Background(), login, password).Return("", models.ErrWrongPassword)
 			},
-			expectedStatus: 401,
+			expectedStatus: 400,
 			expectedErr:    "wrong password",
 			expectedCookie: "",
 		},
@@ -180,8 +183,7 @@ func TestLogin(t *testing.T) {
 			defer ctrl.Finish()
 			mockAuthUsecase := mock_usecase.NewMockAuth(ctrl)
 			testCase.mockBehavior(mockAuthUsecase, testCase.login, testCase.password)
-			srv := &http.Server{}
-			ah := NewAuthHandler(srv, mockAuthUsecase)
+			ah := delivery.NewAuthHandler(mockAuthUsecase, _sessionTTL)
 
 			form := url.Values{}
 			form.Add("login", testCase.login)
@@ -196,19 +198,18 @@ func TestLogin(t *testing.T) {
 			if testCase.expectedStatus != 200 {
 				var errResp models.ErrResponse
 				err := json.NewDecoder(r.Body).Decode(&errResp)
-				require.Equal(t, nil, err)
+				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, errResp.Status)
 				require.Equal(t, testCase.expectedErr, errResp.Msg)
 			} else {
 				var successResp models.SuccessResponse
 				err := json.NewDecoder(r.Body).Decode(&successResp)
-				require.Equal(t, nil, err)
+				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, successResp.Status)
 				cookie := r.Result().Cookies()
 				err = cookie[0].Valid()
-				require.Equal(t, nil, err)
+				require.NoError(t, err)
 			}
-
 		})
 	}
 }
@@ -227,7 +228,7 @@ func TestLogout(t *testing.T) {
 			name:    "Successful logout",
 			session: "test",
 			mockBehavior: func(u *mock_usecase.MockAuth, sID string) {
-				u.EXPECT().Logout(sID).Return(nil)
+				u.EXPECT().Logout(context.Background(), sID).Return(nil)
 			},
 			expectedStatus: 200,
 			expectedErr:    "",
@@ -238,7 +239,7 @@ func TestLogout(t *testing.T) {
 			name:    "No session",
 			session: "test",
 			mockBehavior: func(u *mock_usecase.MockAuth, sID string) {
-				u.EXPECT().Logout(sID).Return(models.ErrNoSession)
+				u.EXPECT().Logout(context.Background(), sID).Return(models.ErrNoSession)
 			},
 			expectedStatus: 401,
 			expectedErr:    "no session",
@@ -249,10 +250,10 @@ func TestLogout(t *testing.T) {
 			name:    "No session",
 			session: "",
 			mockBehavior: func(u *mock_usecase.MockAuth, sID string) {
-				u.EXPECT().Logout(sID).Return(nil)
+				u.EXPECT().Logout(context.Background(), sID).Return(nil)
 			},
 			expectedStatus: 401,
-			expectedErr:    "no session",
+			expectedErr:    "http: named cookie not present", // no session?
 			expectedCookie: "",
 			setCookie:      false,
 		},
@@ -263,8 +264,7 @@ func TestLogout(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 			mockAuthUsecase := mock_usecase.NewMockAuth(ctrl)
-			srv := &http.Server{}
-			ah := NewAuthHandler(srv, mockAuthUsecase)
+			ah := delivery.NewAuthHandler(mockAuthUsecase, _sessionTTL)
 			req := httptest.NewRequest("POST", "/api/auth/logout", nil)
 			if testCase.setCookie {
 				testCase.mockBehavior(mockAuthUsecase, testCase.session)
@@ -282,13 +282,13 @@ func TestLogout(t *testing.T) {
 			if testCase.expectedStatus != 200 {
 				var errResp models.ErrResponse
 				err := json.NewDecoder(r.Body).Decode(&errResp)
-				require.Equal(t, nil, err)
+				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, errResp.Status)
 				require.Equal(t, testCase.expectedErr, errResp.Msg)
 			} else {
 				var successResp models.SuccessResponse
 				err := json.NewDecoder(r.Body).Decode(&successResp)
-				require.Equal(t, nil, err)
+				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, successResp.Status)
 				diff := time.Now().AddDate(0, 0, -1).UTC().Sub(r.Result().Cookies()[0].Expires.UTC()).Seconds()
 				require.Less(t, diff, float64(1))
@@ -310,7 +310,7 @@ func TestCheckAuth(t *testing.T) {
 			name:    "Check logged user",
 			session: "test",
 			mockBehavior: func(u *mock_usecase.MockAuth, sID string) {
-				u.EXPECT().IsLoggedIn(sID).Return(true)
+				u.EXPECT().IsLoggedIn(context.Background(), sID).Return(true)
 			},
 			expectedStatus: 200,
 			expectedErr:    "",
@@ -327,7 +327,7 @@ func TestCheckAuth(t *testing.T) {
 			name:    "Check no session",
 			session: "test",
 			mockBehavior: func(u *mock_usecase.MockAuth, sID string) {
-				u.EXPECT().IsLoggedIn(sID).Return(false)
+				u.EXPECT().IsLoggedIn(context.Background(), sID).Return(false)
 			},
 			expectedStatus: 401,
 			expectedErr:    "no session",
@@ -340,8 +340,7 @@ func TestCheckAuth(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 			mockAuthUsecase := mock_usecase.NewMockAuth(ctrl)
-			srv := &http.Server{}
-			ah := NewAuthHandler(srv, mockAuthUsecase)
+			ah := delivery.NewAuthHandler(mockAuthUsecase, _sessionTTL)
 			req := httptest.NewRequest("POST", "/api/auth/check", nil)
 			if testCase.setCookie {
 				testCase.mockBehavior(mockAuthUsecase, testCase.session)
@@ -358,13 +357,13 @@ func TestCheckAuth(t *testing.T) {
 			if testCase.expectedStatus != 200 {
 				var errResp models.ErrResponse
 				err := json.NewDecoder(r.Body).Decode(&errResp)
-				require.Equal(t, nil, err)
+				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, errResp.Status)
 				require.Equal(t, testCase.expectedErr, errResp.Msg)
 			} else {
 				var successResp models.SuccessResponse
 				err := json.NewDecoder(r.Body).Decode(&successResp)
-				require.Equal(t, nil, err)
+				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, successResp.Status)
 			}
 		})

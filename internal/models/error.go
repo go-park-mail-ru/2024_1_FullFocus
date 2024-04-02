@@ -14,6 +14,7 @@ var (
 	ErrNoProduct         = errors.New("no product")
 	ErrNoUserID          = errors.New("no user ID")
 	ErrInvalidField      = errors.New("invalid field input")
+	ErrNoAvatar          = errors.New("no avatar found")
 )
 
 type ValidationError struct {

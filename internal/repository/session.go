@@ -1,54 +1,70 @@
 package repository
 
 import (
-	"sync"
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/go-redis/redis"
+	"github.com/google/uuid"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-	"github.com/google/uuid"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 )
 
 type SessionRepo struct {
-	sync.Mutex
-	sessions map[string]uint
+	client     *redis.Client
+	sessionTTL time.Duration
 }
 
-func NewSessionRepo() *SessionRepo {
+func NewSessionRepo(c *redis.Client, sessTTL time.Duration) *SessionRepo {
 	return &SessionRepo{
-		sessions: make(map[string]uint, 10),
+		client:     c,
+		sessionTTL: sessTTL,
 	}
 }
 
-func (r *SessionRepo) CreateSession(userID uint) string {
+func (r *SessionRepo) CreateSession(ctx context.Context, userID uint) string {
 	sID := uuid.New().String()
-	r.Lock()
-	r.sessions[sID] = userID
-	r.Unlock()
+	start := time.Now()
+	r.client.Set(sID, userID, r.sessionTTL)
+	logger.Info(ctx, fmt.Sprintf("session inserted in %s", time.Since(start)))
 	return sID
 }
 
-func (r *SessionRepo) GetUserIDBySessionID(sID string) (uint, error) {
-	r.Lock()
-	defer r.Unlock()
-	uID, ok := r.sessions[sID]
-	if !ok {
+func (r *SessionRepo) GetUserIDBySessionID(ctx context.Context, sID string) (uint, error) {
+	start := time.Now()
+	uID, err := r.client.Get(sID).Uint64()
+	logger.Info(ctx, fmt.Sprintf("user_id selected in %s", time.Since(start)))
+	if err != nil {
+		logger.Error(ctx, "no session found")
 		return 0, models.ErrNoSession
 	}
-	return uID, nil
+	return uint(uID), nil
 }
 
-func (r *SessionRepo) SessionExists(sID string) bool {
-	r.Lock()
-	_, ok := r.sessions[sID]
-	r.Unlock()
-	return ok
+func (r *SessionRepo) SessionExists(ctx context.Context, sID string) bool {
+	start := time.Now()
+	_, err := r.client.Get(sID).Uint64()
+	logger.Info(ctx, fmt.Sprintf("session checked in %s", time.Since(start)))
+	if err != nil {
+		logger.Info(ctx, "no session")
+		return false
+	}
+	logger.Info(ctx, "session found")
+	return true
 }
 
-func (r *SessionRepo) DeleteSession(sID string) error {
-	r.Lock()
-	defer r.Unlock()
-	if _, ok := r.sessions[sID]; !ok {
+func (r *SessionRepo) DeleteSession(ctx context.Context, sID string) error {
+	start := time.Now()
+	if err := r.client.Get(sID).Err(); err != nil {
+		logger.Error(ctx, "no session found")
 		return models.ErrNoSession
 	}
-	delete(r.sessions, sID)
+	logger.Info(ctx, fmt.Sprintf("session checked in %s", time.Since(start)))
+	start = time.Now()
+	r.client.Del(sID)
+	logger.Info(ctx, fmt.Sprintf("session deleted in %s", time.Since(start)))
+
 	return nil
 }
