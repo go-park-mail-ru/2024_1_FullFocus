@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"github.com/google/uuid"
 )
 
@@ -23,34 +23,32 @@ func NewUserRepo(dbClient db.Database) *UserRepo {
 }
 
 func (r *UserRepo) CreateUser(ctx context.Context, user models.User) (uuid.UUID, error) {
-	l := helper.GetLoggerFromContext(ctx)
 	userRow := db.ConvertUserToTable(user)
 	q := `INSERT INTO default_user (id, user_login, password_hash) VALUES ($1, $2, $3);`
-	l.Info(q, slog.String("args", fmt.Sprintf("$1 = %s $2 = %s", userRow.Id, userRow.Login)))
+	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %s $2 = %s", userRow.Id, userRow.Login)))
 	start := time.Now()
 	defer func() {
-		l.Info(fmt.Sprintf("created in %s", time.Since(start)))
+		logger.Info(ctx, fmt.Sprintf("created in %s", time.Since(start)))
 	}()
 	_, err := r.storage.Exec(ctx, q, userRow)
 	if err != nil {
-		l.Error("user already exists")
+		logger.Error(ctx, "user already exists")
 		return uuid.Nil, models.ErrUserAlreadyExists
 	}
 	return userRow.Id, nil
 }
 
 func (r *UserRepo) GetUser(ctx context.Context, username string) (models.User, error) {
-	l := helper.GetLoggerFromContext(ctx)
 	q := `SELECT id FROM default_user WHERE user_login = $1;`
-	l.Info(q, slog.String("args", fmt.Sprintf("$1 = %s", username)))
+	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %s", username)))
 	start := time.Now()
 	defer func() {
-		l.Info(fmt.Sprintf("queried in %s", time.Since(start)))
+		logger.Info(ctx, fmt.Sprintf("queried in %s", time.Since(start)))
 	}()
 	userRow := &db.UserTable{}
 	err := r.storage.Get(ctx, userRow, q, username)
 	if err != nil {
-		l.Error("user not found")
+		logger.Error(ctx, "user not found")
 		return models.User{}, models.ErrNoUser
 	}
 	return db.ConvertTableToUser(*userRow), nil

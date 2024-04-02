@@ -22,6 +22,6 @@ func ConvertUserToTable(m models.User) UserTable {
 	return UserTable{
 		Id:            m.ID,
 		Login:         m.Username,
-		Password_hash: m.Password_hash,
+		Password_hash: m.PasswordHash,
 	}
 }

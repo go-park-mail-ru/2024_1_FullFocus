@@ -6,16 +6,16 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func NewCORSMiddleware(allowedHosts []string) mux.MiddlewareFunc {
+func NewCORSMiddleware(_ []string) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			origin := r.Header.Get("Origin")
-			//if slices.Contains(allowedHosts, origin) {
+			// if slices.Contains(allowedHosts, origin) {
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS")
-			//}
-			if r.Method == "OPTIONS" {
+			// }
+			if r.Method == http.MethodOptions {
 				w.WriteHeader(http.StatusOK)
 				return
 			}

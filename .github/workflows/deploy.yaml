@@ -18,6 +18,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v4
         with:
+          args: --timeout=30m --config=golangci.prod.yaml
           version: v1.54
   test:
     runs-on: ubuntu-latest
@@ -59,7 +60,8 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           script: |
             cd ~/ozon_project/backend/2024_1_FullFocus
-            sudo docker compose down
-            sudo docker compose pull
-            sudo docker compose up --force-recreate --build -d
-            sudo docker image prune -f
+            docker compose down
+            git checkout develop && git pull
+            docker compose pull
+            docker compose up --force-recreate --build -d
+            docker image prune -f

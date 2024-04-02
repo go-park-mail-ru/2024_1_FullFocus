@@ -6,10 +6,10 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 )
 
-type UserId struct{}
+type UserID struct{}
 
 func GetUserIDFromContext(ctx context.Context) (uint, error) {
-	userID, ok := ctx.Value(UserId{}).(uint)
+	userID, ok := ctx.Value(UserID{}).(uint)
 	if !ok {
 		return 0, models.ErrNoUserID
 	}
