@@ -5,12 +5,11 @@ import (
 	"crypto/md5"
 	"crypto/rand"
 	"encoding/hex"
-	"golang.org/x/crypto/argon2"
-	"strconv"
-
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
+	"golang.org/x/crypto/argon2"
+	"strconv"
 )
 
 const (
