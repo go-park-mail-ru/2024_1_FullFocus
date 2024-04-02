@@ -4,12 +4,18 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"net"
 	"time"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
-	_ "github.com/jackc/pgx"
+	_ "github.com/jackc/pgx" // postgres driver
 	"github.com/jmoiron/sqlx"
+)
+
+const (
+	maxOpenConns = 10
+	maxIdleTime  = 10 * time.Second
 )
 
 type PgxDatabase struct {
@@ -18,11 +24,11 @@ type PgxDatabase struct {
 }
 
 func NewPgxDatabase(ctx context.Context, cfg config.PostgresConfig) (database.Database, error) {
-	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
+	hostPort := net.JoinHostPort(cfg.Host, cfg.Port)
+	dsn := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s",
 		cfg.User,
 		cfg.Password,
-		cfg.Host,
-		cfg.Port,
+		hostPort,
 		cfg.Database,
 		cfg.Sslmode,
 	)
@@ -30,15 +36,15 @@ func NewPgxDatabase(ctx context.Context, cfg config.PostgresConfig) (database.Da
 	if err != nil {
 		return nil, err
 	}
-	dbClient.SetMaxOpenConns(10)
-	dbClient.SetConnMaxIdleTime(10 * time.Second)
+	dbClient.SetMaxOpenConns(maxOpenConns)
+	dbClient.SetConnMaxIdleTime(maxIdleTime)
 	return &PgxDatabase{
 		dsn:    dsn,
 		client: dbClient,
 	}, nil
 }
 
-func (db *PgxDatabase) GetRawDb() *sqlx.DB {
+func (db *PgxDatabase) GetRawDB() *sqlx.DB {
 	return db.client
 }
 
@@ -47,9 +53,9 @@ func (db *PgxDatabase) Close() error {
 }
 
 func (db *PgxDatabase) Exec(ctx context.Context, q string, args ...interface{}) (sql.Result, error) {
-	return db.client.ExecContext(ctx, sqlx.Rebind(sqlx.DOLLAR, q), args)
+	return db.client.ExecContext(ctx, sqlx.Rebind(sqlx.DOLLAR, q), args...)
 }
 
 func (db *PgxDatabase) Get(ctx context.Context, dest interface{}, q string, args ...interface{}) error {
-	return db.client.GetContext(ctx, dest, sqlx.Rebind(sqlx.DOLLAR, q), args)
+	return db.client.GetContext(ctx, dest, sqlx.Rebind(sqlx.DOLLAR, q), args...)
 }

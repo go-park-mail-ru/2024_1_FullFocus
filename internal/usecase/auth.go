@@ -41,11 +41,14 @@ func (u *AuthUsecase) Login(ctx context.Context, login string, password string) 
 		return "", models.NewValidationError("invalid password input",
 			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
 	}
+
 	user, err := u.userRepo.GetUser(ctx, login)
 	if err != nil {
 		return "", models.ErrNoUser
 	}
-	if err := helper.CheckPassword(password, user.PasswordHash); err != nil {
+
+	err = helper.CheckPassword(password, user.PasswordHash)
+	if err != nil {
 		return "", models.ErrWrongPassword
 	}
 	return u.sessionRepo.CreateSession(ctx, user.ID), nil
@@ -64,6 +67,7 @@ func (u *AuthUsecase) Signup(ctx context.Context, login string, password string)
 	}
 
 	passwordHash, err := helper.HashPassword(password)
+	// TODO: handle error
 	if err != nil {
 		return "", "", err
 	}

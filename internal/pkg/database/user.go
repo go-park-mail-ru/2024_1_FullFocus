@@ -6,22 +6,22 @@ import (
 )
 
 type UserTable struct {
-	Id            uuid.UUID `db:"id"`
-	Login         string    `db:"user_login"`
-	Password_hash string    `db:"password_hash"`
+	ID           uuid.UUID `db:"id"`
+	Login        string    `db:"user_login"`
+	PasswordHash string    `db:"password_hash"`
 }
 
 func ConvertTableToUser(t UserTable) models.User {
 	return models.User{
-		ID:       t.Id,
+		ID:       t.ID,
 		Username: t.Login,
 	}
 }
 
 func ConvertUserToTable(m models.User) UserTable {
 	return UserTable{
-		Id:            m.ID,
-		Login:         m.Username,
-		Password_hash: m.PasswordHash,
+		ID:           m.ID,
+		Login:        m.Username,
+		PasswordHash: m.PasswordHash,
 	}
 }
