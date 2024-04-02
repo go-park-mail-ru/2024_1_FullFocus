@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/dto"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
@@ -24,6 +24,7 @@ func NewAvatarUsecase(ar repository.Avatars, ur repository.Users) *AvatarUsecase
 }
 
 func (u *AvatarUsecase) UploadAvatar(ctx context.Context, img dto.Image) error {
+	// TODO: move to delivery layer
 	uID, _ := helper.GetUserIDFromContext(ctx)
 	imgName := fmt.Sprintf("%d_%d", uID, time.Now().UnixNano())
 
