@@ -10,56 +10,46 @@ SET search_path TO ozon, public;
 
 CREATE TABLE default_user (
 	id uuid PRIMARY KEY,
-	user_login text NOT NULL UNIQUE,
+	user_login text NOT NULL UNIQUE CHECK (char_length(user_login) BETWEEN 4 AND 32),
 	password_hash text NOT NULL,
 	created_at timetz DEFAULT now() NOT NULL,
-	updated_at timetz DEFAULT now() NOT NULL,
-	CONSTRAINT user_check CHECK (char_length(user_login) BETWEEN 4 AND 32)
+	updated_at timetz DEFAULT now() NOT NULL
 );
 
 -- ozon.profile definition
 
 CREATE TABLE user_profile (
 	id uuid PRIMARY KEY,
-	full_name text NOT NULL,
-	email text NOT NULL,
-	imgsrc text DEFAULT 'default-avatar.png' NOT NULL,
-	phone_number text NOT NULL,
+	full_name text NOT NULL CHECK (char_length(full_name) BETWEEN 5 AND 255),
+	email text NOT NULL CHECK ((char_length(email) BETWEEN 4 AND 255) AND (email ~* '^[a-z0-9\.\-]+@[a-z0-9\.\-]+\.[a-z]+$')),
+	imgsrc text,
+	phone_number text NOT NULL CHECK ((char_length(phone_number) BETWEEN 5 AND 15) AND (phone_number ~ '\+?[0-9]+')),
 	user_id uuid NOT NULL REFERENCES default_user(id) ON DELETE CASCADE ON UPDATE CASCADE,
 	created_at timetz DEFAULT now() NOT NULL,
-	updated_at timetz DEFAULT now() NOT NULL,
-	CONSTRAINT email_lenght CHECK (char_length(email) BETWEEN 4 AND 255),
-	CONSTRAINT email_valid CHECK (email ~* '^[a-z0-9\.\-]+@[a-z0-9\.\-]+\.[a-z]+$'),
-	CONSTRAINT name_length CHECK (char_length(full_name) BETWEEN 5 AND 255),
-	CONSTRAINT phone_length CHECK (char_length(phone_number) BETWEEN 5 AND 15),
-	CONSTRAINT phone_valid CHECK (phone_number ~ '\+?[0-9]+')
+	updated_at timetz DEFAULT now() NOT NULL
 );
 
 -- ozon.product definition
 
 CREATE TABLE product (
 	id uuid PRIMARY KEY,
-	product_name text NOT NULL,
-	product_description text NULL,
-	price numeric NOT NULL,
-	imgsrc text DEFAULT 'default-product.png' NOT NULL,
+	product_name text NOT NULL CHECK (char_length(product_name) BETWEEN 1 AND 50),
+	product_description text NULL CHECK (char_length(product_description) BETWEEN 1 AND 255),
+	price numeric NOT NULL CHECK (price > 0),
+	imgsrc text,
 	seller text NOT NULL,
 	rating int4 DEFAULT 0 NOT NULL,
 	category_id int4 NOT NULL,
 	created_at timetz DEFAULT now() NOT NULL,
-	updated_at timetz DEFAULT now() NOT NULL,
-	CONSTRAINT descriprion_length CHECK (char_length(product_description) BETWEEN 1 AND 255),
-	CONSTRAINT name_length CHECK (char_length(product_name) BETWEEN 1 AND 50),
-	CONSTRAINT price_positive CHECK (price > 0)
+	updated_at timetz DEFAULT now() NOT NULL
 );
 
 -- ozon.category definition
 
 CREATE TABLE category (
 	id smallserial PRIMARY KEY,
-	category_name text NOT NULL UNIQUE,
-	parent_id int2 NOT NULL REFERENCES category(id) ON DELETE CASCADE ON UPDATE CASCADE,
-	CONSTRAINT name_length CHECK (char_length(category_name) BETWEEN 1 AND 50)
+	category_name text NOT NULL UNIQUE CHECK (char_length(category_name) BETWEEN 1 AND 50),
+	parent_id int2 NOT NULL REFERENCES category(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- ozon.product_category definition
@@ -73,17 +63,6 @@ CREATE TABLE product_category (
 	CONSTRAINT product_category_pk PRIMARY KEY (product_id, category_id)
 );
 
--- ozon.order_item definition
-
-CREATE TABLE order_item (
-	id uuid PRIMARY KEY,
-	product_id uuid NOT NULL REFERENCES product(id),
-	count int2 DEFAULT 1 NOT NULL,
-	created_at timetz DEFAULT now() NOT NULL,
-	updated_at timetz DEFAULT now() NOT NULL,
-	CONSTRAINT count_positive CHECK (count >= 0)
-);
-
 -- ozon.ordering definition
 
 CREATE TYPE ordering_status AS ENUM (
@@ -94,13 +73,33 @@ CREATE TYPE ordering_status AS ENUM (
 
 CREATE TABLE ordering (
 	id uuid PRIMARY KEY,
-	sum int4 DEFAULT 0 NOT NULL,
-	order_item uuid NOT NULL REFERENCES order_item(id),
+	sum int4 DEFAULT 0 NOT NULL CHECK (sum > 0),
 	profile_id uuid NOT NULL REFERENCES user_profile(id),
 	order_status ordering_status NOT NULL,
 	created_at timetz DEFAULT now() NOT NULL,
+	updated_at timetz DEFAULT now() NOT NULL
+);
+
+-- ozon.order_item definition
+
+CREATE TABLE order_item (
+	ordering_id uuid NOT NULL REFERENCES ordering(id) ON DELETE CASCADE ON UPDATE CASCADE,
+	product_id uuid NOT NULL REFERENCES product(id),
+	count int2 DEFAULT 1 NOT NULL CHECK (count > 0),
+	created_at timetz DEFAULT now() NOT NULL,
 	updated_at timetz DEFAULT now() NOT NULL,
-	CONSTRAINT sum_positive CHECK (sum >= 0)
+	CONSTRAINT order_item_pk PRIMARY KEY (ordering_id, product_id)
+);
+
+-- ozon.cart_item definition
+
+CREATE TABLE cart_item (
+	product_id uuid NOT NULL REFERENCES product(id) ON DELETE CASCADE ON UPDATE CASCADE,
+	profile_id uuid NOT NULL REFERENCES user_profile(id) ON DELETE CASCADE ON UPDATE CASCADE,
+	count int2 DEFAULT 1 NOT NULL CHECK (count > 0),
+	CONSTRAINT cart_item_pk PRIMARY KEY (profile_id, product_id),
+	created_at timetz DEFAULT now() NOT NULL,
+	updated_at timetz DEFAULT now() NOT NULL
 );
 
 -- +goose StatementEnd
@@ -108,9 +107,10 @@ CREATE TABLE ordering (
 -- +goose Down
 -- +goose StatementBegin
 
+DROP TABLE IF EXISTS cart_item;
+DROP TABLE IF EXISTS order_item;
 DROP TABLE IF EXISTS ordering;
 DROP TYPE IF EXISTS ordering_status;
-DROP TABLE IF EXISTS order_item;
 DROP TABLE IF EXISTS user_profile;
 DROP TABLE IF EXISTS default_user;
 DROP TABLE IF EXISTS product_category;
