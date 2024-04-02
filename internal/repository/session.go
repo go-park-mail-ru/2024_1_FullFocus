@@ -24,7 +24,7 @@ func NewSessionRepo(c *redis.Client, sessTTL time.Duration) *SessionRepo {
 	}
 }
 
-func (r *SessionRepo) CreateSession(ctx context.Context, userID uuid.UUID) string {
+func (r *SessionRepo) CreateSession(ctx context.Context, userID uint) string {
 	sID := uuid.New().String()
 	start := time.Now()
 	r.client.Set(sID, userID, r.sessionTTL)
@@ -32,16 +32,15 @@ func (r *SessionRepo) CreateSession(ctx context.Context, userID uuid.UUID) strin
 	return sID
 }
 
-func (r *SessionRepo) GetUserIDBySessionID(ctx context.Context, sID string) (uuid.UUID, error) {
+func (r *SessionRepo) GetUserIDBySessionID(ctx context.Context, sID string) (uint, error) {
 	start := time.Now()
-	uIDstr := r.client.Get(sID).Val()
-	logger.Info(ctx, fmt.Sprintf("user_id selected in %s", time.Since(start)))
-	if uIDstr == "" {
+	uID, err := r.client.Get(sID).Uint64()
+	if err != nil {
 		logger.Error(ctx, "no session found")
-		return uuid.Nil, models.ErrNoSession
+		return 0, models.ErrNoSession
 	}
-	uID, _ := uuid.Parse(uIDstr)
-	return uID, nil
+	logger.Info(ctx, fmt.Sprintf("user_id selected in %s", time.Since(start)))
+	return uint(uID), nil
 }
 
 func (r *SessionRepo) SessionExists(ctx context.Context, sID string) bool {

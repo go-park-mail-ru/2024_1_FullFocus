@@ -37,12 +37,14 @@ type MinioConfig struct {
 }
 
 type PostgresConfig struct {
-	Host     string `yaml:"host"`
-	Port     string `yaml:"port"`
-	User     string `yaml:"user"`
-	Password string `yaml:"password"`
-	Database string `yaml:"database"`
-	Sslmode  string `yaml:"sslmode"`
+	Host         string `yaml:"host"`
+	Port         string `yaml:"port"`
+	User         string `yaml:"user"`
+	Password     string `yaml:"password"`
+	Database     string `yaml:"database"`
+	Sslmode      string `yaml:"sslmode"`
+	MaxOpenConns int    `yaml:"max_open_conns"`
+	MaxIdleTime  int    `yaml:"max_idle_time"`
 }
 
 func MustLoad() *Config {

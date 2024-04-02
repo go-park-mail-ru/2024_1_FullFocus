@@ -13,11 +13,6 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-const (
-	maxOpenConns = 10
-	maxIdleTime  = 10 * time.Second
-)
-
 type PgxDatabase struct {
 	dsn    string
 	client *sqlx.DB
@@ -36,8 +31,8 @@ func NewPgxDatabase(ctx context.Context, cfg config.PostgresConfig) (database.Da
 	if err != nil {
 		return nil, err
 	}
-	dbClient.SetMaxOpenConns(maxOpenConns)
-	dbClient.SetConnMaxIdleTime(maxIdleTime)
+	dbClient.SetMaxOpenConns(cfg.MaxOpenConns)
+	dbClient.SetConnMaxIdleTime(time.Second * time.Duration(cfg.MaxIdleTime))
 	return &PgxDatabase{
 		dsn:    dsn,
 		client: dbClient,

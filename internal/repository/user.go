@@ -9,7 +9,6 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
-	"github.com/google/uuid"
 )
 
 type UserRepo struct {
@@ -22,10 +21,10 @@ func NewUserRepo(dbClient db.Database) *UserRepo {
 	}
 }
 
-func (r *UserRepo) CreateUser(ctx context.Context, user models.User) (uuid.UUID, error) {
+func (r *UserRepo) CreateUser(ctx context.Context, user models.User) (uint, error) {
 	userRow := db.ConvertUserToTable(user)
 	q := `INSERT INTO default_user (id, user_login, password_hash) VALUES ($1, $2, $3);`
-	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %s $2 = %s", userRow.ID, userRow.Login)))
+	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d $2 = %s", userRow.ID, userRow.Login)))
 	start := time.Now()
 	defer func() {
 		logger.Info(ctx, fmt.Sprintf("created in %s", time.Since(start)))
@@ -33,7 +32,7 @@ func (r *UserRepo) CreateUser(ctx context.Context, user models.User) (uuid.UUID,
 	_, err := r.storage.Exec(ctx, q, userRow)
 	if err != nil {
 		logger.Error(ctx, "user already exists")
-		return uuid.Nil, models.ErrUserAlreadyExists
+		return 0, models.ErrUserAlreadyExists
 	}
 	return userRow.ID, nil
 }

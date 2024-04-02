@@ -81,7 +81,7 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	login := r.FormValue("login")
 	password := r.FormValue("password")
 
-	sID, _, err := h.usecase.Signup(ctx, login, password)
+	sID, err := h.usecase.Signup(ctx, login, password)
 	if err != nil {
 		if validationError := new(models.ValidationError); errors.As(err, &validationError) {
 			if jsonErr := helper.JSONResponse(w, 200, validationError.WithCode(400)); jsonErr != nil {
