@@ -34,6 +34,15 @@ func (h *AvatarHandler) InitRouter(r *mux.Router) {
 
 func (h *AvatarHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	uID, err := helper.GetUserIDFromContext(ctx)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+			Status: 403,
+			Msg:    err.Error(),
+			MsgRus: "Пользователь не авторизован",
+		})
+		return
+	}
 	src, hdr, err := r.FormFile("avatar")
 	if err != nil {
 		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
@@ -47,7 +56,7 @@ func (h *AvatarHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 		Payload:     src,
 		PayloadSize: hdr.Size,
 	}
-	if err = h.usecase.UploadAvatar(ctx, img); err != nil {
+	if err = h.usecase.UploadAvatar(ctx, img, uID); err != nil {
 		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 500,
 			Msg:    err.Error(),
@@ -62,7 +71,16 @@ func (h *AvatarHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 
 func (h *AvatarHandler) DeleteAvatar(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	if err := h.usecase.DeleteAvatar(ctx); err != nil {
+	uID, err := helper.GetUserIDFromContext(ctx)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+			Status: 403,
+			Msg:    err.Error(),
+			MsgRus: "Пользователь не авторизован",
+		})
+		return
+	}
+	if err = h.usecase.DeleteAvatar(ctx, uID); err != nil {
 		if errors.Is(err, models.ErrNoAvatar) {
 			helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 				Status: 400,

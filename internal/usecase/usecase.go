@@ -22,7 +22,7 @@ type (
 	}
 
 	Avatars interface {
-		UploadAvatar(ctx context.Context, img dto.Image) error
-		DeleteAvatar(ctx context.Context) error
+		UploadAvatar(ctx context.Context, img dto.Image, uID uint) error
+		DeleteAvatar(ctx context.Context, uID uint) error
 	}
 )
