@@ -114,10 +114,11 @@ func TestSignUp(t *testing.T) {
 			defer ctrl.Finish()
 			mockUserRepo := mock_repository.NewMockUsers(ctrl)
 			mockSessionRepo := mock_repository.NewMockSessions(ctrl)
+
 			testUser := models.User{
-				ID:       0,
-				Username: testCase.login,
-				Password: testCase.password,
+				ID:           0,
+				Username:     testCase.login,
+				PasswordHash: testCase.password,
 			}
 			if testCase.callUserMock {
 				testCase.userMockBehavior(mockUserRepo, testUser)
@@ -126,7 +127,7 @@ func TestSignUp(t *testing.T) {
 				}
 			}
 			au := usecase.NewAuthUsecase(mockUserRepo, mockSessionRepo)
-			sID, _, err := au.Signup(context.Background(), testCase.login, testCase.password)
+			sID, err := au.Signup(context.Background(), testCase.login, testCase.password)
 			require.Equal(t, testCase.expectedErr, err)
 			require.Equal(t, testCase.expectedSID, sID)
 		})
@@ -150,7 +151,7 @@ func TestLogin(t *testing.T) {
 			login:    "test123",
 			password: "test12345",
 			userMockBehavior: func(r *mock_repository.MockUsers, username string) {
-				r.EXPECT().GetUser(context.Background(), username).Return(models.User{ID: 0, Username: "test123", Password: "test12345"}, nil)
+				r.EXPECT().GetUser(context.Background(), username).Return(models.User{ID: 0, Username: "test123", PasswordHash: "test12345"}, nil)
 			},
 			sessionMockBehavior: func(r *mock_repository.MockSessions, userID uint) {
 				r.EXPECT().CreateSession(context.Background(), userID).Return("123")
@@ -195,7 +196,7 @@ func TestLogin(t *testing.T) {
 			login:    "test123",
 			password: "wrongpass",
 			userMockBehavior: func(r *mock_repository.MockUsers, username string) {
-				r.EXPECT().GetUser(context.Background(), username).Return(models.User{ID: 0, Username: "test123", Password: "test"}, nil)
+				r.EXPECT().GetUser(context.Background(), username).Return(models.User{ID: 0, Username: "test123", PasswordHash: "test"}, nil)
 			},
 			expectedSID:     "",
 			expectedErr:     models.ErrWrongPassword,
@@ -228,7 +229,7 @@ func TestLogin(t *testing.T) {
 	}
 }
 
-func TestIsLogout(t *testing.T) {
+func TestLogout(t *testing.T) {
 	testCases := []struct {
 		name                string
 		sID                 string
