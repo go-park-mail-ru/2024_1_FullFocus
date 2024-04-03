@@ -1,12 +1,12 @@
 package models
 
 type SuccessResponse struct {
-	Status int         `json:"Status"`
-	Data   interface{} `json:"Data"`
+	Status int         `json:"status"`
+	Data   interface{} `json:"data"`
 }
 
 type ErrResponse struct {
-	Status int    `json:"Status"`
-	Msg    string `json:"Msg"`
-	MsgRus string `json:"MsgRus"`
+	Status int    `json:"status"`
+	Msg    string `json:"msg"`
+	MsgRus string `json:"msgRus"`
 }
