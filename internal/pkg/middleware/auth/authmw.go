@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -10,7 +9,6 @@ import (
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 )
 
@@ -20,24 +18,20 @@ func NewAuthMiddleware(uc usecase.Auth) mux.MiddlewareFunc {
 			ctx := r.Context()
 			sessionID, err := r.Cookie("session_id")
 			if errors.Is(err, http.ErrNoCookie) {
-				if err = helper.JSONResponse(w, 200, models.ErrResponse{
+				helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 					Status: 401,
 					Msg:    "no session",
 					MsgRus: "авторизация отсутствует",
-				}); err != nil {
-					logger.Error(ctx, fmt.Sprintf("marshall error: %v", err))
-				}
+				})
 				return
 			}
 			userID, err := uc.GetUserIDBySessionID(r.Context(), sessionID.Value)
 			if errors.Is(err, models.ErrNoSession) {
-				if err = helper.JSONResponse(w, 200, models.ErrResponse{
+				helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 					Status: 401,
 					Msg:    "no session",
 					MsgRus: "авторизация отсутствует",
-				}); err != nil {
-					logger.Error(ctx, fmt.Sprintf("marshall error: %v", err))
-				}
+				})
 				return
 			}
 			ctx = context.WithValue(ctx, helper.UserID{}, userID)
