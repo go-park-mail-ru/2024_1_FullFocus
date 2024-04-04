@@ -46,8 +46,8 @@ func TestSignUp(t *testing.T) {
 			name:     "Check valid user signup",
 			login:    "test123",
 			password: "Qa5yAbrLhkwT4Y9u",
-			userMockBehavior: func(r *mock_repository.MockUsers, user models.User) {
-				r.EXPECT().CreateUser(context.Background(), user).Return(uint(0), nil)
+			userMockBehavior: func(r *mock_repository.MockUsers, _ models.User) {
+				r.EXPECT().CreateUser(context.Background(), gomock.Any()).Return(uint(0), nil)
 			},
 			sessionMockBehavior: func(r *mock_repository.MockSessions, userID uint) {
 				r.EXPECT().CreateSession(context.Background(), userID).Return("123")
@@ -61,8 +61,8 @@ func TestSignUp(t *testing.T) {
 			name:     "Check valid user signup",
 			login:    "test123",
 			password: "testtest1",
-			userMockBehavior: func(r *mock_repository.MockUsers, user models.User) {
-				r.EXPECT().CreateUser(context.Background(), user).Return(uint(0), nil)
+			userMockBehavior: func(r *mock_repository.MockUsers, _ models.User) {
+				r.EXPECT().CreateUser(context.Background(), gomock.Any()).Return(uint(0), nil)
 			},
 			sessionMockBehavior: func(r *mock_repository.MockSessions, userID uint) {
 				r.EXPECT().CreateSession(context.Background(), userID).Return("123")
@@ -76,8 +76,8 @@ func TestSignUp(t *testing.T) {
 			name:     "Check duplicate user signup",
 			login:    "test123",
 			password: "Qa5yAbrLhkwT4Y9u",
-			userMockBehavior: func(r *mock_repository.MockUsers, user models.User) {
-				r.EXPECT().CreateUser(context.Background(), user).Return(uint(0), models.ErrUserAlreadyExists)
+			userMockBehavior: func(r *mock_repository.MockUsers, _ models.User) {
+				r.EXPECT().CreateUser(context.Background(), gomock.Any()).Return(uint(0), models.ErrUserAlreadyExists)
 			},
 			expectedSID:     "",
 			expectedErr:     models.ErrUserAlreadyExists,
