@@ -4,56 +4,50 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"sync"
 	"time"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 )
 
 type UserRepo struct {
-	nextID uint
-	sync.Mutex
-	storage map[string]models.User
+	storage db.Database
 }
 
-func NewUserRepo() *UserRepo {
+func NewUserRepo(dbClient db.Database) *UserRepo {
 	return &UserRepo{
-		storage: make(map[string]models.User),
+		storage: dbClient,
 	}
 }
 
 func (r *UserRepo) CreateUser(ctx context.Context, user models.User) (uint, error) {
-	logger.Info(ctx, `INSERT INTO user (username, password) VALUES ($1, $2);`,
-		slog.String("args", fmt.Sprintf("$1 = %s, $2 = %s", user.Username, user.Password)))
-
+	userRow := db.ConvertUserToTable(user)
+	q := `INSERT INTO default_user (id, user_login, password_hash) VALUES ($1, $2, $3);`
+	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d $2 = %s", userRow.ID, userRow.Login)))
 	start := time.Now()
 	defer func() {
 		logger.Info(ctx, fmt.Sprintf("created in %s", time.Since(start)))
 	}()
-	r.Lock()
-	defer r.Unlock()
-	if _, ok := r.storage[user.Username]; ok {
+	_, err := r.storage.Exec(ctx, q, userRow)
+	if err != nil {
 		logger.Error(ctx, "user already exists")
 		return 0, models.ErrUserAlreadyExists
 	}
-	r.nextID++
-	r.storage[user.Username] = user
-	return user.ID, nil
+	return userRow.ID, nil
 }
 
 func (r *UserRepo) GetUser(ctx context.Context, username string) (models.User, error) {
-	logger.Info(ctx, `SELECT * FROM user WHERE usename = $1;`,
-		slog.String("args", "$1 = "+username))
-
+	q := `SELECT id FROM default_user WHERE user_login = $1;`
+	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %s", username)))
 	start := time.Now()
-	r.Lock()
-	user, ok := r.storage[username]
-	r.Unlock()
-	if !ok {
+	defer func() {
+		logger.Info(ctx, fmt.Sprintf("queried in %s", time.Since(start)))
+	}()
+	userRow := &db.UserTable{}
+	if err := r.storage.Get(ctx, userRow, q, username); err != nil {
 		logger.Error(ctx, "user not found")
 		return models.User{}, models.ErrNoUser
 	}
-	logger.Info(ctx, fmt.Sprintf("queried in %s", time.Since(start)))
-	return user, nil
+	return db.ConvertTableToUser(*userRow), nil
 }

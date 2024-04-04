@@ -21,11 +21,13 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/server"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/minio"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/postgres"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/redis"
 )
 
 const (
-	_timeout = 5 * time.Second
+	_timeout     = 5 * time.Second
+	_connTimeout = 10 * time.Second
 )
 
 type App struct {
@@ -74,6 +76,15 @@ func Init() *App {
 		panic("minio connection error: " + err.Error())
 	}
 
+	// Postgres
+
+	ctx, cancel := context.WithTimeout(context.Background(), _connTimeout)
+	defer cancel()
+	pgxClient, err := postgres.NewPgxDatabase(ctx, cfg.Postgres)
+	if err != nil {
+		panic("postgres connection error: " + err.Error())
+	}
+
 	// Server init
 
 	srv := server.NewServer(cfg.Server, r)
@@ -81,7 +92,7 @@ func Init() *App {
 	// Layers
 
 	// Auth
-	userRepo := repository.NewUserRepo()
+	userRepo := repository.NewUserRepo(pgxClient)
 	sessionRepo := repository.NewSessionRepo(redisClient, cfg.SessionTTL)
 	authUsecase := usecase.NewAuthUsecase(userRepo, sessionRepo)
 	authHandler := delivery.NewAuthHandler(authUsecase, cfg.SessionTTL)

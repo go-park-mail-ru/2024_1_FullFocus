@@ -1,14 +1,12 @@
 package delivery
 
 import (
-	"encoding/json"
 	"net/http"
 	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
@@ -40,8 +38,7 @@ func (h *AuthHandler) InitRouter(r *mux.Router) {
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	var loginData dto.LoginData
-	err := json.NewDecoder(r.Body).Decode(&loginData)
+	loginData, err := helper.GetLoginData(r)
 	if err != nil {
 		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 400,
@@ -78,8 +75,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	var loginData dto.LoginData
-	err := json.NewDecoder(r.Body).Decode(&loginData)
+	loginData, err := helper.GetLoginData(r)
 	if err != nil {
 		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 400,
@@ -88,7 +84,7 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	sID, _, err := h.usecase.Signup(ctx, loginData.Login, loginData.Password)
+	sID, err := h.usecase.Signup(ctx, loginData.Login, loginData.Password)
 	if err != nil {
 		if validationError := new(models.ValidationError); errors.As(err, &validationError) {
 			helper.JSONResponse(ctx, w, 200, validationError.WithCode(400))
@@ -125,8 +121,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	err = h.usecase.Logout(ctx, session.Value)
-	if errors.Is(err, models.ErrNoSession) {
+	if err = h.usecase.Logout(ctx, session.Value); errors.Is(err, models.ErrNoSession) {
 		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 401,
 			Msg:    err.Error(),

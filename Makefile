@@ -28,4 +28,5 @@ test:
 	@rm testresult.txt
 
 clean:
-	rm testresult.txt
+	rm -f testresult.txt
+	rm -f ./bin/app

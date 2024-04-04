@@ -145,7 +145,7 @@ func (mr *MockSessionsMockRecorder) SessionExists(ctx, sID interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SessionExists", reflect.TypeOf((*MockSessions)(nil).SessionExists), ctx, sID)
 }
 
-// MockProducts is a mock of products interface.
+// MockProducts is a mock of Products interface.
 type MockProducts struct {
 	ctrl     *gomock.Controller
 	recorder *MockProductsMockRecorder
@@ -181,4 +181,55 @@ func (m *MockProducts) GetProducts(ctx context.Context, lastID, limit int) ([]mo
 func (mr *MockProductsMockRecorder) GetProducts(ctx, lastID, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProducts", reflect.TypeOf((*MockProducts)(nil).GetProducts), ctx, lastID, limit)
+}
+
+// MockAvatars is a mock of Avatars interface.
+type MockAvatars struct {
+	ctrl     *gomock.Controller
+	recorder *MockAvatarsMockRecorder
+}
+
+// MockAvatarsMockRecorder is the mock recorder for MockAvatars.
+type MockAvatarsMockRecorder struct {
+	mock *MockAvatars
+}
+
+// NewMockAvatars creates a new mock instance.
+func NewMockAvatars(ctrl *gomock.Controller) *MockAvatars {
+	mock := &MockAvatars{ctrl: ctrl}
+	mock.recorder = &MockAvatarsMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockAvatars) EXPECT() *MockAvatarsMockRecorder {
+	return m.recorder
+}
+
+// DeleteAvatar mocks base method.
+func (m *MockAvatars) DeleteAvatar(ctx context.Context, imageName string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteAvatar", ctx, imageName)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteAvatar indicates an expected call of DeleteAvatar.
+func (mr *MockAvatarsMockRecorder) DeleteAvatar(ctx, imageName interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAvatar", reflect.TypeOf((*MockAvatars)(nil).DeleteAvatar), ctx, imageName)
+}
+
+// UploadAvatar mocks base method.
+func (m *MockAvatars) UploadAvatar(ctx context.Context, img models.Image) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UploadAvatar", ctx, img)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UploadAvatar indicates an expected call of UploadAvatar.
+func (mr *MockAvatarsMockRecorder) UploadAvatar(ctx, img interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadAvatar", reflect.TypeOf((*MockAvatars)(nil).UploadAvatar), ctx, img)
 }

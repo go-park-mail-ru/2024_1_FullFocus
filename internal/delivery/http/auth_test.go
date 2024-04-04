@@ -43,7 +43,7 @@ func TestSignUp(t *testing.T) {
 			login:    "test",
 			password: "test",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(context.Background(), login, password).Return("test", "test", nil)
+				u.EXPECT().Signup(context.Background(), login, password).Return("test", nil)
 			},
 			expectedStatus: 200,
 			expectedErr:    "",
@@ -54,7 +54,7 @@ func TestSignUp(t *testing.T) {
 			login:    "",
 			password: "",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(context.Background(), login, password).Return("", "", models.NewValidationError("unavailable username", "неправильное имя пользователя"))
+				u.EXPECT().Signup(context.Background(), login, password).Return("", models.NewValidationError("unavailable username", "неправильное имя пользователя"))
 			},
 			expectedStatus: 400,
 			expectedErr:    "unavailable username",
@@ -65,7 +65,7 @@ func TestSignUp(t *testing.T) {
 			login:    "test",
 			password: "",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(context.Background(), login, password).Return("", "", models.NewValidationError("unavailable username", "неправильное имя пользователя"))
+				u.EXPECT().Signup(context.Background(), login, password).Return("", models.NewValidationError("unavailable username", "неправильное имя пользователя"))
 			},
 			expectedStatus: 400,
 			expectedErr:    "unavailable username",
@@ -76,7 +76,7 @@ func TestSignUp(t *testing.T) {
 			login:    "test",
 			password: "12345",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(context.Background(), login, password).Return("", "", models.NewValidationError("unavailable password", "слишком короткий пароль"))
+				u.EXPECT().Signup(context.Background(), login, password).Return("", models.NewValidationError("unavailable password", "слишком короткий пароль"))
 			},
 			expectedStatus: 400,
 			expectedErr:    "unavailable password",
@@ -87,7 +87,7 @@ func TestSignUp(t *testing.T) {
 			login:    "test",
 			password: "12345",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(context.Background(), login, password).Return("", "", models.ErrUserAlreadyExists)
+				u.EXPECT().Signup(context.Background(), login, password).Return("", models.ErrUserAlreadyExists)
 			},
 			expectedStatus: 400,
 			expectedErr:    "user exists",

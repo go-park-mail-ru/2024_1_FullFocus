@@ -10,3 +10,12 @@ minio:
   port: ":9000"
   minio_user: ${MINIO_USER}
   minio_password: ${MINIO_PASSWORD}
+postgres:
+  host: "localhost"
+  port: "5432"
+  user: "postgres"
+  password: "postgres"
+  database: "ozon"
+  sslmode: "disabled"
+  max_open_conns: 10
+  max_idle_time: 10

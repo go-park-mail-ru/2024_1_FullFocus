@@ -12,11 +12,12 @@ import (
 )
 
 type Config struct {
-	Env        string        `yaml:"env" env-required:"true"`
-	SessionTTL time.Duration `yaml:"session_ttl"`
-	Server     ServerConfig  `yaml:"server"`
-	Redis      RedisConfig   `yaml:"redis"`
-	Minio      MinioConfig   `yaml:"minio"`
+	Env        string         `yaml:"env" env-required:"true"`
+	SessionTTL time.Duration  `yaml:"session_ttl"`
+	Server     ServerConfig   `yaml:"server"`
+	Redis      RedisConfig    `yaml:"redis"`
+	Minio      MinioConfig    `yaml:"minio"`
+	Postgres   PostgresConfig `yaml:"postgres"`
 }
 
 type ServerConfig struct {
@@ -33,6 +34,17 @@ type MinioConfig struct {
 	Port          string `yaml:"port"`
 	MinioUser     string `yaml:"minio_user"`
 	MinioPassword string `yaml:"minio_password"`
+}
+
+type PostgresConfig struct {
+	Host         string `yaml:"host"`
+	Port         string `yaml:"port"`
+	User         string `yaml:"user"`
+	Password     string `yaml:"password"`
+	Database     string `yaml:"database"`
+	Sslmode      string `yaml:"sslmode"`
+	MaxOpenConns int    `yaml:"max_open_conns"`
+	MaxIdleTime  int    `yaml:"max_idle_time"`
 }
 
 func MustLoad() *Config {
