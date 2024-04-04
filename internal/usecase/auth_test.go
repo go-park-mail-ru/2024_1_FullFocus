@@ -119,18 +119,11 @@ func TestSignUp(t *testing.T) {
 			defer ctrl.Finish()
 			mockUserRepo := mock_repository.NewMockUsers(ctrl)
 			mockSessionRepo := mock_repository.NewMockSessions(ctrl)
-			salt := []byte{0xd7, 0xc2, 0xf2, 0x51, 0xaa, 0x6a, 0x4e, 0x7b} // ([]byte(testcase.password))[0:8]
-			PasswordHash := PasswordArgon2([]byte(testCase.password), salt)
-			saltWithPasswordHash := string(salt) + string(PasswordHash)
-			testUser := models.User{
-				ID:       0,
-				Username: testCase.login,
-				Password: saltWithPasswordHash,
-			}
+			someUser := models.User{}
 			if testCase.callUserMock {
-				testCase.userMockBehavior(mockUserRepo, testUser)
+				testCase.userMockBehavior(mockUserRepo, someUser)
 				if testCase.callSessionMock {
-					testCase.sessionMockBehavior(mockSessionRepo, testUser.ID)
+					testCase.sessionMockBehavior(mockSessionRepo, someUser.ID)
 				}
 			}
 			au := usecase.NewAuthUsecase(mockUserRepo, mockSessionRepo)
