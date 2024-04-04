@@ -2,7 +2,6 @@ package delivery
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -10,7 +9,6 @@ import (
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 )
 
@@ -52,19 +50,15 @@ func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	}
 	prods, err := h.usecase.GetProducts(ctx, lastID, limit)
 	if errors.Is(err, models.ErrNoProduct) {
-		if jsonErr := helper.JSONResponse(w, 200, models.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 404,
 			Msg:    "not found",
 			MsgRus: "по данному запросу товары не найдены",
-		}); jsonErr != nil {
-			logger.Error(ctx, fmt.Sprintf("marshall error: %v", jsonErr))
-		}
+		})
 		return
 	}
-	if err = helper.JSONResponse(w, 200, models.SuccessResponse{
+	helper.JSONResponse(ctx, w, 200, models.SuccessResponse{
 		Status: 200,
 		Data:   prods,
-	}); err != nil {
-		logger.Error(ctx, fmt.Sprintf("marshall error: %v", err))
-	}
+	})
 }

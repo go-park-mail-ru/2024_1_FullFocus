@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/dto"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 )
 
@@ -22,7 +22,7 @@ type (
 	}
 
 	Avatars interface {
-		UploadAvatar(ctx context.Context, img dto.Image) error
-		DeleteAvatar(ctx context.Context) error
+		UploadAvatar(ctx context.Context, img dto.Image, uID uint) error
+		DeleteAvatar(ctx context.Context, uID uint) error
 	}
 )
