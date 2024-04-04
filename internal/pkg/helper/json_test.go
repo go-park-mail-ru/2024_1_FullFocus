@@ -1,12 +1,18 @@
 package helper_test
 
 import (
+	"context"
 	"encoding/json"
+	"log/slog"
 	"net/http/httptest"
+	"os"
 	"testing"
+
+	"github.com/thejerf/slogassert"
 
 	model "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 )
 
 type Test struct {
@@ -27,10 +33,7 @@ func TestJSONResponse(t *testing.T) {
 		w := httptest.NewRecorder()
 		expect, _ := json.Marshal(item.Message)
 		expect = append(expect, byte(10))
-		err := helper.JSONResponse(w, item.StatusCode, item.Message)
-		if err != nil {
-			t.Fatalf("err: %v", err)
-		}
+		helper.JSONResponse(context.Background(), w, item.StatusCode, item.Message)
 		if w.Body.String() != string(expect) {
 			t.Errorf("%v != %v", string(expect), w.Body.String())
 		}
@@ -42,8 +45,9 @@ func TestJSONResponseErr(t *testing.T) {
 	data["key"] = data
 	statusCode := 200
 	w := httptest.NewRecorder()
-	err := helper.JSONResponse(w, statusCode, data)
-	if err.Error() != "json: unsupported value: encountered a cycle via map[string]interface {}" {
-		t.Fatalf("функция не обработала корректно ошибку %s", err)
-	}
+	testHandler := slogassert.New(t, slog.LevelError, slog.NewJSONHandler(os.Stdout, nil))
+	log := slog.New(testHandler)
+	ctx := logger.WithContext(context.Background(), log)
+	helper.JSONResponse(ctx, w, statusCode, data)
+	testHandler.AssertMessage("marshall error: json: unsupported value: encountered a cycle via map[string]interface {}")
 }

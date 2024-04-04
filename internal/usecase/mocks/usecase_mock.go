@@ -8,7 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	dto "github.com/go-park-mail-ru/2024_1_FullFocus/internal/dto"
+	dto "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	models "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	gomock "github.com/golang/mock/gomock"
 )
