@@ -2,7 +2,6 @@ package usecase_test
 
 import (
 	"context"
-	"golang.org/x/crypto/argon2"
 	"io"
 	"log"
 	"testing"
@@ -13,6 +12,8 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	mock_repository "github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/mocks"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
+
+	"golang.org/x/crypto/argon2"
 )
 
 func PasswordArgon2(plainPassword []byte, salt []byte) []byte {
