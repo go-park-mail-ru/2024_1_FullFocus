@@ -51,8 +51,9 @@ func (u *AuthUsecase) Login(ctx context.Context, login string, password string) 
 	if err != nil {
 		return "", models.ErrNoUser
 	}
-
-	saltWithPasswordHash := string(PasswordArgon2([]byte(password), user.Salt))
+	salt := ([]byte(user.Password))[0:8]
+	PasswordHash := PasswordArgon2([]byte(password), salt)
+	saltWithPasswordHash := string(salt) + string(PasswordHash)
 	if saltWithPasswordHash != user.Password {
 		return "", models.ErrWrongPassword
 	}
@@ -73,12 +74,11 @@ func (u *AuthUsecase) Signup(ctx context.Context, login string, password string)
 
 	salt := make([]byte, 8)
 	rand.Read(salt)
-	saltWithPasswordHash := string(PasswordArgon2([]byte(password), salt))
-
+	PasswordHash := PasswordArgon2([]byte(password), salt)
+	saltWithPasswordHash := string(salt) + string(PasswordHash)
 	user := models.User{
 		Username: login,
 		Password: saltWithPasswordHash,
-		Salt:     salt,
 	}
 
 	uID, err := u.userRepo.CreateUser(ctx, user)

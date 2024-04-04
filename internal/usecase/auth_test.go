@@ -145,7 +145,6 @@ func TestLogin(t *testing.T) {
 		name                string
 		login               string
 		password            string
-		salt                []byte
 		userMockBehavior    func(*mock_repository.MockUsers, string)
 		sessionMockBehavior func(*mock_repository.MockSessions, uint)
 		expectedSID         string
@@ -157,10 +156,9 @@ func TestLogin(t *testing.T) {
 			name:     "Check valid user login",
 			login:    "test123",
 			password: "test12345",
-			salt:     []byte{0xd7, 0xc2, 0xf2, 0x51, 0xaa, 0x6a, 0x4e, 0x7b},
 			userMockBehavior: func(r *mock_repository.MockUsers, username string) {
-				r.EXPECT().GetUser(context.Background(), username).Return(models.User{ID: 0, Username: "test123", Password: string(PasswordArgon2([]byte("test12345"), []byte{0xd7, 0xc2, 0xf2, 0x51, 0xaa, 0x6a, 0x4e, 0x7b})),
-					Salt: []byte{0xd7, 0xc2, 0xf2, 0x51, 0xaa, 0x6a, 0x4e, 0x7b}}, nil)
+				r.EXPECT().GetUser(context.Background(), username).Return(models.User{ID: 0, Username: "test123",
+					Password: string([]byte{0xd7, 0xc2, 0xf2, 0x51, 0xaa, 0x6a, 0x4e, 0x7b}) + string(PasswordArgon2([]byte("test12345"), []byte{0xd7, 0xc2, 0xf2, 0x51, 0xaa, 0x6a, 0x4e, 0x7b}))}, nil)
 			},
 			sessionMockBehavior: func(r *mock_repository.MockSessions, userID uint) {
 				r.EXPECT().CreateSession(context.Background(), userID).Return("123")
