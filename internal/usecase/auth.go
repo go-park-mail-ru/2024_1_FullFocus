@@ -72,10 +72,11 @@ func (u *AuthUsecase) Signup(ctx context.Context, login string, password string)
 			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
 	}
 
-	salt := make([]byte, 8)
+	salt := make([]byte, 8) //[]byte{0xd7, 0xc2, 0xf2, 0x51, 0xaa, 0x6a, 0x4e, 0x7b}
 	rand.Read(salt)
 	PasswordHash := PasswordArgon2([]byte(password), salt)
 	saltWithPasswordHash := string(salt) + string(PasswordHash)
+
 	user := models.User{
 		Username: login,
 		Password: saltWithPasswordHash,
