@@ -45,8 +45,7 @@ func (r *UserRepo) GetUser(ctx context.Context, username string) (models.User, e
 		logger.Info(ctx, fmt.Sprintf("queried in %s", time.Since(start)))
 	}()
 	userRow := &db.UserTable{}
-	err := r.storage.Get(ctx, userRow, q, username)
-	if err != nil {
+	if err := r.storage.Get(ctx, userRow, q, username); err != nil {
 		logger.Error(ctx, "user not found")
 		return models.User{}, models.ErrNoUser
 	}

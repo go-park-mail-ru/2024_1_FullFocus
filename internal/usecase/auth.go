@@ -28,13 +28,11 @@ func NewAuthUsecase(ur repository.Users, sr repository.Sessions) *AuthUsecase {
 }
 
 func (u *AuthUsecase) Login(ctx context.Context, login string, password string) (string, error) {
-	err := helper.ValidateField(login, _minLoginLength, _maxLoginLength)
-	if err != nil {
+	if err := helper.ValidateField(login, _minLoginLength, _maxLoginLength); err != nil {
 		return "", models.NewValidationError("invalid login input",
 			"Логин должен содержать от 4 до 32 букв английского алфавита или цифр")
 	}
-	err = helper.ValidateField(password, _minPasswordLength, _maxPasswordLength)
-	if err != nil {
+	if err := helper.ValidateField(password, _minPasswordLength, _maxPasswordLength); err != nil {
 		return "", models.NewValidationError("invalid password input",
 			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
 	}
@@ -53,13 +51,11 @@ func (u *AuthUsecase) Login(ctx context.Context, login string, password string) 
 }
 
 func (u *AuthUsecase) Signup(ctx context.Context, login string, password string) (string, error) {
-	err := helper.ValidateField(login, _minLoginLength, _maxLoginLength)
-	if err != nil {
+	if err := helper.ValidateField(login, _minLoginLength, _maxLoginLength); err != nil {
 		return "", models.NewValidationError("invalid login input",
 			"Логин должен содержать от 4 до 32 букв английского алфавита или цифр")
 	}
-	err = helper.ValidateField(password, _minPasswordLength, _maxPasswordLength)
-	if err != nil {
+	if err := helper.ValidateField(password, _minPasswordLength, _maxPasswordLength); err != nil {
 		return "", models.NewValidationError("invalid password input",
 			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
 	}
