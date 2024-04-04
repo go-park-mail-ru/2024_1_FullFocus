@@ -7,6 +7,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+//go:generate mockgen -source=database.go -destination=./mocks/database_mock.go
 type Database interface {
 	Close() error
 	Exec(ctx context.Context, q string, args ...interface{}) (sql.Result, error)

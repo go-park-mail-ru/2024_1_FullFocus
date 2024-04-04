@@ -24,10 +24,10 @@ func NewSessionRepo(c *redis.Client, sessTTL time.Duration) *SessionRepo {
 	}
 }
 
-func (r *SessionRepo) CreateSession(ctx context.Context, userID uint) string {
+func (r *SessionRepo) CreateSession(ctx context.Context, uID uint) string {
 	sID := uuid.New().String()
 	start := time.Now()
-	r.client.Set(sID, userID, r.sessionTTL)
+	r.client.Set(sID, uID, r.sessionTTL)
 	logger.Info(ctx, fmt.Sprintf("session inserted in %s", time.Since(start)))
 	return sID
 }
