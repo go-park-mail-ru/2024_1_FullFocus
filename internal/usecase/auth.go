@@ -59,12 +59,15 @@ func (u *AuthUsecase) Login(ctx context.Context, login string, password string) 
 	if err != nil {
 		return "", models.ErrNoUser
 	}
+
 	salt := ([]byte(user.Password))[0:8]
 	passwordHash := PasswordArgon2([]byte(password), salt)
 	saltWithPasswordHash := string(salt) + string(passwordHash)
+
 	if saltWithPasswordHash != user.Password {
 		return "", models.ErrWrongPassword
 	}
+
 	return u.sessionRepo.CreateSession(ctx, user.ID), nil
 }
 
@@ -80,7 +83,7 @@ func (u *AuthUsecase) Signup(ctx context.Context, login string, password string)
 			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
 	}
 
-	salt := make([]byte, _countBytes) // []byte{0xd7, 0xc2, 0xf2, 0x51, 0xaa, 0x6a, 0x4e, 0x7b}
+	salt := make([]byte, _countBytes)
 	_, errSalt := rand.Read(salt)
 	if errSalt != nil {
 		return "", "", errors.New("err with making salt")
@@ -101,6 +104,7 @@ func (u *AuthUsecase) Signup(ctx context.Context, login string, password string)
 
 	uIDHash := md5.Sum([]byte(strconv.Itoa(int(uID))))
 	stringUID := hex.EncodeToString(uIDHash[:])
+
 	return sID, stringUID, nil
 }
 
