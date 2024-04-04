@@ -58,7 +58,7 @@ func Init() *App {
 
 	r.Use(logmw.NewLoggingMiddleware(log))
 	r.Use(corsmw.NewCORSMiddleware([]string{}))
-	r.Use(csrfmw.CSRFMiddleware)
+	r.Use(csrfmw.CSRFMiddleware())
 
 	// Redis
 
