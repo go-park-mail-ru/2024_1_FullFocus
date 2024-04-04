@@ -2,7 +2,10 @@ package models
 
 import (
 	"fmt"
+
 	"github.com/dgrijalva/jwt-go"
+	"github.com/pkg/errors"
+
 	"time"
 )
 
@@ -34,7 +37,7 @@ func (tk *JwtToken) Create(sID string, tokenExpTime int64) (string, error) {
 func (tk *JwtToken) parseSecretGetter(token *jwt.Token) (interface{}, error) {
 	method, ok := token.Method.(*jwt.SigningMethodHMAC)
 	if !ok || method.Alg() != "HS256" {
-		return nil, fmt.Errorf("bad sign method")
+		return nil, errors.New("bad sign method")
 	}
 	return tk.Secret, nil
 }
@@ -43,10 +46,10 @@ func (tk *JwtToken) Check(sID string, inputToken string) (bool, error) {
 	payload := &JwtCsrfClaims{}
 	_, err := jwt.ParseWithClaims(inputToken, payload, tk.parseSecretGetter)
 	if err != nil {
-		return false, fmt.Errorf("cant parse jwt token: %v", err)
+		return false, fmt.Errorf("cant parse jwt token: %w", err)
 	}
 	if payload.Valid() != nil {
-		return false, fmt.Errorf("invalid jwt token: %v", err)
+		return false, fmt.Errorf("invalid jwt token: %w", err)
 	}
 	return payload.SessionID == sID, nil
 }

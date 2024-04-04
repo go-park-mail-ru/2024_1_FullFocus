@@ -2,39 +2,67 @@ package middleware
 
 import (
 	"fmt"
+	"slices"
+	"time"
+
 	csrf "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"github.com/gorilla/mux"
+
 	"net/http"
-	"time"
 )
 
 func CSRFMiddleware() mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
-			tokens, _ := csrf.NewJwtToken("qsRY2e4hcM5T7X984E9WQ5uZ8Nty7fxB")
-			if r.Method == "POST" || r.Method == "PUT" || r.Method == "DELETE" || r.Method == "PATCH" {
-				session, err := r.Cookie("session_id")
-				sID := session.Value
-				CSRFToken := r.FormValue("X-Csrf-Token")
-				_, err = tokens.Check(sID, CSRFToken)
-				if err != nil {
-					w.Write([]byte("{}"))
-					logger.Debug(ctx, fmt.Sprintf("csrf token validation error: %v", err))
-					return
-				}
-			} else if r.Method == "GET" {
-				session, err := r.Cookie("session_id")
-				sID := session.Value
-				token, err := tokens.Create(sID, time.Now().Add(1*time.Hour).Unix())
+			httpMethods := []string{http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodPatch}
+			found := slices.Contains(httpMethods, r.Method)
+			if found {
+				err := CheckSCRFToken(r)
 				if err != nil {
 					logger.Debug(ctx, fmt.Sprintf("csrf token creation error: %v", err))
 					return
 				}
-				w.Header().Set("X-Csrf-Token", token)
+			}
+			if r.Method == http.MethodGet {
+				err := SetSCRFToken(w, r)
+				if err != nil {
+					logger.Debug(ctx, fmt.Sprintf("csrf token creation error: %v", err))
+					return
+				}
 			}
 			next.ServeHTTP(w, r)
 		})
 	}
+}
+
+func SetSCRFToken(w http.ResponseWriter, r *http.Request) error {
+	tokens, _ := csrf.NewJwtToken("qsRY2e4hcM5T7X984E9WQ5uZ8Nty7fxB")
+	session, err := r.Cookie("session_id")
+	if err != nil {
+		return err
+	}
+	sID := session.Value
+	token, err := tokens.Create(sID, time.Now().Add(1*time.Hour).Unix())
+	if err != nil {
+		return err
+	}
+	w.Header().Set("X-Csrf-Token", token)
+	return nil
+}
+
+func CheckSCRFToken(r *http.Request) error {
+	tokens, _ := csrf.NewJwtToken("qsRY2e4hcM5T7X984E9WQ5uZ8Nty7fxB")
+	session, err := r.Cookie("session_id")
+	if err != nil {
+		return err
+	}
+	sID := session.Value
+	csrfToken := r.FormValue("X-Csrf-Token")
+	_, err = tokens.Check(sID, csrfToken)
+	if err != nil {
+		return err
+	}
+	return nil
 }
