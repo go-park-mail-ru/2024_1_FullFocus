@@ -1,54 +1,52 @@
 package models
 
 import (
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/hex"
 	"fmt"
-	"strconv"
-	"strings"
+	"github.com/dgrijalva/jwt-go"
 	"time"
 )
 
-type HashToken struct {
+type JwtToken struct {
 	Secret []byte
 }
 
-func NewHMACHashToken(secret string) (*HashToken, error) {
-	return &HashToken{Secret: []byte(secret)}, nil
+func NewJwtToken(secret string) (*JwtToken, error) {
+	return &JwtToken{Secret: []byte(secret)}, nil
 }
 
-func (tk *HashToken) Create(sID string, userID uint, tokenExpTime int64) (string, error) { // из куки
-	h := hmac.New(sha256.New, []byte(tk.Secret))
-	data := fmt.Sprintf("%s:%d:%d", sID, userID, tokenExpTime)
-	h.Write([]byte(data))
-	token := hex.EncodeToString(h.Sum(nil)) + ":" + strconv.FormatInt(tokenExpTime, 10)
-	return token, nil
+type JwtCsrfClaims struct {
+	SessionID string `json:"sid"`
+	jwt.StandardClaims
 }
 
-func (tk *HashToken) Check(sID string, userID uint, inputToken string) (bool, error) {
-	tokenData := strings.Split(inputToken, ":")
-	if len(tokenData) != 2 {
-		return false, fmt.Errorf("bad token data")
+func (tk *JwtToken) Create(sID string, tokenExpTime int64) (string, error) {
+	data := JwtCsrfClaims{
+		SessionID: sID,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: tokenExpTime,
+			IssuedAt:  time.Now().Unix(),
+		},
 	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, data)
+	return token.SignedString(tk.Secret)
+}
 
-	tokenExp, err := strconv.ParseInt(tokenData[1], 10, 64)
+func (tk *JwtToken) parseSecretGetter(token *jwt.Token) (interface{}, error) {
+	method, ok := token.Method.(*jwt.SigningMethodHMAC)
+	if !ok || method.Alg() != "HS256" {
+		return nil, fmt.Errorf("bad sign method")
+	}
+	return tk.Secret, nil
+}
+
+func (tk *JwtToken) Check(sID string, inputToken string) (bool, error) {
+	payload := &JwtCsrfClaims{}
+	_, err := jwt.ParseWithClaims(inputToken, payload, tk.parseSecretGetter)
 	if err != nil {
-		return false, fmt.Errorf("bad token time")
+		return false, fmt.Errorf("cant parse jwt token: %v", err)
 	}
-
-	if tokenExp < time.Now().Unix() {
-		return false, fmt.Errorf("token expired")
+	if payload.Valid() != nil {
+		return false, fmt.Errorf("invalid jwt token: %v", err)
 	}
-
-	h := hmac.New(sha256.New, []byte(tk.Secret))
-	data := fmt.Sprintf("%s:%d:%d", sID, userID, tokenExp)
-	h.Write([]byte(data))
-	expectedMAC := h.Sum(nil)
-	messageMAC, err := hex.DecodeString(tokenData[0])
-	if err != nil {
-		return false, fmt.Errorf("cand hex decode token")
-	}
-
-	return hmac.Equal(messageMAC, expectedMAC), nil
+	return payload.SessionID == sID, nil
 }
