@@ -103,6 +103,26 @@ func (mr *MockDatabaseMockRecorder) GetRawDB() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRawDB", reflect.TypeOf((*MockDatabase)(nil).GetRawDB))
 }
 
+// Select mocks base method.
+func (m *MockDatabase) Select(ctx context.Context, dest interface{}, q string, args ...interface{}) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, dest, q}
+	for _, a := range args {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Select", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Select indicates an expected call of Select.
+func (mr *MockDatabaseMockRecorder) Select(ctx, dest, q interface{}, args ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, dest, q}, args...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Select", reflect.TypeOf((*MockDatabase)(nil).Select), varargs...)
+}
+
+// Mock Sql Result
 type MockSqlResult struct {}
 
 func (MockSqlResult)LastInsertId() (int64, error) {
@@ -112,4 +132,3 @@ func (MockSqlResult)LastInsertId() (int64, error) {
 func (MockSqlResult)RowsAffected() (int64, error) {
 	return 0, nil
 }
-

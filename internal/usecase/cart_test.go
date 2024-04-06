@@ -33,19 +33,9 @@ func TestGetAllCartItems(t *testing.T) {
 			name: "Test successfull get",
 			uID:  1,
 			mockBehavior: func(mc *mock_repository.MockCarts, u uint) {
-				mc.EXPECT().GetAllCartItems(context.Background(), u).Return([]models.CartItem{
-					{
-						Prod:  models.Product{},
-						Count: 1,
-					},
-				}, nil)
+				mc.EXPECT().GetAllCartItems(context.Background(), u).Return([]models.CartItem{{Count: 1}}, nil)
 			},
-			expectedItems: []models.CartItem{
-				{
-					Prod:  models.Product{},
-					Count: 1,
-				},
-			},
+			expectedItems: []models.CartItem{{Count: 1}},
 			expectedError: nil,
 		},
 		{

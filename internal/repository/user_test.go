@@ -76,9 +76,10 @@ func TestCreateUser(t *testing.T) {
 
 func TestGetUser(t *testing.T) {
 	testCases := []struct {
-		name          string
-		username      string
-		mockBehavior  func(*mock_database.MockDatabase, *database.UserTable, string, string)
+		name         string
+		username     string
+		mockBehavior func(*mock_database.MockDatabase, *database.UserTable, string, string)
+		// TODO expectedUser models.User
 		expectedError error
 	}{
 		{
@@ -105,6 +106,7 @@ func TestGetUser(t *testing.T) {
 			defer ctrl.Finish()
 			testCase.mockBehavior(db, &database.UserTable{}, "SELECT id FROM default_user WHERE user_login = $1;", testCase.username)
 			ur := repository.NewUserRepo(db)
+
 			_, err := ur.GetUser(context.Background(), testCase.username)
 			require.ErrorIs(t, err, testCase.expectedError)
 		})
