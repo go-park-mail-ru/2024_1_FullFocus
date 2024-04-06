@@ -2,7 +2,9 @@ DB_HOST=127.0.0.1
 DB_PORT=5432
 DB_NAME=ozon
 
+ifneq ("$(wildcard .env)","")
 include .env
+endif
 
 DB_DSN="postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable"
 
