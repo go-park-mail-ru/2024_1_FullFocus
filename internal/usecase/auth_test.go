@@ -19,7 +19,7 @@ func TestNewAuthUsecase(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 		au := usecase.NewAuthUsecase(mock_repository.NewMockUsers(ctrl), mock_repository.NewMockSessions(ctrl))
-		require.NotEmpty(t, au, "auth repo not created")
+		require.NotEmpty(t, au, "auth usecase not created")
 	})
 }
 

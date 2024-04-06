@@ -1,3 +1,4 @@
+//go:generate mockgen -source=usecase.go -destination=./mocks/usecase_mock.go
 package usecase
 
 import (
@@ -7,7 +8,6 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 )
 
-//go:generate mockgen -source=usecase.go -destination=./mocks/usecase_mock.go
 type (
 	Auth interface {
 		Login(ctx context.Context, login string, password string) (string, error)
@@ -24,5 +24,12 @@ type (
 	Avatars interface {
 		UploadAvatar(ctx context.Context, img dto.Image, uID uint) error
 		DeleteAvatar(ctx context.Context, uID uint) error
+	}
+
+	Carts interface {
+		GetAllCartItems(ctx context.Context, uID uint) ([]models.CartItem, error)
+		UpdateCartItem(ctx context.Context, uID, prID uint) (uint, error)
+		DeleteCartItem(ctx context.Context, uID, prID uint) error
+		DeleteAllCartItems(ctx context.Context, uID uint) error
 	}
 )
