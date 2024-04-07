@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	corsmw "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware"
 	"log/slog"
 	"net/http"
 	"os"
@@ -15,8 +16,6 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
-	corsmw "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/cors"
-	logmw "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/logging"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/server"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
@@ -57,7 +56,7 @@ func Init() *App {
 
 	// Middleware
 
-	r.Use(logmw.NewLoggingMiddleware(log))
+	r.Use(corsmw.NewLoggingMiddleware(log))
 	r.Use(corsmw.NewCORSMiddleware([]string{}))
 
 	// Redis
