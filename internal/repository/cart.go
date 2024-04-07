@@ -70,7 +70,7 @@ func (r *CartRepo) UpdateCartItem(ctx context.Context, uID, prID uint) (uint, er
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d $2 = %d", uID, prID)))
 	start := time.Now()
 	defer func() {
-		logger.Info(ctx, fmt.Sprintf("queried in %s", time.Since(start)))
+		logger.Info(ctx, fmt.Sprintf("inserted in %s", time.Since(start)))
 	}()
 
 	resRow, err := r.storage.Exec(ctx, q, uID, prID)
@@ -84,10 +84,23 @@ func (r *CartRepo) UpdateCartItem(ctx context.Context, uID, prID uint) (uint, er
 	return uint(newCount), nil
 }
 
-func (r *CartRepo) DeleteCartItem(ctx context.Context, uID, orID uint) (uint, error) {
+func (r *CartRepo) DeleteCartItem(ctx context.Context, uID, prID uint) (uint, error) {
 	return 0, nil
 }
 
 func (r *CartRepo) DeleteAllCartItems(ctx context.Context, uID uint) error {
+	q := `DELETE FROM cart_item WHERE profile_id = $1;`
+
+	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d", uID)))
+	start := time.Now()
+	defer func() {
+		logger.Info(ctx, fmt.Sprintf("deleted in %s", time.Since(start)))
+	}()
+
+	_, err := r.storage.Exec(ctx, q, uID)
+	if err != nil {
+		return models.ErrEmptyCart
+	}
+
 	return nil
 }
