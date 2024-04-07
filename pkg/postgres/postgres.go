@@ -54,3 +54,7 @@ func (db *PgxDatabase) Exec(ctx context.Context, q string, args ...interface{}) 
 func (db *PgxDatabase) Get(ctx context.Context, dest interface{}, q string, args ...interface{}) error {
 	return db.client.GetContext(ctx, dest, sqlx.Rebind(sqlx.DOLLAR, q), args...)
 }
+
+func (db *PgxDatabase) NamedExec(ctx context.Context, query string, arg interface{}) (sql.Result, error) {
+	return db.client.NamedExecContext(ctx, query, arg)
+}
