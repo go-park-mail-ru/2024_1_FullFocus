@@ -21,7 +21,7 @@ type (
 	}
 
 	Products interface {
-		GetProducts(ctx context.Context, lastID, limit int) ([]models.Product, error)
+		GetAllProducts(ctx context.Context, lastID, limit int) ([]models.Product, error)
 	}
 
 	Avatars interface {

@@ -9,7 +9,7 @@ type OrderProduct struct {
 	ImgSrc      string `json:"imgSrc"`
 }
 
-func ConvertProductsToDTO(products []models.OrderProduct) []OrderProduct {
+func ConvertOrderProductsToDTO(products []models.OrderProduct) []OrderProduct {
 	orderProducts := make([]OrderProduct, 0, len(products))
 	for _, product := range products {
 		orderProducts = append(orderProducts, OrderProduct{

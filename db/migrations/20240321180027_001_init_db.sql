@@ -47,7 +47,7 @@ CREATE TABLE product (
 CREATE TABLE category (
 	id smallserial PRIMARY KEY,
 	category_name text NOT NULL UNIQUE CHECK (char_length(category_name) BETWEEN 1 AND 50),
-	parent_id int2 NOT NULL REFERENCES category(id) ON DELETE CASCADE ON UPDATE CASCADE
+	parent_id int2 REFERENCES category(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- ozon.product_category definition
