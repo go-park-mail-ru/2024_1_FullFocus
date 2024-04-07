@@ -27,3 +27,26 @@ func ConvertTablesToCartItems(tt []CartItemTable) []models.CartItem {
 	}
 	return cartItems
 }
+
+type CartProductTable struct {
+	PrID  uint
+	Name  string
+	Price uint
+	Count uint
+	Img   string
+}
+
+func ConvertTablesToCartProducts(tt []CartProductTable) []models.CartProduct {
+	cartProducts := make([]models.CartProduct, 0)
+	for _, t := range tt {
+		cartProduct := models.CartProduct{
+			ProductID: t.PrID,
+			Name:      t.Name,
+			Price:     t.Price,
+			Count:     t.Count,
+			Img:       t.Img,
+		}
+		cartProducts = append(cartProducts, cartProduct)
+	}
+	return cartProducts
+}

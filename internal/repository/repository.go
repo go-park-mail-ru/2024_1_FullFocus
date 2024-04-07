@@ -30,7 +30,7 @@ type (
 	}
 
 	Carts interface {
-		GetAllCartItems(ctx context.Context, uID uint) ([]models.CartItem, error)
+		GetAllCartItems(ctx context.Context, uID uint) ([]models.CartProduct, error)
 		UpdateCartItem(ctx context.Context, uID, prID uint) (uint, error)
 		DeleteCartItem(ctx context.Context, uID, orID uint) (uint, error)
 		DeleteAllCartItems(ctx context.Context, uID uint) error

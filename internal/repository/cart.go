@@ -23,12 +23,29 @@ func NewCartRepo(dbClient db.Database) *CartRepo {
 	}
 }
 
-func (r *CartRepo) GetAllCartItems(ctx context.Context, uID uint) ([]models.CartItem, error) {
-	return nil, nil
+func (r *CartRepo) GetAllCartItems(ctx context.Context, uID uint) ([]models.CartProduct, error) {
+	q := `SELECT p.id, p.product_name, p.price, p.imgsrc, c.count
+		FROM product AS p JOIN cart_item AS c ON p.id = c.product_id
+		WHERE profile_id = $1;`
+
+	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d", uID)))
+	start := time.Now()
+	defer func() {
+		logger.Info(ctx, fmt.Sprintf("queried in %s", time.Since(start)))
+	}()
+
+	cartProductRows := []db.CartProductTable{}
+	if err := r.storage.Select(ctx, &cartProductRows, q, uID); errors.Is(err, sql.ErrNoRows) {
+		logger.Error(ctx, "users cart is empty")
+		return nil, models.ErrEmptyCart
+	}
+
+	return db.ConvertTablesToCartProducts(cartProductRows), nil
 }
 
-func (r *CartRepo) GetAllCartProductsId(ctx context.Context, uID uint) ([]models.CartItem, error) {
-	q := `SELECT (product_id, count) FROM cart_item WHERE profile_id = $1;`
+func (r *CartRepo) GetAllCartItemsId(ctx context.Context, uID uint) ([]models.CartItem, error) {
+	q := `SELECT product_id, count FROM cart_item WHERE profile_id = $1;`
+
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d", uID)))
 	start := time.Now()
 	defer func() {

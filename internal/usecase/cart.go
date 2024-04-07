@@ -18,7 +18,7 @@ func NewCartUsecase(cr repository.Carts) *CartUsecase {
 	}
 }
 
-func (u *CartUsecase) GetAllCartItems(ctx context.Context, uID uint) ([]models.CartItem, error) {
+func (u *CartUsecase) GetAllCartItems(ctx context.Context, uID uint) ([]models.CartProduct, error) {
 	items, err := u.cartRepo.GetAllCartItems(ctx, uID)
 	if errors.Is(err, models.ErrEmptyCart) {
 		return nil, err
