@@ -58,6 +58,10 @@ test: ## Запустить тесты
 	@cat testresult.txt
 	@rm testresult.txt
 
+.PHONY: test-details
+test-details: ## Запустить тесты с выводом всех результатов
+	go test -v -cover ./...
+
 .PHONY: ci
 ci: lint test ## Запустить линтеры + тесты
 

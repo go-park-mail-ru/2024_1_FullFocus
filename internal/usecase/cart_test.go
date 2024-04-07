@@ -26,16 +26,16 @@ func TestGetAllCartItems(t *testing.T) {
 		name          string
 		uID           uint
 		mockBehavior  func(*mock_repository.MockCarts, uint)
-		expectedItems []models.CartItem
+		expectedItems []models.CartProduct
 		expectedError error
 	}{
 		{
 			name: "Test successfull get",
 			uID:  1,
 			mockBehavior: func(mc *mock_repository.MockCarts, u uint) {
-				mc.EXPECT().GetAllCartItems(context.Background(), u).Return([]models.CartItem{{Count: 1}}, nil)
+				mc.EXPECT().GetAllCartItems(context.Background(), u).Return([]models.CartProduct{{Count: 1}}, nil)
 			},
-			expectedItems: []models.CartItem{{Count: 1}},
+			expectedItems: []models.CartProduct{{Count: 1}},
 			expectedError: nil,
 		},
 		{
