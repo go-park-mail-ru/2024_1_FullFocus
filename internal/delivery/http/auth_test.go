@@ -15,6 +15,7 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	mock_usecase "github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase/mocks"
 )
 
@@ -54,7 +55,7 @@ func TestSignUp(t *testing.T) {
 			login:    "",
 			password: "",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(context.Background(), login, password).Return("", models.NewValidationError("unavailable username", "неправильное имя пользователя"))
+				u.EXPECT().Signup(context.Background(), login, password).Return("", helper.NewValidationError("unavailable username", "неправильное имя пользователя"))
 			},
 			expectedStatus: 400,
 			expectedErr:    "unavailable username",
@@ -65,7 +66,7 @@ func TestSignUp(t *testing.T) {
 			login:    "test",
 			password: "",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(context.Background(), login, password).Return("", models.NewValidationError("unavailable username", "неправильное имя пользователя"))
+				u.EXPECT().Signup(context.Background(), login, password).Return("", helper.NewValidationError("unavailable username", "неправильное имя пользователя"))
 			},
 			expectedStatus: 400,
 			expectedErr:    "unavailable username",
@@ -76,7 +77,7 @@ func TestSignUp(t *testing.T) {
 			login:    "test",
 			password: "12345",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(context.Background(), login, password).Return("", models.NewValidationError("unavailable password", "слишком короткий пароль"))
+				u.EXPECT().Signup(context.Background(), login, password).Return("", helper.NewValidationError("unavailable password", "слишком короткий пароль"))
 			},
 			expectedStatus: 400,
 			expectedErr:    "unavailable password",

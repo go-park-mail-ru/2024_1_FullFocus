@@ -171,29 +171,111 @@ func (m *MockAvatars) EXPECT() *MockAvatarsMockRecorder {
 }
 
 // DeleteAvatar mocks base method.
-func (m *MockAvatars) DeleteAvatar(ctx context.Context) error {
+func (m *MockAvatars) DeleteAvatar(ctx context.Context, uID uint) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteAvatar", ctx)
+	ret := m.ctrl.Call(m, "DeleteAvatar", ctx, uID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteAvatar indicates an expected call of DeleteAvatar.
-func (mr *MockAvatarsMockRecorder) DeleteAvatar(ctx interface{}) *gomock.Call {
+func (mr *MockAvatarsMockRecorder) DeleteAvatar(ctx, uID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAvatar", reflect.TypeOf((*MockAvatars)(nil).DeleteAvatar), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAvatar", reflect.TypeOf((*MockAvatars)(nil).DeleteAvatar), ctx, uID)
 }
 
 // UploadAvatar mocks base method.
-func (m *MockAvatars) UploadAvatar(ctx context.Context, img dto.Image) error {
+func (m *MockAvatars) UploadAvatar(ctx context.Context, img dto.Image, uID uint) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UploadAvatar", ctx, img)
+	ret := m.ctrl.Call(m, "UploadAvatar", ctx, img, uID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UploadAvatar indicates an expected call of UploadAvatar.
-func (mr *MockAvatarsMockRecorder) UploadAvatar(ctx, img interface{}) *gomock.Call {
+func (mr *MockAvatarsMockRecorder) UploadAvatar(ctx, img, uID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadAvatar", reflect.TypeOf((*MockAvatars)(nil).UploadAvatar), ctx, img)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadAvatar", reflect.TypeOf((*MockAvatars)(nil).UploadAvatar), ctx, img, uID)
+}
+
+// MockCarts is a mock of Carts interface.
+type MockCarts struct {
+	ctrl     *gomock.Controller
+	recorder *MockCartsMockRecorder
+}
+
+// MockCartsMockRecorder is the mock recorder for MockCarts.
+type MockCartsMockRecorder struct {
+	mock *MockCarts
+}
+
+// NewMockCarts creates a new mock instance.
+func NewMockCarts(ctrl *gomock.Controller) *MockCarts {
+	mock := &MockCarts{ctrl: ctrl}
+	mock.recorder = &MockCartsMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockCarts) EXPECT() *MockCartsMockRecorder {
+	return m.recorder
+}
+
+// DeleteAllCartItems mocks base method.
+func (m *MockCarts) DeleteAllCartItems(ctx context.Context, uID uint) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteAllCartItems", ctx, uID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteAllCartItems indicates an expected call of DeleteAllCartItems.
+func (mr *MockCartsMockRecorder) DeleteAllCartItems(ctx, uID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAllCartItems", reflect.TypeOf((*MockCarts)(nil).DeleteAllCartItems), ctx, uID)
+}
+
+// DeleteCartItem mocks base method.
+func (m *MockCarts) DeleteCartItem(ctx context.Context, uID, prID uint) (uint, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteCartItem", ctx, uID, prID)
+	ret0, _ := ret[0].(uint)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteCartItem indicates an expected call of DeleteCartItem.
+func (mr *MockCartsMockRecorder) DeleteCartItem(ctx, uID, prID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteCartItem", reflect.TypeOf((*MockCarts)(nil).DeleteCartItem), ctx, uID, prID)
+}
+
+// GetAllCartItems mocks base method.
+func (m *MockCarts) GetAllCartItems(ctx context.Context, uID uint) ([]models.CartProduct, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllCartItems", ctx, uID)
+	ret0, _ := ret[0].([]models.CartProduct)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllCartItems indicates an expected call of GetAllCartItems.
+func (mr *MockCartsMockRecorder) GetAllCartItems(ctx, uID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllCartItems", reflect.TypeOf((*MockCarts)(nil).GetAllCartItems), ctx, uID)
+}
+
+// UpdateCartItem mocks base method.
+func (m *MockCarts) UpdateCartItem(ctx context.Context, uID, prID uint) (uint, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateCartItem", ctx, uID, prID)
+	ret0, _ := ret[0].(uint)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateCartItem indicates an expected call of UpdateCartItem.
+func (mr *MockCartsMockRecorder) UpdateCartItem(ctx, uID, prID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCartItem", reflect.TypeOf((*MockCarts)(nil).UpdateCartItem), ctx, uID, prID)
 }

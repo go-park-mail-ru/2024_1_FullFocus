@@ -50,7 +50,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 	sID, err := h.usecase.Login(ctx, loginData.Login, loginData.Password)
 	if err != nil {
-		if validationError := new(models.ValidationError); errors.As(err, &validationError) {
+		if validationError := new(helper.ValidationError); errors.As(err, &validationError) {
 			helper.JSONResponse(ctx, w, 200, validationError.WithCode(400))
 			return
 		}
@@ -87,7 +87,7 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	}
 	sID, err := h.usecase.Signup(ctx, loginData.Login, loginData.Password)
 	if err != nil {
-		if validationError := new(models.ValidationError); errors.As(err, &validationError) {
+		if validationError := new(helper.ValidationError); errors.As(err, &validationError) {
 			helper.JSONResponse(ctx, w, 200, validationError.WithCode(400))
 			return
 		}
