@@ -76,12 +76,10 @@ func (u *AuthUsecase) Signup(ctx context.Context, login string, password string)
 		return "", models.ErrUserAlreadyExists
 	}
 
-	profile := models.Profile{
-		User: user,
-	}
+	profile := models.Profile{ID: uID, FullName: login}
 	_, err = u.profileRepo.CreateProfile(ctx, profile)
 	if err != nil {
-		return "", "", models.ErrProfileAlreadyExists
+		return "", models.ErrProfileAlreadyExists
 	}
 
 	sID := u.sessionRepo.CreateSession(ctx, uID)

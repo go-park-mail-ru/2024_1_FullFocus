@@ -2,54 +2,74 @@ package repository
 
 import (
 	"context"
+	"fmt"
+	"time"
+
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
-	"sync"
 )
 
 type ProfileRepo struct {
-	nextID uint
-	sync.Mutex
-	storage map[string]models.Profile
+	storage db.Database
 }
 
-func NewProfileRepo() *ProfileRepo {
+func NewProfileRepo(dbClient db.Database) *ProfileRepo {
 	return &ProfileRepo{
-		storage: make(map[string]models.Profile),
+		storage: dbClient,
 	}
 }
 
 func (r *ProfileRepo) CreateProfile(ctx context.Context, profile models.Profile) (uint, error) {
-	r.Lock()
-	defer r.Unlock()
-	if _, ok := r.storage[profile.User.Username]; ok {
+	profileRow := db.ConvertProfileToTable(profile)
+	q := `INSERT INTO user_profile (id, 
+                          full_name, 
+                          email, 
+                          phone_number, 
+                          imgsrc) VALUES ($1, $2, $3, $4, $5);`
+	start := time.Now()
+	defer func() {
+		logger.Info(ctx, fmt.Sprintf("created in %s", time.Since(start)))
+	}()
+	_, err := r.storage.Exec(ctx, q, profileRow)
+	if err != nil {
 		logger.Error(ctx, "profile already exists")
 		return 0, models.ErrUserAlreadyExists
 	}
-	r.nextID++
-	r.storage[profile.User.Username] = profile
-	return profile.User.ID, nil
+	return profile.ID, nil
 }
 
-func (r *ProfileRepo) GetProfile(ctx context.Context, username string) (models.Profile, error) {
-	r.Lock()
-	defer r.Unlock()
-	profile, ok := r.storage[username]
-	if !ok {
-		logger.Error(ctx, "user not found")
-		return models.Profile{}, models.ErrNoProfile
+func (r *ProfileRepo) GetProfile(ctx context.Context, uID uint) (models.Profile, error) {
+	q := `SELECT * FROM default_user WHERE id = $1;`
+	start := time.Now()
+	defer func() {
+		logger.Info(ctx, fmt.Sprintf("queried in %s", time.Since(start)))
+	}()
+	profileRow := &db.ProfileTable{}
+	if err := r.storage.Get(ctx, profileRow, q, uID); err != nil {
+		logger.Error(ctx, "profile not found")
+		return models.Profile{}, models.ErrNoUser
 	}
-	return profile, nil
+	return db.ConvertTableToProfile(*profileRow), nil
 }
 
-func (r *ProfileRepo) UpdateProfile(ctx context.Context, username string, profileNew models.Profile) error {
-	r.Lock()
-	defer r.Unlock()
-	_, ok := r.storage[username]
-	if !ok {
-		logger.Error(ctx, "user not found")
+func (r *ProfileRepo) UpdateProfile(ctx context.Context, uID uint, profileNew models.Profile) error {
+	q := `UPDATE user_profile SET email=$1, full_name=$2, phone_number=$3, imgscr=$4, updated_at=$5 WHERE id = $6`
+	start := time.Now()
+	defer func() {
+		logger.Info(ctx, fmt.Sprintf("updated in %s", time.Since(start)))
+	}()
+	_, err := r.storage.Exec(ctx, q,
+		profileNew.Email,
+		profileNew.FullName,
+		profileNew.PhoneNumber,
+		profileNew.ImgSrc,
+		start,
+		uID)
+	if err != nil {
+		logger.Error(ctx, "profile not found")
 		return models.ErrNoProfile
 	}
-	r.storage[username] = profileNew
+
 	return nil
 }

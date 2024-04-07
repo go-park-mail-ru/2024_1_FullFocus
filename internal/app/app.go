@@ -92,7 +92,7 @@ func Init() *App {
 	// Layers
 
 	// Profile
-	profileRepo := repository.NewProfileRepo()
+	profileRepo := repository.NewProfileRepo(pgxClient)
 	profileUsecase := usecase.NewProfileUsecase(profileRepo)
 	profileHandler := delivery.NewProfileHandler(profileUsecase)
 	profileHandler.InitRouter(apiRouter)

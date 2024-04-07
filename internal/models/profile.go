@@ -1,6 +1,9 @@
 package models
 
 type Profile struct {
-	User  User  `json:"user"`
-	Image Image `json:"image"`
+	ID          uint   `json:"id"`
+	FullName    string `json:"fullName"`
+	Email       string `json:"email"`
+	PhoneNumber string `json:"phoneNumber"`
+	ImgSrc      string `json:"imgsrc"`
 }

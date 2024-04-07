@@ -30,8 +30,8 @@ type (
 	}
 
 	Profiles interface {
-		UpdateProfile(ctx context.Context, username string, profileNew models.Profile) error
-		GetProfile(ctx context.Context, username string) (models.Profile, error)
+		UpdateProfile(ctx context.Context, uID uint, profileNew models.Profile) error
+		GetProfile(ctx context.Context, uID uint) (models.Profile, error)
 		CreateProfile(ctx context.Context, profile models.Profile) (uint, error)
 	}
 )
