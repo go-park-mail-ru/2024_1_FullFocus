@@ -33,11 +33,11 @@ services:
       timeout: 20s
       retries: 3
     volumes:
-      - '${PWD}/redis_data:/data'
+      - 'redis-data:/data'
   minio:
     image: minio/minio:RELEASE.2024-01-18T22-51-28Z-cpuv1
     volumes:
-      - ./minio-data:/data
+      - 'minio-data:/data'
     ports:
       - '9000:9000'
     environment:
@@ -53,7 +53,7 @@ services:
     image: postgres:16
     volumes:
       # - ${PWD}/db/migrations:/docker-entrypoint-initdb.d
-      - ${PWD}/postgres-data:/var/lib/postgresql/data
+      - 'postgres-data:/var/lib/postgresql/data'
     ports:
       - '5432:5432'
     environment:
@@ -65,3 +65,7 @@ services:
       interval: 10s
       timeout: 10s
       retries: 3
+volumes:
+  redis-data:
+  minio-data:
+  postgres-data:
