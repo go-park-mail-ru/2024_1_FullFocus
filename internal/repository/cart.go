@@ -62,7 +62,7 @@ func (r *CartRepo) GetAllCartItemsId(ctx context.Context, uID uint) ([]models.Ca
 }
 
 func (r *CartRepo) UpdateCartItem(ctx context.Context, uID, prID uint) (uint, error) {
-	q := `INSERT INTO ozon.cart_item(profile_id, product_id) VALUES($1, $2)
+	q := `INSERT INTO cart_item(profile_id, product_id) VALUES($1, $2)
 	ON CONFLICT (profile_id, product_id)
 	DO UPDATE set count = cart_item.count + 1
 	returning cart_item.count;`
@@ -70,7 +70,7 @@ func (r *CartRepo) UpdateCartItem(ctx context.Context, uID, prID uint) (uint, er
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d $2 = %d", uID, prID)))
 	start := time.Now()
 	defer func() {
-		logger.Info(ctx, fmt.Sprintf("inserted in %s", time.Since(start)))
+		logger.Info(ctx, fmt.Sprintf("updated in %s", time.Since(start)))
 	}()
 
 	resRow, err := r.storage.Exec(ctx, q, uID, prID)
@@ -85,7 +85,40 @@ func (r *CartRepo) UpdateCartItem(ctx context.Context, uID, prID uint) (uint, er
 }
 
 func (r *CartRepo) DeleteCartItem(ctx context.Context, uID, prID uint) (uint, error) {
-	return 0, nil
+	q := `UPDATE cart_item SET count = cart_item.count - 1
+	WHERE user_id = $1 AND product_id = $2
+	returning cart_item.count;`
+
+	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d $2 = %d", uID, prID)))
+	start := time.Now()
+	defer func() {
+		logger.Info(ctx, fmt.Sprintf("updated in %s", time.Since(start)))
+	}()
+
+	resRow, err := r.storage.Exec(ctx, q, uID, prID)
+	if err != nil {
+		return 0, models.ErrNoProduct
+	}
+	newCount, err := resRow.LastInsertId()
+	if err != nil {
+		return 0, models.ErrNoProduct
+	}
+
+	if newCount == 0 {
+		q = `DELETE FROM cart_item WHERE profile_id = $1 AND product_id = $2;`
+
+		logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d $2 = %d", uID, prID)))
+		start := time.Now()
+		defer func() {
+			logger.Info(ctx, fmt.Sprintf("deleted in %s", time.Since(start)))
+		}()
+		_, err := r.storage.Exec(ctx, q, uID, prID)
+		if err != nil {
+			return 0, models.ErrNoProduct
+		}
+		return 0, nil
+	}
+	return uint(newCount), nil
 }
 
 func (r *CartRepo) DeleteAllCartItems(ctx context.Context, uID uint) error {

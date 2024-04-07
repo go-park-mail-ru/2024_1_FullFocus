@@ -167,7 +167,7 @@ func TestUpdateCartItem(t *testing.T) {
 			db := mock_database.NewMockDatabase(ctrl)
 			defer ctrl.Finish()
 
-			q := `INSERT INTO ozon.cart_item(profile_id, product_id) VALUES($1, $2)
+			q := `INSERT INTO cart_item(profile_id, product_id) VALUES($1, $2)
 	ON CONFLICT (profile_id, product_id)
 	DO UPDATE set count = cart_item.count + 1
 	returning cart_item.count;`
@@ -175,6 +175,104 @@ func TestUpdateCartItem(t *testing.T) {
 			cr := repository.NewCartRepo(db)
 
 			newCount, err := cr.UpdateCartItem(context.Background(), testCase.uID, testCase.prID)
+			require.Equal(t, newCount, testCase.expectedCount)
+			require.ErrorIs(t, err, testCase.expectedError)
+		})
+	}
+}
+
+func TestDeleteCartItem(t *testing.T) {
+	testCases := []struct {
+		name               string
+		uID                uint
+		prID               uint
+		mockBehaviorUpdate func(*mock_database.MockDatabase, string, uint, uint)
+		mockBehaviorDelete func(*mock_database.MockDatabase, string, uint, uint)
+		callMockDelete     bool
+		expectedCount      uint
+		expectedError      error
+	}{
+		{
+			name: "Test successful count decrement",
+			uID:  1,
+			prID: 1,
+			mockBehaviorUpdate: func(d *mock_database.MockDatabase, q string, u, p uint) {
+				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSqlResult{
+					LastInsertedId: 1,
+					RowsAffect:     1,
+				}, nil)
+			},
+			callMockDelete: false,
+			expectedCount:  1,
+			expectedError:  nil,
+		},
+		{
+			name: "Test successfull delete",
+			uID:  1,
+			prID: 1,
+			mockBehaviorUpdate: func(d *mock_database.MockDatabase, q string, u, p uint) {
+				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSqlResult{
+					LastInsertedId: 0,
+					RowsAffect:     1,
+				}, nil)
+			},
+			mockBehaviorDelete: func(d *mock_database.MockDatabase, q string, u, p uint) {
+				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSqlResult{}, nil)
+			},
+			callMockDelete: true,
+			expectedCount:  0,
+			expectedError:  nil,
+		},
+		{
+			name: "Test not existing item decrement",
+			uID:  1,
+			prID: 1,
+			mockBehaviorUpdate: func(d *mock_database.MockDatabase, q string, u, p uint) {
+				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSqlResult{
+					LastInsertedId: 0,
+					RowsAffect:     0,
+				}, sql.ErrNoRows)
+			},
+			callMockDelete: false,
+			expectedCount:  0,
+			expectedError:  models.ErrNoProduct,
+		},
+		{
+			name: "Test not existing item delete",
+			uID:  1,
+			prID: 1,
+			mockBehaviorUpdate: func(d *mock_database.MockDatabase, q string, u, p uint) {
+				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSqlResult{
+					LastInsertedId: 0,
+					RowsAffect:     1,
+				}, nil)
+			},
+			mockBehaviorDelete: func(d *mock_database.MockDatabase, q string, u, p uint) {
+				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSqlResult{}, sql.ErrNoRows)
+			},
+			callMockDelete: true,
+			expectedCount:  0,
+			expectedError:  models.ErrNoProduct,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			db := mock_database.NewMockDatabase(ctrl)
+			defer ctrl.Finish()
+
+			q1 := `UPDATE cart_item SET count = cart_item.count - 1
+	WHERE user_id = $1 AND product_id = $2
+	returning cart_item.count;`
+			testCase.mockBehaviorUpdate(db, q1, testCase.uID, testCase.prID)
+			if testCase.callMockDelete {
+				q2 := `DELETE FROM cart_item WHERE profile_id = $1 AND product_id = $2;`
+				testCase.mockBehaviorDelete(db, q2, testCase.uID, testCase.prID)
+			}
+			cr := repository.NewCartRepo(db)
+
+			newCount, err := cr.DeleteCartItem(context.Background(), testCase.uID, testCase.prID)
 			require.Equal(t, newCount, testCase.expectedCount)
 			require.ErrorIs(t, err, testCase.expectedError)
 		})

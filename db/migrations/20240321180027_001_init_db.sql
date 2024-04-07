@@ -94,7 +94,7 @@ CREATE TABLE order_item (
 CREATE TABLE cart_item (
 	product_id int4 NOT NULL REFERENCES product(id) ON DELETE CASCADE ON UPDATE CASCADE,
 	profile_id int4 NOT NULL REFERENCES user_profile(id) ON DELETE CASCADE ON UPDATE CASCADE,
-	count int2 DEFAULT 1 NOT NULL CHECK (count > 0),
+	count int2 DEFAULT 1 NOT NULL CHECK (count >= 0),
 	CONSTRAINT cart_item_pk PRIMARY KEY (profile_id, product_id),
 	created_at timetz DEFAULT now() NOT NULL,
 	updated_at timetz DEFAULT now() NOT NULL
