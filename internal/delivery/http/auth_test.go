@@ -118,13 +118,13 @@ func TestSignUp(t *testing.T) {
 			handler.ServeHTTP(r, req)
 
 			if testCase.expectedStatus != 200 {
-				var errResp models.ErrResponse
+				var errResp dto.ErrResponse
 				err := json.NewDecoder(r.Body).Decode(&errResp)
 				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, errResp.Status)
 				require.Equal(t, testCase.expectedErr, errResp.Msg)
 			} else {
-				var successResp models.SuccessResponse
+				var successResp dto.SuccessResponse
 				err := json.NewDecoder(r.Body).Decode(&successResp)
 				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, successResp.Status)
@@ -203,13 +203,13 @@ func TestLogin(t *testing.T) {
 			handler.ServeHTTP(r, req)
 
 			if testCase.expectedStatus != 200 {
-				var errResp models.ErrResponse
+				var errResp dto.ErrResponse
 				err := json.NewDecoder(r.Body).Decode(&errResp)
 				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, errResp.Status)
 				require.Equal(t, testCase.expectedErr, errResp.Msg)
 			} else {
-				var successResp models.SuccessResponse
+				var successResp dto.SuccessResponse
 				err := json.NewDecoder(r.Body).Decode(&successResp)
 				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, successResp.Status)
@@ -287,13 +287,13 @@ func TestLogout(t *testing.T) {
 			handler.ServeHTTP(r, req)
 
 			if testCase.expectedStatus != 200 {
-				var errResp models.ErrResponse
+				var errResp dto.ErrResponse
 				err := json.NewDecoder(r.Body).Decode(&errResp)
 				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, errResp.Status)
 				require.Equal(t, testCase.expectedErr, errResp.Msg)
 			} else {
-				var successResp models.SuccessResponse
+				var successResp dto.SuccessResponse
 				err := json.NewDecoder(r.Body).Decode(&successResp)
 				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, successResp.Status)
@@ -362,13 +362,13 @@ func TestCheckAuth(t *testing.T) {
 			handler.ServeHTTP(r, req)
 
 			if testCase.expectedStatus != 200 {
-				var errResp models.ErrResponse
+				var errResp dto.ErrResponse
 				err := json.NewDecoder(r.Body).Decode(&errResp)
 				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, errResp.Status)
 				require.Equal(t, testCase.expectedErr, errResp.Msg)
 			} else {
-				var successResp models.SuccessResponse
+				var successResp dto.SuccessResponse
 				err := json.NewDecoder(r.Body).Decode(&successResp)
 				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, successResp.Status)
