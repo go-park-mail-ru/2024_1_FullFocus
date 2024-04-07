@@ -7,3 +7,8 @@ type CartProduct struct {
 	Count     uint   `json:"count"`
 	Img       string `json:"imgsrc"`
 }
+
+type CartItem struct {
+	ProductId uint `json:"productId"`
+	Count     uint `json:"count"`
+}

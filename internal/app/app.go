@@ -98,7 +98,7 @@ func Init() *App {
 	authHandler := delivery.NewAuthHandler(authUsecase, cfg.SessionTTL)
 	authHandler.InitRouter(apiRouter)
 
-	// products
+	// Products
 	productRepo := repository.NewProductRepo()
 	productUsecase := usecase.NewProductUsecase(productRepo)
 	productHandler := delivery.NewProductHandler(productUsecase)
@@ -109,6 +109,12 @@ func Init() *App {
 	avatarUsecase := usecase.NewAvatarUsecase(avatarStorage, userRepo)
 	avatarHandler := delivery.NewAvatarHandler(avatarUsecase)
 	avatarHandler.InitRouter(apiRouter)
+
+	// Cart
+	cartRepo := repository.NewCartRepo(pgxClient)
+	cartUsecase := usecase.NewCartUsecase(cartRepo)
+	cartHandler := delivery.NewCartHandler(cartUsecase)
+	cartHandler.InitRouter(apiRouter)
 
 	return &App{
 		config: cfg,

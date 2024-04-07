@@ -35,7 +35,6 @@ func (ve *ValidationError) Error() string {
 	return fmt.Sprintf("error: %s, rus: %s", ve.msg, ve.msgRus)
 }
 
-// ? перенос в dto
 func (ve *ValidationError) WithCode(code int) *dto.ErrResponse {
 	return &dto.ErrResponse{
 		Status: code,
