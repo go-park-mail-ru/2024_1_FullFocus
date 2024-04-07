@@ -180,3 +180,47 @@ func TestUpdateCartItem(t *testing.T) {
 		})
 	}
 }
+
+func TestDeleteAllCartItems(t *testing.T) {
+	testCases := []struct {
+		name          string
+		uID           uint
+		mockBehavior  func(*mock_database.MockDatabase, string, uint)
+		expectedError error
+	}{
+		{
+			name: "Test successful cart clear",
+			uID:  1,
+			mockBehavior: func(d *mock_database.MockDatabase, q string, u uint) {
+				d.EXPECT().Exec(context.Background(), q, u).Return(mock_database.MockSqlResult{
+					LastInsertedId: 1,
+					RowsAffect:     1,
+				}, nil)
+			},
+			expectedError: nil,
+		},
+		{
+			name: "Test empty cart clear",
+			uID:  1,
+			mockBehavior: func(d *mock_database.MockDatabase, q string, u uint) {
+				d.EXPECT().Exec(context.Background(), q, u).Return(mock_database.MockSqlResult{}, sql.ErrNoRows)
+			},
+			expectedError: models.ErrEmptyCart,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			db := mock_database.NewMockDatabase(ctrl)
+			defer ctrl.Finish()
+
+			q := `DELETE FROM cart_item WHERE profile_id = $1;`
+			testCase.mockBehavior(db, q, testCase.uID)
+			cr := repository.NewCartRepo(db)
+
+			err := cr.DeleteAllCartItems(context.Background(), testCase.uID)
+			require.ErrorIs(t, err, testCase.expectedError)
+		})
+	}
+}
