@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 )
 
@@ -27,5 +26,12 @@ type (
 	Avatars interface {
 		UploadAvatar(ctx context.Context, img models.Image) error
 		DeleteAvatar(ctx context.Context, imageName string) error
+	}
+
+	Orders interface {
+		Create(ctx context.Context, userID uint, orderItems []models.OrderItem) (uint, error)
+		GetOrderProducts(ctx context.Context, orderingID uint) ([]models.OrderProduct, error)
+		Delete(ctx context.Context, orderingID uint) error
+		GetProfileIDByOrderingID(ctx context.Context, orderingID uint) (uint, error)
 	}
 )
