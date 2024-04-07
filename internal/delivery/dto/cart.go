@@ -1,5 +1,7 @@
 package dto
 
+import "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+
 type CartProduct struct {
 	ProductID uint   `json:"productId"`
 	Name      string `json:"name"`
@@ -8,7 +10,24 @@ type CartProduct struct {
 	Img       string `json:"imgsrc"`
 }
 
-type CartItem struct {
+func ConvertProductsToDto(mm []models.CartProduct) []CartProduct {
+	cartProduct := make([]CartProduct, 0)
+	for _, m := range mm {
+		cartProduct = append(cartProduct, CartProduct{
+			ProductID: m.ProductID,
+			Name:      m.Name,
+			Price:     m.Price,
+			Count:     m.Count,
+			Img:       m.Img,
+		})
+	}
+	return cartProduct
+}
+
+type UpdateCartItemInput struct {
 	ProductId uint `json:"productId"`
-	Count     uint `json:"count"`
+}
+
+type UpdateCartItemPayload struct {
+	Count uint `json:"count"`
 }
