@@ -25,4 +25,10 @@ type (
 		UploadAvatar(ctx context.Context, img dto.Image, uID uint) error
 		DeleteAvatar(ctx context.Context, uID uint) error
 	}
+
+	Orders interface {
+		Create(ctx context.Context, input models.CreateOrderInput) (uint, error)
+		GetOrderProducts(ctx context.Context, profileID uint, orderingID uint) ([]models.OrderProduct, error)
+		Delete(ctx context.Context, profileID uint, orderingID uint) error
+	}
 )
