@@ -287,10 +287,10 @@ func (mr *MockCartsMockRecorder) DeleteCartItem(ctx, uID, orID interface{}) *gom
 }
 
 // GetAllCartItems mocks base method.
-func (m *MockCarts) GetAllCartItems(ctx context.Context, uID uint) ([]models.CartItem, error) {
+func (m *MockCarts) GetAllCartItems(ctx context.Context, uID uint) ([]models.CartProduct, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAllCartItems", ctx, uID)
-	ret0, _ := ret[0].([]models.CartItem)
+	ret0, _ := ret[0].([]models.CartProduct)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

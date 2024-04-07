@@ -23,27 +23,27 @@ func TestNewCartRepo(t *testing.T) {
 	})
 }
 
-func TestGetAllCartProductsID(t *testing.T) {
+func TestGetAllCartItems(t *testing.T) {
 	testCases := []struct {
 		name         string
 		uID          uint
-		mockBehavior func(*mock_database.MockDatabase, *[]database.CartItemTable, string, uint)
-		// TODO expectedItems []models.CartItem
+		mockBehavior func(*mock_database.MockDatabase, *[]database.CartProductTable, string, uint)
+		// TODO expectedItems []models.CartProduct
 		expectedError error
 	}{
 		{
 			name: "Test successful get",
 			uID:  1,
-			mockBehavior: func(d *mock_database.MockDatabase, i *[]database.CartItemTable, q string, u uint) {
-				d.EXPECT().Select(context.Background(), i, q, u).Return(nil)
+			mockBehavior: func(d *mock_database.MockDatabase, t *[]database.CartProductTable, q string, u uint) {
+				d.EXPECT().Select(context.Background(), t, q, u).Return(nil)
 			},
 			expectedError: nil,
 		},
 		{
 			name: "Test empty cart get",
 			uID:  1,
-			mockBehavior: func(d *mock_database.MockDatabase, i *[]database.CartItemTable, q string, u uint) {
-				d.EXPECT().Select(context.Background(), i, q, u).Return(sql.ErrNoRows)
+			mockBehavior: func(d *mock_database.MockDatabase, t *[]database.CartProductTable, q string, u uint) {
+				d.EXPECT().Select(context.Background(), t, q, u).Return(sql.ErrNoRows)
 			},
 			expectedError: models.ErrEmptyCart,
 		},
@@ -55,11 +55,57 @@ func TestGetAllCartProductsID(t *testing.T) {
 			db := mock_database.NewMockDatabase(ctrl)
 			defer ctrl.Finish()
 
-			i := []database.CartItemTable{}
-			testCase.mockBehavior(db, &i, "SELECT (product_id, count) FROM cart_item WHERE profile_id = $1;", testCase.uID)
+			q := `SELECT p.id, p.product_name, p.price, p.imgsrc, c.count
+		FROM product AS p JOIN cart_item AS c ON p.id = c.product_id
+		WHERE profile_id = $1;`
+			rows := []database.CartProductTable{}
+			testCase.mockBehavior(db, &rows, q, testCase.uID)
 			cr := repository.NewCartRepo(db)
 
-			_, err := cr.GetAllCartProductsId(context.Background(), testCase.uID)
+			_, err := cr.GetAllCartItems(context.Background(), testCase.uID)
+			require.ErrorIs(t, err, testCase.expectedError)
+		})
+	}
+}
+
+func TestGetAllCartItemsID(t *testing.T) {
+	testCases := []struct {
+		name         string
+		uID          uint
+		mockBehavior func(*mock_database.MockDatabase, *[]database.CartItemTable, string, uint)
+		// TODO expectedItems []models.CartItem
+		expectedError error
+	}{
+		{
+			name: "Test successful get",
+			uID:  1,
+			mockBehavior: func(d *mock_database.MockDatabase, t *[]database.CartItemTable, q string, u uint) {
+				d.EXPECT().Select(context.Background(), t, q, u).Return(nil)
+			},
+			expectedError: nil,
+		},
+		{
+			name: "Test empty cart get",
+			uID:  1,
+			mockBehavior: func(d *mock_database.MockDatabase, t *[]database.CartItemTable, q string, u uint) {
+				d.EXPECT().Select(context.Background(), t, q, u).Return(sql.ErrNoRows)
+			},
+			expectedError: models.ErrEmptyCart,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			db := mock_database.NewMockDatabase(ctrl)
+			defer ctrl.Finish()
+
+			q := "SELECT product_id, count FROM cart_item WHERE profile_id = $1;"
+			rows := []database.CartItemTable{}
+			testCase.mockBehavior(db, &rows, q, testCase.uID)
+			cr := repository.NewCartRepo(db)
+
+			_, err := cr.GetAllCartItemsId(context.Background(), testCase.uID)
 			require.ErrorIs(t, err, testCase.expectedError)
 		})
 	}
