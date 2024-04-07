@@ -34,7 +34,7 @@ CREATE TABLE product (
 	id serial PRIMARY KEY,
 	product_name text NOT NULL CHECK (char_length(product_name) BETWEEN 1 AND 50),
 	product_description text NULL CHECK (char_length(product_description) BETWEEN 1 AND 255),
-	price numeric NOT NULL CHECK (price > 0),
+	price int4 NOT NULL CHECK (price > 0),
 	imgsrc text,
 	seller text NOT NULL,
 	rating int2 DEFAULT 0 NOT NULL,
@@ -71,7 +71,7 @@ CREATE TYPE ordering_status AS ENUM (
 
 CREATE TABLE ordering (
 	id bigserial PRIMARY KEY,
-	sum int4 DEFAULT 0 NOT NULL CHECK (sum > 0),
+	sum int4 DEFAULT 0 NOT NULL CHECK (sum >= 0),
 	profile_id int4 NOT NULL REFERENCES user_profile(id),
 	order_status ordering_status NOT NULL,
 	created_at timetz DEFAULT now() NOT NULL,
