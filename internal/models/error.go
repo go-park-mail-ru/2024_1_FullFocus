@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 
 	"github.com/pkg/errors"
 )
@@ -15,6 +16,7 @@ var (
 	ErrNoUserID          = errors.New("no user ID")
 	ErrInvalidField      = errors.New("invalid field input")
 	ErrNoAvatar          = errors.New("no avatar found")
+	ErrNoAccess          = errors.New("no access")
 )
 
 type ValidationError struct {
@@ -33,8 +35,8 @@ func (ve *ValidationError) Error() string {
 	return fmt.Sprintf("error: %s, rus: %s", ve.msg, ve.msgRus)
 }
 
-func (ve *ValidationError) WithCode(code int) *ErrResponse {
-	return &ErrResponse{
+func (ve *ValidationError) WithCode(code int) *dto.ErrResponse {
+	return &dto.ErrResponse{
 		Status: code,
 		Msg:    ve.msg,
 		MsgRus: ve.msgRus,
