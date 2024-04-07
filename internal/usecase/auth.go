@@ -21,12 +21,14 @@ const (
 type AuthUsecase struct {
 	userRepo    repository.Users
 	sessionRepo repository.Sessions
+	profileRepo repository.Profiles
 }
 
-func NewAuthUsecase(ur repository.Users, sr repository.Sessions) *AuthUsecase {
+func NewAuthUsecase(ur repository.Users, sr repository.Sessions, pr repository.Profiles) *AuthUsecase {
 	return &AuthUsecase{
 		userRepo:    ur,
 		sessionRepo: sr,
+		profileRepo: pr,
 	}
 }
 
@@ -70,6 +72,15 @@ func (u *AuthUsecase) Signup(ctx context.Context, login string, password string)
 	if err != nil {
 		return "", "", models.ErrUserAlreadyExists
 	}
+
+	profile := models.Profile{
+		User: user,
+	}
+	_, err = u.profileRepo.CreateProfile(ctx, profile)
+	if err != nil {
+		return "", "", models.ErrProfileAlreadyExists
+	}
+
 	sID := u.sessionRepo.CreateSession(ctx, uID)
 
 	uIDHash := md5.Sum([]byte(strconv.Itoa(int(uID))))

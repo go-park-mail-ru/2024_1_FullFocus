@@ -25,4 +25,10 @@ type (
 		UploadAvatar(ctx context.Context, img dto.Image) error
 		DeleteAvatar(ctx context.Context) error
 	}
+
+	Profiles interface {
+		UpdateProfile(ctx context.Context, username string, newProfile models.Profile) error
+		GetProfile(ctx context.Context, username string) (models.Profile, error)
+		CreateProfile(ctx context.Context, profile models.Profile) (uint, error)
+	}
 )
