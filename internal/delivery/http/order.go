@@ -2,8 +2,10 @@ package delivery
 
 import (
 	"encoding/json"
-	"github.com/pkg/errors"
 	"net/http"
+	"strconv"
+
+	"github.com/pkg/errors"
 
 	"github.com/gorilla/mux"
 
@@ -28,9 +30,10 @@ func NewOrderHandler(uc usecase.Orders) *OrderHandler {
 func (h *OrderHandler) InitRouter(r *mux.Router) {
 	h.router = r.PathPrefix("/order").Subrouter()
 	{
-		h.router.Handle("/{id:[0-9]+}", http.HandlerFunc(h.Create)).Methods("POST", "OPTIONS")
-		h.router.Handle("/{id:[0-9]+}", http.HandlerFunc(h.Create)).Methods("POST", "OPTIONS")
-		h.router.Handle("/{id:[0-9]+}", http.HandlerFunc(h.Delete)).Methods("POST", "OPTIONS")
+		h.router.Handle("/create", http.HandlerFunc(h.Create)).Methods("POST", "OPTIONS")
+		h.router.Handle("/{id:[0-9]+}", http.HandlerFunc(h.GetOrder)).Methods("GET", "OPTIONS")
+		h.router.Handle("/all", http.HandlerFunc(h.GetAllOrders)).Methods("GET", "OPTIONS")
+		h.router.Handle("/cancel", http.HandlerFunc(h.Delete)).Methods("POST", "OPTIONS")
 	}
 }
 
@@ -38,7 +41,7 @@ func (h *OrderHandler) Create(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	uID, err := helper.GetUserIDFromContext(ctx)
 	if err != nil {
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 403,
 			Msg:    err.Error(),
 			MsgRus: "Пользователь не авторизован",
@@ -47,7 +50,7 @@ func (h *OrderHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	var createOrderInput dto.CreateOrderInput
 	if err = json.NewDecoder(r.Body).Decode(&createOrderInput); err != nil {
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 400,
 			Msg:    err.Error(),
 			MsgRus: "Ошибка обработки данных",
@@ -66,8 +69,8 @@ func (h *OrderHandler) Create(w http.ResponseWriter, r *http.Request) {
 	}
 	orderID, err := h.usecase.Create(ctx, createInput)
 	if err != nil {
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 400,
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+			Status: 500,
 			Msg:    err.Error(),
 			MsgRus: "Ошибка создания заказа",
 		})
@@ -77,46 +80,77 @@ func (h *OrderHandler) Create(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *OrderHandler) GetOrderItems(w http.ResponseWriter, r *http.Request) {
+func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	uID, err := helper.GetUserIDFromContext(ctx)
 	if err != nil {
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 403,
 			Msg:    err.Error(),
 			MsgRus: "Пользователь не авторизован",
 		})
 		return
 	}
-	var getOrderProductsInput dto.GetOrderProductsInput
-	if err = json.NewDecoder(r.Body).Decode(&getOrderProductsInput); err != nil {
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+	orderID, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 32)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 400,
-			Msg:    err.Error(),
-			MsgRus: "Ошибка обработки данных",
+			Msg:    "invalid orderID",
+			MsgRus: "Невалидный параметр",
 		})
 		return
 	}
-	products, err := h.usecase.GetOrderProducts(ctx, uID, getOrderProductsInput.OrderID)
+	orderInfo, err := h.usecase.GetOrderByID(ctx, uID, uint(orderID))
 	if err != nil {
 		if errors.Is(err, models.ErrNoAccess) {
-			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 				Status: 403,
 				Msg:    err.Error(),
 				MsgRus: "Ошибка доступа",
 			})
 			return
 		}
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 400,
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+			Status: 500,
 			Msg:    err.Error(),
 			MsgRus: "Ошибка получения информации о заказе",
 		})
 		return
 	}
-	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
+	data := dto.GetOrderPayload{
+		Products: dto.ConvertProductsToDTO(orderInfo.Products),
+		Sum:      orderInfo.Sum,
+		Status:   orderInfo.Status,
+	}
+	helper.JSONResponse(ctx, w, 200, models.SuccessResponse{
 		Status: 200,
-		Data:   dto.ConvertProductsToDTO(products),
+		Data:   data,
+	})
+}
+
+func (h *OrderHandler) GetAllOrders(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	uID, err := helper.GetUserIDFromContext(ctx)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+			Status: 403,
+			Msg:    err.Error(),
+			MsgRus: "Пользователь не авторизован",
+		})
+		return
+	}
+	orders, err := h.usecase.GetAllOrders(ctx, uID)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+			Status: 500,
+			Msg:    err.Error(),
+			MsgRus: "Ошибка получения истории заказов",
+		})
+		return
+	}
+	helper.JSONResponse(ctx, w, 200, models.SuccessResponse{
+		Status: 200,
+		Data:   dto.ConvertOrdersToDTO(orders),
 	})
 }
 
@@ -124,7 +158,7 @@ func (h *OrderHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	uID, err := helper.GetUserIDFromContext(ctx)
 	if err != nil {
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 403,
 			Msg:    err.Error(),
 			MsgRus: "Пользователь не авторизован",
@@ -133,7 +167,7 @@ func (h *OrderHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 	var cancelOrderInput dto.CancelOrderInput
 	if err = json.NewDecoder(r.Body).Decode(&cancelOrderInput); err != nil {
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 400,
 			Msg:    err.Error(),
 			MsgRus: "Ошибка обработки данных",
@@ -142,21 +176,21 @@ func (h *OrderHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	}
 	if err = h.usecase.Delete(ctx, uID, cancelOrderInput.OrderID); err != nil {
 		if errors.Is(err, models.ErrNoAccess) {
-			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 				Status: 403,
 				Msg:    err.Error(),
 				MsgRus: "Ошибка доступа",
 			})
 			return
 		}
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 400,
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+			Status: 500,
 			Msg:    err.Error(),
 			MsgRus: "Ошибка отмены заказа",
 		})
 		return
 	}
-	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
+	helper.JSONResponse(ctx, w, 200, models.SuccessResponse{
 		Status: 200,
 	})
 }

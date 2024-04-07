@@ -103,13 +103,17 @@ func (mr *MockDatabaseMockRecorder) GetRawDB() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRawDB", reflect.TypeOf((*MockDatabase)(nil).GetRawDB))
 }
 
-type MockSqlResult struct {}
-
-func (MockSqlResult)LastInsertId() (int64, error) {
-	return 0, nil
+// NamedExec mocks base method.
+func (m *MockDatabase) NamedExec(ctx context.Context, query string, arg interface{}) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NamedExec", ctx, query, arg)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
-func (MockSqlResult)RowsAffected() (int64, error) {
-	return 0, nil
+// NamedExec indicates an expected call of NamedExec.
+func (mr *MockDatabaseMockRecorder) NamedExec(ctx, query, arg interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NamedExec", reflect.TypeOf((*MockDatabase)(nil).NamedExec), ctx, query, arg)
 }
-

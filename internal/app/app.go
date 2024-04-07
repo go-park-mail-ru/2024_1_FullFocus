@@ -3,13 +3,14 @@ package app
 import (
 	"context"
 	"fmt"
-	corsmw "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware"
 	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	corsmw "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware"
 
 	"github.com/gorilla/mux"
 

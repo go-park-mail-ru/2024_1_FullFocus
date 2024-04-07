@@ -3,11 +3,12 @@ package helper_test
 import (
 	"context"
 	"encoding/json"
-	model "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"log/slog"
 	"net/http/httptest"
 	"os"
 	"testing"
+
+	model "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 
 	"github.com/thejerf/slogassert"
 

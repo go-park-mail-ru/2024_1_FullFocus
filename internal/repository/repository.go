@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 )
 
@@ -30,8 +31,9 @@ type (
 
 	Orders interface {
 		Create(ctx context.Context, userID uint, orderItems []models.OrderItem) (uint, error)
-		GetOrderProducts(ctx context.Context, orderingID uint) ([]models.OrderProduct, error)
-		Delete(ctx context.Context, orderingID uint) error
-		GetProfileIDByOrderingID(ctx context.Context, orderingID uint) (uint, error)
+		GetOrderByID(ctx context.Context, orderID uint) (models.GetOrderPayload, error)
+		GetAllOrders(ctx context.Context, profileID uint) ([]models.Order, error)
+		Delete(ctx context.Context, orderID uint) error
+		GetProfileIDByOrderID(ctx context.Context, orderID uint) (uint, error)
 	}
 )

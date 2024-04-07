@@ -3,7 +3,6 @@ package delivery_test
 import (
 	"context"
 	"encoding/json"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -100,8 +99,8 @@ func TestGetProducts(t *testing.T) {
 
 			var (
 				err         error
-				successResp dto.SuccessResponse
-				errResp     dto.ErrResponse
+				successResp models.SuccessResponse
+				errResp     models.ErrResponse
 			)
 			if testCase.expectedStatus != 200 {
 				err = json.NewDecoder(r.Body).Decode(&errResp)

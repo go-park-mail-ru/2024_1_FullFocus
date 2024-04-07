@@ -22,8 +22,8 @@ func NewAvatarUsecase(ar repository.Avatars, ur repository.Users) *AvatarUsecase
 	}
 }
 
-func (u *AvatarUsecase) UploadAvatar(ctx context.Context, img dto.Image, uID uint) error {
-	imgName := fmt.Sprintf("%d_%d", uID, time.Now().UnixNano())
+func (u *AvatarUsecase) UploadAvatar(ctx context.Context, img dto.Image, profileID uint) error {
+	imgName := fmt.Sprintf("%d_%d", profileID, time.Now().UnixNano())
 
 	object := models.Image{
 		Name:        imgName,

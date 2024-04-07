@@ -2,7 +2,6 @@ package delivery
 
 import (
 	"errors"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"net/http"
 	"strconv"
 
@@ -51,14 +50,14 @@ func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	}
 	prods, err := h.usecase.GetProducts(ctx, lastID, limit)
 	if errors.Is(err, models.ErrNoProduct) {
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 404,
 			Msg:    "not found",
 			MsgRus: "по данному запросу товары не найдены",
 		})
 		return
 	}
-	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
+	helper.JSONResponse(ctx, w, 200, models.SuccessResponse{
 		Status: 200,
 		Data:   prods,
 	})

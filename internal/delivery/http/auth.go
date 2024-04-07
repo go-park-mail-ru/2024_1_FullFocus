@@ -1,7 +1,6 @@
 package delivery
 
 import (
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"net/http"
 	"time"
 
@@ -41,7 +40,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	loginData, err := helper.GetLoginData(r)
 	if err != nil {
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 400,
 			Msg:    err.Error(),
 			MsgRus: "Ошибка обработки данных",
@@ -54,7 +53,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 			helper.JSONResponse(ctx, w, 200, validationError.WithCode(400))
 			return
 		}
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 400,
 			Msg:    err.Error(),
 			MsgRus: "Неверный логин или пароль",
@@ -69,7 +68,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 	}
 	http.SetCookie(w, cookie)
-	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
+	helper.JSONResponse(ctx, w, 200, models.SuccessResponse{
 		Status: 200,
 	})
 }
@@ -78,7 +77,7 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	loginData, err := helper.GetLoginData(r)
 	if err != nil {
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 400,
 			Msg:    err.Error(),
 			MsgRus: "Ошибка обработки данных",
@@ -91,7 +90,7 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 			helper.JSONResponse(ctx, w, 200, validationError.WithCode(400))
 			return
 		}
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 400,
 			Msg:    err.Error(),
 			MsgRus: "Пользователь уже существует",
@@ -106,7 +105,7 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 	}
 	http.SetCookie(w, cookie)
-	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
+	helper.JSONResponse(ctx, w, 200, models.SuccessResponse{
 		Status: 200,
 	})
 }
@@ -115,7 +114,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	session, err := r.Cookie("session_id")
 	if errors.Is(err, http.ErrNoCookie) {
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 401,
 			Msg:    err.Error(),
 			MsgRus: "Авторизация отсутствует",
@@ -123,7 +122,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err = h.usecase.Logout(ctx, session.Value); errors.Is(err, models.ErrNoSession) {
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 401,
 			Msg:    err.Error(),
 			MsgRus: "Авторизация отсутствует",
@@ -132,7 +131,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	}
 	session.Expires = time.Now().AddDate(0, 0, -1)
 	http.SetCookie(w, session)
-	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
+	helper.JSONResponse(ctx, w, 200, models.SuccessResponse{
 		Status: 200,
 	})
 }
@@ -141,7 +140,7 @@ func (h *AuthHandler) CheckAuth(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	session, err := r.Cookie("session_id")
 	if errors.Is(err, http.ErrNoCookie) {
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 401,
 			Msg:    "no session",
 			MsgRus: "авторизация отсутствует",
@@ -149,14 +148,14 @@ func (h *AuthHandler) CheckAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !h.usecase.IsLoggedIn(ctx, session.Value) {
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 401,
 			Msg:    "no session",
 			MsgRus: "авторизация отсутствует",
 		})
 		return
 	}
-	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
+	helper.JSONResponse(ctx, w, 200, models.SuccessResponse{
 		Status: 200,
 	})
 }

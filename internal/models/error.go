@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 
 	"github.com/pkg/errors"
 )
@@ -35,8 +34,8 @@ func (ve *ValidationError) Error() string {
 	return fmt.Sprintf("error: %s, rus: %s", ve.msg, ve.msgRus)
 }
 
-func (ve *ValidationError) WithCode(code int) *dto.ErrResponse {
-	return &dto.ErrResponse{
+func (ve *ValidationError) WithCode(code int) *ErrResponse {
+	return &ErrResponse{
 		Status: code,
 		Msg:    ve.msg,
 		MsgRus: ve.msgRus,

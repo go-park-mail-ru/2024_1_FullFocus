@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"context"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -19,7 +18,7 @@ func NewAuthMiddleware(uc usecase.Auth) mux.MiddlewareFunc {
 			ctx := r.Context()
 			sessionID, err := r.Cookie("session_id")
 			if errors.Is(err, http.ErrNoCookie) {
-				helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 					Status: 401,
 					Msg:    "no session",
 					MsgRus: "авторизация отсутствует",
@@ -28,7 +27,7 @@ func NewAuthMiddleware(uc usecase.Auth) mux.MiddlewareFunc {
 			}
 			userID, err := uc.GetUserIDBySessionID(r.Context(), sessionID.Value)
 			if errors.Is(err, models.ErrNoSession) {
-				helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 					Status: 401,
 					Msg:    "no session",
 					MsgRus: "авторизация отсутствует",
