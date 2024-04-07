@@ -5,6 +5,7 @@ services:
    depends_on:
     - redis
     - minio
+    - postgres
 #   restart: always
    image: b0pof/bizon-main
    env_file:
@@ -14,7 +15,7 @@ services:
    ports:
      - '8080:8080'
    healthcheck:
-     test: timeout 20s bash -c ':> /dev/tcp/127.0.0.1/8080' || exit 1
+     test: ["CMD", "bash", "-c", "echo -n '' > /dev/tcp/127.0.0.1/8080"]
      interval: 30s
      timeout: 20s
      retries: 3
@@ -27,16 +28,16 @@ services:
     ports:
       - '6379:6379'
     healthcheck:
-      test: timeout 20s bash -c ':> /dev/tcp/127.0.0.1/6379' || exit 1
+      test: ["CMD", "bash", "-c", "echo -n '' > /dev/tcp/127.0.0.1/6379"]
       interval: 30s
       timeout: 20s
       retries: 3
     volumes:
-      - '${PWD}/redis_data:/data'
+      - 'redis-data:/data'
   minio:
     image: minio/minio:RELEASE.2024-01-18T22-51-28Z-cpuv1
     volumes:
-      - ./minio-data:/data
+      - 'minio-data:/data'
     ports:
       - '9000:9000'
     environment:
@@ -44,7 +45,27 @@ services:
       MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
     command: minio server /data/
     healthcheck:
-      test: timeout 20s bash -c ':> /dev/tcp/127.0.0.1/9000' || exit 1
+      test: ["CMD", "bash", "-c", "echo -n '' > /dev/tcp/127.0.0.1/9000"]
       interval: 30s
       timeout: 20s
       retries: 3
+  postgres:
+    image: postgres:16
+    volumes:
+      # - ${PWD}/db/migrations:/docker-entrypoint-initdb.d
+      - 'postgres-data:/var/lib/postgresql/data'
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_DB=ozon
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    healthcheck:
+      test: pg_isready
+      interval: 10s
+      timeout: 10s
+      retries: 3
+volumes:
+  redis-data:
+  minio-data:
+  postgres-data:

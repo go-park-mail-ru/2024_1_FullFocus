@@ -59,7 +59,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           password: ${{ secrets.PASSWORD }}
           script: |
-            cd ~/ozon_project/backend/2024_1_FullFocus
+            cd ~/ozon_project/backend/
             docker compose down
             git checkout develop && git pull
             docker compose pull

@@ -1,18 +1,18 @@
 package delivery_test
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
-	"strings"
 	"testing"
 	"time"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	mock_usecase "github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase/mocks"
@@ -43,18 +43,18 @@ func TestSignUp(t *testing.T) {
 			login:    "test",
 			password: "test",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(context.Background(), login, password).Return("test", "test", nil)
+				u.EXPECT().Signup(context.Background(), login, password).Return("test", nil)
 			},
 			expectedStatus: 200,
 			expectedErr:    "",
 			expectedCookie: "test",
 		},
 		{
-			name:     "Empty fileds",
+			name:     "Empty fields",
 			login:    "",
 			password: "",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(context.Background(), login, password).Return("", "", models.NewValidationError("unavailable username", "неправильное имя пользователя"))
+				u.EXPECT().Signup(context.Background(), login, password).Return("", models.NewValidationError("unavailable username", "неправильное имя пользователя"))
 			},
 			expectedStatus: 400,
 			expectedErr:    "unavailable username",
@@ -65,7 +65,7 @@ func TestSignUp(t *testing.T) {
 			login:    "test",
 			password: "",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(context.Background(), login, password).Return("", "", models.NewValidationError("unavailable username", "неправильное имя пользователя"))
+				u.EXPECT().Signup(context.Background(), login, password).Return("", models.NewValidationError("unavailable username", "неправильное имя пользователя"))
 			},
 			expectedStatus: 400,
 			expectedErr:    "unavailable username",
@@ -76,7 +76,7 @@ func TestSignUp(t *testing.T) {
 			login:    "test",
 			password: "12345",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(context.Background(), login, password).Return("", "", models.NewValidationError("unavailable password", "слишком короткий пароль"))
+				u.EXPECT().Signup(context.Background(), login, password).Return("", models.NewValidationError("unavailable password", "слишком короткий пароль"))
 			},
 			expectedStatus: 400,
 			expectedErr:    "unavailable password",
@@ -87,7 +87,7 @@ func TestSignUp(t *testing.T) {
 			login:    "test",
 			password: "12345",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(context.Background(), login, password).Return("", "", models.ErrUserAlreadyExists)
+				u.EXPECT().Signup(context.Background(), login, password).Return("", models.ErrUserAlreadyExists)
 			},
 			expectedStatus: 400,
 			expectedErr:    "user exists",
@@ -103,13 +103,17 @@ func TestSignUp(t *testing.T) {
 			testCase.mockBehavior(mockAuthUsecase, testCase.login, testCase.password)
 			ah := delivery.NewAuthHandler(mockAuthUsecase, _sessionTTL)
 
-			form := url.Values{}
-			form.Add("login", testCase.login)
-			form.Add("password", testCase.password)
-			req := httptest.NewRequest("POST", "/api/auth/signup", strings.NewReader(form.Encode()))
-			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+			data := dto.LoginData{
+				Login:    testCase.login,
+				Password: testCase.password,
+			}
+			jsonBody, _ := json.Marshal(data)
+
+			req := httptest.NewRequest("POST", "/api/auth/signup", bytes.NewReader(jsonBody))
+			req.Header.Set("Content-Type", "application/json")
 
 			r := httptest.NewRecorder()
+
 			handler := http.HandlerFunc(ah.Signup)
 			handler.ServeHTTP(r, req)
 
@@ -185,11 +189,14 @@ func TestLogin(t *testing.T) {
 			testCase.mockBehavior(mockAuthUsecase, testCase.login, testCase.password)
 			ah := delivery.NewAuthHandler(mockAuthUsecase, _sessionTTL)
 
-			form := url.Values{}
-			form.Add("login", testCase.login)
-			form.Add("password", testCase.password)
-			req := httptest.NewRequest("POST", "/api/auth/login", strings.NewReader(form.Encode()))
-			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+			data := dto.LoginData{
+				Login:    testCase.login,
+				Password: testCase.password,
+			}
+			jsonBody, _ := json.Marshal(data)
+
+			req := httptest.NewRequest("POST", "/api/auth/login", bytes.NewReader(jsonBody))
+			req.Header.Set("Content-Type", "application/json")
 
 			r := httptest.NewRecorder()
 			handler := http.HandlerFunc(ah.Login)

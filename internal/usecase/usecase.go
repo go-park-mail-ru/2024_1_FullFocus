@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/dto"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 )
 
@@ -11,7 +11,7 @@ import (
 type (
 	Auth interface {
 		Login(ctx context.Context, login string, password string) (string, error)
-		Signup(ctx context.Context, login string, password string) (string, string, error)
+		Signup(ctx context.Context, login string, password string) (string, error)
 		GetUserIDBySessionID(ctx context.Context, sID string) (uint, error)
 		Logout(ctx context.Context, sID string) error
 		IsLoggedIn(ctx context.Context, isID string) bool
@@ -22,8 +22,8 @@ type (
 	}
 
 	Avatars interface {
-		UploadAvatar(ctx context.Context, img dto.Image) error
-		DeleteAvatar(ctx context.Context) error
+		UploadAvatar(ctx context.Context, img dto.Image, uID uint) error
+		DeleteAvatar(ctx context.Context, uID uint) error
 	}
 
 	Profiles interface {

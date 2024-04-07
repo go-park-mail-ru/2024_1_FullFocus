@@ -1,7 +1,6 @@
 package delivery
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -10,7 +9,6 @@ import (
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 )
 
@@ -40,25 +38,26 @@ func (h *AuthHandler) InitRouter(r *mux.Router) {
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	login := r.FormValue("login")
-	password := r.FormValue("password")
-
-	sID, err := h.usecase.Login(ctx, login, password)
+	loginData, err := helper.GetLoginData(r)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+			Status: 400,
+			Msg:    err.Error(),
+			MsgRus: "Ошибка обработки данных",
+		})
+		return
+	}
+	sID, err := h.usecase.Login(ctx, loginData.Login, loginData.Password)
 	if err != nil {
 		if validationError := new(models.ValidationError); errors.As(err, &validationError) {
-			if jsonErr := helper.JSONResponse(w, 200, validationError.WithCode(400)); jsonErr != nil {
-				logger.Error(ctx, fmt.Sprintf("marshall error: %v", jsonErr))
-			}
+			helper.JSONResponse(ctx, w, 200, validationError.WithCode(400))
 			return
 		}
-		if jsonErr := helper.JSONResponse(w, 200, models.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 400,
 			Msg:    err.Error(),
 			MsgRus: "Неверный логин или пароль",
-		}); jsonErr != nil {
-			logger.Error(ctx, fmt.Sprintf("marshall error: %v", jsonErr))
-		}
-
+		})
 		return
 	}
 	cookie := &http.Cookie{
@@ -69,33 +68,33 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 	}
 	http.SetCookie(w, cookie)
-	if err = helper.JSONResponse(w, 200, models.SuccessResponse{
+	helper.JSONResponse(ctx, w, 200, models.SuccessResponse{
 		Status: 200,
-	}); err != nil {
-		logger.Error(ctx, fmt.Sprintf("marshall error: %v", err))
-	}
+	})
 }
 
 func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	login := r.FormValue("login")
-	password := r.FormValue("password")
-
-	sID, _, err := h.usecase.Signup(ctx, login, password)
+	loginData, err := helper.GetLoginData(r)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+			Status: 400,
+			Msg:    err.Error(),
+			MsgRus: "Ошибка обработки данных",
+		})
+		return
+	}
+	sID, err := h.usecase.Signup(ctx, loginData.Login, loginData.Password)
 	if err != nil {
 		if validationError := new(models.ValidationError); errors.As(err, &validationError) {
-			if jsonErr := helper.JSONResponse(w, 200, validationError.WithCode(400)); jsonErr != nil {
-				logger.Error(ctx, fmt.Sprintf("marshall error: %v", jsonErr))
-			}
+			helper.JSONResponse(ctx, w, 200, validationError.WithCode(400))
 			return
 		}
-		if jsonErr := helper.JSONResponse(w, 200, models.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 400,
 			Msg:    err.Error(),
 			MsgRus: "Пользователь уже существует",
-		}); jsonErr != nil {
-			logger.Error(ctx, fmt.Sprintf("marshall error: %v", jsonErr))
-		}
+		})
 		return
 	}
 	cookie := &http.Cookie{
@@ -106,72 +105,57 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 	}
 	http.SetCookie(w, cookie)
-	if err = helper.JSONResponse(w, 200, models.SuccessResponse{
+	helper.JSONResponse(ctx, w, 200, models.SuccessResponse{
 		Status: 200,
-	}); err != nil {
-		logger.Error(ctx, fmt.Sprintf("marshall error: %v", err))
-	}
+	})
 }
 
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	session, err := r.Cookie("session_id")
 	if errors.Is(err, http.ErrNoCookie) {
-		if jsonErr := helper.JSONResponse(w, 200, models.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 401,
 			Msg:    err.Error(),
 			MsgRus: "Авторизация отсутствует",
-		}); jsonErr != nil {
-			logger.Error(ctx, fmt.Sprintf("marshall error: %v", jsonErr))
-		}
+		})
 		return
 	}
-	err = h.usecase.Logout(ctx, session.Value)
-	if errors.Is(err, models.ErrNoSession) {
-		if jsonErr := helper.JSONResponse(w, 200, models.ErrResponse{
+	if err = h.usecase.Logout(ctx, session.Value); errors.Is(err, models.ErrNoSession) {
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 401,
 			Msg:    err.Error(),
 			MsgRus: "Авторизация отсутствует",
-		}); jsonErr != nil {
-			logger.Error(ctx, fmt.Sprintf("marshall error: %v", jsonErr))
-		}
+		})
 		return
 	}
 	session.Expires = time.Now().AddDate(0, 0, -1)
 	http.SetCookie(w, session)
-	if err = helper.JSONResponse(w, 200, models.SuccessResponse{
+	helper.JSONResponse(ctx, w, 200, models.SuccessResponse{
 		Status: 200,
-	}); err != nil {
-		logger.Error(ctx, fmt.Sprintf("marshall error: %v", err))
-	}
+	})
 }
 
 func (h *AuthHandler) CheckAuth(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	session, err := r.Cookie("session_id")
 	if errors.Is(err, http.ErrNoCookie) {
-		if jsonErr := helper.JSONResponse(w, 200, models.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 401,
 			Msg:    "no session",
 			MsgRus: "авторизация отсутствует",
-		}); jsonErr != nil {
-			logger.Error(ctx, fmt.Sprintf("marshall error: %v", jsonErr))
-		}
+		})
 		return
 	}
 	if !h.usecase.IsLoggedIn(ctx, session.Value) {
-		if jsonErr := helper.JSONResponse(w, 200, models.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 			Status: 401,
 			Msg:    "no session",
 			MsgRus: "авторизация отсутствует",
-		}); err != nil {
-			logger.Error(ctx, fmt.Sprintf("marshall error: %v", jsonErr))
-		}
+		})
 		return
 	}
-	if err = helper.JSONResponse(w, 200, models.SuccessResponse{
+	helper.JSONResponse(ctx, w, 200, models.SuccessResponse{
 		Status: 200,
-	}); err != nil {
-		logger.Error(ctx, fmt.Sprintf("marshall error: %v", err))
-	}
+	})
 }

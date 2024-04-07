@@ -24,10 +24,10 @@ func NewSessionRepo(c *redis.Client, sessTTL time.Duration) *SessionRepo {
 	}
 }
 
-func (r *SessionRepo) CreateSession(ctx context.Context, userID uint) string {
+func (r *SessionRepo) CreateSession(ctx context.Context, uID uint) string {
 	sID := uuid.New().String()
 	start := time.Now()
-	r.client.Set(sID, userID, r.sessionTTL)
+	r.client.Set(sID, uID, r.sessionTTL)
 	logger.Info(ctx, fmt.Sprintf("session inserted in %s", time.Since(start)))
 	return sID
 }
@@ -35,11 +35,11 @@ func (r *SessionRepo) CreateSession(ctx context.Context, userID uint) string {
 func (r *SessionRepo) GetUserIDBySessionID(ctx context.Context, sID string) (uint, error) {
 	start := time.Now()
 	uID, err := r.client.Get(sID).Uint64()
-	logger.Info(ctx, fmt.Sprintf("user_id selected in %s", time.Since(start)))
 	if err != nil {
 		logger.Error(ctx, "no session found")
 		return 0, models.ErrNoSession
 	}
+	logger.Info(ctx, fmt.Sprintf("user_id selected in %s", time.Since(start)))
 	return uint(uID), nil
 }
 

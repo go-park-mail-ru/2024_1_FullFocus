@@ -8,6 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
+	dto "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	models "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -94,13 +95,12 @@ func (mr *MockAuthMockRecorder) Logout(ctx, sID interface{}) *gomock.Call {
 }
 
 // Signup mocks base method.
-func (m *MockAuth) Signup(ctx context.Context, login, password string) (string, string, error) {
+func (m *MockAuth) Signup(ctx context.Context, login, password string) (string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Signup", ctx, login, password)
 	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(string)
-	ret2, _ := ret[2].(error)
-	return ret0, ret1, ret2
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Signup indicates an expected call of Signup.
@@ -109,7 +109,7 @@ func (mr *MockAuthMockRecorder) Signup(ctx, login, password interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Signup", reflect.TypeOf((*MockAuth)(nil).Signup), ctx, login, password)
 }
 
-// MockProducts is a mock of products interface.
+// MockProducts is a mock of Products interface.
 type MockProducts struct {
 	ctrl     *gomock.Controller
 	recorder *MockProductsMockRecorder
@@ -145,4 +145,55 @@ func (m *MockProducts) GetProducts(ctx context.Context, lastID, limit int) ([]mo
 func (mr *MockProductsMockRecorder) GetProducts(ctx, lastID, limit interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProducts", reflect.TypeOf((*MockProducts)(nil).GetProducts), ctx, lastID, limit)
+}
+
+// MockAvatars is a mock of Avatars interface.
+type MockAvatars struct {
+	ctrl     *gomock.Controller
+	recorder *MockAvatarsMockRecorder
+}
+
+// MockAvatarsMockRecorder is the mock recorder for MockAvatars.
+type MockAvatarsMockRecorder struct {
+	mock *MockAvatars
+}
+
+// NewMockAvatars creates a new mock instance.
+func NewMockAvatars(ctrl *gomock.Controller) *MockAvatars {
+	mock := &MockAvatars{ctrl: ctrl}
+	mock.recorder = &MockAvatarsMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockAvatars) EXPECT() *MockAvatarsMockRecorder {
+	return m.recorder
+}
+
+// DeleteAvatar mocks base method.
+func (m *MockAvatars) DeleteAvatar(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteAvatar", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteAvatar indicates an expected call of DeleteAvatar.
+func (mr *MockAvatarsMockRecorder) DeleteAvatar(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAvatar", reflect.TypeOf((*MockAvatars)(nil).DeleteAvatar), ctx)
+}
+
+// UploadAvatar mocks base method.
+func (m *MockAvatars) UploadAvatar(ctx context.Context, img dto.Image) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UploadAvatar", ctx, img)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UploadAvatar indicates an expected call of UploadAvatar.
+func (mr *MockAvatarsMockRecorder) UploadAvatar(ctx, img interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadAvatar", reflect.TypeOf((*MockAvatars)(nil).UploadAvatar), ctx, img)
 }

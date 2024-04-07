@@ -353,3 +353,6 @@ issues:
         - gosec
         - noctx
         - wrapcheck
+    - path: "http/auth.go"
+      linters:
+        - dupl

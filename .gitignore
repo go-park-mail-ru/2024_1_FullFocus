@@ -25,6 +25,7 @@ logs/
 # DB data
 redis_data/
 minio-data/
+postgres-data/
 
 # Env files
 .env
