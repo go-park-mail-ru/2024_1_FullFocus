@@ -121,17 +121,3 @@ func (mr *MockDatabaseMockRecorder) Select(ctx, dest, q interface{}, args ...int
 	varargs := append([]interface{}{ctx, dest, q}, args...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Select", reflect.TypeOf((*MockDatabase)(nil).Select), varargs...)
 }
-
-// Mock Sql Result
-type MockSqlResult struct {
-	LastInsertedId int64
-	RowsAffect int64
-}
-
-func (r MockSqlResult)LastInsertId() (int64, error) {
-	return r.LastInsertedId, nil
-}
-
-func (r MockSqlResult)RowsAffected() (int64, error) {
-	return r.RowsAffect, nil
-}
