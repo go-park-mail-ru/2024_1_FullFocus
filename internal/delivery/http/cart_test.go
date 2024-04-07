@@ -105,7 +105,7 @@ func TestUpdateCartItem(t *testing.T) {
 			ch := delivery.NewCartHandler(mockCartsUsecase)
 
 			data := dto.UpdateCartItemInput{
-				ProductId: testCase.prID,
+				ProductID: testCase.prID,
 			}
 			jsonBody, _ := json.Marshal(data)
 

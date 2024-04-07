@@ -43,7 +43,7 @@ func (r *CartRepo) GetAllCartItems(ctx context.Context, uID uint) ([]models.Cart
 	return db.ConvertTablesToCartProducts(cartProductRows), nil
 }
 
-func (r *CartRepo) GetAllCartItemsId(ctx context.Context, uID uint) ([]models.CartItem, error) {
+func (r *CartRepo) GetAllCartItemsID(ctx context.Context, uID uint) ([]models.CartItem, error) {
 	q := `SELECT product_id, count FROM cart_item WHERE profile_id = $1;`
 
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d", uID)))
@@ -108,12 +108,12 @@ func (r *CartRepo) DeleteCartItem(ctx context.Context, uID, prID uint) (uint, er
 		q = `DELETE FROM cart_item WHERE profile_id = $1 AND product_id = $2;`
 
 		logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d $2 = %d", uID, prID)))
-		start := time.Now()
+		start = time.Now()
 		defer func() {
 			logger.Info(ctx, fmt.Sprintf("deleted in %s", time.Since(start)))
 		}()
-		_, err := r.storage.Exec(ctx, q, uID, prID)
-		if err != nil {
+
+		if _, err = r.storage.Exec(ctx, q, uID, prID); err != nil {
 			return 0, models.ErrNoProduct
 		}
 		return 0, nil
@@ -130,8 +130,7 @@ func (r *CartRepo) DeleteAllCartItems(ctx context.Context, uID uint) error {
 		logger.Info(ctx, fmt.Sprintf("deleted in %s", time.Since(start)))
 	}()
 
-	_, err := r.storage.Exec(ctx, q, uID)
-	if err != nil {
+	if _, err := r.storage.Exec(ctx, q, uID); err != nil {
 		return models.ErrEmptyCart
 	}
 

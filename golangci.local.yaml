@@ -344,7 +344,7 @@ issues:
       linters: [ gomnd ]
     - source: "http"
       linters: [ usestdlibvars ]
-    - path: "_test\\.go"
+    - path: "_test\\.go|mocks"
       linters:
         - bodyclose
         - dupl
@@ -353,6 +353,8 @@ issues:
         - gosec
         - noctx
         - wrapcheck
-    - path: "http/auth.go"
+        - revive
+        - stylecheck
+    - path: "http/auth.go|http/cart.go"
       linters:
         - dupl

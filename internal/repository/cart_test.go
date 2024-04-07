@@ -105,7 +105,7 @@ func TestGetAllCartItemsID(t *testing.T) {
 			testCase.mockBehavior(db, &rows, q, testCase.uID)
 			cr := repository.NewCartRepo(db)
 
-			_, err := cr.GetAllCartItemsId(context.Background(), testCase.uID)
+			_, err := cr.GetAllCartItemsID(context.Background(), testCase.uID)
 			require.ErrorIs(t, err, testCase.expectedError)
 		})
 	}
@@ -125,8 +125,8 @@ func TestUpdateCartItem(t *testing.T) {
 			uID:  1,
 			prID: 1,
 			mockBehavior: func(d *mock_database.MockDatabase, q string, u, p uint) {
-				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSqlResult{
-					LastInsertedId: 1,
+				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSQLResult{
+					LastInsertedID: 1,
 					RowsAffect:     1,
 				}, nil)
 			},
@@ -138,8 +138,8 @@ func TestUpdateCartItem(t *testing.T) {
 			uID:  1,
 			prID: 1,
 			mockBehavior: func(d *mock_database.MockDatabase, q string, u, p uint) {
-				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSqlResult{
-					LastInsertedId: 2,
+				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSQLResult{
+					LastInsertedID: 2,
 					RowsAffect:     1,
 				}, nil)
 			},
@@ -151,8 +151,8 @@ func TestUpdateCartItem(t *testing.T) {
 			uID:  1,
 			prID: 1,
 			mockBehavior: func(d *mock_database.MockDatabase, q string, u, p uint) {
-				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSqlResult{
-					LastInsertedId: 0,
+				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSQLResult{
+					LastInsertedID: 0,
 					RowsAffect:     0,
 				}, sql.ErrNoRows)
 			},
@@ -175,7 +175,7 @@ func TestUpdateCartItem(t *testing.T) {
 			cr := repository.NewCartRepo(db)
 
 			newCount, err := cr.UpdateCartItem(context.Background(), testCase.uID, testCase.prID)
-			require.Equal(t, newCount, testCase.expectedCount)
+			require.Equal(t, testCase.expectedCount, newCount)
 			require.ErrorIs(t, err, testCase.expectedError)
 		})
 	}
@@ -197,8 +197,8 @@ func TestDeleteCartItem(t *testing.T) {
 			uID:  1,
 			prID: 1,
 			mockBehaviorUpdate: func(d *mock_database.MockDatabase, q string, u, p uint) {
-				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSqlResult{
-					LastInsertedId: 1,
+				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSQLResult{
+					LastInsertedID: 1,
 					RowsAffect:     1,
 				}, nil)
 			},
@@ -211,13 +211,13 @@ func TestDeleteCartItem(t *testing.T) {
 			uID:  1,
 			prID: 1,
 			mockBehaviorUpdate: func(d *mock_database.MockDatabase, q string, u, p uint) {
-				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSqlResult{
-					LastInsertedId: 0,
+				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSQLResult{
+					LastInsertedID: 0,
 					RowsAffect:     1,
 				}, nil)
 			},
 			mockBehaviorDelete: func(d *mock_database.MockDatabase, q string, u, p uint) {
-				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSqlResult{}, nil)
+				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSQLResult{}, nil)
 			},
 			callMockDelete: true,
 			expectedCount:  0,
@@ -228,8 +228,8 @@ func TestDeleteCartItem(t *testing.T) {
 			uID:  1,
 			prID: 1,
 			mockBehaviorUpdate: func(d *mock_database.MockDatabase, q string, u, p uint) {
-				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSqlResult{
-					LastInsertedId: 0,
+				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSQLResult{
+					LastInsertedID: 0,
 					RowsAffect:     0,
 				}, sql.ErrNoRows)
 			},
@@ -242,13 +242,13 @@ func TestDeleteCartItem(t *testing.T) {
 			uID:  1,
 			prID: 1,
 			mockBehaviorUpdate: func(d *mock_database.MockDatabase, q string, u, p uint) {
-				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSqlResult{
-					LastInsertedId: 0,
+				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSQLResult{
+					LastInsertedID: 0,
 					RowsAffect:     1,
 				}, nil)
 			},
 			mockBehaviorDelete: func(d *mock_database.MockDatabase, q string, u, p uint) {
-				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSqlResult{}, sql.ErrNoRows)
+				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSQLResult{}, sql.ErrNoRows)
 			},
 			callMockDelete: true,
 			expectedCount:  0,
@@ -273,7 +273,7 @@ func TestDeleteCartItem(t *testing.T) {
 			cr := repository.NewCartRepo(db)
 
 			newCount, err := cr.DeleteCartItem(context.Background(), testCase.uID, testCase.prID)
-			require.Equal(t, newCount, testCase.expectedCount)
+			require.Equal(t, testCase.expectedCount, newCount)
 			require.ErrorIs(t, err, testCase.expectedError)
 		})
 	}
@@ -290,8 +290,8 @@ func TestDeleteAllCartItems(t *testing.T) {
 			name: "Test successful cart clear",
 			uID:  1,
 			mockBehavior: func(d *mock_database.MockDatabase, q string, u uint) {
-				d.EXPECT().Exec(context.Background(), q, u).Return(mock_database.MockSqlResult{
-					LastInsertedId: 1,
+				d.EXPECT().Exec(context.Background(), q, u).Return(mock_database.MockSQLResult{
+					LastInsertedID: 1,
 					RowsAffect:     1,
 				}, nil)
 			},
@@ -301,7 +301,7 @@ func TestDeleteAllCartItems(t *testing.T) {
 			name: "Test empty cart clear",
 			uID:  1,
 			mockBehavior: func(d *mock_database.MockDatabase, q string, u uint) {
-				d.EXPECT().Exec(context.Background(), q, u).Return(mock_database.MockSqlResult{}, sql.ErrNoRows)
+				d.EXPECT().Exec(context.Background(), q, u).Return(mock_database.MockSQLResult{}, sql.ErrNoRows)
 			},
 			expectedError: models.ErrEmptyCart,
 		},

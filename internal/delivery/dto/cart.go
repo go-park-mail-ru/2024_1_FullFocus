@@ -25,7 +25,7 @@ func ConvertProductsToDto(mm []models.CartProduct) []CartProduct {
 }
 
 type UpdateCartItemInput struct {
-	ProductId uint `json:"productId"`
+	ProductID uint `json:"productId"`
 }
 
 type UpdateCartItemPayload struct {

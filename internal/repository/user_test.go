@@ -40,7 +40,7 @@ func TestCreateUser(t *testing.T) {
 				PasswordHash: "test",
 			},
 			mockBehavior: func(d *mock_database.MockDatabase, q string, u database.UserTable) {
-				d.EXPECT().Exec(context.Background(), q, u).Return(mock_database.MockSqlResult{}, nil)
+				d.EXPECT().Exec(context.Background(), q, u).Return(mock_database.MockSQLResult{}, nil)
 			},
 			expectedID:    1,
 			expectedError: nil,
@@ -53,7 +53,7 @@ func TestCreateUser(t *testing.T) {
 				PasswordHash: "test",
 			},
 			mockBehavior: func(d *mock_database.MockDatabase, q string, u database.UserTable) {
-				d.EXPECT().Exec(context.Background(), q, u).Return(mock_database.MockSqlResult{}, sql.ErrNoRows)
+				d.EXPECT().Exec(context.Background(), q, u).Return(mock_database.MockSQLResult{}, sql.ErrNoRows)
 			},
 			expectedID:    0,
 			expectedError: models.ErrUserAlreadyExists,

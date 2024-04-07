@@ -81,7 +81,7 @@ func (h *CartHandler) UpdateCartItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newCount, err := h.usecase.UpdateCartItem(ctx, uID, cartItem.ProductId)
+	newCount, err := h.usecase.UpdateCartItem(ctx, uID, cartItem.ProductID)
 	if errors.Is(err, models.ErrNoProduct) {
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 404,
@@ -120,7 +120,7 @@ func (h *CartHandler) DeleteCartItem(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newCount, err := h.usecase.DeleteCartItem(ctx, uID, cartItem.ProductId)
+	newCount, err := h.usecase.DeleteCartItem(ctx, uID, cartItem.ProductID)
 	if errors.Is(err, models.ErrNoProduct) {
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 404,
