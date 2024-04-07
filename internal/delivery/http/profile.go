@@ -46,7 +46,9 @@ func (h *ProfileHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		PhoneNumber: r.FormValue("phoneNumber"),
 		ImgSrc:      r.FormValue("imgsrc"),
 	}
+
 	err = h.usecase.UpdateProfile(ctx, uID, newProfile)
+
 	if err != nil {
 		if validationError := new(model.ValidationError); errors.As(err, &validationError) {
 			helper.JSONResponse(ctx, w, 200, validationError.WithCode(400))
@@ -84,5 +86,8 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	helper.JSONResponse(ctx, w, 200, profile)
+	helper.JSONResponse(ctx, w, 200, model.SuccessResponse{
+		Status: 200,
+		Data:   profile,
+	})
 }

@@ -21,7 +21,7 @@ func TestNewProfileUsecase(t *testing.T) {
 	})
 }
 
-// Дописать эти тесты
+// Дописать эти тесты.
 func TestGetProfile(t *testing.T) {
 	testCases := []struct {
 		name           string

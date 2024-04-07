@@ -3,15 +3,14 @@ package repository_test
 import (
 	"context"
 	"database/sql"
+	"testing"
+
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
 	mock_database "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database/mocks"
-	"github.com/golang/mock/gomock"
-	"testing"
-
-	"github.com/stretchr/testify/require"
-
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
+	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewProfileRepo(t *testing.T) {
@@ -24,7 +23,7 @@ func TestNewProfileRepo(t *testing.T) {
 	})
 }
 
-// Надо дописать эти тесты
+// Надо дописать эти тесты.
 func TestCreateProfile(t *testing.T) {
 	testCases := []struct {
 		name          string

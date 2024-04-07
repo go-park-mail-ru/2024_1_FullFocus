@@ -23,7 +23,7 @@ func TestNewProfileHandler(t *testing.T) {
 	})
 }
 
-// Дописать эти тесты
+// Дописать эти тесты.
 func TestGetProfiles(t *testing.T) {
 	testCases := []struct {
 		name           string
