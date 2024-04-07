@@ -25,8 +25,8 @@ func NewCartRepo(dbClient db.Database) *CartRepo {
 
 func (r *CartRepo) GetAllCartItems(ctx context.Context, uID uint) ([]models.CartProduct, error) {
 	q := `SELECT p.id, p.product_name, p.price, p.imgsrc, c.count
-		FROM product AS p JOIN cart_item AS c ON p.id = c.product_id
-		WHERE profile_id = $1;`
+	FROM product AS p JOIN cart_item AS c ON p.id = c.product_id
+	WHERE profile_id = $1;`
 
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d", uID)))
 	start := time.Now()
@@ -62,7 +62,26 @@ func (r *CartRepo) GetAllCartItemsId(ctx context.Context, uID uint) ([]models.Ca
 }
 
 func (r *CartRepo) UpdateCartItem(ctx context.Context, uID, prID uint) (uint, error) {
-	return 0, nil
+	q := `INSERT INTO ozon.cart_item(profile_id, product_id) VALUES($1, $2)
+	ON CONFLICT (profile_id, product_id)
+	DO UPDATE set count = cart_item.count + 1
+	returning cart_item.count;`
+
+	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d $2 = %d", uID, prID)))
+	start := time.Now()
+	defer func() {
+		logger.Info(ctx, fmt.Sprintf("queried in %s", time.Since(start)))
+	}()
+
+	resRow, err := r.storage.Exec(ctx, q, uID, prID)
+	if err != nil {
+		return 0, models.ErrNoProduct
+	}
+	newCount, err := resRow.LastInsertId()
+	if err != nil {
+		return 0, models.ErrNoProduct
+	}
+	return uint(newCount), nil
 }
 
 func (r *CartRepo) DeleteCartItem(ctx context.Context, uID, orID uint) (uint, error) {
