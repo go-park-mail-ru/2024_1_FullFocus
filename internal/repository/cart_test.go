@@ -56,8 +56,8 @@ func TestGetAllCartItems(t *testing.T) {
 			defer ctrl.Finish()
 
 			q := `SELECT p.id, p.product_name, p.price, p.imgsrc, c.count
-		FROM product AS p JOIN cart_item AS c ON p.id = c.product_id
-		WHERE profile_id = $1;`
+	FROM product AS p JOIN cart_item AS c ON p.id = c.product_id
+	WHERE profile_id = $1;`
 			rows := []database.CartProductTable{}
 			testCase.mockBehavior(db, &rows, q, testCase.uID)
 			cr := repository.NewCartRepo(db)
@@ -106,6 +106,76 @@ func TestGetAllCartItemsID(t *testing.T) {
 			cr := repository.NewCartRepo(db)
 
 			_, err := cr.GetAllCartItemsId(context.Background(), testCase.uID)
+			require.ErrorIs(t, err, testCase.expectedError)
+		})
+	}
+}
+
+func TestUpdateCartItem(t *testing.T) {
+	testCases := []struct {
+		name          string
+		uID           uint
+		prID          uint
+		mockBehavior  func(*mock_database.MockDatabase, string, uint, uint)
+		expectedCount uint
+		expectedError error
+	}{
+		{
+			name: "Test successful creation",
+			uID:  1,
+			prID: 1,
+			mockBehavior: func(d *mock_database.MockDatabase, q string, u, p uint) {
+				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSqlResult{
+					LastInsertedId: 1,
+					RowsAffect:     1,
+				}, nil)
+			},
+			expectedCount: 1,
+			expectedError: nil,
+		},
+		{
+			name: "Test successfull update",
+			uID:  1,
+			prID: 1,
+			mockBehavior: func(d *mock_database.MockDatabase, q string, u, p uint) {
+				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSqlResult{
+					LastInsertedId: 2,
+					RowsAffect:     1,
+				}, nil)
+			},
+			expectedCount: 2,
+			expectedError: nil,
+		},
+		{
+			name: "Test not existing item update",
+			uID:  1,
+			prID: 1,
+			mockBehavior: func(d *mock_database.MockDatabase, q string, u, p uint) {
+				d.EXPECT().Exec(context.Background(), q, u, p).Return(mock_database.MockSqlResult{
+					LastInsertedId: 0,
+					RowsAffect:     0,
+				}, sql.ErrNoRows)
+			},
+			expectedCount: 0,
+			expectedError: models.ErrNoProduct,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			db := mock_database.NewMockDatabase(ctrl)
+			defer ctrl.Finish()
+
+			q := `INSERT INTO ozon.cart_item(profile_id, product_id) VALUES($1, $2)
+	ON CONFLICT (profile_id, product_id)
+	DO UPDATE set count = cart_item.count + 1
+	returning cart_item.count;`
+			testCase.mockBehavior(db, q, testCase.uID, testCase.prID)
+			cr := repository.NewCartRepo(db)
+
+			newCount, err := cr.UpdateCartItem(context.Background(), testCase.uID, testCase.prID)
+			require.Equal(t, newCount, testCase.expectedCount)
 			require.ErrorIs(t, err, testCase.expectedError)
 		})
 	}

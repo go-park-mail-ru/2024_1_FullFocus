@@ -123,12 +123,15 @@ func (mr *MockDatabaseMockRecorder) Select(ctx, dest, q interface{}, args ...int
 }
 
 // Mock Sql Result
-type MockSqlResult struct {}
-
-func (MockSqlResult)LastInsertId() (int64, error) {
-	return 0, nil
+type MockSqlResult struct {
+	LastInsertedId int64
+	RowsAffect int64
 }
 
-func (MockSqlResult)RowsAffected() (int64, error) {
-	return 0, nil
+func (r MockSqlResult)LastInsertId() (int64, error) {
+	return r.LastInsertedId, nil
+}
+
+func (r MockSqlResult)RowsAffected() (int64, error) {
+	return r.RowsAffect, nil
 }
