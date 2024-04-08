@@ -23,11 +23,11 @@ down: ## Остановить контейнеры
 
 .PHONY: migrations-up
 migrations-up: ## Накатить миграции
-	 goose -dir db/migrations postgres $(DB_DSN) up
+	goose -dir db/migrations postgres $(DB_DSN) up
 
 .PHONY: migrations-down
 migrations-down: ## Откатить миграции
-	 goose -dir db/migrations postgres $(DB_DSN) down
+	goose -dir db/migrations postgres $(DB_DSN) down
 
 .PHONY: run-app
 run-app: up ## Запустить приложение
@@ -48,6 +48,7 @@ lint: ## Проверить код линтерами
 test: ## Запустить тесты
 	@go test ./... -cover > testresult.txt
 	@sed -i '/dto/d' testresult.txt
+	@sed -i '/dao/d' testresult.txt
 	@sed -i '/server/d' testresult.txt
 	@sed -i '/app/d' testresult.txt
 	@sed -i '/config/d' testresult.txt
@@ -60,7 +61,7 @@ test: ## Запустить тесты
 
 .PHONY: test-details
 test-details: ## Запустить тесты с выводом всех результатов
-	go test -v -cover ./...
+	@go test -v -cover ./...
 
 .PHONY: ci
 ci: lint test ## Запустить линтеры + тесты
