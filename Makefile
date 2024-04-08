@@ -60,7 +60,7 @@ test: ## Запустить тесты
 	@rm testresult.txt
 
 .PHONY: test-details
-test-details: ## Запустить тесты с выводом всех результатов
+test-details: ## Запустить тесты с выводом подробных результатов
 	@go test -v -cover ./...
 
 .PHONY: ci
