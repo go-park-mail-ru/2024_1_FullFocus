@@ -11,6 +11,7 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/dao"
 )
 
 type CartRepo struct {
@@ -34,13 +35,14 @@ func (r *CartRepo) GetAllCartItems(ctx context.Context, uID uint) ([]models.Cart
 		logger.Info(ctx, fmt.Sprintf("queried in %s", time.Since(start)))
 	}()
 
-	cartProductRows := []db.CartProductTable{}
-	if err := r.storage.Select(ctx, &cartProductRows, q, uID); errors.Is(err, sql.ErrNoRows) {
+	cartProductRows := []dao.CartProductTable{}
+	err := r.storage.Select(ctx, &cartProductRows, q, uID)
+	if errors.Is(err, sql.ErrNoRows) {
 		logger.Error(ctx, "users cart is empty")
 		return nil, models.ErrEmptyCart
 	}
 
-	return db.ConvertTablesToCartProducts(cartProductRows), nil
+	return dao.ConvertTablesToCartProducts(cartProductRows), nil
 }
 
 func (r *CartRepo) GetAllCartItemsID(ctx context.Context, uID uint) ([]models.CartItem, error) {
@@ -52,20 +54,20 @@ func (r *CartRepo) GetAllCartItemsID(ctx context.Context, uID uint) ([]models.Ca
 		logger.Info(ctx, fmt.Sprintf("queried in %s", time.Since(start)))
 	}()
 
-	cartItemRows := []db.CartItemTable{}
+	cartItemRows := []dao.CartItemTable{}
 	if err := r.storage.Select(ctx, &cartItemRows, q, uID); errors.Is(err, sql.ErrNoRows) {
 		logger.Error(ctx, "users cart is empty")
 		return nil, models.ErrEmptyCart
 	}
 
-	return db.ConvertTablesToCartItems(cartItemRows), nil
+	return dao.ConvertTablesToCartItems(cartItemRows), nil
 }
 
 func (r *CartRepo) UpdateCartItem(ctx context.Context, uID, prID uint) (uint, error) {
 	q := `INSERT INTO cart_item(profile_id, product_id) VALUES($1, $2)
 	ON CONFLICT (profile_id, product_id)
 	DO UPDATE set count = cart_item.count + 1
-	returning cart_item.count;`
+	returning cart_item.count AS count;`
 
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d $2 = %d", uID, prID)))
 	start := time.Now()
@@ -73,21 +75,18 @@ func (r *CartRepo) UpdateCartItem(ctx context.Context, uID, prID uint) (uint, er
 		logger.Info(ctx, fmt.Sprintf("updated in %s", time.Since(start)))
 	}()
 
-	resRow, err := r.storage.Exec(ctx, q, uID, prID)
+	resRow := dao.CartItemTable{}
+	err := r.storage.Get(ctx, &resRow, q, uID, prID)
 	if err != nil {
 		return 0, models.ErrNoProduct
 	}
-	newCount, err := resRow.LastInsertId()
-	if err != nil {
-		return 0, models.ErrNoProduct
-	}
-	return uint(newCount), nil
+	return resRow.Count, nil
 }
 
 func (r *CartRepo) DeleteCartItem(ctx context.Context, uID, prID uint) (uint, error) {
 	q := `UPDATE cart_item SET count = cart_item.count - 1
-	WHERE user_id = $1 AND product_id = $2
-	returning cart_item.count;`
+	WHERE profile_id = $1 AND product_id = $2
+	returning cart_item.count AS count;`
 
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d $2 = %d", uID, prID)))
 	start := time.Now()
@@ -95,16 +94,14 @@ func (r *CartRepo) DeleteCartItem(ctx context.Context, uID, prID uint) (uint, er
 		logger.Info(ctx, fmt.Sprintf("updated in %s", time.Since(start)))
 	}()
 
-	resRow, err := r.storage.Exec(ctx, q, uID, prID)
+	resRow := dao.CartItemTable{}
+	err := r.storage.Get(ctx, &resRow, q, uID, prID)
 	if err != nil {
-		return 0, models.ErrNoProduct
-	}
-	newCount, err := resRow.LastInsertId()
-	if err != nil {
+		logger.Info(ctx, fmt.Sprintf("\n\nLEVEL GET %s\n\n", err.Error()))
 		return 0, models.ErrNoProduct
 	}
 
-	if newCount == 0 {
+	if resRow.Count == 0 {
 		q = `DELETE FROM cart_item WHERE profile_id = $1 AND product_id = $2;`
 
 		logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d $2 = %d", uID, prID)))
@@ -118,7 +115,7 @@ func (r *CartRepo) DeleteCartItem(ctx context.Context, uID, prID uint) (uint, er
 		}
 		return 0, nil
 	}
-	return uint(newCount), nil
+	return resRow.Count, nil
 }
 
 func (r *CartRepo) DeleteAllCartItems(ctx context.Context, uID uint) error {
