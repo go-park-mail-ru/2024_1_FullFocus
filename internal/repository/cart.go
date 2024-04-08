@@ -2,8 +2,6 @@ package repository
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 	"fmt"
 	"log/slog"
 	"time"
@@ -36,12 +34,14 @@ func (r *CartRepo) GetAllCartItems(ctx context.Context, uID uint) ([]models.Cart
 	}()
 
 	cartProductRows := []dao.CartProductTable{}
-	err := r.storage.Select(ctx, &cartProductRows, q, uID)
-	if errors.Is(err, sql.ErrNoRows) {
+	if err := r.storage.Select(ctx, &cartProductRows, q, uID); err != nil {
+		logger.Error(ctx, "Error: %s", err.Error())
+		return nil, models.ErrEmptyCart
+	}
+	if len(cartProductRows) == 0 {
 		logger.Error(ctx, "users cart is empty")
 		return nil, models.ErrEmptyCart
 	}
-
 	return dao.ConvertTablesToCartProducts(cartProductRows), nil
 }
 
@@ -55,7 +55,11 @@ func (r *CartRepo) GetAllCartItemsID(ctx context.Context, uID uint) ([]models.Ca
 	}()
 
 	cartItemRows := []dao.CartItemTable{}
-	if err := r.storage.Select(ctx, &cartItemRows, q, uID); errors.Is(err, sql.ErrNoRows) {
+	if err := r.storage.Select(ctx, &cartItemRows, q, uID); err != nil {
+		logger.Error(ctx, "Error: %s", err.Error())
+		return nil, models.ErrEmptyCart
+	}
+	if len(cartItemRows) == 0 {
 		logger.Error(ctx, "users cart is empty")
 		return nil, models.ErrEmptyCart
 	}
@@ -127,7 +131,13 @@ func (r *CartRepo) DeleteAllCartItems(ctx context.Context, uID uint) error {
 		logger.Info(ctx, fmt.Sprintf("deleted in %s", time.Since(start)))
 	}()
 
-	if _, err := r.storage.Exec(ctx, q, uID); err != nil {
+	res, err := r.storage.Exec(ctx, q, uID)
+	if err != nil {
+		logger.Error(ctx, "Error: %s", err.Error())
+		return models.ErrEmptyCart
+	}
+	if count, _ := res.RowsAffected(); count == 0 {
+		logger.Error(ctx, "users cart is empty")
 		return models.ErrEmptyCart
 	}
 
