@@ -18,12 +18,12 @@ func ValidateField(value string, minLength, maxLength int) error {
 	return nil
 }
 
-func ValidateNumber(value string, Length int) error {
+func ValidateNumber(value string, length int) error {
 	onlyValidSymbols := regexp.MustCompile(`^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$`).MatchString
 	if !onlyValidSymbols(value) {
 		return models.ErrInvalidField
 	}
-	if len(value) < Length {
+	if len(value) < length {
 		return models.ErrInvalidField
 	}
 	return nil

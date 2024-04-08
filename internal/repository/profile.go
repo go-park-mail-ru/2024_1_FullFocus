@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -32,8 +31,8 @@ func (r *ProfileRepo) CreateProfile(ctx context.Context, profile models.Profile)
 	_, err := r.storage.Exec(ctx, q, profileRow.ID, profileRow.FullName, profileRow.Email, profileRow.PhoneNumber, profileRow.ImgSrc)
 	if err != nil {
 		if pgErr := new(pgconn.PgError); errors.As(err, &pgErr) {
-			logs, _ := json.Marshal(pgErr)
-			fmt.Printf("log: \n%s\n", string(logs))
+			// logs, _ := json.Marshal(pgErr)
+			// fmt.Printf("log: \n%s\n", string(logs))
 			logger.Error(ctx, fmt.Sprintf("HERE pg err: %v", err))
 		} else {
 			logger.Error(ctx, fmt.Sprintf("HERE profile already exists: %v", err))
@@ -51,8 +50,8 @@ func (r *ProfileRepo) GetProfile(ctx context.Context, uID uint) (models.Profile,
 	profileRow := &db.ProfileTable{}
 	if err := r.storage.Get(ctx, profileRow, q, uID); err != nil {
 		if pgErr := new(pgconn.PgError); errors.As(err, &pgErr) {
-			logs, _ := json.Marshal(pgErr)
-			fmt.Printf("log: \n%s\n", string(logs))
+			// logs, _ := json.Marshal(pgErr)
+			// fmt.Printf("log: \n%s\n", string(logs))
 			logger.Error(ctx, fmt.Sprintf("HERE pg err: %v", err))
 		} else {
 			logger.Error(ctx, fmt.Sprintf("HERE profile not found: %v", err))
@@ -77,8 +76,8 @@ func (r *ProfileRepo) UpdateProfile(ctx context.Context, uID uint, profileNew mo
 		uID)
 	if err != nil {
 		if pgErr := new(pgconn.PgError); errors.As(err, &pgErr) {
-			logs, _ := json.Marshal(pgErr)
-			fmt.Printf("log: \n%s\n", string(logs))
+			// logs, _ := json.Marshal(pgErr)
+			// fmt.Printf("log: \n%s\n", string(logs))
 			logger.Error(ctx, fmt.Sprintf("HERE pg err: %v", err))
 		} else {
 			logger.Error(ctx, fmt.Sprintf("HERE profile not found: %v", err))
