@@ -2,6 +2,8 @@ DB_HOST=127.0.0.1
 DB_PORT=5432
 DB_NAME=ozon
 
+LOCAL_COMPOSE=docker-compose.local.yaml
+
 ifneq ("$(wildcard .env)","")
 include .env
 endif
@@ -23,11 +25,11 @@ down: ## Остановить контейнеры
 
 .PHONY: migrations-up
 migrations-up: ## Накатить миграции
-	goose -dir db/migrations postgres $(DB_DSN) up
+	~/go/bin/goose -dir db/migrations postgres $(DB_DSN) up
 
 .PHONY: migrations-down
 migrations-down: ## Откатить миграции
-	goose -dir db/migrations postgres $(DB_DSN) down
+	~/go/bin/goose -dir db/migrations postgres $(DB_DSN) down
 
 .PHONY: run-app
 run-app: up ## Запустить приложение
@@ -43,6 +45,14 @@ build: ## Сбилдить бинарь приложения
 .PHONY: lint
 lint: ## Проверить код линтерами
 	golangci-lint run ./... -c golangci.local.yaml
+
+.PHONY: api-test-up
+api-test-up: ## Запустить локально контейнеры и приложение для интеграционных тестов
+	docker compose -f ${LOCAL_COMPOSE} up -d
+	go run cmd/main/main.go -config_path=config/local.yaml
+
+.PHONY: api-test-down
+api-test-down: down ## Откатить миграции и остановить контейнеры
 
 .PHONY: test
 test: ## Запустить тесты
