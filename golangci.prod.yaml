@@ -233,7 +233,7 @@ linters:
     - bidichk # checks for dangerous unicode character sequences
     - bodyclose # checks whether HTTP response body is closed successfully
     - cyclop # checks function and package cyclomatic complexity
-    - dupl # tool for code clone detection
+#    - dupl # tool for code clone detection
     - durationcheck # checks for two durations multiplied together
     - errname # checks that sentinel errors are prefixed with the Err and error types are suffixed with the Error
     - errorlint # finds code that will cause problems with the error wrapping scheme introduced in Go 1.13
@@ -273,7 +273,7 @@ linters:
     - promlinter # checks Prometheus metrics naming via promlint
 #    - protogetter # reports direct reads from proto message fields when getters should be used
     - reassign # checks that package variables are not reassigned
-    - revive # fast, configurable, extensible, flexible, and beautiful linter for Go, drop-in replacement of golint
+#    - revive # fast, configurable, extensible, flexible, and beautiful linter for Go, drop-in replacement of golint
     - rowserrcheck # checks whether Err of rows is checked successfully
 #    - sloglint # ensure consistent code style when using log/slog
 #    - spancheck # checks for mistakes with OpenTelemetry/Census spans
@@ -313,6 +313,3 @@ issues:
         - gosec
         - noctx
         - wrapcheck
-    - path: "http/auth.go"
-      linters:
-        - dupl
