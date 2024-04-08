@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
@@ -13,6 +12,7 @@ const (
 	_maxLoginLength    = 32
 	_minPasswordLength = 8
 	_maxPasswordLength = 32
+	_NumberLenght      = 11
 )
 
 type AuthUsecase struct {
@@ -76,7 +76,12 @@ func (u *AuthUsecase) Signup(ctx context.Context, login string, password string)
 		return "", models.ErrUserAlreadyExists
 	}
 
-	profile := models.Profile{ID: uID, FullName: login}
+	profile := models.Profile{
+		ID:          uID,
+		FullName:    login,
+		Email:       "yourawesome@mail.ru",
+		PhoneNumber: "70000000000",
+	}
 	_, err = u.profileRepo.CreateProfile(ctx, profile)
 	if err != nil {
 		return "", models.ErrProfileAlreadyExists

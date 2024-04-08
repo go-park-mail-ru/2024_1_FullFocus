@@ -30,7 +30,7 @@ func (h *ProfileHandler) InitRouter(r *mux.Router) {
 	}
 }
 
-func (h *ProfileHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
+func (h *ProfileHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) { // Тест в постмане с фикс ID прошел
 	ctx := r.Context()
 	uID, err := helper.GetUserIDFromContext(ctx)
 	if err != nil {
@@ -39,7 +39,9 @@ func (h *ProfileHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 			Msg:    "error with userID ",
 			MsgRus: "Проблема с UserID",
 		})
+		return
 	}
+
 	profileData, err := helper.GetProfileData(r)
 	if err != nil {
 		helper.JSONResponse(ctx, w, 200, model.ErrResponse{
@@ -70,7 +72,7 @@ func (h *ProfileHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
+func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) { // Тест в постмане с фикс ID и данными прошел
 	ctx := r.Context()
 	uID, err := helper.GetUserIDFromContext(ctx)
 	if err != nil {
@@ -79,6 +81,7 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 			Msg:    "error with userID ",
 			MsgRus: "Проблема с UserID",
 		})
+		return
 	}
 	profile, err := h.usecase.GetProfile(ctx, uID)
 	if err != nil {

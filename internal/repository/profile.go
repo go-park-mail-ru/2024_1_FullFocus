@@ -26,7 +26,7 @@ func NewProfileRepo(dbClient db.Database) *ProfileRepo {
 
 func (r *ProfileRepo) CreateProfile(ctx context.Context, profile models.Profile) (uint, error) {
 	profileRow := db.ConvertProfileToTable(profile)
-	q := `INSERT INTO user_profile (id, full_name, email, phone_number, imgsrc) VALUES ($1, $2, $3, $4, $5);` // обязательно первым полем передавать ID сущ профиля!
+	q := `INSERT INTO ozon.user_profile (id, full_name, email, phone_number, imgsrc) VALUES ($1, $2, $3, $4, $5);`
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1=%d, $2=%s, $3=%s, $4=%s, $5=%s", profileRow.ID, profileRow.FullName, profileRow.Email, profileRow.PhoneNumber, profileRow.ImgSrc)))
 	start := time.Now()
 	_, err := r.storage.Exec(ctx, q, profileRow.ID, profileRow.FullName, profileRow.Email, profileRow.PhoneNumber, profileRow.ImgSrc)
@@ -45,7 +45,7 @@ func (r *ProfileRepo) CreateProfile(ctx context.Context, profile models.Profile)
 }
 
 func (r *ProfileRepo) GetProfile(ctx context.Context, uID uint) (models.Profile, error) {
-	q := `SELECT id, full_name, email, phone_number, imgsrc FROM ozon.user_profile WHERE id = $1;` // тут четкий запрос
+	q := `SELECT id, full_name, email, phone_number, imgsrc FROM ozon.user_profile WHERE id = $1;`
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1=%d", uID)))
 	start := time.Now()
 	profileRow := &db.ProfileTable{}
@@ -66,9 +66,9 @@ func (r *ProfileRepo) GetProfile(ctx context.Context, uID uint) (models.Profile,
 
 func (r *ProfileRepo) UpdateProfile(ctx context.Context, uID uint, profileNew models.Profile) error {
 	profileRow := db.ConvertProfileToTable(profileNew)
-	q := `UPDATE user_profile SET full_name=$1, email=$2, phone_number=$3, imgsrc=$4 WHERE id = $5` // тут четкий запрос
+	q := `UPDATE ozon.user_profile SET full_name=$1, email=$2, phone_number=$3, imgsrc=$4 WHERE id = $5`
 	start := time.Now()
-	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1=%s, $2=%s, $3=%s, $4=%s, $6=%d", profileRow.FullName, profileRow.Email, profileRow.PhoneNumber, profileRow.ImgSrc, uID)))
+	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1=%s, $2=%s, $3=%s, $4=%s, $5=%d", profileRow.FullName, profileRow.Email, profileRow.PhoneNumber, profileRow.ImgSrc, uID)))
 	_, err := r.storage.Exec(ctx, q,
 		profileNew.FullName,
 		profileNew.Email,

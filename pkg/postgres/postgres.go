@@ -20,13 +20,12 @@ type PgxDatabase struct {
 
 func NewPgxDatabase(ctx context.Context, cfg config.PostgresConfig) (database.Database, error) {
 	hostPort := net.JoinHostPort(cfg.Host, cfg.Port)
-	dsn := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s&search_path=%s",
+	dsn := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s",
 		cfg.User,
 		cfg.Password,
 		hostPort,
 		cfg.Database,
 		cfg.Sslmode,
-		cfg.SearchPath,
 	)
 	dbClient, err := sqlx.ConnectContext(ctx, "pgx", dsn)
 	if err != nil {

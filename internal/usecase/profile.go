@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"html"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	model "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
@@ -25,7 +26,17 @@ func (u *ProfileUsecase) UpdateProfile(ctx context.Context, uID uint, newProfile
 		return model.NewValidationError("invalid fullname input",
 			"Имя должно содержать от 4 до 32 букв английского алфавита или цифр")
 	}
-	// Добавить валидацию всех параметров
+	err = helper.ValidateNumber(newProfile.FullName, _NumberLenght)
+	if err != nil {
+		return model.NewValidationError("invalid number input",
+			"Номер телефона должен быть длиной от 11 символов и начинаться с 7 или 8")
+	}
+	err = helper.ValidateEmail(newProfile.Email)
+	if err != nil {
+		return model.NewValidationError("invalid email input",
+			"Имеил должен содержать @ и .")
+	}
+
 	object := model.Profile{
 		ID:          newProfile.ID,
 		Email:       newProfile.Email,
@@ -42,14 +53,15 @@ func (u *ProfileUsecase) UpdateProfile(ctx context.Context, uID uint, newProfile
 }
 
 func (u *ProfileUsecase) GetProfile(ctx context.Context, uID uint) (dto.ProfileData, error) {
-	// XSS проверка username
 	profile, err := u.profileRepo.GetProfile(ctx, uID)
+	escapedFullName := html.EscapeString(profile.FullName)
+	escapedImfSrc := html.EscapeString(profile.ImgSrc)
 	object := dto.ProfileData{
 		ID:          profile.ID,
 		Email:       profile.Email,
-		FullName:    profile.FullName,
+		FullName:    escapedFullName,
 		PhoneNumber: profile.PhoneNumber,
-		ImgSrc:      profile.ImgSrc,
+		ImgSrc:      escapedImfSrc,
 	}
 	if err != nil {
 		return dto.ProfileData{}, model.ErrNoProfile
