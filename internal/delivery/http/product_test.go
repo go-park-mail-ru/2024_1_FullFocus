@@ -88,7 +88,7 @@ func TestGetProducts(t *testing.T) {
 			testCase.mockBehavior(mockProductsUsecase, testCase.lastID, testCase.limit)
 			ph := delivery.NewProductHandler(mockProductsUsecase)
 
-			req := httptest.NewRequest("GET", "/api/products", nil)
+			req := httptest.NewRequest("GET", "/api/products/public/v1", nil)
 			q := req.URL.Query()
 			q.Set("lastid", testCase.lastIDstr)
 			q.Set("limit", testCase.limitStr)

@@ -109,7 +109,7 @@ func TestUpdateCartItem(t *testing.T) {
 			}
 			jsonBody, _ := json.Marshal(data)
 
-			req := httptest.NewRequest("POST", "/api/cart/add", bytes.NewReader(jsonBody))
+			req := httptest.NewRequest("POST", "/api/cart/v1/add", bytes.NewReader(jsonBody))
 			req.Header.Set("Content-Type", "application/json")
 
 			if testCase.fillCtx {

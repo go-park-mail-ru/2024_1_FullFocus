@@ -27,8 +27,8 @@ func NewAvatarHandler(u usecase.Avatars) *AvatarHandler {
 func (h *AvatarHandler) InitRouter(r *mux.Router) {
 	h.router = r.PathPrefix("/avatar").Subrouter()
 	{
-		h.router.Handle("/", http.HandlerFunc(h.UploadAvatar)).Methods("POST", "OPTIONS")
-		h.router.Handle("/", http.HandlerFunc(h.DeleteAvatar)).Methods("POST", "OPTIONS")
+		h.router.Handle("/v1", http.HandlerFunc(h.UploadAvatar)).Methods("POST", "OPTIONS")
+		h.router.Handle("/v1", http.HandlerFunc(h.DeleteAvatar)).Methods("POST", "OPTIONS")
 	}
 }
 

@@ -26,10 +26,10 @@ func NewCartHandler(uc usecase.Carts) *CartHandler {
 func (h *CartHandler) InitRouter(r *mux.Router) {
 	h.router = r.PathPrefix("/cart").Subrouter()
 	{
-		h.router.Handle("/", http.HandlerFunc(h.GetAllCartItems)).Methods("GET", "OPTIONS")
-		h.router.Handle("/add", http.HandlerFunc(h.UpdateCartItem)).Methods("POST", "OPTIONS")
-		h.router.Handle("/delete", http.HandlerFunc(h.DeleteCartItem)).Methods("POST", "OPTIONS")
-		h.router.Handle("/clear", http.HandlerFunc(h.DeleteAllCartItems)).Methods("POST", "OPTIONS")
+		h.router.Handle("/v1", http.HandlerFunc(h.GetAllCartItems)).Methods("GET", "OPTIONS")
+		h.router.Handle("/v1/add", http.HandlerFunc(h.UpdateCartItem)).Methods("POST", "OPTIONS")
+		h.router.Handle("/v1/delete", http.HandlerFunc(h.DeleteCartItem)).Methods("POST", "OPTIONS")
+		h.router.Handle("/v1/clear", http.HandlerFunc(h.DeleteAllCartItems)).Methods("POST", "OPTIONS")
 	}
 }
 

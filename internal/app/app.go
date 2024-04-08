@@ -15,6 +15,7 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
+	middleware "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/auth"
 	corsmw "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/cors"
 	logmw "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/logging"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
@@ -97,6 +98,9 @@ func Init() *App {
 	authUsecase := usecase.NewAuthUsecase(userRepo, sessionRepo)
 	authHandler := delivery.NewAuthHandler(authUsecase, cfg.SessionTTL)
 	authHandler.InitRouter(apiRouter)
+
+	// Auth Middleware
+	r.Use(middleware.NewAuthMiddleware(authUsecase))
 
 	// Products
 	productRepo := repository.NewProductRepo()

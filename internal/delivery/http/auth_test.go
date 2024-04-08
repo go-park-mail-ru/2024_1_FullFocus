@@ -110,7 +110,7 @@ func TestSignUp(t *testing.T) {
 			}
 			jsonBody, _ := json.Marshal(data)
 
-			req := httptest.NewRequest("POST", "/api/auth/signup", bytes.NewReader(jsonBody))
+			req := httptest.NewRequest("POST", "/api/auth/public/v1/signup", bytes.NewReader(jsonBody))
 			req.Header.Set("Content-Type", "application/json")
 
 			r := httptest.NewRecorder()
@@ -196,7 +196,7 @@ func TestLogin(t *testing.T) {
 			}
 			jsonBody, _ := json.Marshal(data)
 
-			req := httptest.NewRequest("POST", "/api/auth/login", bytes.NewReader(jsonBody))
+			req := httptest.NewRequest("POST", "/api/auth/public/v1/login", bytes.NewReader(jsonBody))
 			req.Header.Set("Content-Type", "application/json")
 
 			r := httptest.NewRecorder()
@@ -349,7 +349,7 @@ func TestCheckAuth(t *testing.T) {
 			defer ctrl.Finish()
 			mockAuthUsecase := mock_usecase.NewMockAuth(ctrl)
 			ah := delivery.NewAuthHandler(mockAuthUsecase, _sessionTTL)
-			req := httptest.NewRequest("POST", "/api/auth/check", nil)
+			req := httptest.NewRequest("POST", "/api/auth/public/v1/check", nil)
 			if testCase.setCookie {
 				testCase.mockBehavior(mockAuthUsecase, testCase.session)
 				req.AddCookie(&http.Cookie{
