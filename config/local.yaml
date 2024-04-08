@@ -8,8 +8,8 @@ redis:
   addr: "localhost:6379"
 minio:
   port: ":9000"
-  minio_user: minio
-  minio_password: minio
+  minio_user: FullFocus
+  minio_password: FullFocus4
 postgres:
   host: "localhost"
   port: "5432"

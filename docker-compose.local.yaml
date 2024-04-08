@@ -20,8 +20,8 @@ services:
     ports:
       - '9000:9000'
     environment:
-      MINIO_ROOT_USER: minio
-      MINIO_ROOT_PASSWORD: minio
+      MINIO_ROOT_USER: FullFocus
+      MINIO_ROOT_PASSWORD: FullFocus4
     command: minio server /data/
     healthcheck:
       test: ["CMD", "bash", "-c", "echo -n '' > /dev/tcp/127.0.0.1/9000"]
