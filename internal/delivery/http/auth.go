@@ -30,8 +30,8 @@ func NewAuthHandler(uc usecase.Auth, sessTTL time.Duration) *AuthHandler {
 func (h *AuthHandler) InitRouter(r *mux.Router) {
 	h.router = r.PathPrefix("/auth").Subrouter()
 	{
-		h.router.Handle("/public/v1/login", http.HandlerFunc(h.Login)).Methods("GET", "POST", "OPTIONS")
-		h.router.Handle("/public/v1/signup", http.HandlerFunc(h.Signup)).Methods("GET", "POST", "OPTIONS")
+		h.router.Handle("/public/v1/login", http.HandlerFunc(h.Login)).Methods("POST", "OPTIONS")
+		h.router.Handle("/public/v1/signup", http.HandlerFunc(h.Signup)).Methods("POST", "OPTIONS")
 		h.router.Handle("/v1/logout", http.HandlerFunc(h.Logout)).Methods("POST", "OPTIONS")
 		h.router.Handle("/public/v1/check", http.HandlerFunc(h.CheckAuth)).Methods("GET", "OPTIONS")
 	}
