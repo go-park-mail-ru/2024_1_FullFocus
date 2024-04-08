@@ -27,8 +27,8 @@ type (
 	}
 
 	Profiles interface {
-		UpdateProfile(ctx context.Context, uID uint, newProfile models.Profile) error
-		GetProfile(ctx context.Context, uID uint) (models.Profile, error)
-		CreateProfile(ctx context.Context, profile models.Profile) (uint, error)
+		UpdateProfile(ctx context.Context, uID uint, newProfile dto.ProfileData) error
+		GetProfile(ctx context.Context, uID uint) (dto.ProfileData, error)
+		CreateProfile(ctx context.Context, profile dto.ProfileData) (uint, error)
 	}
 )

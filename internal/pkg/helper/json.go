@@ -28,3 +28,11 @@ func GetLoginData(r *http.Request) (dto.LoginData, error) {
 	}
 	return data, nil
 }
+
+func GetProfileData(r *http.Request) (dto.ProfileData, error) {
+	var data dto.ProfileData
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		return dto.ProfileData{}, err
+	}
+	return data, nil
+}

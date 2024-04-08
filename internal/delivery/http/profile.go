@@ -40,14 +40,17 @@ func (h *ProfileHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 			MsgRus: "Проблема с UserID",
 		})
 	}
-	newProfile := model.Profile{
-		Email:       r.FormValue("email"),
-		FullName:    r.FormValue("fullName"),
-		PhoneNumber: r.FormValue("phoneNumber"),
-		ImgSrc:      r.FormValue("imgsrc"),
+	profileData, err := helper.GetProfileData(r)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, model.ErrResponse{
+			Status: 400,
+			Msg:    err.Error(),
+			MsgRus: "Ошибка обработки данных",
+		})
+		return
 	}
 
-	err = h.usecase.UpdateProfile(ctx, uID, newProfile)
+	err = h.usecase.UpdateProfile(ctx, uID, profileData)
 
 	if err != nil {
 		if validationError := new(model.ValidationError); errors.As(err, &validationError) {
@@ -88,6 +91,6 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	}
 	helper.JSONResponse(ctx, w, 200, model.SuccessResponse{
 		Status: 200,
-		Data:   profile,
+		Data:   profile, // Что-то не так
 	})
 }
