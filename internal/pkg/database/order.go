@@ -1,23 +1,34 @@
 package database
 
-import "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+import (
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+)
 
 type Order struct {
-	ID     uint   `json:"id"`
-	Sum    uint   `json:"sum"`
-	Status string `json:"status"`
+	ID         uint   `db:"id"`
+	Sum        uint   `db:"sum"`
+	Status     string `db:"status"`
+	ItemsCount uint   `db:"items_count"`
+	CreatedAt  string `db:"created_at"`
 }
 
 func ConvertOrdersFromTable(orders []Order) []models.Order {
 	orderModels := make([]models.Order, 0, len(orders))
 	for _, order := range orders {
 		orderModels = append(orderModels, models.Order{
-			ID:     order.ID,
-			Sum:    order.Sum,
-			Status: order.Status,
+			ID:         order.ID,
+			Sum:        order.Sum,
+			Status:     order.Status,
+			ItemsCount: order.ItemsCount,
+			CreatedAt:  order.CreatedAt,
 		})
 	}
 	return orderModels
+}
+
+type OrderInfo struct {
+	Status    string `db:"order_status"`
+	CreatedAt string `db:"created_at"`
 }
 
 type OrderItem struct {

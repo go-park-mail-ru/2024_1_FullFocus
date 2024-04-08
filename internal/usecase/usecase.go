@@ -18,7 +18,8 @@ type (
 	}
 
 	Products interface {
-		GetProducts(ctx context.Context, lastID, limit int) ([]models.Product, error)
+		GetAllProductCards(ctx context.Context, pageNum uint, perPage uint) ([]models.ProductCard, error)
+		GetProductById(ctx context.Context, productID uint) (models.Product, error)
 	}
 
 	Avatars interface {

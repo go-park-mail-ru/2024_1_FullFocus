@@ -8,19 +8,22 @@ import (
 )
 
 type ProductUsecase struct {
-	prodRepo repository.Products
+	productRepo repository.Products
 }
 
 func NewProductUsecase(pr repository.Products) *ProductUsecase {
 	return &ProductUsecase{
-		prodRepo: pr,
+		productRepo: pr,
 	}
 }
 
-func (u *ProductUsecase) GetProducts(ctx context.Context, lastID, limit int) ([]models.Product, error) {
-	prods, err := u.prodRepo.GetProducts(ctx, lastID, limit)
-	if err != nil {
-		return nil, err
+func (u *ProductUsecase) GetAllProductCards(ctx context.Context, pageNum uint, perPage uint) ([]models.ProductCard, error) {
+	if pageNum <= 0 || perPage <= 0 {
+		return []models.ProductCard{}, models.ErrInvalidParameters
 	}
-	return prods, nil
+	return u.productRepo.GetAllProductCards(ctx, pageNum, perPage)
+}
+
+func (u *ProductUsecase) GetProductById(ctx context.Context, productID uint) (models.Product, error) {
+	return u.productRepo.GetProductById(ctx, productID)
 }

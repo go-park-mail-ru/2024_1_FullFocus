@@ -13,9 +13,11 @@ type OrderItem struct {
 }
 
 type Order struct {
-	ID     uint
-	Sum    uint
-	Status string
+	ID         uint
+	Sum        uint
+	Status     string
+	ItemsCount uint
+	CreatedAt  string
 }
 
 // Create
@@ -29,7 +31,9 @@ type CreateOrderInput struct {
 // Get
 
 type GetOrderPayload struct {
-	Products []OrderProduct
-	Sum      uint
-	Status   string
+	Products   []OrderProduct
+	Sum        uint
+	Status     string
+	ItemsCount uint
+	CreatedAt  string
 }

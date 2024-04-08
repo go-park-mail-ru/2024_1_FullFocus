@@ -2,9 +2,33 @@ package dto
 
 import "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 
+type ProductCard struct {
+	ID     uint   `json:"id"`
+	Name   string `json:"name"`
+	Price  uint   `json:"price"`
+	ImgSrc string `json:"imgSrc"`
+	Seller string `json:"seller"`
+	Rating uint   `json:"rating"`
+}
+
+func ConvertProductCardsToDTO(cards []models.ProductCard) []ProductCard {
+	var productCards []ProductCard
+	for _, card := range cards {
+		productCards = append(productCards, ProductCard{
+			ID:     card.ID,
+			Name:   card.Name,
+			Price:  card.Price,
+			ImgSrc: card.ImgSrc,
+			Seller: card.Seller,
+			Rating: card.Rating,
+		})
+	}
+	return productCards
+}
+
 type Product struct {
 	ID          uint     `json:"id"`
-	ProductName string   `json:"name"`
+	Name        string   `json:"name"`
 	Description string   `json:"description"`
 	Price       uint     `json:"price"`
 	ImgSrc      string   `json:"imgSrc"`
@@ -13,19 +37,15 @@ type Product struct {
 	Categories  []string `json:"categories"`
 }
 
-func ConvertProductsToDTO(products []Product) []models.Product {
-	productModels := make([]models.Product, 0, len(products))
-	for _, product := range products {
-		productModels = append(productModels, models.Product{
-			ID:          product.ID,
-			ProductName: product.ProductName,
-			Description: product.Description,
-			Price:       product.Price,
-			ImgSrc:      product.ImgSrc,
-			Seller:      product.Seller,
-			Rating:      product.Rating,
-			Categories:  product.Categories,
-		})
+func ConvertProductToDTO(product models.Product) Product {
+	return Product{
+		ID:          product.ID,
+		Name:        product.Name,
+		Description: product.Description,
+		Price:       product.Price,
+		ImgSrc:      product.ImgSrc,
+		Seller:      product.Seller,
+		Rating:      product.Rating,
+		Categories:  product.Categories,
 	}
-	return productModels
 }

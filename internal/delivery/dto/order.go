@@ -1,6 +1,8 @@
 package dto
 
-import "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+import (
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+)
 
 type OrderProduct struct {
 	ProductName string `json:"productName"`
@@ -22,18 +24,22 @@ func ConvertOrderProductsToDTO(products []models.OrderProduct) []OrderProduct {
 }
 
 type Order struct {
-	ID     uint   `json:"id"`
-	Sum    uint   `json:"sum"`
-	Status string `json:"status"`
+	ID         uint   `json:"id"`
+	Sum        uint   `json:"sum"`
+	Status     string `json:"status"`
+	ItemsCount uint   `json:"itemsCount"`
+	CreatedAt  string `json:"createdAt"`
 }
 
 func ConvertOrdersToDTO(orders []models.Order) []Order {
 	orderProducts := make([]Order, 0, len(orders))
 	for _, order := range orders {
 		orderProducts = append(orderProducts, Order{
-			ID:     order.ID,
-			Sum:    order.Sum,
-			Status: order.Status,
+			ID:         order.ID,
+			Sum:        order.Sum,
+			Status:     order.Status,
+			ItemsCount: order.ItemsCount,
+			CreatedAt:  order.CreatedAt,
 		})
 	}
 	return orderProducts
@@ -63,9 +69,11 @@ type GetOrderInput struct {
 }
 
 type GetOrderPayload struct {
-	Products []OrderProduct `json:"products"`
-	Sum      uint           `json:"sum"`
-	Status   string         `json:"status"`
+	Products   []OrderProduct `json:"products"`
+	Sum        uint           `json:"sum"`
+	Status     string         `json:"status"`
+	ItemsCount uint           `json:"itemsCount"`
+	CreatedAt  string         `json:"createdAt"`
 }
 
 type GetAllOrdersPayload struct {

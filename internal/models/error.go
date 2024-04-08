@@ -16,6 +16,7 @@ var (
 	ErrInvalidField      = errors.New("invalid field input")
 	ErrNoAvatar          = errors.New("no avatar found")
 	ErrNoAccess          = errors.New("no access")
+	ErrInvalidParameters = errors.New("invalid parameters")
 )
 
 type ValidationError struct {
