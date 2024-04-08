@@ -131,8 +131,10 @@ func TestSignUp(t *testing.T) {
 				PasswordHash: testCase.password,
 			}
 			testProfile := models.Profile{
-				ID:       0,
-				FullName: testCase.login,
+				ID:          0,
+				FullName:    testCase.login,
+				PhoneNumber: "70000000000",
+				Email:       "yourawesome@mail.ru",
 			}
 			if testCase.callUserMock {
 				testCase.userMockBehavior(mockUserRepo, testUser)
