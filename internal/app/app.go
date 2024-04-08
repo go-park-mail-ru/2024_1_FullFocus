@@ -98,11 +98,17 @@ func Init() *App {
 	authHandler := delivery.NewAuthHandler(authUsecase, cfg.SessionTTL)
 	authHandler.InitRouter(apiRouter)
 
-	// products
-	productRepo := repository.NewProductRepo()
+	// Product
+	productRepo := repository.NewProductRepo(pgxClient)
 	productUsecase := usecase.NewProductUsecase(productRepo)
 	productHandler := delivery.NewProductHandler(productUsecase)
 	productHandler.InitRouter(apiRouter)
+
+	// Order
+	orderRepo := repository.NewOrderRepo(pgxClient)
+	orderUsecase := usecase.NewOrderUsecase(orderRepo)
+	orderHandler := delivery.NewOrderHandler(orderUsecase)
+	orderHandler.InitRouter(apiRouter)
 
 	// Avatar
 	avatarStorage := repository.NewAvatarStorage(minioClient)

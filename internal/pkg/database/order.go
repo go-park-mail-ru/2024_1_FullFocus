@@ -50,6 +50,7 @@ func ConvertOrderItemsToTables(orderID uint, items []models.OrderItem) []OrderIt
 }
 
 type OrderProduct struct {
+	ID          uint   `db:"id"`
 	ProductName string `db:"product_name"`
 	Price       uint   `db:"price"`
 	Count       uint   `db:"count"`
@@ -60,6 +61,7 @@ func ConvertOrderProductsToModels(items []OrderProduct) []models.OrderProduct {
 	orderProducts := make([]models.OrderProduct, 0, len(items))
 	for _, item := range items {
 		orderProducts = append(orderProducts, models.OrderProduct{
+			ID:          item.ID,
 			Price:       item.Price,
 			ProductName: item.ProductName,
 			Count:       item.Count,

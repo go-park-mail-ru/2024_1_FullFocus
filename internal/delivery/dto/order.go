@@ -5,6 +5,7 @@ import (
 )
 
 type OrderProduct struct {
+	ID          uint   `json:"id"`
 	ProductName string `json:"productName"`
 	Price       uint   `json:"price"`
 	Count       uint   `json:"count"`
@@ -15,6 +16,7 @@ func ConvertOrderProductsToDTO(products []models.OrderProduct) []OrderProduct {
 	orderProducts := make([]OrderProduct, 0, len(products))
 	for _, product := range products {
 		orderProducts = append(orderProducts, OrderProduct{
+			ID:          product.ID,
 			ProductName: product.ProductName,
 			Count:       product.Count,
 			ImgSrc:      product.ImgSrc,
@@ -45,12 +47,12 @@ func ConvertOrdersToDTO(orders []models.Order) []Order {
 	return orderProducts
 }
 
+// Create
+
 type OrderItem struct {
 	ProductID uint `json:"productID"`
 	Count     uint `json:"count"`
 }
-
-// Create
 
 type CreateOrderInput struct {
 	UserID   uint        `json:"userID"`

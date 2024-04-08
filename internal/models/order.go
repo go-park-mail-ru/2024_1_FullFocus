@@ -1,6 +1,7 @@
 package models
 
 type OrderProduct struct {
+	ID          uint
 	ProductName string
 	Price       uint
 	Count       uint

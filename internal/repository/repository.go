@@ -34,7 +34,7 @@ type (
 		Create(ctx context.Context, userID uint, orderItems []models.OrderItem) (uint, error)
 		GetOrderByID(ctx context.Context, orderID uint) (models.GetOrderPayload, error)
 		GetAllOrders(ctx context.Context, profileID uint) ([]models.Order, error)
-		Delete(ctx context.Context, orderID uint) error
 		GetProfileIDByOrderID(ctx context.Context, orderID uint) (uint, error)
+		Delete(ctx context.Context, orderID uint) error
 	}
 )

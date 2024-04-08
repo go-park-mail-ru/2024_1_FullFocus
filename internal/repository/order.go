@@ -64,7 +64,7 @@ func (r *OrderRepo) Create(ctx context.Context, userID uint, orderItems []models
 
 func (r *OrderRepo) GetOrderByID(ctx context.Context, orderID uint) (models.GetOrderPayload, error) {
 	var orderProducts []db.OrderProduct
-	q := `SELECT p.product_name, p.price, i.count, p.imgsrc
+	q := `SELECT p.id, p.product_name, p.price, i.count, p.imgsrc
 		  FROM order_item as i
 			  INNER JOIN ordering AS o ON i.ordering_id = o.id
 		      INNER JOIN product AS p ON i.product_id = p.id
@@ -117,7 +117,7 @@ func (r *OrderRepo) GetAllOrders(ctx context.Context, profileID uint) ([]models.
 	return db.ConvertOrdersFromTable(orders), nil
 }
 
-func (r *OrderRepo) GetProfileIDByOrderingID(ctx context.Context, orderID uint) (uint, error) {
+func (r *OrderRepo) GetProfileIDByOrderID(ctx context.Context, orderID uint) (uint, error) {
 	q := `SELECT profile_id FROM ordering WHERE id = ?;`
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d", orderID)))
 	start := time.Now()
