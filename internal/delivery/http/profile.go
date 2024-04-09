@@ -25,7 +25,7 @@ func NewProfileHandler(u usecase.Profiles) *ProfileHandler {
 }
 
 func (h *ProfileHandler) InitRouter(r *mux.Router) {
-	h.router = r.PathPrefix("/profile").Subrouter()
+	h.router = r.PathPrefix("/v1/profile").Subrouter()
 	{
 		h.router.Handle("/update", http.HandlerFunc(h.UpdateProfile)).Methods("POST", "GET")
 		h.router.Handle("/get", http.HandlerFunc(h.GetProfile)).Methods("GET")
