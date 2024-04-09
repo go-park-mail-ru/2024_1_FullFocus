@@ -15,6 +15,7 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	mock_usecase "github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase/mocks"
 )
 
@@ -54,7 +55,7 @@ func TestSignUp(t *testing.T) {
 			login:    "",
 			password: "",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(context.Background(), login, password).Return("", models.NewValidationError("unavailable username", "неправильное имя пользователя"))
+				u.EXPECT().Signup(context.Background(), login, password).Return("", helper.NewValidationError("unavailable username", "неправильное имя пользователя"))
 			},
 			expectedStatus: 400,
 			expectedErr:    "unavailable username",
@@ -65,7 +66,7 @@ func TestSignUp(t *testing.T) {
 			login:    "test",
 			password: "",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(context.Background(), login, password).Return("", models.NewValidationError("unavailable username", "неправильное имя пользователя"))
+				u.EXPECT().Signup(context.Background(), login, password).Return("", helper.NewValidationError("unavailable username", "неправильное имя пользователя"))
 			},
 			expectedStatus: 400,
 			expectedErr:    "unavailable username",
@@ -76,7 +77,7 @@ func TestSignUp(t *testing.T) {
 			login:    "test",
 			password: "12345",
 			mockBehavior: func(u *mock_usecase.MockAuth, login, password string) {
-				u.EXPECT().Signup(context.Background(), login, password).Return("", models.NewValidationError("unavailable password", "слишком короткий пароль"))
+				u.EXPECT().Signup(context.Background(), login, password).Return("", helper.NewValidationError("unavailable password", "слишком короткий пароль"))
 			},
 			expectedStatus: 400,
 			expectedErr:    "unavailable password",
@@ -109,7 +110,7 @@ func TestSignUp(t *testing.T) {
 			}
 			jsonBody, _ := json.Marshal(data)
 
-			req := httptest.NewRequest("POST", "/api/auth/signup", bytes.NewReader(jsonBody))
+			req := httptest.NewRequest("POST", "/api/auth/public/v1/signup", bytes.NewReader(jsonBody))
 			req.Header.Set("Content-Type", "application/json")
 
 			r := httptest.NewRecorder()
@@ -118,13 +119,13 @@ func TestSignUp(t *testing.T) {
 			handler.ServeHTTP(r, req)
 
 			if testCase.expectedStatus != 200 {
-				var errResp models.ErrResponse
+				var errResp dto.ErrResponse
 				err := json.NewDecoder(r.Body).Decode(&errResp)
 				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, errResp.Status)
 				require.Equal(t, testCase.expectedErr, errResp.Msg)
 			} else {
-				var successResp models.SuccessResponse
+				var successResp dto.SuccessResponse
 				err := json.NewDecoder(r.Body).Decode(&successResp)
 				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, successResp.Status)
@@ -195,7 +196,7 @@ func TestLogin(t *testing.T) {
 			}
 			jsonBody, _ := json.Marshal(data)
 
-			req := httptest.NewRequest("POST", "/api/auth/login", bytes.NewReader(jsonBody))
+			req := httptest.NewRequest("POST", "/api/auth/public/v1/login", bytes.NewReader(jsonBody))
 			req.Header.Set("Content-Type", "application/json")
 
 			r := httptest.NewRecorder()
@@ -203,13 +204,13 @@ func TestLogin(t *testing.T) {
 			handler.ServeHTTP(r, req)
 
 			if testCase.expectedStatus != 200 {
-				var errResp models.ErrResponse
+				var errResp dto.ErrResponse
 				err := json.NewDecoder(r.Body).Decode(&errResp)
 				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, errResp.Status)
 				require.Equal(t, testCase.expectedErr, errResp.Msg)
 			} else {
-				var successResp models.SuccessResponse
+				var successResp dto.SuccessResponse
 				err := json.NewDecoder(r.Body).Decode(&successResp)
 				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, successResp.Status)
@@ -287,13 +288,13 @@ func TestLogout(t *testing.T) {
 			handler.ServeHTTP(r, req)
 
 			if testCase.expectedStatus != 200 {
-				var errResp models.ErrResponse
+				var errResp dto.ErrResponse
 				err := json.NewDecoder(r.Body).Decode(&errResp)
 				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, errResp.Status)
 				require.Equal(t, testCase.expectedErr, errResp.Msg)
 			} else {
-				var successResp models.SuccessResponse
+				var successResp dto.SuccessResponse
 				err := json.NewDecoder(r.Body).Decode(&successResp)
 				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, successResp.Status)
@@ -348,7 +349,7 @@ func TestCheckAuth(t *testing.T) {
 			defer ctrl.Finish()
 			mockAuthUsecase := mock_usecase.NewMockAuth(ctrl)
 			ah := delivery.NewAuthHandler(mockAuthUsecase, _sessionTTL)
-			req := httptest.NewRequest("POST", "/api/auth/check", nil)
+			req := httptest.NewRequest("POST", "/api/auth/public/v1/check", nil)
 			if testCase.setCookie {
 				testCase.mockBehavior(mockAuthUsecase, testCase.session)
 				req.AddCookie(&http.Cookie{
@@ -362,13 +363,13 @@ func TestCheckAuth(t *testing.T) {
 			handler.ServeHTTP(r, req)
 
 			if testCase.expectedStatus != 200 {
-				var errResp models.ErrResponse
+				var errResp dto.ErrResponse
 				err := json.NewDecoder(r.Body).Decode(&errResp)
 				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, errResp.Status)
 				require.Equal(t, testCase.expectedErr, errResp.Msg)
 			} else {
-				var successResp models.SuccessResponse
+				var successResp dto.SuccessResponse
 				err := json.NewDecoder(r.Body).Decode(&successResp)
 				require.NoError(t, err)
 				require.Equal(t, testCase.expectedStatus, successResp.Status)

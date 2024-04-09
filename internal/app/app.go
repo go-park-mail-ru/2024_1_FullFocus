@@ -16,6 +16,9 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
+	middleware "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/auth"
+	corsmw "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/cors"
+	logmw "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/logging"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/server"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
@@ -90,15 +93,29 @@ func Init() *App {
 
 	// Layers
 
+	// Profile
+	profileRepo := repository.NewProfileRepo(pgxClient)
+	profileUsecase := usecase.NewProfileUsecase(profileRepo)
+	profileHandler := delivery.NewProfileHandler(profileUsecase)
+	profileHandler.InitRouter(apiRouter)
+
 	// Auth
 	userRepo := repository.NewUserRepo(pgxClient)
 	sessionRepo := repository.NewSessionRepo(redisClient, cfg.SessionTTL)
-	authUsecase := usecase.NewAuthUsecase(userRepo, sessionRepo)
+	authUsecase := usecase.NewAuthUsecase(userRepo, sessionRepo, profileRepo)
 	authHandler := delivery.NewAuthHandler(authUsecase, cfg.SessionTTL)
 	authHandler.InitRouter(apiRouter)
 
+<<<<<<< HEAD
 	// Product
 	productRepo := repository.NewProductRepo(pgxClient)
+=======
+	// Auth Middleware
+	r.Use(middleware.NewAuthMiddleware(authUsecase))
+
+	// Products
+	productRepo := repository.NewProductRepo()
+>>>>>>> develop
 	productUsecase := usecase.NewProductUsecase(productRepo)
 	productHandler := delivery.NewProductHandler(productUsecase)
 	productHandler.InitRouter(apiRouter)
@@ -114,6 +131,12 @@ func Init() *App {
 	avatarUsecase := usecase.NewAvatarUsecase(avatarStorage, userRepo)
 	avatarHandler := delivery.NewAvatarHandler(avatarUsecase)
 	avatarHandler.InitRouter(apiRouter)
+
+	// Cart
+	cartRepo := repository.NewCartRepo(pgxClient)
+	cartUsecase := usecase.NewCartUsecase(cartRepo)
+	cartHandler := delivery.NewCartHandler(cartUsecase)
+	cartHandler.InitRouter(apiRouter)
 
 	return &App{
 		config: cfg,

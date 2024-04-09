@@ -12,6 +12,10 @@ import (
 
 	"github.com/thejerf/slogassert"
 
+<<<<<<< HEAD
+=======
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
+>>>>>>> develop
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 )
@@ -23,11 +27,11 @@ type Test struct {
 
 func TestJSONResponse(t *testing.T) {
 	cases := []Test{
-		{200, model.ErrResponse{Status: 404, Msg: "not valid data", MsgRus: "Проверь данные"}},
-		{200, model.ErrResponse{Status: 505, Msg: "server err", MsgRus: "Сервак лежит"}},
-		{200, model.ErrResponse{Status: 404, Msg: "Auth err", MsgRus: "Ошибка, надо перезайти"}},
-		{200, model.SuccessResponse{Status: 200, Data: map[string]string{"abc": "abc", "bcd": "bcd"}}},
-		{400, model.SuccessResponse{Status: 203, Data: map[string]interface{}{"key": "123", "key2": 123}}},
+		{200, dto.ErrResponse{Status: 404, Msg: "not valid data", MsgRus: "Проверь данные"}},
+		{200, dto.ErrResponse{Status: 505, Msg: "server err", MsgRus: "Сервак лежит"}},
+		{200, dto.ErrResponse{Status: 404, Msg: "Auth err", MsgRus: "Ошибка, надо перезайти"}},
+		{200, dto.SuccessResponse{Status: 200, Data: map[string]string{"abc": "abc", "bcd": "bcd"}}},
+		{400, dto.SuccessResponse{Status: 203, Data: map[string]interface{}{"key": "123", "key2": 123}}},
 	}
 
 	for _, item := range cases {

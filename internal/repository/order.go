@@ -9,6 +9,7 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/dao"
 )
 
 type OrderRepo struct {
@@ -37,7 +38,7 @@ func (r *OrderRepo) Create(ctx context.Context, userID uint, orderItems []models
 	logger.Info(ctx, fmt.Sprintf("inserted in %s", time.Since(start)))
 
 	q = `INSERT INTO order_item (ordering_id, product_id, count) VALUES (:ordering_id, :product_id, :count)`
-	items := db.ConvertOrderItemsToTables(uint(orderID), orderItems)
+	items := dao.ConvertOrderItemsToTables(uint(orderID), orderItems)
 	logger.Info(ctx, q, slog.Int("orders_amount", len(items)))
 	start = time.Now()
 	_, err = tx.NamedExecContext(ctx, q, items)
@@ -70,7 +71,7 @@ func (r *OrderRepo) Create(ctx context.Context, userID uint, orderItems []models
 }
 
 func (r *OrderRepo) GetOrderByID(ctx context.Context, orderID uint) (models.GetOrderPayload, error) {
-	var orderProducts []db.OrderProduct
+	var orderProducts []dao.OrderProduct
 	q := `SELECT p.id, p.product_name, p.price, i.count, p.imgsrc
 		  FROM order_item as i
 			  INNER JOIN ordering AS o ON i.ordering_id = o.id
@@ -89,7 +90,7 @@ func (r *OrderRepo) GetOrderByID(ctx context.Context, orderID uint) (models.GetO
 		sum += product.Price
 	}
 
-	var orderInfo db.OrderInfo
+	var orderInfo dao.OrderInfo
 	q = `SELECT order_status, DATE(created_at) AS created_at FROM ordering WHERE id = ?;`
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d", orderID)))
 	start = time.Now()
@@ -99,7 +100,7 @@ func (r *OrderRepo) GetOrderByID(ctx context.Context, orderID uint) (models.GetO
 	}
 	logger.Info(ctx, fmt.Sprintf("selected in %s", time.Since(start)))
 	return models.GetOrderPayload{
-		Products:   db.ConvertOrderProductsToModels(orderProducts),
+		Products:   dao.ConvertOrderProductsToModels(orderProducts),
 		Sum:        sum,
 		Status:     orderInfo.Status,
 		ItemsCount: uint(len(orderProducts)),
@@ -115,13 +116,13 @@ func (r *OrderRepo) GetAllOrders(ctx context.Context, profileID uint) ([]models.
 		  GROUP BY o.id;`
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d", profileID)))
 	start := time.Now()
-	var orders []db.Order
+	var orders []dao.Order
 	if err := r.storage.Select(ctx, &orders, q, profileID); err != nil {
 		logger.Error(ctx, "error while selecting orders: "+err.Error())
 		return nil, models.ErrNoRowsFound
 	}
 	logger.Info(ctx, fmt.Sprintf("selected in %s", time.Since(start)))
-	return db.ConvertOrdersFromTable(orders), nil
+	return dao.ConvertOrdersFromTable(orders), nil
 }
 
 func (r *OrderRepo) GetProfileIDByOrderID(ctx context.Context, orderID uint) (uint, error) {

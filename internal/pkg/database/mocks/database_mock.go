@@ -36,6 +36,21 @@ func (m *MockDatabase) EXPECT() *MockDatabaseMockRecorder {
 	return m.recorder
 }
 
+// Begin mocks base method.
+func (m *MockDatabase) Begin(ctx context.Context, opts *sql.TxOptions) (*sqlx.Tx, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Begin", ctx, opts)
+	ret0, _ := ret[0].(*sqlx.Tx)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Begin indicates an expected call of Begin.
+func (mr *MockDatabaseMockRecorder) Begin(ctx, opts interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Begin", reflect.TypeOf((*MockDatabase)(nil).Begin), ctx, opts)
+}
+
 // Close mocks base method.
 func (m *MockDatabase) Close() error {
 	m.ctrl.T.Helper()
@@ -116,4 +131,23 @@ func (m *MockDatabase) NamedExec(ctx context.Context, query string, arg interfac
 func (mr *MockDatabaseMockRecorder) NamedExec(ctx, query, arg interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NamedExec", reflect.TypeOf((*MockDatabase)(nil).NamedExec), ctx, query, arg)
+}
+
+// Select mocks base method.
+func (m *MockDatabase) Select(ctx context.Context, dest interface{}, q string, args ...interface{}) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{ctx, dest, q}
+	for _, a := range args {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Select", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Select indicates an expected call of Select.
+func (mr *MockDatabaseMockRecorder) Select(ctx, dest, q interface{}, args ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{ctx, dest, q}, args...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Select", reflect.TypeOf((*MockDatabase)(nil).Select), varargs...)
 }

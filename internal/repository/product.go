@@ -9,6 +9,7 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/dao"
 )
 
 type ProductRepo struct {
@@ -41,13 +42,13 @@ func (r *ProductRepo) GetAllProductCards(ctx context.Context, input models.GetAl
 	offset := input.PageNum * input.PageSize
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d $2 = %d $3 = %d", input.ProfileID, offset, input.PageSize)))
 	start := time.Now()
-	var products []db.ProductCard
+	var products []dao.ProductCard
 	if err := r.storage.Select(ctx, &products, q, input.ProfileID, offset, input.PageSize); err != nil {
 		logger.Info(ctx, "error while selecting: "+err.Error())
 		return nil, models.ErrNoRowsFound
 	}
 	logger.Info(ctx, fmt.Sprintf("selected in %s", time.Since(start)))
-	return db.ConvertProductCardsFromTable(products), nil
+	return dao.ConvertProductCardsFromTable(products), nil
 }
 
 func (r *ProductRepo) GetProductById(ctx context.Context, profileID uint, productID uint) (models.Product, error) {
@@ -63,7 +64,7 @@ func (r *ProductRepo) GetProductById(ctx context.Context, profileID uint, produc
     		LEFT JOIN cart_item ci ON ci.product_id = subquery.id AND ci.profile_id = ?;`
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d $2 = %d", productID, profileID)))
 	start := time.Now()
-	var product db.Product
+	var product dao.Product
 	if err := r.storage.Get(ctx, &product, q, productID, profileID); err != nil {
 		logger.Error(ctx, "error while selecting product: "+err.Error())
 		return models.Product{}, models.ErrNoRowsFound
@@ -82,7 +83,7 @@ func (r *ProductRepo) GetProductById(ctx context.Context, profileID uint, produc
 		return models.Product{}, models.ErrNoRowsFound
 	}
 	logger.Info(ctx, fmt.Sprintf("selected in %s", time.Since(start)))
-	return db.ConvertProductFromTable(categories, product), nil
+	return dao.ConvertProductFromTable(categories, product), nil
 }
 
 func (r *ProductRepo) GetProductsByCategoryId(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error) {
@@ -111,11 +112,11 @@ func (r *ProductRepo) GetProductsByCategoryId(ctx context.Context, input models.
 	offset := (input.PageNum - 1) * input.PageSize
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d $2 = %d $3 = %d $4 = %d", input.CategoryID, input.ProfileID, offset, input.PageSize)))
 	start := time.Now()
-	var products []db.ProductCard
+	var products []dao.ProductCard
 	if err := r.storage.Select(ctx, &products, q, input.CategoryID, input.ProfileID, offset, input.PageSize); err != nil {
 		logger.Info(ctx, "error while selecting: "+err.Error())
 		return nil, models.ErrNoRowsFound
 	}
 	logger.Info(ctx, fmt.Sprintf("selected in %s", time.Since(start)))
-	return db.ConvertProductCardsFromTable(products), nil
+	return dao.ConvertProductCardsFromTable(products), nil
 }

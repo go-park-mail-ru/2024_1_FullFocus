@@ -115,7 +115,7 @@ func (h *ProductHandler) GetProductByID(w http.ResponseWriter, r *http.Request) 
 		})
 		return
 	}
-	helper.JSONResponse(ctx, w, 200, models.SuccessResponse{
+	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
 		Data:   dto.ConvertProductToDTO(product),
 	})

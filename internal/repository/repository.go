@@ -1,3 +1,4 @@
+//go:generate mockgen -source=repository.go -destination=./mocks/repository_mock.go
 package repository
 
 import (
@@ -6,7 +7,6 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 )
 
-//go:generate mockgen -source=repository.go -destination=./mocks/repository_mock.go
 type (
 	Users interface {
 		CreateUser(ctx context.Context, user models.User) (uint, error)
@@ -37,5 +37,21 @@ type (
 		GetAllOrders(ctx context.Context, profileID uint) ([]models.Order, error)
 		GetProfileIDByOrderID(ctx context.Context, orderID uint) (uint, error)
 		Delete(ctx context.Context, orderID uint) error
+	}
+
+	Profiles interface {
+		UpdateProfile(ctx context.Context, uID uint, profileNew models.Profile) error
+		GetProfile(ctx context.Context, uID uint) (models.Profile, error)
+		CreateProfile(ctx context.Context, profile models.Profile) (uint, error)
+		UpdateAvatarByProfileID(ctx context.Context, uID uint, imgSrc string) error
+		GetAvatarByProfileID(ctx context.Context, uID uint) (string, error)
+		DeleteAvatarByProfileID(ctx context.Context, uID uint) (string, error)
+	}
+
+	Carts interface {
+		GetAllCartItems(ctx context.Context, uID uint) ([]models.CartProduct, error)
+		UpdateCartItem(ctx context.Context, uID, prID uint) (uint, error)
+		DeleteCartItem(ctx context.Context, uID, orID uint) (uint, error)
+		DeleteAllCartItems(ctx context.Context, uID uint) error
 	}
 )
