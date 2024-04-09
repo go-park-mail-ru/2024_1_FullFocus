@@ -2,6 +2,7 @@ package usecase_test
 
 import (
 	"context"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"io"
 	"log"
 	"testing"
@@ -12,13 +13,7 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	mock_repository "github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/mocks"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
-
-	"golang.org/x/crypto/argon2"
 )
-
-func PasswordArgon2(plainPassword []byte, salt []byte) []byte {
-	return argon2.IDKey(plainPassword, salt, 1, 64*1024, 4, 32)
-}
 
 func TestNewAuthUsecase(t *testing.T) {
 	t.Run("Check Auth Usecase creation", func(t *testing.T) {
@@ -153,7 +148,7 @@ func TestLogin(t *testing.T) {
 			password: "test12345",
 			userMockBehavior: func(r *mock_repository.MockUsers, username string) {
 				r.EXPECT().GetUser(context.Background(), username).Return(models.User{ID: 0, Username: "test123",
-					Password: string([]byte{0xd7, 0xc2, 0xf2, 0x51, 0xaa, 0x6a, 0x4e, 0x7b}) + string(PasswordArgon2([]byte("test12345"), []byte{0xd7, 0xc2, 0xf2, 0x51, 0xaa, 0x6a, 0x4e, 0x7b}))}, nil)
+					Password: string([]byte{0xd7, 0xc2, 0xf2, 0x51, 0xaa, 0x6a, 0x4e, 0x7b}) + string(helper.PasswordArgon2([]byte("test12345"), []byte{0xd7, 0xc2, 0xf2, 0x51, 0xaa, 0x6a, 0x4e, 0x7b}))}, nil)
 			},
 			sessionMockBehavior: func(r *mock_repository.MockSessions, userID uint) {
 				r.EXPECT().CreateSession(context.Background(), userID).Return("123")
