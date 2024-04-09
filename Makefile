@@ -25,11 +25,11 @@ down: ## Остановить контейнеры
 
 .PHONY: migrations-up
 migrations-up: ## Накатить миграции
-	~/go/bin/goose -dir db/migrations postgres $(DB_DSN) up
+	goose -dir db/migrations postgres $(DB_DSN) up
 
 .PHONY: migrations-down
 migrations-down: ## Откатить миграции
-	~/go/bin/goose -dir db/migrations postgres $(DB_DSN) down
+	goose -dir db/migrations postgres $(DB_DSN) down
 
 .PHONY: run-prod
 run-prod: up ## Запустить приложение
