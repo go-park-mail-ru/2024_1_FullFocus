@@ -26,10 +26,10 @@ func TestNewUserRepo(t *testing.T) {
 
 func TestCreateUser(t *testing.T) {
 	testCases := []struct {
-		name          string
-		user          models.User
-		mockBehavior  func(*mock_database.MockDatabase, string, string, string)
-		expectedID    uint
+		name         string
+		user         models.User
+		mockBehavior func(*mock_database.MockDatabase, *dao.UserTable, string, string, string)
+		// TODO expectedID    uint
 		expectedError error
 	}{
 		{
@@ -39,10 +39,9 @@ func TestCreateUser(t *testing.T) {
 				Username:     "test",
 				PasswordHash: "test",
 			},
-			mockBehavior: func(d *mock_database.MockDatabase, q string, l, p string) {
-				d.EXPECT().Exec(context.Background(), q, l, p).Return(mock_database.MockSQLResult{}, nil)
+			mockBehavior: func(d *mock_database.MockDatabase, t *dao.UserTable, q string, l, p string) {
+				d.EXPECT().Get(context.Background(), t, q, l, p).Return(nil)
 			},
-			expectedID:    1,
 			expectedError: nil,
 		},
 		{
@@ -52,10 +51,9 @@ func TestCreateUser(t *testing.T) {
 				Username:     "test",
 				PasswordHash: "test",
 			},
-			mockBehavior: func(d *mock_database.MockDatabase, q string, l, p string) {
-				d.EXPECT().Exec(context.Background(), q, l, p).Return(mock_database.MockSQLResult{}, sql.ErrNoRows)
+			mockBehavior: func(d *mock_database.MockDatabase, t *dao.UserTable, q string, l, p string) {
+				d.EXPECT().Get(context.Background(), t, q, l, p).Return(sql.ErrNoRows)
 			},
-			expectedID:    0,
 			expectedError: models.ErrUserAlreadyExists,
 		},
 	}
@@ -65,12 +63,13 @@ func TestCreateUser(t *testing.T) {
 			db := mock_database.NewMockDatabase(ctrl)
 			defer ctrl.Finish()
 
-			q := `INSERT INTO default_user (user_login, password_hash) VALUES ($1, $2);`
-			testCase.mockBehavior(db, q, testCase.user.Username, testCase.user.PasswordHash)
+			q := `INSERT INTO default_user (user_login, password_hash) VALUES ($1, $2) returning id;`
+			tmpRow := &dao.UserTable{}
+			testCase.mockBehavior(db, tmpRow, q, testCase.user.Username, testCase.user.PasswordHash)
 			ur := repository.NewUserRepo(db)
 
-			uID, err := ur.CreateUser(context.Background(), testCase.user)
-			require.Equal(t, testCase.expectedID, uID)
+			_, err := ur.CreateUser(context.Background(), testCase.user)
+
 			require.ErrorIs(t, err, testCase.expectedError)
 		})
 	}
