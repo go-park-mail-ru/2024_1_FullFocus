@@ -88,10 +88,9 @@ func (r *CartRepo) UpdateCartItem(ctx context.Context, uID, prID uint) (uint, er
 		if errors.Is(err, sql.ErrNoRows) {
 			logger.Info(ctx, "users cart is empty")
 			return 0, models.ErrNoProduct
-		} else {
-			logger.Error(ctx, "Error: %s", err.Error())
-			return 0, models.ErrEmptyCart
 		}
+		logger.Error(ctx, "Error: %s", err.Error())
+		return 0, models.ErrEmptyCart
 	}
 	return resRow.Count, nil
 }
@@ -113,10 +112,9 @@ func (r *CartRepo) DeleteCartItem(ctx context.Context, uID, prID uint) (uint, er
 		if errors.Is(err, sql.ErrNoRows) {
 			logger.Info(ctx, "users cart is empty")
 			return 0, models.ErrNoProduct
-		} else {
-			logger.Error(ctx, "Error: %s", err.Error())
-			return 0, models.ErrEmptyCart
 		}
+		logger.Error(ctx, "Error: %s", err.Error())
+		return 0, models.ErrEmptyCart
 	}
 
 	if resRow.Count == 0 {
