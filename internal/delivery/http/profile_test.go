@@ -3,6 +3,7 @@ package delivery_test
 import (
 	"context"
 	"encoding/json"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -23,58 +24,43 @@ func TestNewProfileHandler(t *testing.T) {
 	})
 }
 
-// Дописать эти тесты.
-func TestGetProfiles(t *testing.T) {
+// Дописать эти тесты!
+func TestGetProfile(t *testing.T) {
 	testCases := []struct {
 		name           string
-		mockBehavior   func(*mock_usecase.MockProducts, int, int)
-		lastID         int
-		limit          int
-		lastIDstr      string
-		limitStr       string
+		mockBehavior   func(*mock_usecase.MockProfiles, uint)
+		id             uint
 		expectedStatus int
 	}{
 		{
-			name:      "Successful request",
-			lastID:    3,
-			limit:     6,
-			lastIDstr: "3",
-			limitStr:  "6",
-			mockBehavior: func(u *mock_usecase.MockProducts, lastId, limit int) {
-				u.EXPECT().GetProducts(context.Background(), lastId, limit).Return([]models.Product{}, nil)
+			name: "Successful request",
+			id:   1,
+			mockBehavior: func(u *mock_usecase.MockProfiles, id uint) {
+				u.EXPECT().GetProfile(context.Background(), id).Return(dto.ProfileData{}, nil)
+			},
+			expectedStatus: 400,
+		},
+		{
+			name: "Successful request with no params",
+			id:   1,
+			mockBehavior: func(u *mock_usecase.MockProfiles, id uint) {
+				u.EXPECT().GetProfile(context.Background(), id).Return(dto.ProfileData{}, nil)
 			},
 			expectedStatus: 200,
 		},
 		{
-			name:      "Successful request with no params",
-			lastID:    1,
-			limit:     10,
-			lastIDstr: "",
-			limitStr:  "",
-			mockBehavior: func(u *mock_usecase.MockProducts, lastId, limit int) {
-				u.EXPECT().GetProducts(context.Background(), lastId, limit).Return([]models.Product{}, nil)
+			name: "Successful request with wrong params",
+			id:   1,
+			mockBehavior: func(u *mock_usecase.MockProfiles, id uint) {
+				u.EXPECT().GetProfile(context.Background(), id).Return(dto.ProfileData{}, nil)
 			},
 			expectedStatus: 200,
 		},
 		{
-			name:      "Successful request with wrong params",
-			lastID:    1,
-			limit:     10,
-			lastIDstr: "freferf",
-			limitStr:  "3123123dwed",
-			mockBehavior: func(u *mock_usecase.MockProducts, lastId, limit int) {
-				u.EXPECT().GetProducts(context.Background(), lastId, limit).Return([]models.Product{}, nil)
-			},
-			expectedStatus: 200,
-		},
-		{
-			name:      "Not found request",
-			lastID:    90,
-			limit:     10,
-			lastIDstr: "90",
-			limitStr:  "",
-			mockBehavior: func(u *mock_usecase.MockProducts, lastId, limit int) {
-				u.EXPECT().GetProducts(context.Background(), lastId, limit).Return(nil, models.ErrNoProduct)
+			name: "Not found request",
+			id:   1,
+			mockBehavior: func(u *mock_usecase.MockProfiles, id uint) {
+				u.EXPECT().GetProfile(context.Background(), id).Return(nil, models.ErrNoProfile)
 			},
 			expectedStatus: 404,
 		},
@@ -84,18 +70,13 @@ func TestGetProfiles(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
-			mockProductsUsecase := mock_usecase.NewMockProducts(ctrl)
-			testCase.mockBehavior(mockProductsUsecase, testCase.lastID, testCase.limit)
-			ph := delivery.NewProductHandler(mockProductsUsecase)
+			mockProfileUsecase := mock_usecase.NewMockProfiles(ctrl)
+			testCase.mockBehavior(mockProfileUsecase, testCase.id)
+			ph := delivery.NewProfileHandler(mockProfileUsecase)
 
-			req := httptest.NewRequest("GET", "/api/products", nil)
-			q := req.URL.Query()
-			q.Set("lastid", testCase.lastIDstr)
-			q.Set("limit", testCase.limitStr)
-			req.URL.RawQuery = q.Encode()
-
+			req := httptest.NewRequest("GET", "/api/profile/get", nil)
 			r := httptest.NewRecorder()
-			handler := http.HandlerFunc(ph.GetProducts)
+			handler := http.HandlerFunc(ph.GetProfile)
 			handler.ServeHTTP(r, req)
 
 			var (
