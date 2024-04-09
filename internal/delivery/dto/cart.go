@@ -22,6 +22,7 @@ type CartProduct struct {
 	Price     uint   `json:"price"`
 	Count     uint   `json:"count"`
 	Img       string `json:"imgsrc"`
+	Cost      uint   `json:"cost"`
 }
 
 func ConvertProductsToDto(mm []models.CartProduct) []CartProduct {
@@ -33,6 +34,7 @@ func ConvertProductsToDto(mm []models.CartProduct) []CartProduct {
 			Price:     m.Price,
 			Count:     m.Count,
 			Img:       m.Img,
+			Cost:      m.Cost,
 		})
 	}
 	return cartProduct
