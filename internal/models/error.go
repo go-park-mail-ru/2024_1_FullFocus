@@ -14,4 +14,5 @@ var (
 	ErrInvalidField      = errors.New("invalid field input")
 	ErrNoAvatar          = errors.New("no avatar found")
 	ErrEmptyCart         = errors.New("no cart items found")
+	ErrInternal          = errors.New("internal server error")
 )
