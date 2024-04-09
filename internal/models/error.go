@@ -16,5 +16,5 @@ var (
 	ErrNoProfile            = errors.New("no profile")
 	ErrProfileAlreadyExists = errors.New("profile exists")
 	ErrEmptyCart            = errors.New("no cart items found")
-  ErrInternal             = errors.New("internal server error")
+	ErrInternal             = errors.New("internal server error")
 )
