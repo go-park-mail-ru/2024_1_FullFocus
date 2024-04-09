@@ -31,7 +31,6 @@ func (u *ProfileUsecase) UpdateProfile(ctx context.Context, uID uint, newProfile
 		return model.NewValidationError("invalid number input",
 			"Номер телефона должен быть длиной от 11 символов и начинаться с 7 или 8")
 	}
-
 	*/
 	err = helper.ValidateEmail(newProfile.Email)
 	if err != nil {

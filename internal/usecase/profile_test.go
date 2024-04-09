@@ -2,6 +2,7 @@ package usecase_test
 
 import (
 	"context"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -21,45 +22,31 @@ func TestNewProfileUsecase(t *testing.T) {
 	})
 }
 
-// Дописать эти тесты.
 func TestGetProfile(t *testing.T) {
 	testCases := []struct {
 		name           string
-		lastID         int
-		limit          int
-		mockBehavior   func(*mock_repository.MockProducts, int, int)
-		expectedResult []models.Product
+		id             uint
+		mockBehavior   func(*mock_repository.MockProfiles, uint)
+		expectedResult dto.ProfileData
 		expectedErr    error
 	}{
 		{
-			name:   "Check single product get",
-			lastID: 1,
-			limit:  1,
-			mockBehavior: func(r *mock_repository.MockProducts, lastID, limit int) {
-				r.EXPECT().GetProducts(context.Background(), lastID, limit).Return([]models.Product{{}}, nil)
+			name: "Check single product get",
+			id:   1,
+			mockBehavior: func(r *mock_repository.MockProfiles, uID uint) {
+				r.EXPECT().GetProfile(context.Background(), uID).Return(models.Profile{}, nil)
 			},
-			expectedResult: []models.Product{{}},
+			expectedResult: dto.ProfileData{},
 			expectedErr:    nil,
 		},
 		{
-			name:   "Check several products get",
-			lastID: 1,
-			limit:  3,
-			mockBehavior: func(r *mock_repository.MockProducts, lastID, limit int) {
-				r.EXPECT().GetProducts(context.Background(), lastID, limit).Return([]models.Product{{}, {}, {}}, nil)
+			name: "Check no products get",
+			id:   1000,
+			mockBehavior: func(r *mock_repository.MockProfiles, uID uint) {
+				r.EXPECT().GetProfile(context.Background(), uID).Return(models.Profile{}, models.ErrNoProfile)
 			},
-			expectedResult: []models.Product{{}, {}, {}},
-			expectedErr:    nil,
-		},
-		{
-			name:   "Check no products get",
-			lastID: 1,
-			limit:  0,
-			mockBehavior: func(r *mock_repository.MockProducts, lastID, limit int) {
-				r.EXPECT().GetProducts(context.Background(), lastID, limit).Return(nil, models.ErrNoProduct)
-			},
-			expectedResult: nil,
-			expectedErr:    models.ErrNoProduct,
+			expectedResult: dto.ProfileData{},
+			expectedErr:    models.ErrNoProfile,
 		},
 	}
 
@@ -67,10 +54,10 @@ func TestGetProfile(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
-			mockProductRepo := mock_repository.NewMockProducts(ctrl)
-			testCase.mockBehavior(mockProductRepo, testCase.lastID, testCase.limit)
-			pu := usecase.NewProductUsecase(mockProductRepo)
-			prods, err := pu.GetProducts(context.Background(), testCase.lastID, testCase.limit)
+			mockProfileRepo := mock_repository.NewMockProfiles(ctrl)
+			testCase.mockBehavior(mockProfileRepo, testCase.id)
+			pu := usecase.NewProfileUsecase(mockProfileRepo)
+			prods, err := pu.GetProfile(context.Background(), testCase.id)
 			require.Equal(t, testCase.expectedResult, prods)
 			require.Equal(t, testCase.expectedErr, err)
 		})
@@ -79,42 +66,77 @@ func TestGetProfile(t *testing.T) {
 
 func TestUpdateProfile(t *testing.T) {
 	testCases := []struct {
-		name           string
-		lastID         int
-		limit          int
-		mockBehavior   func(*mock_repository.MockProducts, int, int)
-		expectedResult []models.Product
-		expectedErr    error
+		name         string
+		id           uint
+		profile      dto.ProfileData
+		mockBehavior func(r *mock_repository.MockProfiles, uID uint, profile dto.ProfileData)
+		expectedErr  error
+		valid        bool
 	}{
 		{
-			name:   "Check single product get",
-			lastID: 1,
-			limit:  1,
-			mockBehavior: func(r *mock_repository.MockProducts, lastID, limit int) {
-				r.EXPECT().GetProducts(context.Background(), lastID, limit).Return([]models.Product{{}}, nil)
+			name: "get profile success",
+			id:   1,
+			profile: dto.ProfileData{
+				ID:          1,
+				FullName:    "testing",
+				Email:       "my@mail.com",
+				PhoneNumber: "7000000000",
+				ImgSrc:      "test",
 			},
-			expectedResult: []models.Product{{}},
-			expectedErr:    nil,
+			mockBehavior: func(r *mock_repository.MockProfiles, uID uint, profile dto.ProfileData) {
+				r.EXPECT().UpdateProfile(context.Background(), uID, dto.ConvertProfileToProfileData(profile)).Return(nil)
+			},
+			expectedErr: nil,
+			valid:       true,
 		},
 		{
-			name:   "Check several products get",
-			lastID: 1,
-			limit:  3,
-			mockBehavior: func(r *mock_repository.MockProducts, lastID, limit int) {
-				r.EXPECT().GetProducts(context.Background(), lastID, limit).Return([]models.Product{{}, {}, {}}, nil)
+			name: "get profile fail",
+			id:   1000,
+			profile: dto.ProfileData{
+				ID:          10000,
+				FullName:    "testing",
+				Email:       "my@mail.com",
+				PhoneNumber: "7000000000",
+				ImgSrc:      "test",
 			},
-			expectedResult: []models.Product{{}, {}, {}},
-			expectedErr:    nil,
+			mockBehavior: func(r *mock_repository.MockProfiles, uID uint, profile dto.ProfileData) {
+				r.EXPECT().UpdateProfile(context.Background(), uID, dto.ConvertProfileToProfileData(profile)).Return(models.ErrNoProfile)
+			},
+			expectedErr: models.ErrNoProfile,
+			valid:       true,
 		},
 		{
-			name:   "Check no products get",
-			lastID: 1,
-			limit:  0,
-			mockBehavior: func(r *mock_repository.MockProducts, lastID, limit int) {
-				r.EXPECT().GetProducts(context.Background(), lastID, limit).Return(nil, models.ErrNoProduct)
+			name: "get profile fail valid email",
+			id:   1,
+			profile: dto.ProfileData{
+				ID:          1,
+				FullName:    "testingemail",
+				Email:       "myemail.com",
+				PhoneNumber: "7000000000",
+				ImgSrc:      "test",
 			},
-			expectedResult: nil,
-			expectedErr:    models.ErrNoProduct,
+			mockBehavior: func(r *mock_repository.MockProfiles, uID uint, profile dto.ProfileData) {
+				r.EXPECT().UpdateProfile(context.Background(), uID, dto.ConvertProfileToProfileData(profile)).Return(nil)
+			},
+			expectedErr: models.NewValidationError("invalid email input", "Имеил должен содержать @ и ."),
+			valid:       false,
+		},
+		{
+			name: "get profile fail valid email",
+			id:   1,
+			profile: dto.ProfileData{
+				ID:          1,
+				FullName:    "te",
+				Email:       "my@email.com",
+				PhoneNumber: "7000000000",
+				ImgSrc:      "test",
+			},
+			mockBehavior: func(r *mock_repository.MockProfiles, uID uint, profile dto.ProfileData) {
+				r.EXPECT().UpdateProfile(context.Background(), uID, dto.ConvertProfileToProfileData(profile)).Return(nil)
+			},
+			expectedErr: models.NewValidationError("invalid fullname input",
+				"Имя должно содержать от 4 до 32 букв английского алфавита или цифр"),
+			valid: false,
 		},
 	}
 
@@ -122,11 +144,12 @@ func TestUpdateProfile(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
-			mockProductRepo := mock_repository.NewMockProducts(ctrl)
-			testCase.mockBehavior(mockProductRepo, testCase.lastID, testCase.limit)
-			pu := usecase.NewProductUsecase(mockProductRepo)
-			prods, err := pu.GetProducts(context.Background(), testCase.lastID, testCase.limit)
-			require.Equal(t, testCase.expectedResult, prods)
+			mockProfileRepo := mock_repository.NewMockProfiles(ctrl)
+			if testCase.valid {
+				testCase.mockBehavior(mockProfileRepo, testCase.id, testCase.profile)
+			}
+			pu := usecase.NewProfileUsecase(mockProfileRepo)
+			err := pu.UpdateProfile(context.Background(), testCase.id, testCase.profile)
 			require.Equal(t, testCase.expectedErr, err)
 		})
 	}
@@ -134,42 +157,44 @@ func TestUpdateProfile(t *testing.T) {
 
 func TestCreateProfile(t *testing.T) {
 	testCases := []struct {
-		name           string
-		lastID         int
-		limit          int
-		mockBehavior   func(*mock_repository.MockProducts, int, int)
-		expectedResult []models.Product
-		expectedErr    error
+		name         string
+		id           uint
+		profile      dto.ProfileData
+		mockBehavior func(r *mock_repository.MockProfiles, profile dto.ProfileData)
+		expectedErr  error
+		valid        bool
 	}{
 		{
-			name:   "Check single product get",
-			lastID: 1,
-			limit:  1,
-			mockBehavior: func(r *mock_repository.MockProducts, lastID, limit int) {
-				r.EXPECT().GetProducts(context.Background(), lastID, limit).Return([]models.Product{{}}, nil)
+			name: "create profile success",
+			id:   1,
+			profile: dto.ProfileData{
+				ID:          1,
+				FullName:    "testing",
+				Email:       "my@mail.com",
+				PhoneNumber: "7000000000",
+				ImgSrc:      "test",
 			},
-			expectedResult: []models.Product{{}},
-			expectedErr:    nil,
+			mockBehavior: func(r *mock_repository.MockProfiles, profile dto.ProfileData) {
+				r.EXPECT().CreateProfile(context.Background(), dto.ConvertProfileToProfileData(profile)).Return(profile.ID, nil)
+			},
+			expectedErr: nil,
+			valid:       true,
 		},
 		{
-			name:   "Check several products get",
-			lastID: 1,
-			limit:  3,
-			mockBehavior: func(r *mock_repository.MockProducts, lastID, limit int) {
-				r.EXPECT().GetProducts(context.Background(), lastID, limit).Return([]models.Product{{}, {}, {}}, nil)
+			name: "create profile fail",
+			id:   1,
+			profile: dto.ProfileData{
+				ID:          1,
+				FullName:    "testing",
+				Email:       "my@mail.com",
+				PhoneNumber: "7000000000",
+				ImgSrc:      "test",
 			},
-			expectedResult: []models.Product{{}, {}, {}},
-			expectedErr:    nil,
-		},
-		{
-			name:   "Check no products get",
-			lastID: 1,
-			limit:  0,
-			mockBehavior: func(r *mock_repository.MockProducts, lastID, limit int) {
-				r.EXPECT().GetProducts(context.Background(), lastID, limit).Return(nil, models.ErrNoProduct)
+			mockBehavior: func(r *mock_repository.MockProfiles, profile dto.ProfileData) {
+				r.EXPECT().CreateProfile(context.Background(), dto.ConvertProfileToProfileData(profile)).Return(uint(0), models.ErrProfileAlreadyExists)
 			},
-			expectedResult: nil,
-			expectedErr:    models.ErrNoProduct,
+			expectedErr: models.ErrProfileAlreadyExists,
+			valid:       true,
 		},
 	}
 
@@ -177,11 +202,12 @@ func TestCreateProfile(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
-			mockProductRepo := mock_repository.NewMockProducts(ctrl)
-			testCase.mockBehavior(mockProductRepo, testCase.lastID, testCase.limit)
-			pu := usecase.NewProductUsecase(mockProductRepo)
-			prods, err := pu.GetProducts(context.Background(), testCase.lastID, testCase.limit)
-			require.Equal(t, testCase.expectedResult, prods)
+			mockProfileRepo := mock_repository.NewMockProfiles(ctrl)
+			if testCase.valid {
+				testCase.mockBehavior(mockProfileRepo, testCase.profile)
+			}
+			pu := usecase.NewProfileUsecase(mockProfileRepo)
+			_, err := pu.CreateProfile(context.Background(), testCase.profile)
 			require.Equal(t, testCase.expectedErr, err)
 		})
 	}
