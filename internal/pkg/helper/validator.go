@@ -2,6 +2,7 @@ package helper
 
 import (
 	"fmt"
+	"net/mail"
 	"regexp"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
@@ -41,4 +42,23 @@ func (ve *ValidationError) WithCode(code int) *dto.ErrResponse {
 		Msg:    ve.msg,
 		MsgRus: ve.msgRus,
 	}
+}
+
+func ValidateNumber(value string, length int) error {
+	onlyValidSymbols := regexp.MustCompile(`^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$`).MatchString
+	if !onlyValidSymbols(value) {
+		return models.ErrInvalidField
+	}
+	if len(value) < length {
+		return models.ErrInvalidField
+	}
+	return nil
+}
+
+func ValidateEmail(value string) error {
+	_, err := mail.ParseAddress(value)
+	if err != nil {
+		return models.ErrInvalidField
+	}
+	return nil
 }
