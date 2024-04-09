@@ -36,8 +36,7 @@ func (h *ProductHandler) InitRouter(r *mux.Router) {
 
 func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	var uID uint = 4
-	//uID, _ := helper.GetUserIDFromContext(ctx)
+	uID, _ := helper.GetUserIDFromContext(ctx)
 	pageNum, err := strconv.ParseUint(r.URL.Query().Get("page"), 10, 32)
 	if err != nil {
 		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
@@ -87,12 +86,9 @@ func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// OK
-
 func (h *ProductHandler) GetProductByID(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	//uID, _ := helper.GetUserIDFromContext(ctx)
-	var uID uint = 4
+	uID, _ := helper.GetUserIDFromContext(ctx)
 	productID, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 32)
 	if err != nil {
 		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
@@ -125,12 +121,9 @@ func (h *ProductHandler) GetProductByID(w http.ResponseWriter, r *http.Request) 
 	})
 }
 
-// OK
-
 func (h *ProductHandler) GetProductsByCategoryID(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	var uID uint = 4
-	//uID, _ := helper.GetUserIDFromContext(ctx)
+	uID, _ := helper.GetUserIDFromContext(ctx)
 	categoryID, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 32)
 	if err != nil {
 		helper.JSONResponse(ctx, w, 200, models.ErrResponse{

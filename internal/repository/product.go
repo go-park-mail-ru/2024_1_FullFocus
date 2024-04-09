@@ -21,8 +21,6 @@ func NewProductRepo(dbClient db.Database) *ProductRepo {
 	}
 }
 
-// OK
-
 func (r *ProductRepo) GetAllProductCards(ctx context.Context, input models.GetAllProductsInput) ([]models.ProductCard, error) {
 	q := `WITH products_info AS (
 			SELECT p.id, p.product_name, p.price, p.imgsrc, p.seller, p.rating,
@@ -51,8 +49,6 @@ func (r *ProductRepo) GetAllProductCards(ctx context.Context, input models.GetAl
 	logger.Info(ctx, fmt.Sprintf("selected in %s", time.Since(start)))
 	return db.ConvertProductCardsFromTable(products), nil
 }
-
-// OK
 
 func (r *ProductRepo) GetProductById(ctx context.Context, profileID uint, productID uint) (models.Product, error) {
 	q := `SELECT id, product_description, product_name, price, imgsrc, seller, rating,

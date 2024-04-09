@@ -39,16 +39,15 @@ func (h *OrderHandler) InitRouter(r *mux.Router) {
 
 func (h *OrderHandler) Create(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	var uID uint = 3
-	//uID, err := helper.GetUserIDFromContext(ctx)
-	//if err != nil {
-	//	helper.JSONResponse(ctx, w, 200, models.ErrResponse{
-	//		Status: 403,
-	//		Msg:    err.Error(),
-	//		MsgRus: "Пользователь не авторизован",
-	//	})
-	//	return
-	//}
+	uID, err := helper.GetUserIDFromContext(ctx)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+			Status: 403,
+			Msg:    err.Error(),
+			MsgRus: "Пользователь не авторизован",
+		})
+		return
+	}
 	var createOrderInput dto.CreateOrderInput
 	if err := json.NewDecoder(r.Body).Decode(&createOrderInput); err != nil {
 		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
@@ -73,20 +72,17 @@ func (h *OrderHandler) Create(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// OK
-
 func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	var uID uint = 4
-	//uID, err := helper.GetUserIDFromContext(ctx)
-	//if err != nil {
-	//	helper.JSONResponse(ctx, w, 200, models.ErrResponse{
-	//		Status: 403,
-	//		Msg:    err.Error(),
-	//		MsgRus: "Пользователь не авторизован",
-	//	})
-	//	return
-	//}
+	uID, err := helper.GetUserIDFromContext(ctx)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+			Status: 403,
+			Msg:    err.Error(),
+			MsgRus: "Пользователь не авторизован",
+		})
+		return
+	}
 	orderID, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 32)
 	if err != nil {
 		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
@@ -134,16 +130,15 @@ func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
 
 func (h *OrderHandler) GetAllOrders(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	var uID uint = 4
-	//uID, err := helper.GetUserIDFromContext(ctx)
-	//if err != nil {
-	//	helper.JSONResponse(ctx, w, 200, models.ErrResponse{
-	//		Status: 403,
-	//		Msg:    err.Error(),
-	//		MsgRus: "Пользователь не авторизован",
-	//	})
-	//	return
-	//}
+	uID, err := helper.GetUserIDFromContext(ctx)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+			Status: 403,
+			Msg:    err.Error(),
+			MsgRus: "Пользователь не авторизован",
+		})
+		return
+	}
 	orders, err := h.usecase.GetAllOrders(ctx, uID)
 	if err != nil {
 		if errors.Is(err, models.ErrNoRowsFound) {
@@ -169,16 +164,15 @@ func (h *OrderHandler) GetAllOrders(w http.ResponseWriter, r *http.Request) {
 
 func (h *OrderHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	var uID uint = 4
-	//uID, err := helper.GetUserIDFromContext(ctx)
-	//if err != nil {
-	//	helper.JSONResponse(ctx, w, 200, models.ErrResponse{
-	//		Status: 403,
-	//		Msg:    err.Error(),
-	//		MsgRus: "Пользователь не авторизован",
-	//	})
-	//	return
-	//}
+	uID, err := helper.GetUserIDFromContext(ctx)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+			Status: 403,
+			Msg:    err.Error(),
+			MsgRus: "Пользователь не авторизован",
+		})
+		return
+	}
 	var cancelOrderInput dto.CancelOrderInput
 	if err := json.NewDecoder(r.Body).Decode(&cancelOrderInput); err != nil {
 		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
