@@ -17,20 +17,21 @@ func TestNewProfileRepo(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	db := mock_database.NewMockDatabase(ctrl)
 	defer ctrl.Finish()
-	t.Run("Check ProductRepo creation", func(t *testing.T) {
+	t.Run("Check ProfileRepo creation", func(t *testing.T) {
 		pr := repository.NewProfileRepo(db)
-		require.NotEmpty(t, pr, "product repo not created")
+		require.NotEmpty(t, pr, "profile repo not created")
 	})
 }
 
 // Надо дописать эти тесты.
 func TestCreateProfile(t *testing.T) {
 	testCases := []struct {
-		name          string
-		user          models.User
-		mockBehavior  func(*mock_database.MockDatabase, string, database.UserTable)
-		expectedID    uint
-		expectedError error
+		name                string
+		user                models.User
+		mockProfileBehavior func(*mock_database.MockDatabase, string, database.UserTable)
+		mockBehavior        func(*mock_database.MockDatabase, string, database.UserTable)
+		expectedID          uint
+		expectedError       error
 	}{
 		{
 			name: "Test successful user creation",

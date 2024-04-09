@@ -41,7 +41,6 @@ func (h *ProfileHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-
 	profileData, err := helper.GetProfileData(r)
 	if err != nil {
 		helper.JSONResponse(ctx, w, 200, model.ErrResponse{
@@ -51,6 +50,17 @@ func (h *ProfileHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
+	/* uID := uint(10000)
+
+	profileData := dto.ProfileData{
+		ID:          uID,
+		FullName:    "test",
+		Email:       "test@mail.com",
+		PhoneNumber: "70000000000",
+		ImgSrc:      "test",
+	}
+	*/
 
 	err = h.usecase.UpdateProfile(ctx, uID, profileData)
 

@@ -37,7 +37,7 @@ func (r *ProfileRepo) CreateProfile(ctx context.Context, profile models.Profile)
 		} else {
 			logger.Error(ctx, fmt.Sprintf("HERE profile already exists: %v", err))
 		}
-		return 0, models.ErrUserAlreadyExists
+		return 0, models.ErrProfileAlreadyExists
 	}
 	logger.Info(ctx, fmt.Sprintf("created in %s", time.Since(start)))
 	return profileRow.ID, nil
@@ -56,7 +56,7 @@ func (r *ProfileRepo) GetProfile(ctx context.Context, uID uint) (models.Profile,
 		} else {
 			logger.Error(ctx, fmt.Sprintf("HERE profile not found: %v", err))
 		}
-		return models.Profile{}, models.ErrNoUser
+		return models.Profile{}, models.ErrNoProfile
 	}
 	logger.Info(ctx, fmt.Sprintf("queried in %s", time.Since(start)))
 
@@ -65,24 +65,26 @@ func (r *ProfileRepo) GetProfile(ctx context.Context, uID uint) (models.Profile,
 
 func (r *ProfileRepo) UpdateProfile(ctx context.Context, uID uint, profileNew models.Profile) error {
 	profileRow := db.ConvertProfileToTable(profileNew)
-	q := `UPDATE ozon.user_profile SET full_name=$1, email=$2, phone_number=$3, imgsrc=$4 WHERE id = $5`
+	q := `UPDATE ozon.user_profile SET full_name=$1, email=$2, phone_number=$3, imgsrc=$4 WHERE id = $5 RETURNING id`
 	start := time.Now()
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1=%s, $2=%s, $3=%s, $4=%s, $5=%d", profileRow.FullName, profileRow.Email, profileRow.PhoneNumber, profileRow.ImgSrc, uID)))
-	_, err := r.storage.Exec(ctx, q,
+	reqProfileRow := &db.ProfileTable{}
+	err := r.storage.Get(ctx, reqProfileRow, q,
 		profileNew.FullName,
 		profileNew.Email,
 		profileNew.PhoneNumber,
 		profileNew.ImgSrc,
 		uID)
+	logger.Info(ctx, fmt.Sprintf("req id is %d", reqProfileRow.ID))
 	if err != nil {
 		if pgErr := new(pgconn.PgError); errors.As(err, &pgErr) {
 			// logs, _ := json.Marshal(pgErr)
 			// fmt.Printf("log: \n%s\n", string(logs))
 			logger.Error(ctx, fmt.Sprintf("HERE pg err: %v", err))
-		} else {
+		} else if reqProfileRow.ID == 0 {
 			logger.Error(ctx, fmt.Sprintf("HERE profile not found: %v", err))
 		}
-		return models.ErrNoUser
+		return models.ErrNoProfile
 	}
 	logger.Info(ctx, fmt.Sprintf("updated in %s", time.Since(start)))
 
