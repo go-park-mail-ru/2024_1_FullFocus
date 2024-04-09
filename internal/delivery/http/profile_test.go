@@ -3,11 +3,12 @@ package delivery_test
 import (
 	"context"
 	"encoding/json"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"net/http"
+
 	"net/http/httptest"
 	"testing"
 
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 
@@ -81,8 +82,8 @@ func TestGetProfile(t *testing.T) {
 
 			var (
 				err         error
-				successResp models.SuccessResponse
-				errResp     models.ErrResponse
+				successResp dto.SuccessResponse
+				errResp     dto.ErrResponse
 			)
 			if testCase.expectedStatus != 200 {
 				err = json.NewDecoder(r.Body).Decode(&errResp)
@@ -173,8 +174,8 @@ func TestUpdateProfiles(t *testing.T) {
 
 			var (
 				err         error
-				successResp models.SuccessResponse
-				errResp     models.ErrResponse
+				successResp dto.SuccessResponse
+				errResp     dto.ErrResponse
 			)
 			if testCase.expectedStatus != 200 {
 				err = json.NewDecoder(r.Body).Decode(&errResp)

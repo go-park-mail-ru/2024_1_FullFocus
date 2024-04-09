@@ -2,11 +2,12 @@ package usecase
 
 import (
 	"context"
+	"html"
+
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	model "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
-	"html"
 )
 
 type ProfileUsecase struct {

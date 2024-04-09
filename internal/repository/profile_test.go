@@ -41,7 +41,7 @@ func TestCreateProfile(t *testing.T) {
 				ImgSrc:      "aaa",
 			},
 			mockBehavior: func(d *mock_database.MockDatabase, q string, u models.Profile) {
-				d.EXPECT().Exec(context.Background(), q, u.ID, u.FullName, u.Email, u.PhoneNumber, u.ImgSrc).Return(mock_database.MockSqlResult{}, nil)
+				d.EXPECT().Exec(context.Background(), q, u.ID, u.FullName, u.Email, u.PhoneNumber, u.ImgSrc).Return(mock_database.MockSQLResult{}, nil)
 			},
 			expectedID:    1,
 			expectedError: nil,
@@ -56,7 +56,7 @@ func TestCreateProfile(t *testing.T) {
 				ImgSrc:      "aaa",
 			},
 			mockBehavior: func(d *mock_database.MockDatabase, q string, u models.Profile) {
-				d.EXPECT().Exec(context.Background(), q, u.ID, u.FullName, u.Email, u.PhoneNumber, u.ImgSrc).Return(mock_database.MockSqlResult{}, sql.ErrNoRows)
+				d.EXPECT().Exec(context.Background(), q, u.ID, u.FullName, u.Email, u.PhoneNumber, u.ImgSrc).Return(mock_database.MockSQLResult{}, sql.ErrNoRows)
 			},
 			expectedID:    0,
 			expectedError: models.ErrProfileAlreadyExists,

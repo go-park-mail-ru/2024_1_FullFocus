@@ -2,8 +2,10 @@ package usecase_test
 
 import (
 	"context"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"testing"
+
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
@@ -118,7 +120,7 @@ func TestUpdateProfile(t *testing.T) {
 			mockBehavior: func(r *mock_repository.MockProfiles, uID uint, profile dto.ProfileData) {
 				r.EXPECT().UpdateProfile(context.Background(), uID, dto.ConvertProfileToProfileData(profile)).Return(nil)
 			},
-			expectedErr: models.NewValidationError("invalid email input", "Имеил должен содержать @ и ."),
+			expectedErr: helper.NewValidationError("invalid email input", "Имеил должен содержать @ и ."),
 			valid:       false,
 		},
 		{
@@ -134,7 +136,7 @@ func TestUpdateProfile(t *testing.T) {
 			mockBehavior: func(r *mock_repository.MockProfiles, uID uint, profile dto.ProfileData) {
 				r.EXPECT().UpdateProfile(context.Background(), uID, dto.ConvertProfileToProfileData(profile)).Return(nil)
 			},
-			expectedErr: models.NewValidationError("invalid fullname input",
+			expectedErr: helper.NewValidationError("invalid fullname input",
 				"Имя должно содержать от 4 до 32 букв английского алфавита или цифр"),
 			valid: false,
 		},
