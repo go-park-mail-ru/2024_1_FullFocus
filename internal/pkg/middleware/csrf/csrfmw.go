@@ -36,7 +36,7 @@ func CSRFMiddleware() mux.MiddlewareFunc {
 					helper.JSONResponse(ctx, w, 200, models.ErrResponse{
 						Status: 400,
 						Msg:    err.Error(),
-						MsgRus: "Ошибка создания csrf token",
+						MsgRus: "Ошибка проверки csrf token",
 					})
 					return
 				}
