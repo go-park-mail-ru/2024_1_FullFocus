@@ -31,9 +31,14 @@ migrations-up: ## Накатить миграции
 migrations-down: ## Откатить миграции
 	~/go/bin/goose -dir db/migrations postgres $(DB_DSN) down
 
-.PHONY: run-app
-run-app: up ## Запустить приложение
+.PHONY: run-prod
+run-prod: up ## Запустить приложение
 	make migrations-up
+
+.PHONY: run-local
+run-local: ## Локальный запуск
+	docker compose -f docker-compose.local.yaml up -d
+	go run cmd/main/main.go --config_path=./config/local.yaml
 
 .PHONY: stop-app
 stop-app: down ## Остановить приложение

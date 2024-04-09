@@ -307,7 +307,6 @@ issues:
     - path: "_test\\.go"
       linters:
         - bodyclose
-        - dupl
         - funlen
         - goconst
         - gosec
@@ -322,8 +321,5 @@ issues:
         - gosec
         - noctx
         - wrapcheck
-        - revive
+#        - revive
         - stylecheck
-    - path: "http/auth.go|http/cart.go"
-      linters:
-        - dupl
