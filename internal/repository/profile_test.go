@@ -156,7 +156,7 @@ func TestUpdateProfile(t *testing.T) {
 			db := mock_database.NewMockDatabase(ctrl)
 			defer ctrl.Finish()
 			testCase.mockBehavior(db, &database.ProfileTable{},
-				"UPDATE ozon.user_profile SET full_name=$1, email=$2, phone_number=$3, imgsrc=$4 WHERE id = $5 RETURNING id",
+				"UPDATE ozon.user_profile SET full_name=$1, email=$2, phone_number=$3, imgsrc=$4 WHERE id = $5 RETURNING id;",
 				testCase.profile.FullName, testCase.profile.Email, testCase.profile.PhoneNumber, testCase.profile.ImgSrc, testCase.profile.ID)
 			pr := repository.NewProfileRepo(db)
 			err := pr.UpdateProfile(context.Background(), testCase.profile.ID, testCase.profile)
