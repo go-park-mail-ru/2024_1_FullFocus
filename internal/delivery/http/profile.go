@@ -2,9 +2,9 @@ package delivery
 
 import (
 	"errors"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"net/http"
 
-	model "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 	"github.com/gorilla/mux"
@@ -34,7 +34,7 @@ func (h *ProfileHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	uID, err := helper.GetUserIDFromContext(ctx)
 	if err != nil {
-		helper.JSONResponse(ctx, w, 200, model.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 400,
 			Msg:    "error with userID ",
 			MsgRus: "Проблема с UserID",
@@ -43,7 +43,7 @@ func (h *ProfileHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	}
 	profileData, err := helper.GetProfileData(r)
 	if err != nil {
-		helper.JSONResponse(ctx, w, 200, model.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 400,
 			Msg:    err.Error(),
 			MsgRus: "Ошибка обработки данных",
@@ -65,11 +65,11 @@ func (h *ProfileHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	err = h.usecase.UpdateProfile(ctx, uID, profileData)
 
 	if err != nil {
-		if validationError := new(model.ValidationError); errors.As(err, &validationError) {
+		if validationError := new(helper.ValidationError); errors.As(err, &validationError) {
 			helper.JSONResponse(ctx, w, 200, validationError.WithCode(400))
 			return
 		}
-		helper.JSONResponse(ctx, w, 200, model.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 400,
 			Msg:    err.Error(),
 			MsgRus: "Пользователя не существует",
@@ -77,7 +77,7 @@ func (h *ProfileHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	helper.JSONResponse(ctx, w, 200, model.SuccessResponse{
+	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
 	})
 }
@@ -86,7 +86,7 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) { //
 	ctx := r.Context()
 	uID, err := helper.GetUserIDFromContext(ctx)
 	if err != nil {
-		helper.JSONResponse(ctx, w, 200, model.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 400,
 			Msg:    "error with userID ",
 			MsgRus: "Проблема с UserID",
@@ -95,14 +95,14 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) { //
 	}
 	profile, err := h.usecase.GetProfile(ctx, uID)
 	if err != nil {
-		helper.JSONResponse(ctx, w, 200, model.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 400,
 			Msg:    err.Error(),
 			MsgRus: "Пользователя не существует",
 		})
 		return
 	}
-	helper.JSONResponse(ctx, w, 200, model.SuccessResponse{
+	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
 		Data:   profile, // Что-то не так
 	})

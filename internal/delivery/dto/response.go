@@ -1,4 +1,4 @@
-package models
+package dto
 
 type SuccessResponse struct {
 	Status int         `json:"status"`

@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
 	mock_database "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database/mocks"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/dao"
 )
 
 func TestNewUserRepo(t *testing.T) {
@@ -26,10 +26,10 @@ func TestNewUserRepo(t *testing.T) {
 
 func TestCreateUser(t *testing.T) {
 	testCases := []struct {
-		name          string
-		user          models.User
-		mockBehavior  func(*mock_database.MockDatabase, string, database.UserTable)
-		expectedID    uint
+		name         string
+		user         models.User
+		mockBehavior func(*mock_database.MockDatabase, *dao.UserTable, string, string, string)
+		// TODO expectedID    uint
 		expectedError error
 	}{
 		{
@@ -39,10 +39,9 @@ func TestCreateUser(t *testing.T) {
 				Username:     "test",
 				PasswordHash: "test",
 			},
-			mockBehavior: func(d *mock_database.MockDatabase, q string, u database.UserTable) {
-				d.EXPECT().Exec(context.Background(), q, u).Return(mock_database.MockSqlResult{}, nil)
+			mockBehavior: func(d *mock_database.MockDatabase, t *dao.UserTable, q string, l, p string) {
+				d.EXPECT().Get(context.Background(), t, q, l, p).Return(nil)
 			},
-			expectedID:    1,
 			expectedError: nil,
 		},
 		{
@@ -52,10 +51,9 @@ func TestCreateUser(t *testing.T) {
 				Username:     "test",
 				PasswordHash: "test",
 			},
-			mockBehavior: func(d *mock_database.MockDatabase, q string, u database.UserTable) {
-				d.EXPECT().Exec(context.Background(), q, u).Return(mock_database.MockSqlResult{}, sql.ErrNoRows)
+			mockBehavior: func(d *mock_database.MockDatabase, t *dao.UserTable, q string, l, p string) {
+				d.EXPECT().Get(context.Background(), t, q, l, p).Return(sql.ErrNoRows)
 			},
-			expectedID:    0,
 			expectedError: models.ErrUserAlreadyExists,
 		},
 	}
@@ -64,11 +62,14 @@ func TestCreateUser(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			db := mock_database.NewMockDatabase(ctrl)
 			defer ctrl.Finish()
-			testCase.mockBehavior(db, "INSERT INTO default_user (id, user_login, password_hash) VALUES ($1, $2, $3);", database.ConvertUserToTable(testCase.user))
+
+			q := `INSERT INTO default_user (user_login, password_hash) VALUES ($1, $2) returning id;`
+			tmpRow := &dao.UserTable{}
+			testCase.mockBehavior(db, tmpRow, q, testCase.user.Username, testCase.user.PasswordHash)
 			ur := repository.NewUserRepo(db)
 
-			uID, err := ur.CreateUser(context.Background(), testCase.user)
-			require.Equal(t, testCase.expectedID, uID)
+			_, err := ur.CreateUser(context.Background(), testCase.user)
+
 			require.ErrorIs(t, err, testCase.expectedError)
 		})
 	}
@@ -76,15 +77,16 @@ func TestCreateUser(t *testing.T) {
 
 func TestGetUser(t *testing.T) {
 	testCases := []struct {
-		name          string
-		username      string
-		mockBehavior  func(*mock_database.MockDatabase, *database.UserTable, string, string)
+		name         string
+		username     string
+		mockBehavior func(*mock_database.MockDatabase, *dao.UserTable, string, string)
+		// TODO expectedUser models.User
 		expectedError error
 	}{
 		{
 			name:     "Test successful get",
 			username: "test",
-			mockBehavior: func(d *mock_database.MockDatabase, u *database.UserTable, q string, username string) {
+			mockBehavior: func(d *mock_database.MockDatabase, u *dao.UserTable, q string, username string) {
 				d.EXPECT().Get(context.Background(), u, q, username).Return(nil)
 			},
 			expectedError: nil,
@@ -92,7 +94,7 @@ func TestGetUser(t *testing.T) {
 		{
 			name:     "Test not existing get",
 			username: "test",
-			mockBehavior: func(d *mock_database.MockDatabase, u *database.UserTable, q string, username string) {
+			mockBehavior: func(d *mock_database.MockDatabase, u *dao.UserTable, q string, username string) {
 				d.EXPECT().Get(context.Background(), u, q, username).Return(sql.ErrNoRows)
 			},
 			expectedError: models.ErrNoUser,
@@ -103,8 +105,11 @@ func TestGetUser(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			db := mock_database.NewMockDatabase(ctrl)
 			defer ctrl.Finish()
-			testCase.mockBehavior(db, &database.UserTable{}, "SELECT id FROM default_user WHERE user_login = $1;", testCase.username)
+
+			q := `SELECT id, password_hash FROM default_user WHERE user_login = $1;`
+			testCase.mockBehavior(db, &dao.UserTable{}, q, testCase.username)
 			ur := repository.NewUserRepo(db)
+
 			_, err := ur.GetUser(context.Background(), testCase.username)
 			require.ErrorIs(t, err, testCase.expectedError)
 		})

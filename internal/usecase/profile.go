@@ -22,12 +22,12 @@ func NewProfileUsecase(pr repository.Profiles) *ProfileUsecase {
 func (u *ProfileUsecase) UpdateProfile(ctx context.Context, uID uint, newProfile dto.ProfileData) error {
 	err := helper.ValidateField(newProfile.FullName, _minLoginLength, _maxLoginLength)
 	if err != nil {
-		return model.NewValidationError("invalid fullname input",
+		return helper.NewValidationError("invalid fullname input",
 			"Имя должно содержать от 4 до 32 букв английского алфавита или цифр")
 	}
 	err = helper.ValidateEmail(newProfile.Email)
 	if err != nil {
-		return model.NewValidationError("invalid email input",
+		return helper.NewValidationError("invalid email input",
 			"Имеил должен содержать @ и .")
 	}
 

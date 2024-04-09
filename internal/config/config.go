@@ -43,6 +43,7 @@ type PostgresConfig struct {
 	Password     string `yaml:"password"`
 	Database     string `yaml:"database"`
 	Sslmode      string `yaml:"sslmode"`
+	SearchPath   string `yaml:"search_path"`
 	MaxOpenConns int    `yaml:"max_open_conns"`
 	MaxIdleTime  int    `yaml:"max_idle_time"`
 }

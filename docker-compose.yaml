@@ -6,7 +6,7 @@ services:
     - redis
     - minio
     - postgres
-#   restart: always
+  #  restart: always
    image: b0pof/bizon-main
    env_file:
       - '.env'
@@ -52,13 +52,12 @@ services:
   postgres:
     image: postgres:16
     volumes:
-      # - ${PWD}/db/migrations:/docker-entrypoint-initdb.d
       - 'postgres-data:/var/lib/postgresql/data'
     ports:
       - '5432:5432'
+    user: ${POSTGRES_USER}
     environment:
       - POSTGRES_DB=ozon
-      - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     healthcheck:
       test: pg_isready
