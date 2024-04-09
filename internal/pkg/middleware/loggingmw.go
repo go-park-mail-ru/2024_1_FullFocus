@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"bufio"
-	"context"
 	"log/slog"
 	"net"
 	"net/http"
@@ -53,9 +52,9 @@ func NewLoggingMiddleware(l *slog.Logger) mux.MiddlewareFunc {
 				ResponseWriter: w,
 				statusCode:     200,
 			}
-			ctx := logger.WithContext(context.Background(), requestLogger)
+			ctx := logger.WithContext(r.Context(), requestLogger)
 			start := time.Now()
-			next.ServeHTTP(wi, r.WithContext(ctx))
+			next.ServeHTTP(wi, r.Clone(ctx))
 			requestLogger.Info("response",
 				slog.Int("statusCode", wi.statusCode),
 				slog.String("duration", time.Since(start).String()))

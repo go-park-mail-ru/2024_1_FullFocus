@@ -11,7 +11,6 @@ import (
 	"time"
 
 	corsmw "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware"
-
 	"github.com/gorilla/mux"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"

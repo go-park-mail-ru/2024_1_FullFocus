@@ -16,6 +16,6 @@ postgres:
   user: "postgres"
   password: "postgres"
   database: "ozon"
-  sslmode: "disabled"
+  sslmode: "disable"
   max_open_conns: 10
   max_idle_time: 10

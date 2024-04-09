@@ -30,11 +30,11 @@ func (u *AvatarUsecase) UploadAvatar(ctx context.Context, img dto.Image, profile
 		Payload:     img.Payload,
 		PayloadSize: img.PayloadSize,
 	}
-	// TODO: удалить прежнюю аву, если есть
 	if err := u.avatarRepo.UploadAvatar(ctx, object); err != nil {
 		return err
 	}
 	// TODO: обновить ссылку на аву пользователя с id = uid
+	// TODO: удалить прежнюю аву, если есть
 	return nil
 }
 

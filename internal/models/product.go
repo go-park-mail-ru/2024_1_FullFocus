@@ -7,6 +7,7 @@ type ProductCard struct {
 	ImgSrc string
 	Seller string
 	Rating uint
+	InCart bool
 }
 
 type Product struct {
@@ -17,5 +18,19 @@ type Product struct {
 	ImgSrc      string
 	Seller      string
 	Rating      uint
+	InCart      bool
 	Categories  []string
+}
+
+type GetAllProductsInput struct {
+	ProfileID uint
+	PageNum   uint
+	PageSize  uint
+}
+
+type GetProductsByCategoryIDInput struct {
+	CategoryID uint
+	ProfileID  uint
+	PageNum    uint
+	PageSize   uint
 }

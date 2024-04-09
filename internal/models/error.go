@@ -17,6 +17,7 @@ var (
 	ErrNoAvatar          = errors.New("no avatar found")
 	ErrNoAccess          = errors.New("no access")
 	ErrInvalidParameters = errors.New("invalid parameters")
+	ErrNoRowsFound       = errors.New("no rows found")
 )
 
 type ValidationError struct {

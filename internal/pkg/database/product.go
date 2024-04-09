@@ -9,6 +9,7 @@ type ProductCard struct {
 	ImgSrc string `db:"imgsrc"`
 	Seller string `db:"seller"`
 	Rating uint   `db:"rating"`
+	InCart bool   `db:"in_cart"`
 }
 
 func ConvertProductCardsFromTable(cards []ProductCard) []models.ProductCard {
@@ -21,6 +22,7 @@ func ConvertProductCardsFromTable(cards []ProductCard) []models.ProductCard {
 			ImgSrc: card.ImgSrc,
 			Seller: card.Seller,
 			Rating: card.Rating,
+			InCart: card.InCart,
 		})
 	}
 	return productCards
@@ -34,6 +36,7 @@ type Product struct {
 	ImgSrc      string `db:"imgsrc"`
 	Seller      string `db:"seller"`
 	Rating      uint   `db:"rating"`
+	InCart      bool   `db:"in_cart"`
 }
 
 func ConvertProductFromTable(categories []string, product Product) models.Product {
@@ -45,6 +48,7 @@ func ConvertProductFromTable(categories []string, product Product) models.Produc
 		ImgSrc:      product.ImgSrc,
 		Seller:      product.Seller,
 		Rating:      product.Rating,
+		InCart:      product.InCart,
 		Categories:  categories,
 	}
 }

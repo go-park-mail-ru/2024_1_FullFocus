@@ -17,13 +17,17 @@ func NewProductUsecase(pr repository.Products) *ProductUsecase {
 	}
 }
 
-func (u *ProductUsecase) GetAllProductCards(ctx context.Context, pageNum uint, perPage uint) ([]models.ProductCard, error) {
-	if pageNum <= 0 || perPage <= 0 {
+func (u *ProductUsecase) GetAllProductCards(ctx context.Context, input models.GetAllProductsInput) ([]models.ProductCard, error) {
+	if input.PageNum <= 0 || input.PageSize <= 0 {
 		return []models.ProductCard{}, models.ErrInvalidParameters
 	}
-	return u.productRepo.GetAllProductCards(ctx, pageNum, perPage)
+	return u.productRepo.GetAllProductCards(ctx, input)
 }
 
-func (u *ProductUsecase) GetProductById(ctx context.Context, productID uint) (models.Product, error) {
-	return u.productRepo.GetProductById(ctx, productID)
+func (u *ProductUsecase) GetProductById(ctx context.Context, profileID uint, productID uint) (models.Product, error) {
+	return u.productRepo.GetProductById(ctx, profileID, productID)
+}
+
+func (u *ProductUsecase) GetProductsByCategoryId(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error) {
+	return u.productRepo.GetProductsByCategoryId(ctx, input)
 }

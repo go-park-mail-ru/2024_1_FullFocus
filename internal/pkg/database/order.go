@@ -7,7 +7,7 @@ import (
 type Order struct {
 	ID         uint   `db:"id"`
 	Sum        uint   `db:"sum"`
-	Status     string `db:"status"`
+	Status     string `db:"order_status"`
 	ItemsCount uint   `db:"items_count"`
 	CreatedAt  string `db:"created_at"`
 }

@@ -132,19 +132,49 @@ func (m *MockProducts) EXPECT() *MockProductsMockRecorder {
 	return m.recorder
 }
 
-// GetProducts mocks base method.
-func (m *MockProducts) GetProducts(ctx context.Context, lastID, limit int) ([]models.Product, error) {
+// GetAllProductCards mocks base method.
+func (m *MockProducts) GetAllProductCards(ctx context.Context, input models.GetAllProductsInput) ([]models.ProductCard, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetProducts", ctx, lastID, limit)
-	ret0, _ := ret[0].([]models.Product)
+	ret := m.ctrl.Call(m, "GetAllProductCards", ctx, input)
+	ret0, _ := ret[0].([]models.ProductCard)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetProducts indicates an expected call of GetProducts.
-func (mr *MockProductsMockRecorder) GetProducts(ctx, lastID, limit interface{}) *gomock.Call {
+// GetAllProductCards indicates an expected call of GetAllProductCards.
+func (mr *MockProductsMockRecorder) GetAllProductCards(ctx, input interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProducts", reflect.TypeOf((*MockProducts)(nil).GetProducts), ctx, lastID, limit)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllProductCards", reflect.TypeOf((*MockProducts)(nil).GetAllProductCards), ctx, input)
+}
+
+// GetProductById mocks base method.
+func (m *MockProducts) GetProductById(ctx context.Context, profileID, productID uint) (models.Product, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetProductById", ctx, profileID, productID)
+	ret0, _ := ret[0].(models.Product)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetProductById indicates an expected call of GetProductById.
+func (mr *MockProductsMockRecorder) GetProductById(ctx, profileID, productID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProductById", reflect.TypeOf((*MockProducts)(nil).GetProductById), ctx, profileID, productID)
+}
+
+// GetProductsByCategoryId mocks base method.
+func (m *MockProducts) GetProductsByCategoryId(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetProductsByCategoryId", ctx, input)
+	ret0, _ := ret[0].([]models.ProductCard)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetProductsByCategoryId indicates an expected call of GetProductsByCategoryId.
+func (mr *MockProductsMockRecorder) GetProductsByCategoryId(ctx, input interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProductsByCategoryId", reflect.TypeOf((*MockProducts)(nil).GetProductsByCategoryId), ctx, input)
 }
 
 // MockAvatars is a mock of Avatars interface.
