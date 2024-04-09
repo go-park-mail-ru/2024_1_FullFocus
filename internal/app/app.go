@@ -15,6 +15,7 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
+	middleware "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/auth"
 	corsmw "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/cors"
 	logmw "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/logging"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
@@ -98,7 +99,10 @@ func Init() *App {
 	authHandler := delivery.NewAuthHandler(authUsecase, cfg.SessionTTL)
 	authHandler.InitRouter(apiRouter)
 
-	// products
+	// Auth Middleware
+	r.Use(middleware.NewAuthMiddleware(authUsecase))
+
+	// Products
 	productRepo := repository.NewProductRepo()
 	productUsecase := usecase.NewProductUsecase(productRepo)
 	productHandler := delivery.NewProductHandler(productUsecase)
@@ -109,6 +113,12 @@ func Init() *App {
 	avatarUsecase := usecase.NewAvatarUsecase(avatarStorage, userRepo)
 	avatarHandler := delivery.NewAvatarHandler(avatarUsecase)
 	avatarHandler.InitRouter(apiRouter)
+
+	// Cart
+	cartRepo := repository.NewCartRepo(pgxClient)
+	cartUsecase := usecase.NewCartUsecase(cartRepo)
+	cartHandler := delivery.NewCartHandler(cartUsecase)
+	cartHandler.InitRouter(apiRouter)
 
 	return &App{
 		config: cfg,

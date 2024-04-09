@@ -1,8 +1,6 @@
 package models
 
 import (
-	"fmt"
-
 	"github.com/pkg/errors"
 )
 
@@ -15,28 +13,5 @@ var (
 	ErrNoUserID          = errors.New("no user ID")
 	ErrInvalidField      = errors.New("invalid field input")
 	ErrNoAvatar          = errors.New("no avatar found")
+	ErrEmptyCart         = errors.New("no cart items found")
 )
-
-type ValidationError struct {
-	msg    string
-	msgRus string
-}
-
-func NewValidationError(msg, msgRus string) *ValidationError {
-	return &ValidationError{
-		msg:    msg,
-		msgRus: msgRus,
-	}
-}
-
-func (ve *ValidationError) Error() string {
-	return fmt.Sprintf("error: %s, rus: %s", ve.msg, ve.msgRus)
-}
-
-func (ve *ValidationError) WithCode(code int) *ErrResponse {
-	return &ErrResponse{
-		Status: code,
-		Msg:    ve.msg,
-		MsgRus: ve.msgRus,
-	}
-}

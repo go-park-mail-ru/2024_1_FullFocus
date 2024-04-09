@@ -1,3 +1,4 @@
+//go:generate mockgen -source=repository.go -destination=./mocks/repository_mock.go
 package repository
 
 import (
@@ -6,7 +7,6 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 )
 
-//go:generate mockgen -source=repository.go -destination=./mocks/repository_mock.go
 type (
 	Users interface {
 		CreateUser(ctx context.Context, user models.User) (uint, error)
@@ -27,5 +27,12 @@ type (
 	Avatars interface {
 		UploadAvatar(ctx context.Context, img models.Image) error
 		DeleteAvatar(ctx context.Context, imageName string) error
+	}
+
+	Carts interface {
+		GetAllCartItems(ctx context.Context, uID uint) ([]models.CartProduct, error)
+		UpdateCartItem(ctx context.Context, uID, prID uint) (uint, error)
+		DeleteCartItem(ctx context.Context, uID, orID uint) (uint, error)
+		DeleteAllCartItems(ctx context.Context, uID uint) error
 	}
 )

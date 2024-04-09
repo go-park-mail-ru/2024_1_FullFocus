@@ -31,13 +31,12 @@ services:
   postgres:
     image: postgres:16
     volumes:
-      # - ${PWD}/db/migrations:/docker-entrypoint-initdb.d
       - 'postgres-data:/var/lib/postgresql/data'
     ports:
       - '5432:5432'
+    user: postgres
     environment:
       - POSTGRES_DB=ozon
-      - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     healthcheck:
       test: pg_isready

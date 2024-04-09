@@ -28,3 +28,11 @@ func GetLoginData(r *http.Request) (dto.LoginData, error) {
 	}
 	return data, nil
 }
+
+func GetCartItemData(r *http.Request) (dto.UpdateCartItemInput, error) {
+	var data dto.UpdateCartItemInput
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		return dto.UpdateCartItemInput{}, err
+	}
+	return data, nil
+}

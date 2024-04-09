@@ -4,12 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"net"
 	"time"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
-	_ "github.com/jackc/pgx" // postgres driver
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
+	_ "github.com/jackc/pgx/v5/stdlib" // postgres driver
 	"github.com/jmoiron/sqlx"
 )
 
@@ -20,14 +22,15 @@ type PgxDatabase struct {
 
 func NewPgxDatabase(ctx context.Context, cfg config.PostgresConfig) (database.Database, error) {
 	hostPort := net.JoinHostPort(cfg.Host, cfg.Port)
-	dsn := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s",
+	dsn := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s&search_path=%s",
 		cfg.User,
 		cfg.Password,
 		hostPort,
 		cfg.Database,
 		cfg.Sslmode,
+		cfg.SearchPath,
 	)
-	dbClient, err := sqlx.ConnectContext(ctx, "postgres", dsn)
+	dbClient, err := sqlx.ConnectContext(ctx, "pgx", dsn)
 	if err != nil {
 		return nil, err
 	}
@@ -48,9 +51,25 @@ func (db *PgxDatabase) Close() error {
 }
 
 func (db *PgxDatabase) Exec(ctx context.Context, q string, args ...interface{}) (sql.Result, error) {
-	return db.client.ExecContext(ctx, sqlx.Rebind(sqlx.DOLLAR, q), args...)
+	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("%v", args)))
+	start := time.Now()
+	sqlRes, err := db.client.ExecContext(ctx, sqlx.Rebind(sqlx.DOLLAR, q), args...)
+	logger.Info(ctx, fmt.Sprintf("queried in %s", time.Since(start)))
+	return sqlRes, err
 }
 
 func (db *PgxDatabase) Get(ctx context.Context, dest interface{}, q string, args ...interface{}) error {
-	return db.client.GetContext(ctx, dest, sqlx.Rebind(sqlx.DOLLAR, q), args...)
+	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("%v", args)))
+	start := time.Now()
+	err := db.client.GetContext(ctx, dest, sqlx.Rebind(sqlx.DOLLAR, q), args...)
+	logger.Info(ctx, fmt.Sprintf("queried in %s", time.Since(start)))
+	return err
+}
+
+func (db *PgxDatabase) Select(ctx context.Context, dest interface{}, q string, args ...interface{}) error {
+	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("%v", args)))
+	start := time.Now()
+	err := db.client.SelectContext(ctx, dest, sqlx.Rebind(sqlx.DOLLAR, q), args...)
+	logger.Info(ctx, fmt.Sprintf("queried in %s", time.Since(start)))
+	return err
 }

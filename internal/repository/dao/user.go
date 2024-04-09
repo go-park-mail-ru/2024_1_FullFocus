@@ -1,4 +1,4 @@
-package database
+package dao
 
 import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
@@ -12,8 +12,9 @@ type UserTable struct {
 
 func ConvertTableToUser(t UserTable) models.User {
 	return models.User{
-		ID:       t.ID,
-		Username: t.Login,
+		ID:           t.ID,
+		Username:     t.Login,
+		PasswordHash: t.PasswordHash,
 	}
 }
 

@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	mock_repository "github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/mocks"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 )
@@ -19,7 +20,7 @@ func TestNewAuthUsecase(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 		au := usecase.NewAuthUsecase(mock_repository.NewMockUsers(ctrl), mock_repository.NewMockSessions(ctrl))
-		require.NotEmpty(t, au, "auth repo not created")
+		require.NotEmpty(t, au, "auth usecase not created")
 	})
 }
 
@@ -84,7 +85,7 @@ func TestSignUp(t *testing.T) {
 			login:           "t",
 			password:        "test",
 			expectedSID:     "",
-			expectedErr:     models.NewValidationError("invalid login input", "Логин должен содержать от 4 до 32 букв английского алфавита или цифр"),
+			expectedErr:     helper.NewValidationError("invalid login input", "Логин должен содержать от 4 до 32 букв английского алфавита или цифр"),
 			callUserMock:    false,
 			callSessionMock: false,
 		},
@@ -93,7 +94,7 @@ func TestSignUp(t *testing.T) {
 			login:           "test123",
 			password:        "12345",
 			expectedSID:     "",
-			expectedErr:     models.NewValidationError("invalid password input", "Пароль должен содержать от 8 до 32 букв английского алфавита или цифр"),
+			expectedErr:     helper.NewValidationError("invalid password input", "Пароль должен содержать от 8 до 32 букв английского алфавита или цифр"),
 			callUserMock:    false,
 			callSessionMock: false,
 		},
@@ -102,7 +103,7 @@ func TestSignUp(t *testing.T) {
 			login:           "test123!@!@$#@#$%@!#$",
 			password:        "12345",
 			expectedSID:     "",
-			expectedErr:     models.NewValidationError("invalid login input", "Логин должен содержать от 4 до 32 букв английского алфавита или цифр"),
+			expectedErr:     helper.NewValidationError("invalid login input", "Логин должен содержать от 4 до 32 букв английского алфавита или цифр"),
 			callUserMock:    false,
 			callSessionMock: false,
 		},
@@ -166,7 +167,7 @@ func TestLogin(t *testing.T) {
 			login:           "test",
 			password:        "test",
 			expectedSID:     "",
-			expectedErr:     models.NewValidationError("invalid password input", "Пароль должен содержать от 8 до 32 букв английского алфавита или цифр"),
+			expectedErr:     helper.NewValidationError("invalid password input", "Пароль должен содержать от 8 до 32 букв английского алфавита или цифр"),
 			callUserMock:    false,
 			callSessionMock: false,
 		},
@@ -175,7 +176,7 @@ func TestLogin(t *testing.T) {
 			login:           "test123",
 			password:        "test%^",
 			expectedSID:     "",
-			expectedErr:     models.NewValidationError("invalid password input", "Пароль должен содержать от 8 до 32 букв английского алфавита или цифр"),
+			expectedErr:     helper.NewValidationError("invalid password input", "Пароль должен содержать от 8 до 32 букв английского алфавита или цифр"),
 			callUserMock:    false,
 			callSessionMock: false,
 		},
