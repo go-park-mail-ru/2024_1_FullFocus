@@ -272,6 +272,36 @@ func (mr *MockProfilesMockRecorder) CreateProfile(ctx, profile interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateProfile", reflect.TypeOf((*MockProfiles)(nil).CreateProfile), ctx, profile)
 }
 
+// DeleteAvatarByProfileID mocks base method.
+func (m *MockProfiles) DeleteAvatarByProfileID(ctx context.Context, uID uint) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteAvatarByProfileID", ctx, uID)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteAvatarByProfileID indicates an expected call of DeleteAvatarByProfileID.
+func (mr *MockProfilesMockRecorder) DeleteAvatarByProfileID(ctx, uID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAvatarByProfileID", reflect.TypeOf((*MockProfiles)(nil).DeleteAvatarByProfileID), ctx, uID)
+}
+
+// GetAvatarByProfileID mocks base method.
+func (m *MockProfiles) GetAvatarByProfileID(ctx context.Context, uID uint) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAvatarByProfileID", ctx, uID)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAvatarByProfileID indicates an expected call of GetAvatarByProfileID.
+func (mr *MockProfilesMockRecorder) GetAvatarByProfileID(ctx, uID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAvatarByProfileID", reflect.TypeOf((*MockProfiles)(nil).GetAvatarByProfileID), ctx, uID)
+}
+
 // GetProfile mocks base method.
 func (m *MockProfiles) GetProfile(ctx context.Context, uID uint) (models.Profile, error) {
 	m.ctrl.T.Helper()
@@ -285,6 +315,20 @@ func (m *MockProfiles) GetProfile(ctx context.Context, uID uint) (models.Profile
 func (mr *MockProfilesMockRecorder) GetProfile(ctx, uID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfile", reflect.TypeOf((*MockProfiles)(nil).GetProfile), ctx, uID)
+}
+
+// UpdateAvatarByProfileID mocks base method.
+func (m *MockProfiles) UpdateAvatarByProfileID(ctx context.Context, uID uint, imgSrc string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateAvatarByProfileID", ctx, uID, imgSrc)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateAvatarByProfileID indicates an expected call of UpdateAvatarByProfileID.
+func (mr *MockProfilesMockRecorder) UpdateAvatarByProfileID(ctx, uID, imgSrc interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAvatarByProfileID", reflect.TypeOf((*MockProfiles)(nil).UpdateAvatarByProfileID), ctx, uID, imgSrc)
 }
 
 // UpdateProfile mocks base method.
