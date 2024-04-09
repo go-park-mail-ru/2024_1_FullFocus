@@ -24,18 +24,21 @@ func NewUserRepo(dbClient db.Database) *UserRepo {
 
 func (r *UserRepo) CreateUser(ctx context.Context, user models.User) (uint, error) {
 	userRow := dao.ConvertUserToTable(user)
-	q := `INSERT INTO default_user (user_login, password_hash) VALUES ($1, $2);`
+	q := `INSERT INTO default_user (user_login, password_hash) VALUES ($1, $2) returning id;`
+
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %s", userRow.Login)))
 	start := time.Now()
 	defer func() {
 		logger.Info(ctx, fmt.Sprintf("created in %s", time.Since(start)))
 	}()
-	_, err := r.storage.Exec(ctx, q, userRow.Login, userRow.PasswordHash)
+
+	resRow := dao.UserTable{}
+	err := r.storage.Get(ctx, &resRow, q, userRow.Login, userRow.PasswordHash)
 	if err != nil {
-		logger.Error(ctx, "user already exists")
+		logger.Info(ctx, "user already exists")
 		return 0, models.ErrUserAlreadyExists
 	}
-	return userRow.ID, nil
+	return resRow.ID, nil
 }
 
 func (r *UserRepo) GetUser(ctx context.Context, username string) (models.User, error) {

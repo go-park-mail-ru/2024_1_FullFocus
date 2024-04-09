@@ -18,12 +18,25 @@ func NewCartUsecase(cr repository.Carts) *CartUsecase {
 	}
 }
 
-func (u *CartUsecase) GetAllCartItems(ctx context.Context, uID uint) ([]models.CartProduct, error) {
-	items, err := u.cartRepo.GetAllCartItems(ctx, uID)
+func (u *CartUsecase) GetAllCartItems(ctx context.Context, uID uint) (models.CartContent, error) {
+	products, err := u.cartRepo.GetAllCartItems(ctx, uID)
 	if errors.Is(err, models.ErrEmptyCart) {
-		return nil, err
+		return models.CartContent{}, err
 	}
-	return items, nil
+
+	var sum, count uint
+	for _, product := range products {
+		product.Cost = product.Price * product.Count
+		count += product.Count
+		sum += product.Cost
+	}
+
+	content := models.CartContent{
+		Products:   products,
+		TotalCount: count,
+		TotalCost:  sum,
+	}
+	return content, nil
 }
 
 func (u *CartUsecase) UpdateCartItem(ctx context.Context, uID, prID uint) (uint, error) {

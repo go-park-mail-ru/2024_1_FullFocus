@@ -2,6 +2,20 @@ package dto
 
 import "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 
+type CartContent struct {
+	Products   []CartProduct `json:"products"`
+	TotalCount uint          `json:"totalCount"`
+	TotalCost  uint          `json:"totalCost"`
+}
+
+func ConvertContentToDto(m models.CartContent) CartContent {
+	return CartContent{
+		Products:   ConvertProductsToDto(m.Products),
+		TotalCount: m.TotalCount,
+		TotalCost:  m.TotalCost,
+	}
+}
+
 type CartProduct struct {
 	ProductID uint   `json:"productId"`
 	Name      string `json:"name"`

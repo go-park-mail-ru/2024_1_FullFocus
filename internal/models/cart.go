@@ -11,4 +11,11 @@ type CartProduct struct {
 	Price     uint
 	Count     uint
 	Img       string
+	Cost      uint
+}
+
+type CartContent struct {
+	Products   []CartProduct
+	TotalCount uint
+	TotalCost  uint
 }

@@ -45,7 +45,7 @@ func (h *CartHandler) GetAllCartItems(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cartProducts, err := h.usecase.GetAllCartItems(ctx, uID)
+	cartContent, err := h.usecase.GetAllCartItems(ctx, uID)
 	if errors.Is(err, models.ErrEmptyCart) {
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 404,
@@ -56,7 +56,7 @@ func (h *CartHandler) GetAllCartItems(w http.ResponseWriter, r *http.Request) {
 	}
 	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
-		Data:   dto.ConvertProductsToDto(cartProducts),
+		Data:   dto.ConvertContentToDto(cartContent),
 	})
 }
 
