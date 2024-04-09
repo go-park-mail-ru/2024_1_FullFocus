@@ -2,12 +2,11 @@ package usecase
 
 import (
 	"context"
-	"html"
-
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	model "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
+	"html"
 )
 
 type ProfileUsecase struct {
@@ -25,11 +24,6 @@ func (u *ProfileUsecase) UpdateProfile(ctx context.Context, uID uint, newProfile
 	if err != nil {
 		return model.NewValidationError("invalid fullname input",
 			"Имя должно содержать от 4 до 32 букв английского алфавита или цифр")
-	}
-	err = helper.ValidateNumber(newProfile.FullName, _NumberLenght)
-	if err != nil {
-		return model.NewValidationError("invalid number input",
-			"Номер телефона должен быть длиной от 11 символов и начинаться с 7 или 8")
 	}
 	err = helper.ValidateEmail(newProfile.Email)
 	if err != nil {

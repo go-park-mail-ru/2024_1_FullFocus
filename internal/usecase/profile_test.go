@@ -96,7 +96,7 @@ func TestUpdateProfile(t *testing.T) {
 				ID:          10000,
 				FullName:    "testing",
 				Email:       "my@mail.com",
-				PhoneNumber: "70000000000",
+				PhoneNumber: "79037783633",
 				ImgSrc:      "test",
 			},
 			mockBehavior: func(r *mock_repository.MockProfiles, uID uint, profile dto.ProfileData) {
@@ -136,23 +136,6 @@ func TestUpdateProfile(t *testing.T) {
 			},
 			expectedErr: models.NewValidationError("invalid fullname input",
 				"Имя должно содержать от 4 до 32 букв английского алфавита или цифр"),
-			valid: false,
-		},
-		{
-			name: "get profile success",
-			id:   1,
-			profile: dto.ProfileData{
-				ID:          1,
-				FullName:    "testing",
-				Email:       "my@mail.com",
-				PhoneNumber: "7aa0000",
-				ImgSrc:      "test",
-			},
-			mockBehavior: func(r *mock_repository.MockProfiles, uID uint, profile dto.ProfileData) {
-				r.EXPECT().UpdateProfile(context.Background(), uID, dto.ConvertProfileToProfileData(profile)).Return(nil)
-			},
-			expectedErr: models.NewValidationError("invalid number input",
-				"Номер телефона должен быть длиной от 11 символов и начинаться с 7 или 8"),
 			valid: false,
 		},
 	}

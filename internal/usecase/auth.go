@@ -13,7 +13,7 @@ const (
 	_maxLoginLength    = 32
 	_minPasswordLength = 8
 	_maxPasswordLength = 32
-	_NumberLenght      = 11
+	_NumberLenght      = 6
 )
 
 type AuthUsecase struct {
