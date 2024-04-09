@@ -11,7 +11,7 @@ minio:
   minio_user: ${MINIO_USER}
   minio_password: ${MINIO_PASSWORD}
 postgres:
-  host: "localhost"
+  host: "postgres"
   port: "5432"
   user: "postgres"
   password: "postgres"
