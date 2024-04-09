@@ -2,11 +2,11 @@ package usecase_test
 
 import (
 	"context"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"io"
 	"log"
 	"testing"
 
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 

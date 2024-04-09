@@ -16,7 +16,6 @@ import (
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	corsmw "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/cors"
-	csrfmw "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/csrf"
 	logmw "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/logging"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/server"
@@ -58,7 +57,7 @@ func Init() *App {
 
 	r.Use(logmw.NewLoggingMiddleware(log))
 	r.Use(corsmw.NewCORSMiddleware([]string{}))
-	r.Use(csrfmw.CSRFMiddleware())
+	// r.Use(csrfmw.CSRFMiddleware())
 
 	// Redis
 

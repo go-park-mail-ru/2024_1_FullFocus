@@ -2,6 +2,8 @@ package middleware
 
 import (
 	"fmt"
+	"math/rand"
+	"strconv"
 	"time"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
@@ -17,7 +19,7 @@ func CSRFMiddleware() mux.MiddlewareFunc {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 			if r.Method == http.MethodGet || r.Method == http.MethodHead {
-				err := SetSCRFToken(w, r)
+				err := SetSCRFToken(w)
 				if err != nil {
 					logger.Debug(ctx, fmt.Sprintf("csrf token creation error: %v", err))
 					helper.JSONResponse(ctx, w, 200, models.ErrResponse{
@@ -44,37 +46,25 @@ func CSRFMiddleware() mux.MiddlewareFunc {
 	}
 }
 
-func SetSCRFToken(w http.ResponseWriter, r *http.Request) error {
+func SetSCRFToken(w http.ResponseWriter) error {
 	tokens, _ := models.NewJwtToken("qsRY2e4hcM5T7X984E9WQ5uZ8Nty7fxB")
-	session, err := r.Cookie("session_id")
-
-	if err != nil {
-		return err
-	}
-
-	sID := session.Value
-	token, err := tokens.Create(sID, time.Now().Add(1*time.Hour).Unix())
+	uID := strconv.FormatFloat(rand.Float64()*10000+10000, 'g', -1, 64)
+	token, err := tokens.Create(uID, time.Now().Add(1*time.Hour).Unix())
 
 	if err != nil {
 		return err
 	}
 
 	w.Header().Set("X-Csrf-Token", token)
-
+	w.Header().Set("X-Csrf-Token-session", uID)
 	return nil
 }
 
 func CheckSCRFToken(r *http.Request) error {
 	tokens, _ := models.NewJwtToken("qsRY2e4hcM5T7X984E9WQ5uZ8Nty7fxB")
-	session, err := r.Cookie("session_id")
-
-	if err != nil {
-		return err
-	}
-
-	sID := session.Value
+	uID := r.Header.Get("X-Csrf-Token-session")
 	csrfToken := r.Header.Get("X-Csrf-Token")
-	_, err = tokens.Check(sID, csrfToken)
+	_, err := tokens.Check(uID, csrfToken)
 
 	if err != nil {
 		return err

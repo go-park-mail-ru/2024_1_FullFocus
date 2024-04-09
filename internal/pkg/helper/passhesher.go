@@ -2,6 +2,7 @@ package helper
 
 import (
 	"crypto/rand"
+
 	"golang.org/x/crypto/argon2"
 )
 
