@@ -13,17 +13,20 @@ const (
 	_maxLoginLength    = 32
 	_minPasswordLength = 8
 	_maxPasswordLength = 32
+	_NumberLenght      = 6
 )
 
 type AuthUsecase struct {
 	userRepo    repository.Users
 	sessionRepo repository.Sessions
+	profileRepo repository.Profiles
 }
 
-func NewAuthUsecase(ur repository.Users, sr repository.Sessions) *AuthUsecase {
+func NewAuthUsecase(ur repository.Users, sr repository.Sessions, pr repository.Profiles) *AuthUsecase {
 	return &AuthUsecase{
 		userRepo:    ur,
 		sessionRepo: sr,
+		profileRepo: pr,
 	}
 }
 
@@ -73,6 +76,18 @@ func (u *AuthUsecase) Signup(ctx context.Context, login string, password string)
 	if err != nil {
 		return "", models.ErrUserAlreadyExists
 	}
+
+	profile := models.Profile{
+		ID:          uID,
+		FullName:    login,
+		Email:       "yourawesome@mail.ru",
+		PhoneNumber: "70000000000",
+	}
+	_, err = u.profileRepo.CreateProfile(ctx, profile)
+	if err != nil {
+		return "", models.ErrProfileAlreadyExists
+	}
+
 	sID := u.sessionRepo.CreateSession(ctx, uID)
 	return sID, nil
 }

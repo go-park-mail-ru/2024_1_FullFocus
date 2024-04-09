@@ -198,6 +198,73 @@ func (mr *MockAvatarsMockRecorder) UploadAvatar(ctx, img, uID interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadAvatar", reflect.TypeOf((*MockAvatars)(nil).UploadAvatar), ctx, img, uID)
 }
 
+// MockProfiles is a mock of Profiles interface.
+type MockProfiles struct {
+	ctrl     *gomock.Controller
+	recorder *MockProfilesMockRecorder
+}
+
+// MockProfilesMockRecorder is the mock recorder for MockProfiles.
+type MockProfilesMockRecorder struct {
+	mock *MockProfiles
+}
+
+// NewMockProfiles creates a new mock instance.
+func NewMockProfiles(ctrl *gomock.Controller) *MockProfiles {
+	mock := &MockProfiles{ctrl: ctrl}
+	mock.recorder = &MockProfilesMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockProfiles) EXPECT() *MockProfilesMockRecorder {
+	return m.recorder
+}
+
+// CreateProfile mocks base method.
+func (m *MockProfiles) CreateProfile(ctx context.Context, profile dto.ProfileData) (uint, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateProfile", ctx, profile)
+	ret0, _ := ret[0].(uint)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateProfile indicates an expected call of CreateProfile.
+func (mr *MockProfilesMockRecorder) CreateProfile(ctx, profile interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateProfile", reflect.TypeOf((*MockProfiles)(nil).CreateProfile), ctx, profile)
+}
+
+// GetProfile mocks base method.
+func (m *MockProfiles) GetProfile(ctx context.Context, uID uint) (dto.ProfileData, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetProfile", ctx, uID)
+	ret0, _ := ret[0].(dto.ProfileData)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetProfile indicates an expected call of GetProfile.
+func (mr *MockProfilesMockRecorder) GetProfile(ctx, uID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfile", reflect.TypeOf((*MockProfiles)(nil).GetProfile), ctx, uID)
+}
+
+// UpdateProfile mocks base method.
+func (m *MockProfiles) UpdateProfile(ctx context.Context, uID uint, newProfile dto.ProfileData) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateProfile", ctx, uID, newProfile)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateProfile indicates an expected call of UpdateProfile.
+func (mr *MockProfilesMockRecorder) UpdateProfile(ctx, uID, newProfile interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateProfile", reflect.TypeOf((*MockProfiles)(nil).UpdateProfile), ctx, uID, newProfile)
+}
+
 // MockCarts is a mock of Carts interface.
 type MockCarts struct {
 	ctrl     *gomock.Controller

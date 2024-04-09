@@ -26,6 +26,11 @@ type (
 		DeleteAvatar(ctx context.Context, uID uint) error
 	}
 
+	Profiles interface {
+		UpdateProfile(ctx context.Context, uID uint, newProfile dto.ProfileData) error
+		GetProfile(ctx context.Context, uID uint) (dto.ProfileData, error)
+		CreateProfile(ctx context.Context, profile dto.ProfileData) (uint, error)
+	}
 	Carts interface {
 		GetAllCartItems(ctx context.Context, uID uint) (models.CartContent, error)
 		UpdateCartItem(ctx context.Context, uID, prID uint) (uint, error)

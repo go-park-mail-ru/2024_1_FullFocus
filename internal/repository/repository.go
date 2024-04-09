@@ -28,7 +28,14 @@ type (
 		UploadAvatar(ctx context.Context, img models.Image) error
 		DeleteAvatar(ctx context.Context, imageName string) error
 	}
-
+	Profiles interface {
+		UpdateProfile(ctx context.Context, uID uint, profileNew models.Profile) error
+		GetProfile(ctx context.Context, uID uint) (models.Profile, error)
+		CreateProfile(ctx context.Context, profile models.Profile) (uint, error)
+		UpdateAvatarByProfileID(ctx context.Context, uID uint, imgSrc string) error
+		GetAvatarByProfileID(ctx context.Context, uID uint) (string, error)
+		DeleteAvatarByProfileID(ctx context.Context, uID uint) (string, error)
+	}
 	Carts interface {
 		GetAllCartItems(ctx context.Context, uID uint) ([]models.CartProduct, error)
 		UpdateCartItem(ctx context.Context, uID, prID uint) (uint, error)

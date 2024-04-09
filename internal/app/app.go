@@ -92,10 +92,16 @@ func Init() *App {
 
 	// Layers
 
+	// Profile
+	profileRepo := repository.NewProfileRepo(pgxClient)
+	profileUsecase := usecase.NewProfileUsecase(profileRepo)
+	profileHandler := delivery.NewProfileHandler(profileUsecase)
+	profileHandler.InitRouter(apiRouter)
+
 	// Auth
 	userRepo := repository.NewUserRepo(pgxClient)
 	sessionRepo := repository.NewSessionRepo(redisClient, cfg.SessionTTL)
-	authUsecase := usecase.NewAuthUsecase(userRepo, sessionRepo)
+	authUsecase := usecase.NewAuthUsecase(userRepo, sessionRepo, profileRepo)
 	authHandler := delivery.NewAuthHandler(authUsecase, cfg.SessionTTL)
 	authHandler.InitRouter(apiRouter)
 
