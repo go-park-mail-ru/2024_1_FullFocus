@@ -10,6 +10,7 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/dao"
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
@@ -24,7 +25,7 @@ func NewProfileRepo(dbClient db.Database) *ProfileRepo {
 }
 
 func (r *ProfileRepo) CreateProfile(ctx context.Context, profile models.Profile) (uint, error) {
-	profileRow := db.ConvertProfileToTable(profile)
+	profileRow := dao.ConvertProfileToTable(profile)
 	q := `INSERT INTO ozon.user_profile (id, full_name, email, phone_number, imgsrc) VALUES ($1, $2, $3, $4, $5);`
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1=%d, $2=%s, $3=%s, $4=%s, $5=%s", profileRow.ID, profileRow.FullName, profileRow.Email, profileRow.PhoneNumber, profileRow.ImgSrc)))
 	start := time.Now()
@@ -47,7 +48,7 @@ func (r *ProfileRepo) GetProfile(ctx context.Context, uID uint) (models.Profile,
 	q := `SELECT id, full_name, email, phone_number, imgsrc FROM ozon.user_profile WHERE id = $1;`
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1=%d", uID)))
 	start := time.Now()
-	profileRow := &db.ProfileTable{}
+	profileRow := &dao.ProfileTable{}
 	if err := r.storage.Get(ctx, profileRow, q, uID); err != nil {
 		if pgErr := new(pgconn.PgError); errors.As(err, &pgErr) {
 			// logs, _ := json.Marshal(pgErr)
@@ -60,15 +61,15 @@ func (r *ProfileRepo) GetProfile(ctx context.Context, uID uint) (models.Profile,
 	}
 	logger.Info(ctx, fmt.Sprintf("queried in %s", time.Since(start)))
 
-	return db.ConvertTableToProfile(*profileRow), nil
+	return dao.ConvertTableToProfile(*profileRow), nil
 }
 
 func (r *ProfileRepo) UpdateProfile(ctx context.Context, uID uint, profileNew models.Profile) error {
-	profileRow := db.ConvertProfileToTable(profileNew)
+	profileRow := dao.ConvertProfileToTable(profileNew)
 	q := `UPDATE ozon.user_profile SET full_name=$1, email=$2, phone_number=$3, imgsrc=$4 WHERE id = $5 RETURNING id;`
 	start := time.Now()
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1=%s, $2=%s, $3=%s, $4=%s, $5=%d", profileRow.FullName, profileRow.Email, profileRow.PhoneNumber, profileRow.ImgSrc, uID)))
-	reqProfileRow := &db.ProfileTable{}
+	reqProfileRow := &dao.ProfileTable{}
 	err := r.storage.Get(ctx, reqProfileRow, q,
 		profileNew.FullName,
 		profileNew.Email,
@@ -95,7 +96,7 @@ func (r *ProfileRepo) UpdateAvatarByProfileID(ctx context.Context, uID uint, img
 	q := `UPDATE ozon.user_profile SET imgsrc=$1 WHERE id = $2 RETURNING id;` // Чтобы get ловил отсутствие пользователя
 	start := time.Now()
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1=%s, $2=%d", imgSrc, uID)))
-	reqProfileRow := &db.ProfileTable{}
+	reqProfileRow := &dao.ProfileTable{}
 	err := r.storage.Get(ctx, reqProfileRow, q,
 		imgSrc,
 		uID)
@@ -115,7 +116,7 @@ func (r *ProfileRepo) GetAvatarByProfileID(ctx context.Context, uID uint) (strin
 	q := `SELECT imgsrc, id FROM ozon.user_profile WHERE id = $1;`
 	start := time.Now()
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1=%d", uID)))
-	reqProfileRow := &db.ProfileTable{}
+	reqProfileRow := &dao.ProfileTable{}
 	err := r.storage.Get(ctx, reqProfileRow, q, uID)
 	if err != nil {
 		if pgErr := new(pgconn.PgError); errors.As(err, &pgErr) {

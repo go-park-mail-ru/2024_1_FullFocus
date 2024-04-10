@@ -36,6 +36,21 @@ func (m *MockDatabase) EXPECT() *MockDatabaseMockRecorder {
 	return m.recorder
 }
 
+// Begin mocks base method.
+func (m *MockDatabase) Begin(ctx context.Context, opts *sql.TxOptions) (*sqlx.Tx, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Begin", ctx, opts)
+	ret0, _ := ret[0].(*sqlx.Tx)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Begin indicates an expected call of Begin.
+func (mr *MockDatabaseMockRecorder) Begin(ctx, opts interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Begin", reflect.TypeOf((*MockDatabase)(nil).Begin), ctx, opts)
+}
+
 // Close mocks base method.
 func (m *MockDatabase) Close() error {
 	m.ctrl.T.Helper()
@@ -101,6 +116,21 @@ func (m *MockDatabase) GetRawDB() *sqlx.DB {
 func (mr *MockDatabaseMockRecorder) GetRawDB() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRawDB", reflect.TypeOf((*MockDatabase)(nil).GetRawDB))
+}
+
+// NamedExec mocks base method.
+func (m *MockDatabase) NamedExec(ctx context.Context, query string, arg interface{}) (sql.Result, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "NamedExec", ctx, query, arg)
+	ret0, _ := ret[0].(sql.Result)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// NamedExec indicates an expected call of NamedExec.
+func (mr *MockDatabaseMockRecorder) NamedExec(ctx, query, arg interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NamedExec", reflect.TypeOf((*MockDatabase)(nil).NamedExec), ctx, query, arg)
 }
 
 // Select mocks base method.

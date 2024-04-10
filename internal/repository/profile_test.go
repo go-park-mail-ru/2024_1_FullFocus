@@ -6,9 +6,9 @@ import (
 	"testing"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
 	mock_database "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database/mocks"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/dao"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 )
@@ -81,13 +81,13 @@ func TestGetProfile(t *testing.T) {
 	testCases := []struct {
 		name          string
 		id            uint
-		mockBehavior  func(*mock_database.MockDatabase, *database.ProfileTable, string, uint)
+		mockBehavior  func(*mock_database.MockDatabase, *dao.ProfileTable, string, uint)
 		expectedError error
 	}{
 		{
 			name: "Test successful get",
 			id:   1,
-			mockBehavior: func(d *mock_database.MockDatabase, u *database.ProfileTable, q string, id uint) {
+			mockBehavior: func(d *mock_database.MockDatabase, u *dao.ProfileTable, q string, id uint) {
 				d.EXPECT().Get(context.Background(), u, q, id).Return(nil)
 			},
 			expectedError: nil,
@@ -95,7 +95,7 @@ func TestGetProfile(t *testing.T) {
 		{
 			name: "Test not existing get",
 			id:   1,
-			mockBehavior: func(d *mock_database.MockDatabase, u *database.ProfileTable, q string, id uint) {
+			mockBehavior: func(d *mock_database.MockDatabase, u *dao.ProfileTable, q string, id uint) {
 				d.EXPECT().Get(context.Background(), u, q, id).Return(sql.ErrNoRows)
 			},
 			expectedError: models.ErrNoProfile,
@@ -106,7 +106,7 @@ func TestGetProfile(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			db := mock_database.NewMockDatabase(ctrl)
 			defer ctrl.Finish()
-			testCase.mockBehavior(db, &database.ProfileTable{}, "SELECT id, full_name, email, phone_number, imgsrc FROM ozon.user_profile WHERE id = $1;", testCase.id)
+			testCase.mockBehavior(db, &dao.ProfileTable{}, "SELECT id, full_name, email, phone_number, imgsrc FROM ozon.user_profile WHERE id = $1;", testCase.id)
 			pr := repository.NewProfileRepo(db)
 			_, err := pr.GetProfile(context.Background(), testCase.id)
 			require.ErrorIs(t, err, testCase.expectedError)
@@ -118,7 +118,7 @@ func TestUpdateProfile(t *testing.T) {
 	testCases := []struct {
 		name          string
 		profile       models.Profile
-		mockBehavior  func(d *mock_database.MockDatabase, u *database.ProfileTable, q string, name string, email string, number string, img string, id uint)
+		mockBehavior  func(d *mock_database.MockDatabase, u *dao.ProfileTable, q string, name string, email string, number string, img string, id uint)
 		expectedError error
 	}{
 		{
@@ -130,7 +130,7 @@ func TestUpdateProfile(t *testing.T) {
 				PhoneNumber: "70000000000",
 				ImgSrc:      "aaa",
 			},
-			mockBehavior: func(d *mock_database.MockDatabase, u *database.ProfileTable, q string, name string, email string, number string, img string, id uint) {
+			mockBehavior: func(d *mock_database.MockDatabase, u *dao.ProfileTable, q string, name string, email string, number string, img string, id uint) {
 				d.EXPECT().Get(context.Background(), u, q, name, email, number, img, id).Return(nil)
 			},
 			expectedError: nil,
@@ -144,7 +144,7 @@ func TestUpdateProfile(t *testing.T) {
 				PhoneNumber: "70000000000",
 				ImgSrc:      "aaa",
 			},
-			mockBehavior: func(d *mock_database.MockDatabase, u *database.ProfileTable, q string, name string, email string, number string, img string, id uint) {
+			mockBehavior: func(d *mock_database.MockDatabase, u *dao.ProfileTable, q string, name string, email string, number string, img string, id uint) {
 				d.EXPECT().Get(context.Background(), u, q, name, email, number, img, id).Return(sql.ErrNoRows)
 			},
 			expectedError: models.ErrNoProfile,
@@ -155,7 +155,7 @@ func TestUpdateProfile(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			db := mock_database.NewMockDatabase(ctrl)
 			defer ctrl.Finish()
-			testCase.mockBehavior(db, &database.ProfileTable{},
+			testCase.mockBehavior(db, &dao.ProfileTable{},
 				"UPDATE ozon.user_profile SET full_name=$1, email=$2, phone_number=$3, imgsrc=$4 WHERE id = $5 RETURNING id;",
 				testCase.profile.FullName, testCase.profile.Email, testCase.profile.PhoneNumber, testCase.profile.ImgSrc, testCase.profile.ID)
 			pr := repository.NewProfileRepo(db)

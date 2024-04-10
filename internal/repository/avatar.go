@@ -25,6 +25,10 @@ func NewAvatarStorage(c *minio.Client) *AvatarStorage {
 	}
 }
 
+func (s *AvatarStorage) GetAvatar(ctx context.Context) models.Image {
+	return models.Image{} // TODO
+}
+
 func (s *AvatarStorage) UploadAvatar(ctx context.Context, img models.Image) error {
 	start := time.Now()
 	info, err := s.client.PutObject(

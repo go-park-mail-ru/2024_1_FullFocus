@@ -27,12 +27,13 @@ func NewAvatarHandler(u usecase.Avatars) *AvatarHandler {
 func (h *AvatarHandler) InitRouter(r *mux.Router) {
 	h.router = r.PathPrefix("/avatar").Subrouter()
 	{
-		h.router.Handle("/v1/upload", http.HandlerFunc(h.UploadAvatar)).Methods("POST", "OPTIONS")
-		h.router.Handle("/v1/delete", http.HandlerFunc(h.DeleteAvatar)).Methods("POST", "OPTIONS")
+		h.router.Handle("/upload", http.HandlerFunc(h.Upload)).Methods("POST", "OPTIONS")
+		h.router.Handle("/delete", http.HandlerFunc(h.Delete)).Methods("POST", "OPTIONS")
+		// h.router.Handle("/get/{filename}", http.HandlerFunc(h.Get)).Methods("GET", "OPTIONS")
 	}
 }
 
-func (h *AvatarHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
+func (h *AvatarHandler) Upload(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	uID, err := helper.GetUserIDFromContext(ctx)
 	if err != nil {
@@ -69,7 +70,7 @@ func (h *AvatarHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (h *AvatarHandler) DeleteAvatar(w http.ResponseWriter, r *http.Request) {
+func (h *AvatarHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	uID, err := helper.GetUserIDFromContext(ctx)
 	if err != nil {

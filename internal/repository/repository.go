@@ -21,13 +21,24 @@ type (
 	}
 
 	Products interface {
-		GetProducts(ctx context.Context, lastID, limit int) ([]models.Product, error)
+		GetAllProductCards(ctx context.Context, input models.GetAllProductsInput) ([]models.ProductCard, error)
+		GetProductByID(ctx context.Context, profileID uint, productID uint) (models.Product, error)
+		GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error)
 	}
 
 	Avatars interface {
 		UploadAvatar(ctx context.Context, img models.Image) error
 		DeleteAvatar(ctx context.Context, imageName string) error
 	}
+
+	Orders interface {
+		Create(ctx context.Context, userID uint, orderItems []models.OrderItem) (uint, error)
+		GetOrderByID(ctx context.Context, orderID uint) (models.GetOrderPayload, error)
+		GetAllOrders(ctx context.Context, profileID uint) ([]models.Order, error)
+		GetProfileIDByOrderID(ctx context.Context, orderID uint) (uint, error)
+		Delete(ctx context.Context, orderID uint) error
+	}
+
 	Profiles interface {
 		UpdateProfile(ctx context.Context, uID uint, profileNew models.Profile) error
 		GetProfile(ctx context.Context, uID uint) (models.Profile, error)
@@ -36,6 +47,7 @@ type (
 		GetAvatarByProfileID(ctx context.Context, uID uint) (string, error)
 		DeleteAvatarByProfileID(ctx context.Context, uID uint) (string, error)
 	}
+
 	Carts interface {
 		GetAllCartItems(ctx context.Context, uID uint) ([]models.CartProduct, error)
 		GetAllCartItemsID(ctx context.Context, uID uint) ([]models.CartItem, error)

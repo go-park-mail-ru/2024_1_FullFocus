@@ -64,10 +64,10 @@ CREATE TABLE product_category (
 -- ozon.ordering definition
 
 CREATE TYPE ordering_status AS ENUM (
-	'created',
-	'cancelled',
-	'ready'
-);
+    'created',
+    'cancelled',
+    'ready'
+    );
 
 CREATE TABLE ordering (
 	id bigserial PRIMARY KEY,
