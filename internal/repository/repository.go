@@ -50,8 +50,13 @@ type (
 
 	Carts interface {
 		GetAllCartItems(ctx context.Context, uID uint) ([]models.CartProduct, error)
+		GetAllCartItemsID(ctx context.Context, uID uint) ([]models.CartItem, error)
 		UpdateCartItem(ctx context.Context, uID, prID uint) (uint, error)
 		DeleteCartItem(ctx context.Context, uID, orID uint) (uint, error)
 		DeleteAllCartItems(ctx context.Context, uID uint) error
+	}
+
+	Categories interface {
+		GetAllCategories(ctx context.Context) ([]models.Category, error)
 	}
 )

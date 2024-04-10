@@ -28,7 +28,7 @@ func NewAuthMiddleware(uc usecase.Auth) mux.MiddlewareFunc {
 					})
 					return
 				}
-				userID, err := uc.GetUserIDBySessionID(r.Context(), sessionID.Value)
+				userID, err := uc.GetUserIDBySessionID(ctx, sessionID.Value)
 				if errors.Is(err, models.ErrNoSession) {
 					helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 						Status: 401,
