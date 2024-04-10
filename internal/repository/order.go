@@ -107,7 +107,8 @@ func (r *OrderRepo) GetAllOrders(ctx context.Context, profileID uint) ([]models.
 		  FROM ordering o
     	  	  LEFT JOIN order_item i ON o.id = i.ordering_id
 		  WHERE o.profile_id = ?
-		  GROUP BY o.id;`
+		  GROUP BY o.id
+		  ORDER BY o.id DESC;`
 	var orders []dao.Order
 	if err := r.storage.Select(ctx, &orders, q, profileID); err != nil {
 		logger.Error(ctx, "error while selecting orders: "+err.Error())
