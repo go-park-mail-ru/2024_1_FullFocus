@@ -38,7 +38,7 @@ func (r *OrderRepo) Create(ctx context.Context, userID uint, orderItems []models
 	logger.Info(ctx, fmt.Sprintf("inserted in %s", time.Since(start)))
 
 	q = `INSERT INTO order_item (ordering_id, product_id, count) VALUES (:ordering_id, :product_id, :count)`
-	items := dao.ConvertOrderItemsToTables(uint(orderID), orderItems)
+	items := dao.ConvertOrderItemsToTables(orderID, orderItems)
 	logger.Info(ctx, q, slog.Int("orders_amount", len(items)))
 	start = time.Now()
 	_, err = tx.NamedExecContext(ctx, q, items)
@@ -67,7 +67,7 @@ func (r *OrderRepo) Create(ctx context.Context, userID uint, orderItems []models
 	if err = tx.Commit(); err != nil {
 		return 0, err
 	}
-	return uint(orderID), nil
+	return orderID, nil
 }
 
 func (r *OrderRepo) GetOrderByID(ctx context.Context, orderID uint) (models.GetOrderPayload, error) {

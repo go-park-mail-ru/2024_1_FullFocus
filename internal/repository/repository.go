@@ -22,8 +22,8 @@ type (
 
 	Products interface {
 		GetAllProductCards(ctx context.Context, input models.GetAllProductsInput) ([]models.ProductCard, error)
-		GetProductById(ctx context.Context, profileID uint, productID uint) (models.Product, error)
-		GetProductsByCategoryId(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error)
+		GetProductByID(ctx context.Context, profileID uint, productID uint) (models.Product, error)
+		GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error)
 	}
 
 	Avatars interface {

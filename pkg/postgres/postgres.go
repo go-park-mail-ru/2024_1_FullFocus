@@ -10,10 +10,7 @@ import (
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
-<<<<<<< HEAD
-=======
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
->>>>>>> develop
 	_ "github.com/jackc/pgx/v5/stdlib" // postgres driver
 	"github.com/jmoiron/sqlx"
 )
@@ -79,10 +76,6 @@ func (db *PgxDatabase) Select(ctx context.Context, dest interface{}, q string, a
 
 func (db *PgxDatabase) NamedExec(ctx context.Context, query string, arg interface{}) (sql.Result, error) {
 	return db.client.NamedExecContext(ctx, query, arg)
-}
-
-func (db *PgxDatabase) Select(ctx context.Context, dest interface{}, q string, args ...interface{}) error {
-	return db.client.SelectContext(ctx, dest, sqlx.Rebind(sqlx.DOLLAR, q), args...)
 }
 
 func (db *PgxDatabase) Begin(ctx context.Context, opts *sql.TxOptions) (*sqlx.Tx, error) {

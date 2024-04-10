@@ -15,6 +15,5 @@ type Database interface {
 	Select(ctx context.Context, dest interface{}, q string, args ...interface{}) error
 	GetRawDB() *sqlx.DB // tmp solution
 	NamedExec(ctx context.Context, query string, arg interface{}) (sql.Result, error)
-	Select(ctx context.Context, dest interface{}, q string, args ...interface{}) error
 	Begin(ctx context.Context, opts *sql.TxOptions) (*sqlx.Tx, error)
 }

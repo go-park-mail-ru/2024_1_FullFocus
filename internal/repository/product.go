@@ -51,7 +51,7 @@ func (r *ProductRepo) GetAllProductCards(ctx context.Context, input models.GetAl
 	return dao.ConvertProductCardsFromTable(products), nil
 }
 
-func (r *ProductRepo) GetProductById(ctx context.Context, profileID uint, productID uint) (models.Product, error) {
+func (r *ProductRepo) GetProductByID(ctx context.Context, profileID uint, productID uint) (models.Product, error) {
 	q := `SELECT id, product_description, product_name, price, imgsrc, seller, rating,
    			CASE
        			WHEN ci.product_id IS NULL THEN 0
@@ -86,7 +86,7 @@ func (r *ProductRepo) GetProductById(ctx context.Context, profileID uint, produc
 	return dao.ConvertProductFromTable(categories, product), nil
 }
 
-func (r *ProductRepo) GetProductsByCategoryId(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error) {
+func (r *ProductRepo) GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error) {
 	q := `WITH products_info AS (
 				SELECT p.id, p.product_name, p.price, p.imgsrc, p.seller, p.rating,
 					   CASE

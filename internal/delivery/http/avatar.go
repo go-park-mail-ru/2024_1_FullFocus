@@ -29,7 +29,7 @@ func (h *AvatarHandler) InitRouter(r *mux.Router) {
 	{
 		h.router.Handle("/upload", http.HandlerFunc(h.Upload)).Methods("POST", "OPTIONS")
 		h.router.Handle("/delete", http.HandlerFunc(h.Delete)).Methods("POST", "OPTIONS")
-		//h.router.Handle("/get/{filename}", http.HandlerFunc(h.Get)).Methods("GET", "OPTIONS")
+		// h.router.Handle("/get/{filename}", http.HandlerFunc(h.Get)).Methods("GET", "OPTIONS")
 	}
 }
 

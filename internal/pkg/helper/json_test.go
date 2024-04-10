@@ -8,14 +8,9 @@ import (
 	"os"
 	"testing"
 
-	model "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-
 	"github.com/thejerf/slogassert"
 
-<<<<<<< HEAD
-=======
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
->>>>>>> develop
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 )

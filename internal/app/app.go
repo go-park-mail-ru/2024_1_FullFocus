@@ -10,15 +10,12 @@ import (
 	"syscall"
 	"time"
 
-	corsmw "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware"
 	"github.com/gorilla/mux"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
-	middleware "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/auth"
-	corsmw "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/cors"
-	logmw "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/logging"
+	middleware "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/server"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
@@ -59,8 +56,8 @@ func Init() *App {
 
 	// Middleware
 
-	r.Use(corsmw.NewLoggingMiddleware(log))
-	r.Use(corsmw.NewCORSMiddleware([]string{}))
+	r.Use(middleware.NewLoggingMiddleware(log))
+	r.Use(middleware.NewCORSMiddleware([]string{}))
 
 	// Redis
 
@@ -106,16 +103,11 @@ func Init() *App {
 	authHandler := delivery.NewAuthHandler(authUsecase, cfg.SessionTTL)
 	authHandler.InitRouter(apiRouter)
 
-<<<<<<< HEAD
-	// Product
-	productRepo := repository.NewProductRepo(pgxClient)
-=======
 	// Auth Middleware
 	r.Use(middleware.NewAuthMiddleware(authUsecase))
 
 	// Products
-	productRepo := repository.NewProductRepo()
->>>>>>> develop
+	productRepo := repository.NewProductRepo(pgxClient)
 	productUsecase := usecase.NewProductUsecase(productRepo)
 	productHandler := delivery.NewProductHandler(productUsecase)
 	productHandler.InitRouter(apiRouter)
