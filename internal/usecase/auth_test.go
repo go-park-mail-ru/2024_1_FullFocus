@@ -1,21 +1,25 @@
-package usecase
+package usecase_test
 
 import (
+	"context"
 	"io"
 	"log"
 	"testing"
 
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-	mock_repository "github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
+
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
+	mock_repository "github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/mocks"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 )
 
 func TestNewAuthUsecase(t *testing.T) {
 	t.Run("Check Auth Usecase creation", func(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
-		au := NewAuthUsecase(mock_repository.NewMockUsers(ctrl), mock_repository.NewMockSessions(ctrl))
+		au := usecase.NewAuthUsecase(mock_repository.NewMockUsers(ctrl), mock_repository.NewMockSessions(ctrl), mock_repository.NewMockProfiles(ctrl))
 		require.NotEmpty(t, au, "auth repo not created")
 	})
 }
@@ -29,32 +33,57 @@ func TestSignUp(t *testing.T) {
 		password            string
 		userMockBehavior    func(*mock_repository.MockUsers, models.User)
 		sessionMockBehavior func(*mock_repository.MockSessions, uint)
+		profileMockBehavior func(r *mock_repository.MockProfiles, profile models.Profile)
 		expectedSID         string
 		expectedErr         error
 		callUserMock        bool
 		callSessionMock     bool
+		callProfileMock     bool
 	}{
 		{
 			name:     "Check valid user signup",
 			login:    "test123",
 			password: "Qa5yAbrLhkwT4Y9u",
 			userMockBehavior: func(r *mock_repository.MockUsers, user models.User) {
-				r.EXPECT().CreateUser(user).Return(uint(0), nil)
+				r.EXPECT().CreateUser(context.Background(), user).Return(uint(0), nil)
 			},
 			sessionMockBehavior: func(r *mock_repository.MockSessions, userID uint) {
-				r.EXPECT().CreateSession(userID).Return("123")
+				r.EXPECT().CreateSession(context.Background(), userID).Return("123")
+			},
+			profileMockBehavior: func(r *mock_repository.MockProfiles, profile models.Profile) {
+				r.EXPECT().CreateProfile(context.Background(), profile).Return(uint(0), nil)
 			},
 			expectedSID:     "123",
 			expectedErr:     nil,
 			callUserMock:    true,
 			callSessionMock: true,
+			callProfileMock: true,
+		},
+		{
+			name:     "Check valid user signup",
+			login:    "test123",
+			password: "testtest1",
+			userMockBehavior: func(r *mock_repository.MockUsers, user models.User) {
+				r.EXPECT().CreateUser(context.Background(), user).Return(uint(0), nil)
+			},
+			sessionMockBehavior: func(r *mock_repository.MockSessions, userID uint) {
+				r.EXPECT().CreateSession(context.Background(), userID).Return("123")
+			},
+			profileMockBehavior: func(r *mock_repository.MockProfiles, profile models.Profile) {
+				r.EXPECT().CreateProfile(context.Background(), profile).Return(uint(0), nil)
+			},
+			expectedSID:     "123",
+			expectedErr:     nil,
+			callUserMock:    true,
+			callSessionMock: true,
+			callProfileMock: true,
 		},
 		{
 			name:     "Check duplicate user signup",
 			login:    "test123",
 			password: "Qa5yAbrLhkwT4Y9u",
 			userMockBehavior: func(r *mock_repository.MockUsers, user models.User) {
-				r.EXPECT().CreateUser(user).Return(uint(0), models.ErrUserAlreadyExists)
+				r.EXPECT().CreateUser(context.Background(), user).Return(uint(0), models.ErrUserAlreadyExists)
 			},
 			expectedSID:     "",
 			expectedErr:     models.ErrUserAlreadyExists,
@@ -66,7 +95,7 @@ func TestSignUp(t *testing.T) {
 			login:           "t",
 			password:        "test",
 			expectedSID:     "",
-			expectedErr:     models.ErrShortUsername,
+			expectedErr:     helper.NewValidationError("invalid login input", "Логин должен содержать от 4 до 32 букв английского алфавита или цифр"),
 			callUserMock:    false,
 			callSessionMock: false,
 		},
@@ -75,7 +104,16 @@ func TestSignUp(t *testing.T) {
 			login:           "test123",
 			password:        "12345",
 			expectedSID:     "",
-			expectedErr:     models.ErrWeakPassword,
+			expectedErr:     helper.NewValidationError("invalid password input", "Пароль должен содержать от 8 до 32 букв английского алфавита или цифр"),
+			callUserMock:    false,
+			callSessionMock: false,
+		},
+		{
+			name:            "Check invalid login signup",
+			login:           "test123!@!@$#@#$%@!#$",
+			password:        "12345",
+			expectedSID:     "",
+			expectedErr:     helper.NewValidationError("invalid login input", "Логин должен содержать от 4 до 32 букв английского алфавита или цифр"),
 			callUserMock:    false,
 			callSessionMock: false,
 		},
@@ -87,19 +125,29 @@ func TestSignUp(t *testing.T) {
 			defer ctrl.Finish()
 			mockUserRepo := mock_repository.NewMockUsers(ctrl)
 			mockSessionRepo := mock_repository.NewMockSessions(ctrl)
+			mockProfileRepo := mock_repository.NewMockProfiles(ctrl)
 			testUser := models.User{
-				ID:       0,
-				Username: testCase.login,
-				Password: testCase.password,
+				ID:           0,
+				Username:     testCase.login,
+				PasswordHash: testCase.password,
+			}
+			testProfile := models.Profile{
+				ID:          0,
+				FullName:    testCase.login,
+				PhoneNumber: "70000000000",
+				Email:       "yourawesome@mail.ru",
 			}
 			if testCase.callUserMock {
 				testCase.userMockBehavior(mockUserRepo, testUser)
 				if testCase.callSessionMock {
 					testCase.sessionMockBehavior(mockSessionRepo, testUser.ID)
+					if testCase.callProfileMock {
+						testCase.profileMockBehavior(mockProfileRepo, testProfile)
+					}
 				}
 			}
-			au := NewAuthUsecase(mockUserRepo, mockSessionRepo)
-			sID, _, err := au.Signup(testCase.login, testCase.password)
+			au := usecase.NewAuthUsecase(mockUserRepo, mockSessionRepo, mockProfileRepo)
+			sID, err := au.Signup(context.Background(), testCase.login, testCase.password)
 			require.Equal(t, testCase.expectedErr, err)
 			require.Equal(t, testCase.expectedSID, sID)
 		})
@@ -120,13 +168,13 @@ func TestLogin(t *testing.T) {
 	}{
 		{
 			name:     "Check valid user login",
-			login:    "test",
-			password: "test",
+			login:    "test123",
+			password: "test12345",
 			userMockBehavior: func(r *mock_repository.MockUsers, username string) {
-				r.EXPECT().GetUser(username).Return(models.User{ID: 0, Username: "test", Password: "test"}, nil)
+				r.EXPECT().GetUser(context.Background(), username).Return(models.User{ID: 0, Username: "test123", PasswordHash: "test12345"}, nil)
 			},
 			sessionMockBehavior: func(r *mock_repository.MockSessions, userID uint) {
-				r.EXPECT().CreateSession(userID).Return("123")
+				r.EXPECT().CreateSession(context.Background(), userID).Return("123")
 			},
 			expectedSID:     "123",
 			expectedErr:     nil,
@@ -134,11 +182,29 @@ func TestLogin(t *testing.T) {
 			callSessionMock: true,
 		},
 		{
-			name:     "Check invalid user login",
-			login:    "test",
-			password: "test",
+			name:            "Check invalid username login",
+			login:           "test",
+			password:        "test",
+			expectedSID:     "",
+			expectedErr:     helper.NewValidationError("invalid password input", "Пароль должен содержать от 8 до 32 букв английского алфавита или цифр"),
+			callUserMock:    false,
+			callSessionMock: false,
+		},
+		{
+			name:            "Check invalid password login",
+			login:           "test123",
+			password:        "test%^",
+			expectedSID:     "",
+			expectedErr:     helper.NewValidationError("invalid password input", "Пароль должен содержать от 8 до 32 букв английского алфавита или цифр"),
+			callUserMock:    false,
+			callSessionMock: false,
+		},
+		{
+			name:     "Check not existing user login",
+			login:    "test123",
+			password: "wrongpass",
 			userMockBehavior: func(r *mock_repository.MockUsers, username string) {
-				r.EXPECT().GetUser(username).Return(models.User{}, models.ErrNoUser)
+				r.EXPECT().GetUser(context.Background(), username).Return(models.User{}, models.ErrNoUser)
 			},
 			expectedSID:     "",
 			expectedErr:     models.ErrNoUser,
@@ -147,10 +213,10 @@ func TestLogin(t *testing.T) {
 		},
 		{
 			name:     "Check wrong password login",
-			login:    "test",
+			login:    "test123",
 			password: "wrongpass",
 			userMockBehavior: func(r *mock_repository.MockUsers, username string) {
-				r.EXPECT().GetUser(username).Return(models.User{ID: 0, Username: "test", Password: "test"}, nil)
+				r.EXPECT().GetUser(context.Background(), username).Return(models.User{ID: 0, Username: "test123", PasswordHash: "test"}, nil)
 			},
 			expectedSID:     "",
 			expectedErr:     models.ErrWrongPassword,
@@ -165,10 +231,11 @@ func TestLogin(t *testing.T) {
 			defer ctrl.Finish()
 			mockUserRepo := mock_repository.NewMockUsers(ctrl)
 			mockSessionRepo := mock_repository.NewMockSessions(ctrl)
+			mockProfileRepo := mock_repository.NewMockProfiles(ctrl)
+
 			testUser := models.User{
 				ID:       0,
 				Username: testCase.login,
-				Password: testCase.password,
 			}
 			if testCase.callUserMock {
 				testCase.userMockBehavior(mockUserRepo, testUser.Username)
@@ -176,15 +243,15 @@ func TestLogin(t *testing.T) {
 					testCase.sessionMockBehavior(mockSessionRepo, testUser.ID)
 				}
 			}
-			au := NewAuthUsecase(mockUserRepo, mockSessionRepo)
-			sID, err := au.Login(testCase.login, testCase.password)
+			au := usecase.NewAuthUsecase(mockUserRepo, mockSessionRepo, mockProfileRepo)
+			sID, err := au.Login(context.Background(), testCase.login, testCase.password)
 			require.Equal(t, testCase.expectedErr, err)
 			require.Equal(t, testCase.expectedSID, sID)
 		})
 	}
 }
 
-func TestIsLogout(t *testing.T) {
+func TestLogout(t *testing.T) {
 	testCases := []struct {
 		name                string
 		sID                 string
@@ -195,7 +262,7 @@ func TestIsLogout(t *testing.T) {
 			name: "Check existing user logout",
 			sID:  "test",
 			sessionMockBehavior: func(r *mock_repository.MockSessions, sID string) {
-				r.EXPECT().DeleteSession(sID).Return(nil)
+				r.EXPECT().DeleteSession(context.Background(), sID).Return(nil)
 			},
 			expectedErr: nil,
 		},
@@ -203,7 +270,7 @@ func TestIsLogout(t *testing.T) {
 			name: "Check not existing user logout",
 			sID:  "test",
 			sessionMockBehavior: func(r *mock_repository.MockSessions, sID string) {
-				r.EXPECT().DeleteSession(sID).Return(models.ErrNoSession)
+				r.EXPECT().DeleteSession(context.Background(), sID).Return(models.ErrNoSession)
 			},
 			expectedErr: models.ErrNoSession,
 		},
@@ -215,9 +282,11 @@ func TestIsLogout(t *testing.T) {
 			defer ctrl.Finish()
 			mockUserRepo := mock_repository.NewMockUsers(ctrl)
 			mockSessionRepo := mock_repository.NewMockSessions(ctrl)
+			mockProfileRepo := mock_repository.NewMockProfiles(ctrl)
+
 			testCase.sessionMockBehavior(mockSessionRepo, testCase.sID)
-			au := NewAuthUsecase(mockUserRepo, mockSessionRepo)
-			err := au.Logout(testCase.sID)
+			au := usecase.NewAuthUsecase(mockUserRepo, mockSessionRepo, mockProfileRepo)
+			err := au.Logout(context.Background(), testCase.sID)
 			require.Equal(t, testCase.expectedErr, err)
 		})
 	}
@@ -234,7 +303,7 @@ func TestIsLoggedIn(t *testing.T) {
 			name: "Check existing user logged in",
 			sID:  "test",
 			sessionMockBehavior: func(r *mock_repository.MockSessions, sID string) {
-				r.EXPECT().SessionExists(sID).Return(true)
+				r.EXPECT().SessionExists(context.Background(), sID).Return(true)
 			},
 			expectedResult: true,
 		},
@@ -242,7 +311,7 @@ func TestIsLoggedIn(t *testing.T) {
 			name: "Check not existing user logged in",
 			sID:  "test",
 			sessionMockBehavior: func(r *mock_repository.MockSessions, sID string) {
-				r.EXPECT().SessionExists(sID).Return(false)
+				r.EXPECT().SessionExists(context.Background(), sID).Return(false)
 			},
 			expectedResult: false,
 		},
@@ -254,9 +323,11 @@ func TestIsLoggedIn(t *testing.T) {
 			defer ctrl.Finish()
 			mockUserRepo := mock_repository.NewMockUsers(ctrl)
 			mockSessionRepo := mock_repository.NewMockSessions(ctrl)
+			mockProfileRepo := mock_repository.NewMockProfiles(ctrl)
+
 			testCase.sessionMockBehavior(mockSessionRepo, testCase.sID)
-			au := NewAuthUsecase(mockUserRepo, mockSessionRepo)
-			ok := au.IsLoggedIn(testCase.sID)
+			au := usecase.NewAuthUsecase(mockUserRepo, mockSessionRepo, mockProfileRepo)
+			ok := au.IsLoggedIn(context.Background(), testCase.sID)
 			require.Equal(t, testCase.expectedResult, ok)
 		})
 	}

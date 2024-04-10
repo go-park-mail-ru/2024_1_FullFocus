@@ -1,15 +1,54 @@
+//go:generate mockgen -source=usecase.go -destination=./mocks/usecase_mock.go
 package usecase
 
-import "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+import (
+	"context"
 
-type Auth interface {
-	Login(login string, password string) (string, error)
-	Signup(login string, password string) (string, string, error)
-	GetUserIDBySessionID(sID string) (uint, error)
-	Logout(sID string) error
-	IsLoggedIn(isID string) bool
-}
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+)
 
-type Products interface {
-	GetProducts(lastID, limit int) ([]models.Product, error)
-}
+type (
+	Auth interface {
+		Login(ctx context.Context, login string, password string) (string, error)
+		Signup(ctx context.Context, login string, password string) (string, error)
+		GetUserIDBySessionID(ctx context.Context, sID string) (uint, error)
+		Logout(ctx context.Context, sID string) error
+		IsLoggedIn(ctx context.Context, isID string) bool
+	}
+
+	Products interface {
+		GetAllProductCards(ctx context.Context, input models.GetAllProductsInput) ([]models.ProductCard, error)
+		GetProductByID(ctx context.Context, profileID uint, productID uint) (models.Product, error)
+		GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error)
+	}
+
+	Avatars interface {
+		GetAvatar(ctx context.Context, profileID uint) (models.Avatar, error)
+		UploadAvatar(ctx context.Context, profileID uint, img models.Avatar) error
+		DeleteAvatar(ctx context.Context, uID uint) error
+	}
+
+	Orders interface {
+		Create(ctx context.Context, input models.CreateOrderInput) (uint, error)
+		GetOrderByID(ctx context.Context, profileID uint, orderingID uint) (models.GetOrderPayload, error)
+		GetAllOrders(ctx context.Context, profileID uint) ([]models.Order, error)
+		Delete(ctx context.Context, profileID uint, orderingID uint) error
+	}
+
+	Profiles interface {
+		UpdateProfile(ctx context.Context, uID uint, newProfile dto.ProfileData) error
+		GetProfile(ctx context.Context, uID uint) (dto.ProfileData, error)
+		CreateProfile(ctx context.Context, profile dto.ProfileData) (uint, error)
+	}
+	Carts interface {
+		GetAllCartItems(ctx context.Context, uID uint) (models.CartContent, error)
+		UpdateCartItem(ctx context.Context, uID, prID uint) (uint, error)
+		DeleteCartItem(ctx context.Context, uID, prID uint) (uint, error)
+		DeleteAllCartItems(ctx context.Context, uID uint) error
+	}
+
+	Categories interface {
+		GetAllCategories(ctx context.Context) ([]models.Category, error)
+	}
+)

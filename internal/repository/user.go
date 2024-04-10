@@ -1,40 +1,44 @@
 package repository
 
 import (
-	"sync"
+	"context"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/dao"
 )
 
 type UserRepo struct {
-	nextID uint
-	sync.Mutex
-	storage map[string]models.User
+	storage db.Database
 }
 
-func NewUserRepo() *UserRepo {
+func NewUserRepo(dbClient db.Database) *UserRepo {
 	return &UserRepo{
-		storage: make(map[string]models.User),
+		storage: dbClient,
 	}
 }
 
-func (r *UserRepo) CreateUser(user models.User) (uint, error) {
-	r.Lock()
-	defer r.Unlock()
-	if _, ok := r.storage[user.Username]; ok {
+func (r *UserRepo) CreateUser(ctx context.Context, user models.User) (uint, error) {
+	userRow := dao.ConvertUserToTable(user)
+	q := `INSERT INTO default_user (user_login, password_hash) VALUES ($1, $2) returning id;`
+
+	resRow := dao.UserTable{}
+	err := r.storage.Get(ctx, &resRow, q, userRow.Login, userRow.PasswordHash)
+	if err != nil {
+		logger.Info(ctx, "user already exists")
 		return 0, models.ErrUserAlreadyExists
 	}
-	r.nextID++
-	r.storage[user.Username] = user
-	return user.ID, nil
+	return resRow.ID, nil
 }
 
-func (r *UserRepo) GetUser(username string) (models.User, error) {
-	r.Lock()
-	user, ok := r.storage[username]
-	r.Unlock()
-	if !ok {
+func (r *UserRepo) GetUser(ctx context.Context, username string) (models.User, error) {
+	q := `SELECT id, password_hash FROM default_user WHERE user_login = $1;`
+
+	userRow := &dao.UserTable{}
+	if err := r.storage.Get(ctx, userRow, q, username); err != nil {
+		logger.Error(ctx, "user not found")
 		return models.User{}, models.ErrNoUser
 	}
-	return user, nil
+	return dao.ConvertTableToUser(*userRow), nil
 }

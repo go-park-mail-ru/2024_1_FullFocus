@@ -1,71 +1,105 @@
 package usecase
 
 import (
-	"crypto/md5"
-	"encoding/hex"
-	"log"
-	"strconv"
+	"context"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
-	passwordvalidator "github.com/wagslane/go-password-validator"
+)
+
+const (
+	_minLoginLength    = 4
+	_maxLoginLength    = 32
+	_minPasswordLength = 8
+	_maxPasswordLength = 32
+	_NumberLenght      = 6
 )
 
 type AuthUsecase struct {
 	userRepo    repository.Users
 	sessionRepo repository.Sessions
+	profileRepo repository.Profiles
 }
 
-func NewAuthUsecase(ur repository.Users, sr repository.Sessions) *AuthUsecase {
+func NewAuthUsecase(ur repository.Users, sr repository.Sessions, pr repository.Profiles) *AuthUsecase {
 	return &AuthUsecase{
 		userRepo:    ur,
 		sessionRepo: sr,
+		profileRepo: pr,
 	}
 }
 
-func (u *AuthUsecase) Login(login string, password string) (string, error) {
-	user, err := u.userRepo.GetUser(login)
-	if err != nil {
-		return "", err
+func (u *AuthUsecase) Login(ctx context.Context, login string, password string) (string, error) {
+	if err := helper.ValidateField(login, _minLoginLength, _maxLoginLength); err != nil {
+		return "", helper.NewValidationError("invalid login input",
+			"Логин должен содержать от 4 до 32 букв английского алфавита или цифр")
 	}
-	if password != user.Password {
+	if err := helper.ValidateField(password, _minPasswordLength, _maxPasswordLength); err != nil {
+		return "", helper.NewValidationError("invalid password input",
+			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
+	}
+
+	user, err := u.userRepo.GetUser(ctx, login)
+	if err != nil {
+		return "", models.ErrNoUser
+	}
+
+	// TODO: add hasher from helper
+	// err = helper.CheckPassword(password, user.PasswordHash)
+	if password != user.PasswordHash {
 		return "", models.ErrWrongPassword
 	}
-	return u.sessionRepo.CreateSession(user.ID), nil
+	return u.sessionRepo.CreateSession(ctx, user.ID), nil
 }
 
-func (u *AuthUsecase) Signup(login string, password string) (string, string, error) {
-	const passwordStrength = 50
-	switch {
-	case len(login) < 5:
-		return "", "", models.ErrShortUsername
-	case passwordvalidator.Validate(password, passwordStrength) != nil:
-		return "", "", models.ErrWeakPassword
+func (u *AuthUsecase) Signup(ctx context.Context, login string, password string) (string, error) {
+	if err := helper.ValidateField(login, _minLoginLength, _maxLoginLength); err != nil {
+		return "", helper.NewValidationError("invalid login input",
+			"Логин должен содержать от 4 до 32 букв английского алфавита или цифр")
 	}
+	if err := helper.ValidateField(password, _minPasswordLength, _maxPasswordLength); err != nil {
+		return "", helper.NewValidationError("invalid password input",
+			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
+	}
+
+	// TODO: add hasher from helper
+	// passwordHash, err := helper.HashPassword(password)
+	// if err != nil {
+	// 	return "", err
+	// }
 	user := models.User{
-		Username: login,
-		Password: password,
+		Username:     login,
+		PasswordHash: password,
 	}
-	uID, err := u.userRepo.CreateUser(user)
+	uID, err := u.userRepo.CreateUser(ctx, user)
 	if err != nil {
-		return "", "", err
+		return "", models.ErrUserAlreadyExists
 	}
-	sID := u.sessionRepo.CreateSession(uID)
 
-	uIDHash := md5.Sum([]byte(strconv.Itoa(int(uID))))
-	stringUID := hex.EncodeToString(uIDHash[:])
-	log.Printf("User ID hash: %s", stringUID)
-	return sID, stringUID, nil
+	profile := models.Profile{
+		ID:          uID,
+		FullName:    login,
+		Email:       "yourawesome@mail.ru",
+		PhoneNumber: "70000000000",
+	}
+	_, err = u.profileRepo.CreateProfile(ctx, profile)
+	if err != nil {
+		return "", models.ErrProfileAlreadyExists
+	}
+
+	sID := u.sessionRepo.CreateSession(ctx, uID)
+	return sID, nil
 }
 
-func (u *AuthUsecase) GetUserIDBySessionID(sID string) (uint, error) {
-	return u.sessionRepo.GetUserIDBySessionID(sID)
+func (u *AuthUsecase) GetUserIDBySessionID(ctx context.Context, sID string) (uint, error) {
+	return u.sessionRepo.GetUserIDBySessionID(ctx, sID)
 }
 
-func (u *AuthUsecase) Logout(sID string) error {
-	return u.sessionRepo.DeleteSession(sID)
+func (u *AuthUsecase) Logout(ctx context.Context, sID string) error {
+	return u.sessionRepo.DeleteSession(ctx, sID)
 }
 
-func (u *AuthUsecase) IsLoggedIn(sID string) bool {
-	return u.sessionRepo.SessionExists(sID)
+func (u *AuthUsecase) IsLoggedIn(ctx context.Context, sID string) bool {
+	return u.sessionRepo.SessionExists(ctx, sID)
 }

@@ -1,146 +1,162 @@
 package delivery
 
 import (
-	"context"
 	"net/http"
 	"time"
 
+	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
+
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
-	"github.com/gorilla/mux"
-	"github.com/pkg/errors"
-)
-
-const (
-	SessionTTL = time.Hour * 24
 )
 
 type AuthHandler struct {
-	srv     *http.Server
-	router  *mux.Router
-	usecase usecase.Auth
+	router     *mux.Router
+	usecase    usecase.Auth
+	sessionTTL time.Duration
 }
 
-func NewAuthHandler(s *http.Server, uc usecase.Auth) *AuthHandler {
+func NewAuthHandler(uc usecase.Auth, sessTTL time.Duration) *AuthHandler {
 	return &AuthHandler{
-		srv:     s,
-		router:  mux.NewRouter(),
-		usecase: uc,
+		router:     mux.NewRouter(),
+		usecase:    uc,
+		sessionTTL: sessTTL,
 	}
 }
 
 func (h *AuthHandler) InitRouter(r *mux.Router) {
 	h.router = r.PathPrefix("/auth").Subrouter()
 	{
-		h.router.Handle("/login", http.HandlerFunc(h.Login)).Methods("GET", "POST", "OPTIONS")
-		h.router.Handle("/signup", http.HandlerFunc(h.Signup)).Methods("GET", "POST", "OPTIONS")
-		h.router.Handle("/logout", http.HandlerFunc(h.Logout)).Methods("POST", "OPTIONS")
+		h.router.Handle("/public/v1/login", http.HandlerFunc(h.Login)).Methods("POST", "OPTIONS")
+		h.router.Handle("/public/v1/signup", http.HandlerFunc(h.Signup)).Methods("POST", "OPTIONS")
+		h.router.Handle("/v1/logout", http.HandlerFunc(h.Logout)).Methods("POST", "OPTIONS")
+		h.router.Handle("/public/v1/check", http.HandlerFunc(h.CheckAuth)).Methods("GET", "OPTIONS")
 	}
 }
 
-func (h *AuthHandler) Run() error {
-	return h.srv.ListenAndServe()
-}
-
-func (h *AuthHandler) Stop() error {
-	return h.srv.Shutdown(context.Background())
-}
-
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
-	login := r.FormValue("login")
-	password := r.FormValue("password")
-
-	sID, err := h.usecase.Login(login, password)
-	if errors.Is(err, models.ErrNoUser) {
-		helper.JSONResponse(w, 200, models.ErrResponse{
-			Status: 401,
-			Msg:    "wrong login",
-			MsgRus: "логин введен неправильно или учетная запись не существует",
+	ctx := r.Context()
+	loginData, err := helper.GetLoginData(r)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 400,
+			Msg:    err.Error(),
+			MsgRus: "Ошибка обработки данных",
 		})
 		return
-	} else if errors.Is(err, models.ErrWrongPassword) {
-		helper.JSONResponse(w, 200, models.ErrResponse{
-			Status: 401,
-			Msg:    "wrong password",
-			MsgRus: "введен неверный пароль",
+	}
+	sID, err := h.usecase.Login(ctx, loginData.Login, loginData.Password)
+	if err != nil {
+		if validationError := new(helper.ValidationError); errors.As(err, &validationError) {
+			helper.JSONResponse(ctx, w, 200, validationError.WithCode(400))
+			return
+		}
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 400,
+			Msg:    err.Error(),
+			MsgRus: "Неверный логин или пароль",
 		})
 		return
 	}
 	cookie := &http.Cookie{
 		Name:     "session_id",
 		Value:    sID,
-		Secure:   true,
 		HttpOnly: true,
-		Expires:  time.Now().Add(SessionTTL),
+		Expires:  time.Now().Add(h.sessionTTL),
+		Path:     "/",
 	}
 	http.SetCookie(w, cookie)
-	helper.JSONResponse(w, 200, models.SuccessResponse{
+	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
 	})
 }
 
 func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
-	login := r.FormValue("login")
-	password := r.FormValue("password")
-	sID, _, err := h.usecase.Signup(login, password)
-	if errors.Is(err, models.ErrUserAlreadyExists) {
-		helper.JSONResponse(w, 200, models.ErrResponse{
+	ctx := r.Context()
+	loginData, err := helper.GetLoginData(r)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 400,
-			Msg:    "user already exists",
-			MsgRus: "невозможно создать пользователя с таким логином, такой уже существует",
+			Msg:    err.Error(),
+			MsgRus: "Ошибка обработки данных",
 		})
 		return
-	} else if errors.Is(err, models.ErrShortUsername) {
-		helper.JSONResponse(w, 200, models.ErrResponse{
+	}
+	sID, err := h.usecase.Signup(ctx, loginData.Login, loginData.Password)
+	if err != nil {
+		if validationError := new(helper.ValidationError); errors.As(err, &validationError) {
+			helper.JSONResponse(ctx, w, 200, validationError.WithCode(400))
+			return
+		}
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 400,
-			Msg:    "too short username",
-			MsgRus: "логин должен содержать больше 5 символов",
-		})
-		return
-	} else if errors.Is(err, models.ErrWeakPassword) {
-		helper.JSONResponse(w, 200, models.ErrResponse{
-			Status: 400,
-			Msg:    "too weak password",
-			MsgRus: "пароль слишком простой",
+			Msg:    err.Error(),
+			MsgRus: "Пользователь уже существует",
 		})
 		return
 	}
 	cookie := &http.Cookie{
 		Name:     "session_id",
 		Value:    sID,
-		Secure:   true,
 		HttpOnly: true,
-		Expires:  time.Now().Add(SessionTTL),
+		Expires:  time.Now().Add(h.sessionTTL),
+		Path:     "/",
 	}
 	http.SetCookie(w, cookie)
-	helper.JSONResponse(w, 200, models.SuccessResponse{
+	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
 	})
 }
 
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	session, err := r.Cookie("session_id")
 	if errors.Is(err, http.ErrNoCookie) {
-		helper.JSONResponse(w, 200, models.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 401,
-			Msg:    "no session",
-			MsgRus: "авторизация отсутствует",
+			Msg:    err.Error(),
+			MsgRus: "Авторизация отсутствует",
 		})
 		return
 	}
-	err = h.usecase.Logout(session.Value)
-	if errors.Is(err, models.ErrNoSession) {
-		helper.JSONResponse(w, 200, models.ErrResponse{
+	if err = h.usecase.Logout(ctx, session.Value); errors.Is(err, models.ErrNoSession) {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 401,
-			Msg:    "no session",
-			MsgRus: "авторизация отсутствует",
+			Msg:    err.Error(),
+			MsgRus: "Авторизация отсутствует",
 		})
 		return
 	}
 	session.Expires = time.Now().AddDate(0, 0, -1)
 	http.SetCookie(w, session)
-	helper.JSONResponse(w, 200, models.SuccessResponse{
+	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
+		Status: 200,
+	})
+}
+
+func (h *AuthHandler) CheckAuth(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	session, err := r.Cookie("session_id")
+	if errors.Is(err, http.ErrNoCookie) {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 401,
+			Msg:    "no session",
+			MsgRus: "авторизация отсутствует",
+		})
+		return
+	}
+	if !h.usecase.IsLoggedIn(ctx, session.Value) {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 401,
+			Msg:    "no session",
+			MsgRus: "авторизация отсутствует",
+		})
+		return
+	}
+	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
 	})
 }

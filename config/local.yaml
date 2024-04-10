@@ -1,0 +1,23 @@
+env: "local"
+session_ttl: 1h
+server:
+  port: ":8080"
+  timeout: 10s
+  idle_timeout: 60s
+redis:
+  addr: "localhost:6379"
+minio:
+  port: ":9000"
+  minio_user: FullFocus
+  minio_password: FullFocus4
+  avatar_bucket: "avatars"
+postgres:
+  host: "localhost"
+  port: "5432"
+  user: "postgres"
+  password: "postgres"
+  database: "ozon"
+  sslmode: "disable"
+  search_path: "ozon"
+  max_open_conns: 10
+  max_idle_time: 10
