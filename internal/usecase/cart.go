@@ -28,7 +28,7 @@ func (u *CartUsecase) GetAllCartItems(ctx context.Context, uID uint) (models.Car
 	for i, product := range products {
 		products[i].Cost = product.Price * product.Count
 		count += product.Count
-		sum += product.Cost
+		sum += products[i].Cost
 	}
 
 	content := models.CartContent{
