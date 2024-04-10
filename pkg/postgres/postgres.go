@@ -74,8 +74,12 @@ func (db *PgxDatabase) Select(ctx context.Context, dest interface{}, q string, a
 	return err
 }
 
-func (db *PgxDatabase) NamedExec(ctx context.Context, query string, arg interface{}) (sql.Result, error) {
-	return db.client.NamedExecContext(ctx, query, arg)
+func (db *PgxDatabase) NamedExec(ctx context.Context, q string, arg interface{}) (sql.Result, error) {
+	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("%v", arg)))
+	start := time.Now()
+	result, err := db.client.NamedExecContext(ctx, q, arg)
+	logger.Info(ctx, fmt.Sprintf("queried in %s", time.Since(start)))
+	return result, err
 }
 
 func (db *PgxDatabase) Begin(ctx context.Context, opts *sql.TxOptions) (*sqlx.Tx, error) {

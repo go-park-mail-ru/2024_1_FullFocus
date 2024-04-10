@@ -15,7 +15,7 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
-	middleware "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/server"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
@@ -95,6 +95,9 @@ func Init() *App {
 	profileUsecase := usecase.NewProfileUsecase(profileRepo)
 	profileHandler := delivery.NewProfileHandler(profileUsecase)
 	profileHandler.InitRouter(apiRouter)
+	// if err = minio2.InitBucket(context.Background(), minioClient, cfg.Minio.AvatarBucket); err != nil {
+	//	panic("minio setup error: " + err.Error())
+	//}
 
 	// Auth
 	userRepo := repository.NewUserRepo(pgxClient)
@@ -112,23 +115,23 @@ func Init() *App {
 	productHandler := delivery.NewProductHandler(productUsecase)
 	productHandler.InitRouter(apiRouter)
 
-	// Order
-	orderRepo := repository.NewOrderRepo(pgxClient)
-	orderUsecase := usecase.NewOrderUsecase(orderRepo)
-	orderHandler := delivery.NewOrderHandler(orderUsecase)
-	orderHandler.InitRouter(apiRouter)
-
-	// Avatar
-	avatarStorage := repository.NewAvatarStorage(minioClient)
-	avatarUsecase := usecase.NewAvatarUsecase(avatarStorage, userRepo)
-	avatarHandler := delivery.NewAvatarHandler(avatarUsecase)
-	avatarHandler.InitRouter(apiRouter)
-
 	// Cart
 	cartRepo := repository.NewCartRepo(pgxClient)
 	cartUsecase := usecase.NewCartUsecase(cartRepo)
 	cartHandler := delivery.NewCartHandler(cartUsecase)
 	cartHandler.InitRouter(apiRouter)
+
+	// Order
+	orderRepo := repository.NewOrderRepo(pgxClient)
+	orderUsecase := usecase.NewOrderUsecase(orderRepo, cartRepo)
+	orderHandler := delivery.NewOrderHandler(orderUsecase)
+	orderHandler.InitRouter(apiRouter)
+
+	// Avatar
+	avatarStorage := repository.NewAvatarStorage(minioClient, cfg.Minio)
+	avatarUsecase := usecase.NewAvatarUsecase(avatarStorage, profileRepo)
+	avatarHandler := delivery.NewAvatarHandler(avatarUsecase)
+	avatarHandler.InitRouter(apiRouter)
 
 	// Categories
 	categoryRepo := repository.NewCategoryRepo(pgxClient)

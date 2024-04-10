@@ -27,7 +27,8 @@ type (
 	}
 
 	Avatars interface {
-		UploadAvatar(ctx context.Context, img models.Image) error
+		GetAvatar(ctx context.Context, fileName string) (models.Avatar, error)
+		UploadAvatar(ctx context.Context, fileName string, img models.Avatar) error
 		DeleteAvatar(ctx context.Context, imageName string) error
 	}
 
@@ -45,7 +46,7 @@ type (
 		CreateProfile(ctx context.Context, profile models.Profile) (uint, error)
 		UpdateAvatarByProfileID(ctx context.Context, uID uint, imgSrc string) error
 		GetAvatarByProfileID(ctx context.Context, uID uint) (string, error)
-		DeleteAvatarByProfileID(ctx context.Context, uID uint) (string, error)
+		DeleteAvatarByProfileID(ctx context.Context, uID uint) error
 	}
 
 	Carts interface {

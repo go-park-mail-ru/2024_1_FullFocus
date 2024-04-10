@@ -24,8 +24,9 @@ type (
 	}
 
 	Avatars interface {
-		UploadAvatar(ctx context.Context, img dto.Image, profileID uint) error
-		DeleteAvatar(ctx context.Context, profileID uint) error
+		GetAvatar(ctx context.Context, profileID uint) (models.Avatar, error)
+		UploadAvatar(ctx context.Context, profileID uint, img models.Avatar) error
+		DeleteAvatar(ctx context.Context, uID uint) error
 	}
 
 	Orders interface {

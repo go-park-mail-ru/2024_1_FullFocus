@@ -13,6 +13,14 @@ type OrderItem struct {
 	Count     uint
 }
 
+func ConvertCartItemsToOrderItems(cartItems []CartItem) []OrderItem {
+	orderItems := make([]OrderItem, 0, len(cartItems))
+	for _, item := range cartItems {
+		orderItems = append(orderItems, OrderItem(item))
+	}
+	return orderItems
+}
+
 type Order struct {
 	ID         uint
 	Sum        uint

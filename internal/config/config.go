@@ -34,6 +34,7 @@ type MinioConfig struct {
 	Port          string `yaml:"port"`
 	MinioUser     string `yaml:"minio_user"`
 	MinioPassword string `yaml:"minio_password"`
+	AvatarBucket  string `yaml:"avatar_bucket"`
 }
 
 type PostgresConfig struct {

@@ -10,6 +10,7 @@ minio:
   port: ":9000"
   minio_user: FullFocus
   minio_password: FullFocus4
+  avatar_bucket: "avatars"
 postgres:
   host: "localhost"
   port: "5432"
