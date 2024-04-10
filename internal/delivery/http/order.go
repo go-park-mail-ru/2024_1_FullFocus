@@ -118,9 +118,11 @@ func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	data := dto.GetOrderPayload{
-		Products: dto.ConvertOrderProductsToDTO(orderInfo.Products),
-		Sum:      orderInfo.Sum,
-		Status:   orderInfo.Status,
+		Products:   dto.ConvertOrderProductsToDTO(orderInfo.Products),
+		Sum:        orderInfo.Sum,
+		Status:     orderInfo.Status,
+		ItemsCount: orderInfo.ItemsCount,
+		CreatedAt:  orderInfo.CreatedAt,
 	}
 	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
