@@ -111,6 +111,7 @@ func Init() *App {
 	// Auth Middleware
 	r.Use(middleware.NewAuthMiddleware(authUsecase))
 
+	// Products
 	productRepo := repository.NewProductRepo(pgxClient)
 	productUsecase := usecase.NewProductUsecase(productRepo)
 	productHandler := delivery.NewProductHandler(productUsecase)
@@ -133,6 +134,12 @@ func Init() *App {
 	avatarUsecase := usecase.NewAvatarUsecase(avatarStorage, profileRepo)
 	avatarHandler := delivery.NewAvatarHandler(avatarUsecase)
 	avatarHandler.InitRouter(apiRouter)
+
+	// Categories
+	categoryRepo := repository.NewCategoryRepo(pgxClient)
+	categoryUsecase := usecase.NewCategoryUsecase(categoryRepo)
+	categoryHandler := delivery.NewCategoryHandler(categoryUsecase)
+	categoryHandler.InitRouter(apiRouter)
 
 	return &App{
 		config: cfg,

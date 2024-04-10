@@ -56,4 +56,8 @@ type (
 		DeleteCartItem(ctx context.Context, uID, orID uint) (uint, error)
 		DeleteAllCartItems(ctx context.Context, uID uint) error
 	}
+
+	Categories interface {
+		GetAllCategories(ctx context.Context) ([]models.Category, error)
+	}
 )

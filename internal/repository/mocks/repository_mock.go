@@ -539,6 +539,21 @@ func (mr *MockCartsMockRecorder) GetAllCartItems(ctx, uID interface{}) *gomock.C
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllCartItems", reflect.TypeOf((*MockCarts)(nil).GetAllCartItems), ctx, uID)
 }
 
+// GetAllCartItemsID mocks base method.
+func (m *MockCarts) GetAllCartItemsID(ctx context.Context, uID uint) ([]models.CartItem, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllCartItemsID", ctx, uID)
+	ret0, _ := ret[0].([]models.CartItem)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllCartItemsID indicates an expected call of GetAllCartItemsID.
+func (mr *MockCartsMockRecorder) GetAllCartItemsID(ctx, uID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllCartItemsID", reflect.TypeOf((*MockCarts)(nil).GetAllCartItemsID), ctx, uID)
+}
+
 // UpdateCartItem mocks base method.
 func (m *MockCarts) UpdateCartItem(ctx context.Context, uID, prID uint) (uint, error) {
 	m.ctrl.T.Helper()
@@ -552,4 +567,42 @@ func (m *MockCarts) UpdateCartItem(ctx context.Context, uID, prID uint) (uint, e
 func (mr *MockCartsMockRecorder) UpdateCartItem(ctx, uID, prID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateCartItem", reflect.TypeOf((*MockCarts)(nil).UpdateCartItem), ctx, uID, prID)
+}
+
+// MockCategories is a mock of Categories interface.
+type MockCategories struct {
+	ctrl     *gomock.Controller
+	recorder *MockCategoriesMockRecorder
+}
+
+// MockCategoriesMockRecorder is the mock recorder for MockCategories.
+type MockCategoriesMockRecorder struct {
+	mock *MockCategories
+}
+
+// NewMockCategories creates a new mock instance.
+func NewMockCategories(ctrl *gomock.Controller) *MockCategories {
+	mock := &MockCategories{ctrl: ctrl}
+	mock.recorder = &MockCategoriesMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockCategories) EXPECT() *MockCategoriesMockRecorder {
+	return m.recorder
+}
+
+// GetAllCategories mocks base method.
+func (m *MockCategories) GetAllCategories(ctx context.Context) ([]models.Category, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllCategories", ctx)
+	ret0, _ := ret[0].([]models.Category)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllCategories indicates an expected call of GetAllCategories.
+func (mr *MockCategoriesMockRecorder) GetAllCategories(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllCategories", reflect.TypeOf((*MockCategories)(nil).GetAllCategories), ctx)
 }

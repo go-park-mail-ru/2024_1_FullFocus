@@ -23,7 +23,7 @@ func TestNewCartHandler(t *testing.T) {
 		defer ctrl.Finish()
 		cu := mock_usecase.NewMockCarts(ctrl)
 		ch := delivery.NewCartHandler(cu)
-		require.NotEmpty(t, ch)
+		require.NotEmpty(t, ch, "Cart handler not created")
 	})
 }
 

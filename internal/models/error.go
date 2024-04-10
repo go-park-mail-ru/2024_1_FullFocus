@@ -20,4 +20,5 @@ var (
 	ErrProfileAlreadyExists = errors.New("profile exists")
 	ErrEmptyCart            = errors.New("no cart items found")
 	ErrCantUpload           = errors.New("can't upload")
+	ErrInternal             = errors.New("internal server error")
 )
