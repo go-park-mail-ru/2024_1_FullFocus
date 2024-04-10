@@ -24,10 +24,10 @@ func (u *ProductUsecase) GetAllProductCards(ctx context.Context, input models.Ge
 	return u.productRepo.GetAllProductCards(ctx, input)
 }
 
-func (u *ProductUsecase) GetProductById(ctx context.Context, profileID uint, productID uint) (models.Product, error) {
-	return u.productRepo.GetProductById(ctx, profileID, productID)
+func (u *ProductUsecase) GetProductByID(ctx context.Context, profileID uint, productID uint) (models.Product, error) {
+	return u.productRepo.GetProductByID(ctx, profileID, productID)
 }
 
-func (u *ProductUsecase) GetProductsByCategoryId(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error) {
-	return u.productRepo.GetProductsByCategoryId(ctx, input)
+func (u *ProductUsecase) GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error) {
+	return u.productRepo.GetProductsByCategoryID(ctx, input)
 }

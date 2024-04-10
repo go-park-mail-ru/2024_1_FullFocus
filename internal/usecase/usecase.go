@@ -19,13 +19,14 @@ type (
 
 	Products interface {
 		GetAllProductCards(ctx context.Context, input models.GetAllProductsInput) ([]models.ProductCard, error)
-		GetProductById(ctx context.Context, profileID uint, productID uint) (models.Product, error)
-		GetProductsByCategoryId(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error)
+		GetProductByID(ctx context.Context, profileID uint, productID uint) (models.Product, error)
+		GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error)
 	}
 
 	Avatars interface {
-		UploadAvatar(ctx context.Context, img dto.Image, profileID uint) error
-		DeleteAvatar(ctx context.Context, profileID uint) error
+		GetAvatar(ctx context.Context, profileID uint) (models.Avatar, error)
+		UploadAvatar(ctx context.Context, profileID uint, img models.Avatar) error
+		DeleteAvatar(ctx context.Context, uID uint) error
 	}
 
 	Orders interface {

@@ -41,7 +41,7 @@ func TestGetProducts(t *testing.T) {
 			lastIDstr: "3",
 			limitStr:  "6",
 			mockBehavior: func(u *mock_usecase.MockProducts, lastId, limit int) {
-				u.EXPECT().GetProducts(context.Background(), lastId, limit).Return([]models.Product{}, nil)
+				u.EXPECT().GetAllProductCards(context.Background(), lastId, limit).Return([]models.Product{}, nil)
 			},
 			expectedStatus: 200,
 		},

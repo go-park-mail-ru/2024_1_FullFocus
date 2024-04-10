@@ -6,9 +6,9 @@ import (
 	"strconv"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/gorilla/mux"
 
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 )
@@ -39,7 +39,7 @@ func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	uID, _ := helper.GetUserIDFromContext(ctx)
 	pageNum, err := strconv.ParseUint(r.URL.Query().Get("page"), 10, 32)
 	if err != nil {
-		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 400,
 			Msg:    "invalid page value",
 			MsgRus: "Невалидные параметры",
@@ -48,7 +48,7 @@ func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	}
 	pageSize, err := strconv.ParseUint(r.URL.Query().Get("limit"), 10, 32)
 	if err != nil {
-		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 400,
 			Msg:    "invalid limit value",
 			MsgRus: "Невалидные параметры",
@@ -63,14 +63,14 @@ func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	products, err := h.usecase.GetAllProductCards(ctx, getProductsInput)
 	if err != nil {
 		if errors.Is(err, models.ErrNoRowsFound) {
-			helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 				Status: 404,
 				Msg:    "not found",
 				MsgRus: "Товары не найдены",
 			})
 			return
 		}
-		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 500,
 			Msg:    err.Error(),
 			MsgRus: "Ошибка поиска товаров",
@@ -80,7 +80,7 @@ func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	data := dto.GetAllProductsPayload{
 		ProductCards: dto.ConvertProductCardsToDTO(products),
 	}
-	helper.JSONResponse(ctx, w, 200, models.SuccessResponse{
+	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
 		Data:   data,
 	})
@@ -91,24 +91,24 @@ func (h *ProductHandler) GetProductByID(w http.ResponseWriter, r *http.Request) 
 	uID, _ := helper.GetUserIDFromContext(ctx)
 	productID, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 32)
 	if err != nil {
-		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 400,
 			Msg:    "invalid id value",
 			MsgRus: "Невалидный параметр",
 		})
 		return
 	}
-	product, err := h.usecase.GetProductById(ctx, uID, uint(productID))
+	product, err := h.usecase.GetProductByID(ctx, uID, uint(productID))
 	if err != nil {
 		if errors.Is(err, models.ErrNoRowsFound) {
-			helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 				Status: 400,
 				Msg:    err.Error(),
 				MsgRus: "Товар не найден",
 			})
 			return
 		}
-		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 500,
 			Msg:    err.Error(),
 			MsgRus: "Ошибка поиска товара",
@@ -126,7 +126,7 @@ func (h *ProductHandler) GetProductsByCategoryID(w http.ResponseWriter, r *http.
 	uID, _ := helper.GetUserIDFromContext(ctx)
 	categoryID, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 32)
 	if err != nil {
-		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 400,
 			Msg:    "invalid id value",
 			MsgRus: "Невалидные параметры",
@@ -135,7 +135,7 @@ func (h *ProductHandler) GetProductsByCategoryID(w http.ResponseWriter, r *http.
 	}
 	pageNum, err := strconv.ParseUint(r.URL.Query().Get("page"), 10, 32)
 	if err != nil {
-		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 400,
 			Msg:    "invalid page value",
 			MsgRus: "Невалидные параметры",
@@ -144,7 +144,7 @@ func (h *ProductHandler) GetProductsByCategoryID(w http.ResponseWriter, r *http.
 	}
 	pageSize, err := strconv.ParseUint(r.URL.Query().Get("limit"), 10, 32)
 	if err != nil {
-		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 400,
 			Msg:    "invalid limit value",
 			MsgRus: "Невалидные параметры",
@@ -157,23 +157,23 @@ func (h *ProductHandler) GetProductsByCategoryID(w http.ResponseWriter, r *http.
 		PageNum:    uint(pageNum),
 		PageSize:   uint(pageSize),
 	}
-	products, err := h.usecase.GetProductsByCategoryId(ctx, getProductsInput)
+	products, err := h.usecase.GetProductsByCategoryID(ctx, getProductsInput)
 	if err != nil {
 		if errors.Is(err, models.ErrNoProduct) {
-			helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 				Status: 400,
 				Msg:    err.Error(),
 				MsgRus: "Товары не найдены",
 			})
 		}
-		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 500,
 			Msg:    err.Error(),
 			MsgRus: "Ошибка поиска товаров",
 		})
 		return
 	}
-	helper.JSONResponse(ctx, w, 200, models.SuccessResponse{
+	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
 		Data:   dto.ConvertProductCardsToDTO(products),
 	})

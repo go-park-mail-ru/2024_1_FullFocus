@@ -10,6 +10,7 @@ minio:
   port: ":9000"
   minio_user: ${MINIO_USER}
   minio_password: ${MINIO_PASSWORD}
+  avatar_bucket: "avatars"
 postgres:
   host: "localhost"
   port: "5432"
