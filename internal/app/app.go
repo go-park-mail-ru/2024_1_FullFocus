@@ -10,7 +10,6 @@ import (
 	"syscall"
 	"time"
 
-	minio2 "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/minio"
 	"github.com/gorilla/mux"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
@@ -76,10 +75,6 @@ func Init() *App {
 		panic("minio connection error: " + err.Error())
 	}
 
-	if err = minio2.InitBucket(context.Background(), minioClient, cfg.Minio.AvatarBucket); err != nil {
-		panic("minio setup error: " + err.Error())
-	}
-
 	// Postgres
 
 	ctx, cancel := context.WithTimeout(context.Background(), _connTimeout)
@@ -100,6 +95,9 @@ func Init() *App {
 	profileUsecase := usecase.NewProfileUsecase(profileRepo)
 	profileHandler := delivery.NewProfileHandler(profileUsecase)
 	profileHandler.InitRouter(apiRouter)
+	// if err = minio2.InitBucket(context.Background(), minioClient, cfg.Minio.AvatarBucket); err != nil {
+	//	panic("minio setup error: " + err.Error())
+	//}
 
 	// Auth
 	userRepo := repository.NewUserRepo(pgxClient)

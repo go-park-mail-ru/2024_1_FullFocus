@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"log"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
@@ -22,6 +23,7 @@ func NewOrderUsecase(or repository.Orders, cr repository.Carts) *OrderUsecase {
 func (u *OrderUsecase) Create(ctx context.Context, input models.CreateOrderInput) (uint, error) {
 	var orderItems []models.OrderItem
 	if input.FromCart {
+		log.Printf("from cart")
 		cartItems, err := u.cartRepo.GetAllCartItemsID(ctx, input.UserID)
 		if err != nil {
 			return 0, err
@@ -34,7 +36,10 @@ func (u *OrderUsecase) Create(ctx context.Context, input models.CreateOrderInput
 	if err != nil {
 		return 0, err
 	}
-	return orderID, u.cartRepo.DeleteAllCartItems(ctx, input.UserID)
+	if input.FromCart {
+		return orderID, u.cartRepo.DeleteAllCartItems(ctx, input.UserID)
+	}
+	return orderID, nil
 }
 
 func (u *OrderUsecase) GetOrderByID(ctx context.Context, profileID uint, orderID uint) (models.GetOrderPayload, error) {
