@@ -14,7 +14,7 @@ import (
 	"net/http"
 )
 
-const _timeOut = 15
+const _timeOut = 20
 
 func CSRFMiddleware() mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
@@ -56,7 +56,7 @@ func CSRFMiddleware() mux.MiddlewareFunc {
 func SetSCRFToken(w http.ResponseWriter, r *http.Request) error {
 	tokens, _ := models.NewJwtToken("qsRY2e4hcM5T7X984E9WQ5uZ8Nty7fxB")
 	ctx := r.Context()
-	token, err := tokens.Create("sID", time.Now().Add(_timeOut*time.Second).Unix())
+	token, err := tokens.Create("sID", time.Now().Add(_timeOut*time.Minute).Unix())
 	logger.Info(ctx, fmt.Sprintf("err wiht csrf: %v", err))
 	if err != nil {
 		return err
