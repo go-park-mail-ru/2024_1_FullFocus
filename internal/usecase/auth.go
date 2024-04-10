@@ -45,11 +45,12 @@ func (u *AuthUsecase) Login(ctx context.Context, login string, password string) 
 		return "", models.ErrNoUser
 	}
 
-	// TODO: add hasher from helper
-	// err = helper.CheckPassword(password, user.PasswordHash)
+	// ok := helper.CheckPass([]byte(user.PasswordHash), password)
+
 	if password != user.PasswordHash {
 		return "", models.ErrWrongPassword
 	}
+
 	return u.sessionRepo.CreateSession(ctx, user.ID), nil
 }
 
@@ -63,15 +64,14 @@ func (u *AuthUsecase) Signup(ctx context.Context, login string, password string)
 			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
 	}
 
-	// TODO: add hasher from helper
-	// passwordHash, err := helper.HashPassword(password)
-	// if err != nil {
-	// 	return "", err
-	// }
+	// passwordHash, err := helper.MakeNewPassHash(password)
+	// if err != nil {return "", errors.New("err with making salt")}
+
 	user := models.User{
 		Username:     login,
 		PasswordHash: password,
 	}
+
 	uID, err := u.userRepo.CreateUser(ctx, user)
 	if err != nil {
 		return "", models.ErrUserAlreadyExists

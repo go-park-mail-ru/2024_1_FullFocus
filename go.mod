@@ -6,6 +6,7 @@ toolchain go1.22.0
 
 require (
 	github.com/alicebob/miniredis/v2 v2.32.1
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.6.0

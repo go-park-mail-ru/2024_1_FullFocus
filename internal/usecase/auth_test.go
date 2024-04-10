@@ -6,11 +6,11 @@ import (
 	"log"
 	"testing"
 
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	mock_repository "github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/mocks"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 )
@@ -44,8 +44,8 @@ func TestSignUp(t *testing.T) {
 			name:     "Check valid user signup",
 			login:    "test123",
 			password: "Qa5yAbrLhkwT4Y9u",
-			userMockBehavior: func(r *mock_repository.MockUsers, user models.User) {
-				r.EXPECT().CreateUser(context.Background(), user).Return(uint(0), nil)
+			userMockBehavior: func(r *mock_repository.MockUsers, _ models.User) {
+				r.EXPECT().CreateUser(context.Background(), gomock.Any()).Return(uint(0), nil)
 			},
 			sessionMockBehavior: func(r *mock_repository.MockSessions, userID uint) {
 				r.EXPECT().CreateSession(context.Background(), userID).Return("123")
@@ -63,8 +63,8 @@ func TestSignUp(t *testing.T) {
 			name:     "Check valid user signup",
 			login:    "test123",
 			password: "testtest1",
-			userMockBehavior: func(r *mock_repository.MockUsers, user models.User) {
-				r.EXPECT().CreateUser(context.Background(), user).Return(uint(0), nil)
+			userMockBehavior: func(r *mock_repository.MockUsers, _ models.User) {
+				r.EXPECT().CreateUser(context.Background(), gomock.Any()).Return(uint(0), nil)
 			},
 			sessionMockBehavior: func(r *mock_repository.MockSessions, userID uint) {
 				r.EXPECT().CreateSession(context.Background(), userID).Return("123")
@@ -82,8 +82,8 @@ func TestSignUp(t *testing.T) {
 			name:     "Check duplicate user signup",
 			login:    "test123",
 			password: "Qa5yAbrLhkwT4Y9u",
-			userMockBehavior: func(r *mock_repository.MockUsers, user models.User) {
-				r.EXPECT().CreateUser(context.Background(), user).Return(uint(0), models.ErrUserAlreadyExists)
+			userMockBehavior: func(r *mock_repository.MockUsers, _ models.User) {
+				r.EXPECT().CreateUser(context.Background(), gomock.Any()).Return(uint(0), models.ErrUserAlreadyExists)
 			},
 			expectedSID:     "",
 			expectedErr:     models.ErrUserAlreadyExists,
@@ -171,7 +171,8 @@ func TestLogin(t *testing.T) {
 			login:    "test123",
 			password: "test12345",
 			userMockBehavior: func(r *mock_repository.MockUsers, username string) {
-				r.EXPECT().GetUser(context.Background(), username).Return(models.User{ID: 0, Username: "test123", PasswordHash: "test12345"}, nil)
+				r.EXPECT().GetUser(context.Background(), username).Return(models.User{ID: 0, Username: "test123",
+					PasswordHash: "test12345"}, nil)
 			},
 			sessionMockBehavior: func(r *mock_repository.MockSessions, userID uint) {
 				r.EXPECT().CreateSession(context.Background(), userID).Return("123")
