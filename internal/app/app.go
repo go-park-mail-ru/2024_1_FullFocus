@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"fmt"
-	csrf "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/csrf"
 	"log/slog"
 	"net/http"
 	"os"
@@ -11,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	csrf "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/csrf"
 	"github.com/gorilla/mux"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"

@@ -172,7 +172,7 @@ func TestLogin(t *testing.T) {
 			password: "test12345",
 			userMockBehavior: func(r *mock_repository.MockUsers, username string) {
 				r.EXPECT().GetUser(context.Background(), username).Return(models.User{ID: 0, Username: "test123",
-					PasswordHash: string([]byte{0xd7, 0xc2, 0xf2, 0x51, 0xaa, 0x6a, 0x4e, 0x7b}) + string(helper.PasswordArgon2([]byte("test12345"), []byte{0xd7, 0xc2, 0xf2, 0x51, 0xaa, 0x6a, 0x4e, 0x7b}))}, nil)
+					PasswordHash: "test12345"}, nil)
 			},
 			sessionMockBehavior: func(r *mock_repository.MockSessions, userID uint) {
 				r.EXPECT().CreateSession(context.Background(), userID).Return("123")

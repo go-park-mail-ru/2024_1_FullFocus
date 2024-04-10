@@ -2,12 +2,8 @@ package helper
 
 import (
 	"bytes"
-	"crypto/rand"
+
 	"golang.org/x/crypto/argon2"
-	"golang.org/x/text/encoding/ianaindex"
-	"golang.org/x/text/transform"
-	"io/ioutil"
-	"log"
 )
 
 const (
@@ -18,7 +14,7 @@ const (
 )
 
 func hashPass(salt []byte, plainPassword string) []byte {
-	hashedPass := argon2.IDKey([]byte(plainPassword), []byte(salt), 1, _countMemory, _countTreads, _countKeyLen)
+	hashedPass := argon2.IDKey([]byte(plainPassword), salt, 1, _countMemory, _countTreads, _countKeyLen)
 	return append(salt, hashedPass...)
 }
 
@@ -29,7 +25,7 @@ func CheckPass(passHash []byte, plainPassword string) bool {
 }
 
 func MakeNewPassHash(password string) (string, error) {
-	salt := make([]byte, _countBytes)
+	/*salt := make([]byte, _countBytes)
 	_, err := rand.Read(salt)
 	if err != nil {
 		return "", err
@@ -45,5 +41,7 @@ func MakeNewPassHash(password string) (string, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return string(result), nil
+
+	*/
+	return password, nil
 }

@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
@@ -44,7 +45,7 @@ func (u *AuthUsecase) Login(ctx context.Context, login string, password string) 
 		return "", models.ErrNoUser
 	}
 
-	//ok := helper.CheckPass([]byte(user.PasswordHash), password)
+	// ok := helper.CheckPass([]byte(user.PasswordHash), password)
 
 	if password != user.PasswordHash {
 		return "", models.ErrWrongPassword
@@ -63,8 +64,8 @@ func (u *AuthUsecase) Signup(ctx context.Context, login string, password string)
 			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
 	}
 
-	//passwordHash, err := helper.MakeNewPassHash(password)
-	//if err != nil {return "", errors.New("err with making salt")}
+	// passwordHash, err := helper.MakeNewPassHash(password)
+	// if err != nil {return "", errors.New("err with making salt")}
 
 	user := models.User{
 		Username:     login,
