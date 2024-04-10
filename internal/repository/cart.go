@@ -69,6 +69,7 @@ func (r *CartRepo) UpdateCartItem(ctx context.Context, uID, prID uint) (uint, er
 			return 0, models.ErrNoProduct
 		}
 		logger.Error(ctx, "Error: %s", err.Error())
+		// TODO ErrNoProduct
 		return 0, models.ErrEmptyCart
 	}
 	return resRow.Count, nil
@@ -87,6 +88,7 @@ func (r *CartRepo) DeleteCartItem(ctx context.Context, uID, prID uint) (uint, er
 			return 0, models.ErrNoProduct
 		}
 		logger.Error(ctx, "Error: %s", err.Error())
+		// TODO ErrNoProduct
 		return 0, models.ErrEmptyCart
 	}
 

@@ -126,6 +126,12 @@ func Init() *App {
 	cartHandler := delivery.NewCartHandler(cartUsecase)
 	cartHandler.InitRouter(apiRouter)
 
+	// Categories
+	categoryRepo := repository.NewCategoryRepo(pgxClient)
+	categoryUsecase := usecase.NewCategoryUsecase(categoryRepo)
+	categoryHandler := delivery.NewCategoryHandler(categoryUsecase)
+	categoryHandler.InitRouter(apiRouter)
+
 	return &App{
 		config: cfg,
 		server: srv,

@@ -14,6 +14,7 @@ func NewCORSMiddleware(_ []string) mux.MiddlewareFunc {
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 			// }
 			if r.Method == http.MethodOptions {
 				w.WriteHeader(http.StatusOK)
