@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"fmt"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"math/rand"
 	"strconv"
 	"time"
@@ -22,7 +23,7 @@ func CSRFMiddleware() mux.MiddlewareFunc {
 				err := SetSCRFToken(w)
 				if err != nil {
 					logger.Debug(ctx, fmt.Sprintf("csrf token creation error: %v", err))
-					helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+					helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 						Status: 400,
 						Msg:    err.Error(),
 						MsgRus: "Ошибка создания csrf token",
@@ -33,7 +34,7 @@ func CSRFMiddleware() mux.MiddlewareFunc {
 				err := CheckSCRFToken(r)
 				if err != nil {
 					logger.Debug(ctx, fmt.Sprintf("csrf token check error: %v", err))
-					helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+					helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 						Status: 400,
 						Msg:    err.Error(),
 						MsgRus: "Ошибка проверки csrf token",

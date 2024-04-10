@@ -10,6 +10,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	mock_usecase "github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase/mocks"
@@ -87,7 +88,7 @@ func TestGetProducts(t *testing.T) {
 			testCase.mockBehavior(mockProductsUsecase, testCase.lastID, testCase.limit)
 			ph := delivery.NewProductHandler(mockProductsUsecase)
 
-			req := httptest.NewRequest("GET", "/api/products", nil)
+			req := httptest.NewRequest("GET", "/api/products/public/v1", nil)
 			q := req.URL.Query()
 			q.Set("lastid", testCase.lastIDstr)
 			q.Set("limit", testCase.limitStr)
@@ -99,8 +100,8 @@ func TestGetProducts(t *testing.T) {
 
 			var (
 				err         error
-				successResp models.SuccessResponse
-				errResp     models.ErrResponse
+				successResp dto.SuccessResponse
+				errResp     dto.ErrResponse
 			)
 			if testCase.expectedStatus != 200 {
 				err = json.NewDecoder(r.Body).Decode(&errResp)

@@ -22,12 +22,10 @@ go.work
 logs/
 *.log
 
-# DB data
-redis_data/
-minio-data/
-
 # Env files
 .env
 
+# tmp
+tmp/
 
 .idea

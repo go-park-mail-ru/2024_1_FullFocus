@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 )
 
@@ -18,4 +19,28 @@ func JSONResponse(ctx context.Context, w http.ResponseWriter, statusCode int, me
 	if err != nil {
 		logger.Error(ctx, "marshall error: "+err.Error())
 	}
+}
+
+func GetLoginData(r *http.Request) (dto.LoginData, error) {
+	var data dto.LoginData
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		return dto.LoginData{}, err
+	}
+	return data, nil
+}
+
+func GetProfileData(r *http.Request) (dto.ProfileData, error) {
+	var data dto.ProfileData
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		return dto.ProfileData{}, err
+	}
+	return data, nil
+}
+
+func GetCartItemData(r *http.Request) (dto.UpdateCartItemInput, error) {
+	var data dto.UpdateCartItemInput
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		return dto.UpdateCartItemInput{}, err
+	}
+	return data, nil
 }

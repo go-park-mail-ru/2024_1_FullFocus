@@ -26,7 +26,7 @@ func (u *AvatarUsecase) UploadAvatar(ctx context.Context, img dto.Image, uID uin
 	imgName := fmt.Sprintf("%d_%d", uID, time.Now().UnixNano())
 
 	object := models.Image{
-		Name:        imgName,
+		Name:        imgName, // по uID обновить имя аватарку
 		Payload:     img.Payload,
 		PayloadSize: img.PayloadSize,
 	}

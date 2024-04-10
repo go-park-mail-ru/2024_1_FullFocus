@@ -27,8 +27,8 @@ func NewAvatarHandler(u usecase.Avatars) *AvatarHandler {
 func (h *AvatarHandler) InitRouter(r *mux.Router) {
 	h.router = r.PathPrefix("/avatar").Subrouter()
 	{
-		h.router.Handle("/", http.HandlerFunc(h.UploadAvatar)).Methods("POST", "OPTIONS")
-		h.router.Handle("/", http.HandlerFunc(h.DeleteAvatar)).Methods("POST", "OPTIONS")
+		h.router.Handle("/v1/upload", http.HandlerFunc(h.UploadAvatar)).Methods("POST", "OPTIONS")
+		h.router.Handle("/v1/delete", http.HandlerFunc(h.DeleteAvatar)).Methods("POST", "OPTIONS")
 	}
 }
 
@@ -36,7 +36,7 @@ func (h *AvatarHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	uID, err := helper.GetUserIDFromContext(ctx)
 	if err != nil {
-		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 403,
 			Msg:    err.Error(),
 			MsgRus: "Пользователь не авторизован",
@@ -45,7 +45,7 @@ func (h *AvatarHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 	}
 	src, hdr, err := r.FormFile("avatar")
 	if err != nil {
-		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 400,
 			Msg:    err.Error(),
 			MsgRus: "Файл не загружен",
@@ -57,14 +57,14 @@ func (h *AvatarHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
 		PayloadSize: hdr.Size,
 	}
 	if err = h.usecase.UploadAvatar(ctx, img, uID); err != nil {
-		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 500,
 			Msg:    err.Error(),
 			MsgRus: "Ошибка загрузки фото",
 		})
 		return
 	}
-	helper.JSONResponse(ctx, w, 200, models.SuccessResponse{
+	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
 	})
 }
@@ -73,7 +73,7 @@ func (h *AvatarHandler) DeleteAvatar(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	uID, err := helper.GetUserIDFromContext(ctx)
 	if err != nil {
-		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 403,
 			Msg:    err.Error(),
 			MsgRus: "Пользователь не авторизован",
@@ -82,20 +82,20 @@ func (h *AvatarHandler) DeleteAvatar(w http.ResponseWriter, r *http.Request) {
 	}
 	if err = h.usecase.DeleteAvatar(ctx, uID); err != nil {
 		if errors.Is(err, models.ErrNoAvatar) {
-			helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 				Status: 400,
 				Msg:    err.Error(),
 				MsgRus: "Аватар не найден",
 			})
 			return
 		}
-		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 500,
 			Msg:    err.Error(),
 			MsgRus: "Ошибка удаления фото",
 		})
 	}
-	helper.JSONResponse(ctx, w, 200, models.SuccessResponse{
+	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
 	})
 }

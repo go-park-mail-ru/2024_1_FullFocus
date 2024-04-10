@@ -7,6 +7,7 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
@@ -27,7 +28,7 @@ func NewProductHandler(u usecase.Products) *ProductHandler {
 func (h *ProductHandler) InitRouter(r *mux.Router) {
 	h.router = r.PathPrefix("/products").Subrouter()
 	{
-		h.router.Handle("/", http.HandlerFunc(h.GetProducts)).Methods("GET", "OPTIONS")
+		h.router.Handle("/public/v1", http.HandlerFunc(h.GetProducts)).Methods("GET", "OPTIONS")
 	}
 }
 
@@ -50,14 +51,14 @@ func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 	}
 	prods, err := h.usecase.GetProducts(ctx, lastID, limit)
 	if errors.Is(err, models.ErrNoProduct) {
-		helper.JSONResponse(ctx, w, 200, models.ErrResponse{
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 404,
 			Msg:    "not found",
 			MsgRus: "по данному запросу товары не найдены",
 		})
 		return
 	}
-	helper.JSONResponse(ctx, w, 200, models.SuccessResponse{
+	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
 		Data:   prods,
 	})
