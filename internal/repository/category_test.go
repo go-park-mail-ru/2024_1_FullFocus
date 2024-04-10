@@ -38,7 +38,14 @@ func TestGetAllCategories(t *testing.T) {
 			expectedError: nil,
 		},
 		{
-			name: "Test empty cart get",
+			name: "Test no categories",
+			mockBehavior: func(d *mock_database.MockDatabase, t *[]dao.CategoryTable, q string) {
+				d.EXPECT().Select(context.Background(), t, q).Return(nil)
+			},
+			expectedError: nil,
+		},
+		{
+			name: "Test internal error",
 			mockBehavior: func(d *mock_database.MockDatabase, t *[]dao.CategoryTable, q string) {
 				d.EXPECT().Select(context.Background(), t, q).Return(errors.ErrUnsupported)
 			},
