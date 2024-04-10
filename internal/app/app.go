@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	csrf "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware/csrf"
 	"log/slog"
 	"net/http"
 	"os"
@@ -60,7 +61,7 @@ func Init() *App {
 
 	r.Use(logmw.NewLoggingMiddleware(log))
 	r.Use(corsmw.NewCORSMiddleware([]string{}))
-	// r.Use(csrfmw.CSRFMiddleware())
+	r.Use(csrf.CSRFMiddleware())
 
 	// Redis
 

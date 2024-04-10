@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
@@ -27,6 +28,7 @@ func (r *UserRepo) CreateUser(ctx context.Context, user models.User) (uint, erro
 	err := r.storage.Get(ctx, &resRow, q, userRow.Login, userRow.PasswordHash)
 	if err != nil {
 		logger.Info(ctx, "user already exists")
+		logger.Info(ctx, fmt.Sprintf("%v", err))
 		return 0, models.ErrUserAlreadyExists
 	}
 	return resRow.ID, nil
