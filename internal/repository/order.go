@@ -84,7 +84,7 @@ func (r *OrderRepo) GetOrderByID(ctx context.Context, orderID uint) (models.GetO
 
 	var sum uint
 	for _, product := range orderProducts {
-		sum += product.Price
+		sum += product.Price * product.Count
 	}
 
 	var orderInfo dao.OrderInfo

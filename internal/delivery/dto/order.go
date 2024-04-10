@@ -18,6 +18,7 @@ func ConvertOrderProductsToDTO(products []models.OrderProduct) []OrderProduct {
 		orderProducts = append(orderProducts, OrderProduct{
 			ID:          product.ID,
 			ProductName: product.ProductName,
+			Price:       product.Price,
 			Count:       product.Count,
 			ImgSrc:      product.ImgSrc,
 		})
