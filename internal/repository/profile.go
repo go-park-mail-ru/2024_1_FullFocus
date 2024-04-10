@@ -134,25 +134,17 @@ func (r *ProfileRepo) GetAvatarByProfileID(ctx context.Context, uID uint) (strin
 	return reqProfileRow.ImgSrc, nil
 }
 
-func (r *ProfileRepo) DeleteAvatarByProfileID(ctx context.Context, uID uint) (string, error) {
-	imgSrc, err := r.GetAvatarByProfileID(ctx, uID)
-	if err != nil {
-		return "", err
-	}
-	if imgSrc == "" {
-		return "", models.ErrNoAvatar
-	}
-
+func (r *ProfileRepo) DeleteAvatarByProfileID(ctx context.Context, uID uint) error {
 	q := `UPDATE user_profile SET imgsrc = '' WHERE id = $1;`
 	start := time.Now()
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1=%d", uID)))
-	_, err = r.storage.Exec(ctx, q, uID)
+	_, err := r.storage.Exec(ctx, q, uID)
 	if err != nil {
 		if pgErr := new(pgconn.PgError); errors.As(err, &pgErr) {
 			logger.Error(ctx, fmt.Sprintf("HERE pg err: %v", err))
 		}
-		return "", models.ErrNoProfile
+		return models.ErrNoProfile
 	}
 	logger.Info(ctx, fmt.Sprintf("updated in %s", time.Since(start)))
-	return imgSrc, nil
+	return nil
 }

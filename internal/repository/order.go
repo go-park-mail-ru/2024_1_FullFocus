@@ -77,13 +77,10 @@ func (r *OrderRepo) GetOrderByID(ctx context.Context, orderID uint) (models.GetO
 			  INNER JOIN ordering AS o ON i.ordering_id = o.id
 		      INNER JOIN product AS p ON i.product_id = p.id
 		  WHERE o.id = ?`
-	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d", orderID)))
-	start := time.Now()
 	if err := r.storage.Select(ctx, &orderProducts, q, orderID); err != nil {
 		logger.Error(ctx, "error while selecting order products: "+err.Error())
 		return models.GetOrderPayload{}, models.ErrNoRowsFound
 	}
-	logger.Info(ctx, fmt.Sprintf("selected in %s", time.Since(start)))
 
 	var sum uint
 	for _, product := range orderProducts {
@@ -92,13 +89,10 @@ func (r *OrderRepo) GetOrderByID(ctx context.Context, orderID uint) (models.GetO
 
 	var orderInfo dao.OrderInfo
 	q = `SELECT order_status, DATE(created_at) AS created_at FROM ordering WHERE id = ?;`
-	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d", orderID)))
-	start = time.Now()
 	if err := r.storage.Get(ctx, &orderInfo, q, orderID); err != nil {
 		logger.Error(ctx, "error while reading order status: "+err.Error())
 		return models.GetOrderPayload{}, models.ErrNoRowsFound
 	}
-	logger.Info(ctx, fmt.Sprintf("selected in %s", time.Since(start)))
 	return models.GetOrderPayload{
 		Products:   dao.ConvertOrderProductsToModels(orderProducts),
 		Sum:        sum,
@@ -114,36 +108,27 @@ func (r *OrderRepo) GetAllOrders(ctx context.Context, profileID uint) ([]models.
     	  	  LEFT JOIN order_item i ON o.id = i.ordering_id
 		  WHERE o.profile_id = ?
 		  GROUP BY o.id;`
-	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d", profileID)))
-	start := time.Now()
 	var orders []dao.Order
 	if err := r.storage.Select(ctx, &orders, q, profileID); err != nil {
 		logger.Error(ctx, "error while selecting orders: "+err.Error())
 		return nil, models.ErrNoRowsFound
 	}
-	logger.Info(ctx, fmt.Sprintf("selected in %s", time.Since(start)))
 	return dao.ConvertOrdersFromTable(orders), nil
 }
 
 func (r *OrderRepo) GetProfileIDByOrderID(ctx context.Context, orderID uint) (uint, error) {
 	q := `SELECT profile_id FROM ordering WHERE id = ?;`
-	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d", orderID)))
-	start := time.Now()
 	var profileID uint
 	if err := r.storage.Get(ctx, &profileID, q, orderID); err != nil {
 		logger.Error(ctx, "error while selecting profile_id: "+err.Error())
 		return 0, models.ErrNoRowsFound
 	}
-	logger.Info(ctx, fmt.Sprintf("selected in %s", time.Since(start)))
 	return profileID, nil
 }
 
 func (r *OrderRepo) Delete(ctx context.Context, orderID uint) error {
 	q := `UPDATE ordering SET order_status = 'cancelled' WHERE id = ?;`
-	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d", orderID)))
-	start := time.Now()
 	_, err := r.storage.Exec(ctx, q, orderID)
-	logger.Info(ctx, fmt.Sprintf("updated in %s", time.Since(start)))
 	if err != nil {
 		logger.Error(ctx, "error while updating order status: "+err.Error())
 		return err
