@@ -100,6 +100,6 @@
 
 # ER-диаграмма
 
-![ozon](https://github.com/go-park-mail-ru/2024_1_FullFocus/blob/dbms-hw/db/normalized/ozon.png)
+![ozon](https://github.com/go-park-mail-ru/2024_1_FullFocus/assets/125612026/894bf78a-a3a5-4513-945e-aa218586e37a)
 
 
