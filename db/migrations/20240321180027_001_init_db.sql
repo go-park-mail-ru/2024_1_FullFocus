@@ -71,7 +71,6 @@ CREATE TYPE ordering_status AS ENUM (
 
 CREATE TABLE ordering (
 	id bigserial PRIMARY KEY,
-	sum int4 DEFAULT 0 NOT NULL CHECK (sum >= 0),
 	profile_id int4 NOT NULL REFERENCES user_profile(id) ON DELETE CASCADE ON UPDATE CASCADE ,
 	order_status ordering_status NOT NULL,
 	created_at TIMESTAMP DEFAULT now() NOT NULL,
