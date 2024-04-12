@@ -50,7 +50,7 @@ services:
       timeout: 20s
       retries: 3
   postgres:
-    image: postgres:16
+    image: postgres
     volumes:
       - 'postgres-data:/var/lib/postgresql/data'
     ports:
