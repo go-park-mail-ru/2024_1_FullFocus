@@ -7,15 +7,17 @@ server:
 redis:
   addr: "redis:6379"
 minio:
-  port: ":9000"
+  addr: "minio:9000"
   minio_user: ${MINIO_USER}
   minio_password: ${MINIO_PASSWORD}
+  minio_access_key: ${MINIO_ACCESS_KEY}
+  minio_secret_key: ${MINIO_SECRET_KEY}
   avatar_bucket: "avatars"
 postgres:
   host: "postgres"
   port: "5432"
-  user: "postgres"
-  password: "postgres"
+  user: ${POSTGRES_USER}
+  password: ${POSTGRES_PASSWORD}
   database: "ozon"
   sslmode: "disable"
   search_path: "ozon"

@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	minio2 "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/minio"
 	"github.com/gorilla/mux"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
@@ -73,6 +74,10 @@ func Init() *App {
 
 	if err != nil {
 		panic("minio connection error: " + err.Error())
+	}
+
+	if err = minio2.InitBucket(context.Background(), minioClient, cfg.Minio.AvatarBucket); err != nil {
+		panic("minio init bucket error: " + err.Error())
 	}
 
 	// Postgres

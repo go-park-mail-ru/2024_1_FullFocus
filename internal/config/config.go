@@ -31,17 +31,19 @@ type RedisConfig struct {
 }
 
 type MinioConfig struct {
-	Port          string `yaml:"port"`
-	MinioUser     string `yaml:"minio_user"`
-	MinioPassword string `yaml:"minio_password"`
-	AvatarBucket  string `yaml:"avatar_bucket"`
+	Addr           string `yaml:"addr"`
+	MinioUser      string `yaml:"minio_user" env:"MINIO_USER"`
+	MinioPassword  string `yaml:"minio_password" env:"MINIO_PASSWORD"`
+	MinioAccessKey string `yaml:"minio_access_key" env:"MINIO_ACCESS_KEY"`
+	MinioSecretKey string `yaml:"minio_secret_key" env:"MINIO_SECRET_KEY"`
+	AvatarBucket   string `yaml:"avatar_bucket"`
 }
 
 type PostgresConfig struct {
 	Host         string `yaml:"host"`
 	Port         string `yaml:"port"`
-	User         string `yaml:"user"`
-	Password     string `yaml:"password"`
+	User         string `yaml:"user" env:"POSTGRES_USER"`
+	Password     string `yaml:"password" env:"POSTGRES_PASSWORD"`
 	Database     string `yaml:"database"`
 	Sslmode      string `yaml:"sslmode"`
 	SearchPath   string `yaml:"search_path"`
@@ -52,7 +54,7 @@ type PostgresConfig struct {
 func MustLoad() *Config {
 	err := godotenv.Load()
 	if err != nil {
-		log.Println(".env file not found")
+		log.Println(".env file reading error:", err.Error())
 	}
 	path := parseConfigPath()
 	if path == "" {
