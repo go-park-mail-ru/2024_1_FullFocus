@@ -12,16 +12,6 @@ type ProfileTable struct {
 	ImgSrc      string `db:"imgsrc"`
 }
 
-func ConvertProfileToTable(m model.Profile) ProfileTable {
-	return ProfileTable{
-		ID:          m.ID,
-		FullName:    m.FullName,
-		Email:       m.Email,
-		PhoneNumber: m.PhoneNumber,
-		ImgSrc:      m.ImgSrc,
-	}
-}
-
 func ConvertTableToProfile(t ProfileTable) model.Profile {
 	return model.Profile{
 		ID:          t.ID,
