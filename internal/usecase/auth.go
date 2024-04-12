@@ -13,7 +13,11 @@ const (
 	_maxLoginLength    = 32
 	_minPasswordLength = 8
 	_maxPasswordLength = 32
-	_NumberLenght      = 6
+)
+
+const (
+	_defaultEmail       = "yourawesome@mail.ru"
+	_defaultPhoneNumber = "70000000000"
 )
 
 type AuthUsecase struct {
@@ -62,7 +66,6 @@ func (u *AuthUsecase) Signup(ctx context.Context, login string, password string)
 		return "", helper.NewValidationError("invalid password input",
 			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
 	}
-
 	// TODO: add hasher from helper
 	// passwordHash, err := helper.HashPassword(password)
 	// if err != nil {
@@ -76,12 +79,11 @@ func (u *AuthUsecase) Signup(ctx context.Context, login string, password string)
 	if err != nil {
 		return "", models.ErrUserAlreadyExists
 	}
-
 	profile := models.Profile{
 		ID:          uID,
 		FullName:    login,
-		Email:       "yourawesome@mail.ru",
-		PhoneNumber: "70000000000",
+		Email:       _defaultEmail,
+		PhoneNumber: _defaultPhoneNumber,
 	}
 	_, err = u.profileRepo.CreateProfile(ctx, profile)
 	if err != nil {
