@@ -8,8 +8,6 @@ services:
     - postgres
   #  restart: always
    image: b0pof/bizon-main
-   env_file:
-      - '.env'
    environment:
      - CONFIG_PATH=./config/prod.yaml
    ports:
@@ -20,6 +18,7 @@ services:
      timeout: 20s
      retries: 3
    volumes:
+     - '${PWD}/.env:/project/.env'
      - '${PWD}/logs:/project/logs'
      - '${PWD}/config:/project/config'
   redis:
