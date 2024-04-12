@@ -49,6 +49,9 @@ func (u *ProfileUsecase) UpdateProfile(ctx context.Context, uID uint, newProfile
 
 func (u *ProfileUsecase) GetProfile(ctx context.Context, uID uint) (dto.ProfileData, error) {
 	profile, err := u.profileRepo.GetProfile(ctx, uID)
+	if err != nil {
+		return dto.ProfileData{}, err
+	}
 	escapedFullName := html.EscapeString(profile.FullName)
 	escapedImfSrc := html.EscapeString(profile.ImgSrc)
 	object := dto.ProfileData{
@@ -57,9 +60,6 @@ func (u *ProfileUsecase) GetProfile(ctx context.Context, uID uint) (dto.ProfileD
 		FullName:    escapedFullName,
 		PhoneNumber: profile.PhoneNumber,
 		ImgSrc:      escapedImfSrc,
-	}
-	if err != nil {
-		return dto.ProfileData{}, model.ErrNoProfile
 	}
 	return object, nil
 }
