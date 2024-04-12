@@ -11,7 +11,7 @@ SET search_path TO ozon, public;
 CREATE TABLE default_user (
 	id SERIAL PRIMARY KEY,
 	user_login TEXT NOT NULL UNIQUE CHECK (char_length(user_login) BETWEEN 4 AND 32),
-	password_hash TEXT NOT NULL CHECK (char_length(user_login) BETWEEN 8 AND 255),
+	password_hash TEXT NOT NULL CHECK (char_length(password_hash) BETWEEN 8 AND 255),
 	created_at TIMESTAMP DEFAULT now() NOT NULL,
 	updated_at TIMESTAMP DEFAULT now() NOT NULL
 );
