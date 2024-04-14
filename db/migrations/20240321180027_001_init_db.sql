@@ -12,8 +12,8 @@ CREATE TABLE default_user (
 	id SERIAL PRIMARY KEY,
 	user_login TEXT NOT NULL UNIQUE CHECK (char_length(user_login) BETWEEN 4 AND 32),
 	password_hash TEXT NOT NULL CHECK (char_length(password_hash) BETWEEN 8 AND 255),
-	created_at TIMESTAMP DEFAULT now() NOT NULL,
-	updated_at TIMESTAMP DEFAULT now() NOT NULL
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
 
 -- ozon.profile definition
@@ -24,8 +24,8 @@ CREATE TABLE user_profile (
 	email TEXT NOT NULL CHECK ((char_length(email) BETWEEN 4 AND 255) AND (email ~* '^[a-z0-9\.\-]+@[a-z0-9\.\-]+\.[a-z]+$')),
 	phone_number TEXT NOT NULL CHECK ((char_length(phone_number) BETWEEN 5 AND 15) AND (phone_number ~ '\+?[0-9]+')),
 	imgsrc TEXT DEFAULT '',
-	created_at TIMESTAMP DEFAULT now() NOT NULL,
-	updated_at TIMESTAMP DEFAULT now() NOT NULL
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
 
 -- ozon.product definition
@@ -38,8 +38,8 @@ CREATE TABLE product (
 	imgsrc TEXT DEFAULT '',
 	seller TEXT NOT NULL CHECK (char_length(seller) > 0),
 	rating int2 DEFAULT 0 NOT NULL CHECK (rating >= 0),
-	created_at TIMESTAMP DEFAULT now() NOT NULL,
-	updated_at TIMESTAMP DEFAULT now() NOT NULL
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
 
 -- ozon.category definition
@@ -56,8 +56,8 @@ CREATE TABLE product_category (
 	product_id int4 NOT NULL REFERENCES product(id) ON DELETE CASCADE ON UPDATE CASCADE,
 	category_id int2 NOT NULL REFERENCES category(id) ON DELETE CASCADE ON UPDATE CASCADE,
 	product_category_pk SMALLSERIAL NOT NULL,
-	created_at TIMESTAMP DEFAULT now() NOT NULL,
-	updated_at TIMESTAMP DEFAULT now() NOT NULL,
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
 	CONSTRAINT product_category_pk PRIMARY KEY (product_id, category_id)
 );
 
@@ -74,8 +74,8 @@ CREATE TABLE ordering (
 	sum int4 DEFAULT 0 NOT NULL CHECK (sum >= 0),
 	profile_id int4 NOT NULL REFERENCES user_profile(id) ON DELETE CASCADE ON UPDATE CASCADE ,
 	order_status ordering_status NOT NULL,
-	created_at TIMESTAMP DEFAULT now() NOT NULL,
-	updated_at TIMESTAMP DEFAULT now() NOT NULL
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
 
 -- ozon.order_item definition
@@ -84,8 +84,8 @@ CREATE TABLE order_item (
 	ordering_id int8 NOT NULL REFERENCES ordering(id) ON DELETE CASCADE ON UPDATE CASCADE,
 	product_id int4 NOT NULL REFERENCES product(id) ON DELETE CASCADE ON UPDATE CASCADE,
 	count int2 DEFAULT 1 NOT NULL CHECK (count > 0),
-	created_at TIMESTAMP DEFAULT now() NOT NULL,
-	updated_at TIMESTAMP DEFAULT now() NOT NULL,
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
 	CONSTRAINT order_item_pk PRIMARY KEY (ordering_id, product_id)
 );
 
@@ -96,8 +96,8 @@ CREATE TABLE cart_item (
 	profile_id int4 NOT NULL REFERENCES user_profile(id) ON DELETE CASCADE ON UPDATE CASCADE,
 	count int2 DEFAULT 1 NOT NULL CHECK (count >= 0),
 	CONSTRAINT cart_item_pk PRIMARY KEY (profile_id, product_id),
-	created_at TIMESTAMP DEFAULT now() NOT NULL,
-	updated_at TIMESTAMP DEFAULT now() NOT NULL
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
 
 -- +goose StatementEnd
