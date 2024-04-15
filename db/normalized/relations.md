@@ -22,6 +22,17 @@ erDiagram
         timestamp updated_at
     }
 
+    CART_ITEM ||--|{ PRODUCT : contains
+    CART_ITEM }|--|| USER_PROFILE : belongs
+    CART_ITEM {
+        id int PK
+        int product_id FK
+        int profile_id FK
+        int count
+        timestamp created_at
+        timestamp updated_at
+    }
+
     ORDERING }|--|| ORDER_ITEM : contains
     ORDERING {
         int id PK
@@ -38,20 +49,6 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-
-    PRODUCT }|--|{ PRODUCT_CATEGORY : belongs
-    PRODUCT {
-        int id PK
-        text product_name
-        text product_description
-        numeric price
-        text imgsrc
-        text seller
-        float rating
-        timestamp created_at
-        timestamp updated_at
-    }
-
      
     PRODUCT_CATEGORY {
         int product_id PK, FK
@@ -68,13 +65,15 @@ erDiagram
         int parent_id FK
     }
 
-    CART_ITEM ||--|{ PRODUCT : contains
-    CART_ITEM }|--|| USER_PROFILE : belongs
-    CART_ITEM {
-        id int PK
-        int product_id FK
-        int profile_id FK
-        int count
+    PRODUCT }|--|{ PRODUCT_CATEGORY : belongs
+    PRODUCT {
+        int id PK
+        text product_name
+        text product_description
+        numeric price
+        text imgsrc
+        text seller
+        float rating
         timestamp created_at
         timestamp updated_at
     }
