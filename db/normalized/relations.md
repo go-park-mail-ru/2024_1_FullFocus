@@ -22,7 +22,7 @@ erDiagram
         timestamp updated_at
     }
 
-    CART_ITEM ||--|{ PRODUCT : contains
+    CART_ITEM }|--|| PRODUCT : contains
     CART_ITEM }|--|| USER_PROFILE : belongs
     CART_ITEM {
         id int PK
@@ -33,7 +33,7 @@ erDiagram
         timestamp updated_at
     }
 
-    ORDERING }|--|| ORDER_ITEM : contains
+    ORDERING ||--|{ ORDER_ITEM : contains
     ORDERING {
         int id PK
         int profile_id FK
@@ -57,7 +57,7 @@ erDiagram
         timestamp updated_at
     }
 
-    CATEGORY }|--|{ PRODUCT_CATEGORY : belongs
+    CATEGORY ||--|{ PRODUCT_CATEGORY : belongs
     CATEGORY ||--|| CATEGORY : inherits
     CATEGORY {
         int id PK
@@ -65,7 +65,7 @@ erDiagram
         int parent_id FK
     }
 
-    PRODUCT }|--|{ PRODUCT_CATEGORY : belongs
+    PRODUCT ||--|{ PRODUCT_CATEGORY : belongs
     PRODUCT {
         int id PK
         text product_name "from 1 to 50 symbols"
