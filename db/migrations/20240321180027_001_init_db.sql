@@ -34,7 +34,7 @@ CREATE TABLE product (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     product_name TEXT NOT NULL CHECK (char_length(product_name) BETWEEN 1 AND 50),
     product_description TEXT DEFAULT NULL CHECK (char_length(product_description) BETWEEN 1 AND 255),
-    price BIGINT NOT NULL CHECK (price > 0),
+    price INT NOT NULL CHECK (price > 0),
     imgsrc TEXT DEFAULT '',
     seller TEXT NOT NULL CHECK (char_length(seller) > 0),
     rating SMALLINT DEFAULT 0 NOT NULL CHECK (rating >= 0),
@@ -64,7 +64,7 @@ CREATE TABLE product_category (
 
 CREATE TABLE "order" (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    sum BIGINT DEFAULT 0 NOT NULL CHECK (sum >= 0),
+    sum INT DEFAULT 0 NOT NULL CHECK (sum >= 0),
     profile_id BIGINT NOT NULL REFERENCES user_profile(id) ON DELETE CASCADE ON UPDATE CASCADE ,
     order_status TEXT NOT NULL CHECK (order_status IN ('created', 'cancelled', 'ready')),
     created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
