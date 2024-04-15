@@ -11,7 +11,7 @@ erDiagram
         timestamptz updated_at
     }
 
-    ORDERING }|--|| USER_PROFILE : creates
+    ORDER }|--|| USER_PROFILE : creates
     USER_PROFILE {
         int id PK, FK
         text fullname "from 1 to 255 symbols"
@@ -33,8 +33,8 @@ erDiagram
         timestamptz updated_at
     }
 
-    ORDERING ||--|{ ORDER_ITEM : contains
-    ORDERING {
+    ORDER ||--|{ ORDER_ITEM : contains
+    ORDER {
         int id PK
         int profile_id FK
         timestamptz created_at
@@ -43,7 +43,7 @@ erDiagram
 
     ORDER_ITEM }|--|| PRODUCT : contains
     ORDER_ITEM {
-        int ordering_id PK, FK
+        int order_id PK, FK
         int product_id PK, FK
         int count ">= 0"
         timestamptz created_at
@@ -143,7 +143,7 @@ erDiagram
 **НФ Бойса-Кодда**: Ключевые атрибуты не зависят от неключевых.
 
 
-## ordering
+## order
 > Хранит заказ. У каждого профиля может быть несколько заказов, поэтому товары привязываются не к профилю, а к одному из заказов.
 
 ### Отношения
@@ -159,10 +159,10 @@ erDiagram
 > Хранит товары из заказов.
 
 ### Отношения
-`{ ordering_id, product_id } -> { count, created_at, updated_at }`
+`{ order_id, product_id } -> { count, created_at, updated_at }`
 
 ### НФ
-**2 НФ**: Ни один из неключевых атрибутов не зависит только от части ключа - только связка `ordering_id` + `product_id` может уникально идентифицировать кортеж. Т.е. таблица удовлетворяет 2-й нормальной форме.  
+**2 НФ**: Ни один из неключевых атрибутов не зависит только от части ключа - только связка `order_id` + `product_id` может уникально идентифицировать кортеж. Т.е. таблица удовлетворяет 2-й нормальной форме.  
 **3 НФ**: Каждый столбец зависит только от составного ключа, поэтому 3 НФ также выполняется.  
 **НФ Бойса-Кодда**: Ключевые атрибуты не зависят от неключевых.
 
@@ -174,6 +174,6 @@ erDiagram
 `{ product_id, profile_id } -> { count, created_at, updated_at }`
 
 ### НФ
-**2 НФ**: _(Аналогично с `order_item`)_ Ни один из неключевых атрибутов не зависит только от части ключа - только связка `ordering_id` + `product_id` может уникально идентифицировать кортеж. Т.е. таблица удовлетворяет 2-й нормальной форме.  
+**2 НФ**: _(Аналогично с `order_item`)_ Ни один из неключевых атрибутов не зависит только от части ключа - только связка `order_id` + `product_id` может уникально идентифицировать кортеж. Т.е. таблица удовлетворяет 2-й нормальной форме.  
 **3 НФ**: _(Аналогично с `order_item`)_ Каждый столбец зависит только от составного ключа, поэтому 3 НФ также выполняется.  
 **НФ Бойса-Кодда**: _(Аналогично с `order_item`)_ Ключевые атрибуты не зависят от неключевых.
