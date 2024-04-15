@@ -7,7 +7,6 @@ type Profile struct {
 	FullName    string `json:"fullName"`
 	Email       string `json:"email"`
 	PhoneNumber string `json:"phoneNumber"`
-	ImgSrc      string `json:"imgSrc"`
 }
 
 func ConvertProfileDataToProfile(profile model.Profile) Profile {
@@ -16,7 +15,6 @@ func ConvertProfileDataToProfile(profile model.Profile) Profile {
 		FullName:    profile.FullName,
 		Email:       profile.Email,
 		PhoneNumber: profile.PhoneNumber,
-		ImgSrc:      profile.ImgSrc,
 	}
 }
 
@@ -24,7 +22,6 @@ type ProfileUpdateInput struct {
 	FullName    string `json:"fullName"`
 	Email       string `json:"email"`
 	PhoneNumber string `json:"phoneNumber"`
-	ImgSrc      string `json:"imgSrc"`
 }
 
 func ConvertProfileToProfileData(profile ProfileUpdateInput) model.ProfileUpdateInput {
@@ -32,6 +29,5 @@ func ConvertProfileToProfileData(profile ProfileUpdateInput) model.ProfileUpdate
 		FullName:    profile.FullName,
 		Email:       profile.Email,
 		PhoneNumber: profile.PhoneNumber,
-		ImgSrc:      profile.ImgSrc,
 	}
 }

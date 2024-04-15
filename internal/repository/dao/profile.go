@@ -9,7 +9,6 @@ type ProfileTable struct {
 	FullName    string `db:"full_name"`
 	Email       string `db:"email"`
 	PhoneNumber string `db:"phone_number"`
-	ImgSrc      string `db:"imgsrc"`
 }
 
 func ConvertTableToProfile(t ProfileTable) model.Profile {
@@ -18,6 +17,5 @@ func ConvertTableToProfile(t ProfileTable) model.Profile {
 		FullName:    t.FullName,
 		Email:       t.Email,
 		PhoneNumber: t.PhoneNumber,
-		ImgSrc:      t.ImgSrc,
 	}
 }

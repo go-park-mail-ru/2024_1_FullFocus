@@ -40,7 +40,6 @@ func (u *ProfileUsecase) GetProfile(ctx context.Context, uID uint) (models.Profi
 		return models.Profile{}, err
 	}
 	profile.FullName = html.EscapeString(profile.FullName)
-	profile.ImgSrc = html.EscapeString(profile.ImgSrc)
 	return profile, nil
 }
 

@@ -21,8 +21,8 @@ func NewProfileRepo(dbClient db.Database) *ProfileRepo {
 }
 
 func (r *ProfileRepo) CreateProfile(ctx context.Context, profile models.Profile) (uint, error) {
-	q := `INSERT INTO user_profile (id, full_name, email, phone_number, imgsrc) VALUES ($1, $2, $3, $4, $5);`
-	_, err := r.storage.Exec(ctx, q, profile.ID, profile.FullName, profile.Email, profile.PhoneNumber, profile.ImgSrc)
+	q := `INSERT INTO user_profile (id, full_name, email, phone_number) VALUES (?, ?, ?, ?);`
+	_, err := r.storage.Exec(ctx, q, profile.ID, profile.FullName, profile.Email, profile.PhoneNumber)
 	if err != nil {
 		logger.Error(ctx, "insert error: "+err.Error())
 		return 0, models.ErrProfileAlreadyExists
@@ -31,7 +31,7 @@ func (r *ProfileRepo) CreateProfile(ctx context.Context, profile models.Profile)
 }
 
 func (r *ProfileRepo) GetProfile(ctx context.Context, uID uint) (models.Profile, error) {
-	q := `SELECT id, full_name, email, phone_number, imgsrc FROM user_profile WHERE id = $1;`
+	q := `SELECT id, full_name, email, phone_number FROM user_profile WHERE id = ?;`
 	var profileRow dao.ProfileTable
 	if err := r.storage.Get(ctx, &profileRow, q, uID); err != nil {
 		logger.Error(ctx, "select error: "+err.Error())
@@ -41,12 +41,11 @@ func (r *ProfileRepo) GetProfile(ctx context.Context, uID uint) (models.Profile,
 }
 
 func (r *ProfileRepo) UpdateProfile(ctx context.Context, uID uint, profileNew models.ProfileUpdateInput) error {
-	q := `UPDATE user_profile SET full_name=$1, email=$2, phone_number=$3, imgsrc=$4 WHERE id = $5 RETURNING id;`
+	q := `UPDATE user_profile SET full_name = ?, email = ?, phone_number = ? WHERE id = ? RETURNING id;`
 	_, err := r.storage.Exec(ctx, q,
 		profileNew.FullName,
 		profileNew.Email,
 		profileNew.PhoneNumber,
-		profileNew.ImgSrc,
 		uID)
 	if err != nil {
 		logger.Error(ctx, fmt.Sprintf("profile update error: "+err.Error()))
@@ -74,7 +73,7 @@ func (r *ProfileRepo) UpdateAvatarByProfileID(ctx context.Context, uID uint, img
 }
 
 func (r *ProfileRepo) GetAvatarByProfileID(ctx context.Context, uID uint) (string, error) {
-	q := `SELECT imgsrc FROM ozon.user_profile WHERE id = $1;`
+	q := `SELECT imgsrc FROM user_profile WHERE id = ?;`
 	var imgSrc string
 	err := r.storage.Get(ctx, &imgSrc, q, uID)
 	if err != nil {
