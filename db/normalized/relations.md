@@ -1,7 +1,84 @@
 # ER-диаграмма
 
-![ozon](https://github.com/go-park-mail-ru/2024_1_FullFocus/assets/125612026/894bf78a-a3a5-4513-945e-aa218586e37a)
+```mermaid
+erDiagram
+    USER_PROFILE ||--|| DEFAULT_USER : identifies
+    DEFAULT_USER {
+        int id PK
+        text user_login UK
+        text password_hash
+        timestamp created_at
+        timestamp updated_at
+    }
 
+    ORDERING }|--|| USER_PROFILE : creates
+    USER_PROFILE {
+        int id PK, FK
+        text fullname
+        text email
+        text phone_number
+        text imgsrc
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    ORDERING }|--|| ORDER_ITEM : contains
+    ORDERING {
+        int id PK
+        int profile_id FK
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    ORDER_ITEM }|--|| PRODUCT : contains
+    ORDER_ITEM {
+        int ordering_id PK, FK
+        int product_id PK, FK
+        int count
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    PRODUCT }|--|{ PRODUCT_CATEGORY : belongs
+    PRODUCT {
+        int id PK
+        text product_name
+        text product_description
+        numeric price
+        text imgsrc
+        text seller
+        float rating
+        timestamp created_at
+        timestamp updated_at
+    }
+
+     
+    PRODUCT_CATEGORY {
+        int product_id PK, FK
+        int category_id PK, FK
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    CATEGORY }|--|{ PRODUCT_CATEGORY : belongs
+    CATEGORY ||--|| CATEGORY : inherits
+    CATEGORY {
+        int id PK
+        text name
+        int parent_id FK
+    }
+
+    CART_ITEM ||--|{ PRODUCT : contains
+    CART_ITEM }|--|| USER_PROFILE : belongs
+    CART_ITEM {
+        id int PK
+        int product_id FK
+        int profile_id FK
+        int count
+        timestamp created_at
+        timestamp updated_at
+    }
+```
 
 # Описание функциональной зависимости отношений
 
