@@ -334,7 +334,7 @@ func (m *MockProfiles) EXPECT() *MockProfilesMockRecorder {
 }
 
 // CreateProfile mocks base method.
-func (m *MockProfiles) CreateProfile(ctx context.Context, profile dto.ProfileData) (uint, error) {
+func (m *MockProfiles) CreateProfile(ctx context.Context, profile dto.Profile) (uint, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateProfile", ctx, profile)
 	ret0, _ := ret[0].(uint)
@@ -349,10 +349,10 @@ func (mr *MockProfilesMockRecorder) CreateProfile(ctx, profile interface{}) *gom
 }
 
 // GetProfile mocks base method.
-func (m *MockProfiles) GetProfile(ctx context.Context, uID uint) (dto.ProfileData, error) {
+func (m *MockProfiles) GetProfile(ctx context.Context, uID uint) (dto.Profile, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetProfile", ctx, uID)
-	ret0, _ := ret[0].(dto.ProfileData)
+	ret0, _ := ret[0].(dto.Profile)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -364,7 +364,7 @@ func (mr *MockProfilesMockRecorder) GetProfile(ctx, uID interface{}) *gomock.Cal
 }
 
 // UpdateProfile mocks base method.
-func (m *MockProfiles) UpdateProfile(ctx context.Context, uID uint, newProfile dto.ProfileData) error {
+func (m *MockProfiles) UpdateProfile(ctx context.Context, uID uint, newProfile dto.Profile) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateProfile", ctx, uID, newProfile)
 	ret0, _ := ret[0].(error)

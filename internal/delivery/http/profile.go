@@ -27,71 +27,19 @@ func NewProfileHandler(u usecase.Profiles) *ProfileHandler {
 func (h *ProfileHandler) InitRouter(r *mux.Router) {
 	h.router = r.PathPrefix("/v1/profile").Subrouter()
 	{
-		h.router.Handle("/update", http.HandlerFunc(h.UpdateProfile)).Methods("POST", "GET", "OPTIONS")
 		h.router.Handle("/get", http.HandlerFunc(h.GetProfile)).Methods("GET", "OPTIONS")
+		h.router.Handle("/update", http.HandlerFunc(h.UpdateProfile)).Methods("GET", "POST", "OPTIONS")
 	}
 }
 
-func (h *ProfileHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) { // Тест в постмане с фикс ID прошел
+func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	uID, err := helper.GetUserIDFromContext(ctx)
 	if err != nil {
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 400,
-			Msg:    "error with userID ",
-			MsgRus: "Проблема с UserID",
-		})
-		return
-	}
-	profileData, err := helper.GetProfileData(r)
-	if err != nil {
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 400,
+			Status: 403,
 			Msg:    err.Error(),
-			MsgRus: "Ошибка обработки данных",
-		})
-		return
-	}
-
-	/* uID := uint(10000)
-
-	profileData := dto.ProfileData{
-		ID:          uID,
-		FullName:    "test",
-		Email:       "test@mail.com",
-		PhoneNumber: "70000000000",
-		ImgSrc:      "test",
-	}
-	*/
-
-	err = h.usecase.UpdateProfile(ctx, uID, profileData)
-
-	if err != nil {
-		if validationError := new(helper.ValidationError); errors.As(err, &validationError) {
-			helper.JSONResponse(ctx, w, 200, validationError.WithCode(400))
-			return
-		}
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 400,
-			Msg:    err.Error(),
-			MsgRus: "Пользователя не существует",
-		})
-		return
-	}
-
-	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
-		Status: 200,
-	})
-}
-
-func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) { // Тест в постмане с фикс ID и данными прошел
-	ctx := r.Context()
-	uID, err := helper.GetUserIDFromContext(ctx)
-	if err != nil {
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 400,
-			Msg:    "error with userID ",
-			MsgRus: "Проблема с UserID",
+			MsgRus: "Пользователь не авторизован",
 		})
 		return
 	}
@@ -104,8 +52,47 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) { //
 		})
 		return
 	}
+	data := dto.ConvertProfileDataToProfile(profile)
 	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
-		Data:   profile, // Что-то не так
+		Data:   data,
+	})
+}
+
+func (h *ProfileHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	uID, err := helper.GetUserIDFromContext(ctx)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 403,
+			Msg:    err.Error(),
+			MsgRus: "Пользователь не авторизован",
+		})
+		return
+	}
+	profileData, err := helper.GetProfileData(r)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 400,
+			Msg:    err.Error(),
+			MsgRus: "Ошибка обработки данных",
+		})
+		return
+	}
+	updateProfileInput := dto.ConvertProfileToProfileData(profileData)
+	if err = h.usecase.UpdateProfile(ctx, uID, updateProfileInput); err != nil {
+		if validationError := new(helper.ValidationError); errors.As(err, &validationError) {
+			helper.JSONResponse(ctx, w, 200, validationError.WithCode(400))
+			return
+		}
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 400,
+			Msg:    err.Error(),
+			MsgRus: "Пользователя не существует",
+		})
+		return
+	}
+	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
+		Status: 200,
 	})
 }

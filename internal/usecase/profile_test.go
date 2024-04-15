@@ -29,7 +29,7 @@ func TestGetProfile(t *testing.T) {
 		name           string
 		id             uint
 		mockBehavior   func(*mock_repository.MockProfiles, uint)
-		expectedResult dto.ProfileData
+		expectedResult dto.Profile
 		expectedErr    error
 	}{
 		{
@@ -38,7 +38,7 @@ func TestGetProfile(t *testing.T) {
 			mockBehavior: func(r *mock_repository.MockProfiles, uID uint) {
 				r.EXPECT().GetProfile(context.Background(), uID).Return(models.Profile{}, nil)
 			},
-			expectedResult: dto.ProfileData{},
+			expectedResult: dto.Profile{},
 			expectedErr:    nil,
 		},
 		{
@@ -47,7 +47,7 @@ func TestGetProfile(t *testing.T) {
 			mockBehavior: func(r *mock_repository.MockProfiles, uID uint) {
 				r.EXPECT().GetProfile(context.Background(), uID).Return(models.Profile{}, models.ErrNoProfile)
 			},
-			expectedResult: dto.ProfileData{},
+			expectedResult: dto.Profile{},
 			expectedErr:    models.ErrNoProfile,
 		},
 	}
@@ -70,22 +70,22 @@ func TestUpdateProfile(t *testing.T) {
 	testCases := []struct {
 		name         string
 		id           uint
-		profile      dto.ProfileData
-		mockBehavior func(r *mock_repository.MockProfiles, uID uint, profile dto.ProfileData)
+		profile      dto.Profile
+		mockBehavior func(r *mock_repository.MockProfiles, uID uint, profile dto.Profile)
 		expectedErr  error
 		valid        bool
 	}{
 		{
 			name: "get profile success",
 			id:   1,
-			profile: dto.ProfileData{
+			profile: dto.Profile{
 				ID:          1,
 				FullName:    "testing",
 				Email:       "my@mail.com",
 				PhoneNumber: "70000000000",
 				ImgSrc:      "test",
 			},
-			mockBehavior: func(r *mock_repository.MockProfiles, uID uint, profile dto.ProfileData) {
+			mockBehavior: func(r *mock_repository.MockProfiles, uID uint, profile dto.Profile) {
 				r.EXPECT().UpdateProfile(context.Background(), uID, dto.ConvertProfileToProfileData(profile)).Return(nil)
 			},
 			expectedErr: nil,
@@ -94,14 +94,14 @@ func TestUpdateProfile(t *testing.T) {
 		{
 			name: "get profile fail",
 			id:   1000,
-			profile: dto.ProfileData{
+			profile: dto.Profile{
 				ID:          10000,
 				FullName:    "testing",
 				Email:       "my@mail.com",
 				PhoneNumber: "79037783633",
 				ImgSrc:      "test",
 			},
-			mockBehavior: func(r *mock_repository.MockProfiles, uID uint, profile dto.ProfileData) {
+			mockBehavior: func(r *mock_repository.MockProfiles, uID uint, profile dto.Profile) {
 				r.EXPECT().UpdateProfile(context.Background(), uID, dto.ConvertProfileToProfileData(profile)).Return(models.ErrNoProfile)
 			},
 			expectedErr: models.ErrNoProfile,
@@ -110,14 +110,14 @@ func TestUpdateProfile(t *testing.T) {
 		{
 			name: "get profile fail valid email",
 			id:   1,
-			profile: dto.ProfileData{
+			profile: dto.Profile{
 				ID:          1,
 				FullName:    "testingemail",
 				Email:       "myemail.com",
 				PhoneNumber: "70000000000",
 				ImgSrc:      "test",
 			},
-			mockBehavior: func(r *mock_repository.MockProfiles, uID uint, profile dto.ProfileData) {
+			mockBehavior: func(r *mock_repository.MockProfiles, uID uint, profile dto.Profile) {
 				r.EXPECT().UpdateProfile(context.Background(), uID, dto.ConvertProfileToProfileData(profile)).Return(nil)
 			},
 			expectedErr: helper.NewValidationError("invalid email input", "Имеил должен содержать @ и ."),
@@ -126,14 +126,14 @@ func TestUpdateProfile(t *testing.T) {
 		{
 			name: "get profile fail valid email",
 			id:   1,
-			profile: dto.ProfileData{
+			profile: dto.Profile{
 				ID:          1,
 				FullName:    "te",
 				Email:       "my@email.com",
 				PhoneNumber: "7000000000",
 				ImgSrc:      "test",
 			},
-			mockBehavior: func(r *mock_repository.MockProfiles, uID uint, profile dto.ProfileData) {
+			mockBehavior: func(r *mock_repository.MockProfiles, uID uint, profile dto.Profile) {
 				r.EXPECT().UpdateProfile(context.Background(), uID, dto.ConvertProfileToProfileData(profile)).Return(nil)
 			},
 			expectedErr: helper.NewValidationError("invalid fullname input",
@@ -161,22 +161,22 @@ func TestCreateProfile(t *testing.T) {
 	testCases := []struct {
 		name         string
 		id           uint
-		profile      dto.ProfileData
-		mockBehavior func(r *mock_repository.MockProfiles, profile dto.ProfileData)
+		profile      dto.Profile
+		mockBehavior func(r *mock_repository.MockProfiles, profile dto.Profile)
 		expectedErr  error
 		valid        bool
 	}{
 		{
 			name: "create profile success",
 			id:   1,
-			profile: dto.ProfileData{
+			profile: dto.Profile{
 				ID:          1,
 				FullName:    "testing",
 				Email:       "my@mail.com",
 				PhoneNumber: "7000000000",
 				ImgSrc:      "test",
 			},
-			mockBehavior: func(r *mock_repository.MockProfiles, profile dto.ProfileData) {
+			mockBehavior: func(r *mock_repository.MockProfiles, profile dto.Profile) {
 				r.EXPECT().CreateProfile(context.Background(), dto.ConvertProfileToProfileData(profile)).Return(profile.ID, nil)
 			},
 			expectedErr: nil,
@@ -185,14 +185,14 @@ func TestCreateProfile(t *testing.T) {
 		{
 			name: "create profile fail",
 			id:   1,
-			profile: dto.ProfileData{
+			profile: dto.Profile{
 				ID:          1,
 				FullName:    "testing",
 				Email:       "my@mail.com",
 				PhoneNumber: "7000000000",
 				ImgSrc:      "test",
 			},
-			mockBehavior: func(r *mock_repository.MockProfiles, profile dto.ProfileData) {
+			mockBehavior: func(r *mock_repository.MockProfiles, profile dto.Profile) {
 				r.EXPECT().CreateProfile(context.Background(), dto.ConvertProfileToProfileData(profile)).Return(uint(0), models.ErrProfileAlreadyExists)
 			},
 			expectedErr: models.ErrProfileAlreadyExists,

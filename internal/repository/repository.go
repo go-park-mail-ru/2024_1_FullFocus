@@ -41,12 +41,12 @@ type (
 	}
 
 	Profiles interface {
-		UpdateProfile(ctx context.Context, uID uint, profileNew models.Profile) error
+		UpdateProfile(ctx context.Context, uID uint, profileNew models.ProfileUpdateInput) error
 		GetProfile(ctx context.Context, uID uint) (models.Profile, error)
 		CreateProfile(ctx context.Context, profile models.Profile) (uint, error)
-		UpdateAvatarByProfileID(ctx context.Context, uID uint, imgSrc string) error
+		UpdateAvatarByProfileID(ctx context.Context, uID uint, imgSrc string) (string, error)
 		GetAvatarByProfileID(ctx context.Context, uID uint) (string, error)
-		DeleteAvatarByProfileID(ctx context.Context, uID uint) error
+		DeleteAvatarByProfileID(ctx context.Context, uID uint) (string, error)
 	}
 
 	Carts interface {

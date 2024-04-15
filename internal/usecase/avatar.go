@@ -59,11 +59,8 @@ func (u *AvatarUsecase) UploadAvatar(ctx context.Context, profileID uint, img mo
 	if err = u.avatarRepo.UploadAvatar(ctx, fileName, object); err != nil {
 		return err
 	}
-	prevFileName, err := u.profileRepo.GetAvatarByProfileID(ctx, profileID)
+	prevFileName, err := u.profileRepo.UpdateAvatarByProfileID(ctx, profileID, fileName)
 	if err != nil {
-		return err
-	}
-	if err = u.profileRepo.UpdateAvatarByProfileID(ctx, profileID, fileName); err != nil {
 		return err
 	}
 	if prevFileName != "" {
@@ -73,12 +70,12 @@ func (u *AvatarUsecase) UploadAvatar(ctx context.Context, profileID uint, img mo
 }
 
 func (u *AvatarUsecase) DeleteAvatar(ctx context.Context, uID uint) error {
-	fileName, err := u.profileRepo.GetAvatarByProfileID(ctx, uID)
+	fileName, err := u.profileRepo.DeleteAvatarByProfileID(ctx, uID)
 	if err != nil {
 		return err
 	}
 	if err = u.avatarRepo.DeleteAvatar(ctx, fileName); err != nil {
 		return err
 	}
-	return u.profileRepo.DeleteAvatarByProfileID(ctx, uID)
+	return nil
 }

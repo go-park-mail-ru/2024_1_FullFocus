@@ -21,7 +21,7 @@ func NewProfileRepo(dbClient db.Database) *ProfileRepo {
 }
 
 func (r *ProfileRepo) CreateProfile(ctx context.Context, profile models.Profile) (uint, error) {
-	q := `INSERT INTO ozon.user_profile (id, full_name, email, phone_number, imgsrc) VALUES ($1, $2, $3, $4, $5);`
+	q := `INSERT INTO user_profile (id, full_name, email, phone_number, imgsrc) VALUES ($1, $2, $3, $4, $5);`
 	_, err := r.storage.Exec(ctx, q, profile.ID, profile.FullName, profile.Email, profile.PhoneNumber, profile.ImgSrc)
 	if err != nil {
 		logger.Error(ctx, "insert error: "+err.Error())
@@ -31,7 +31,7 @@ func (r *ProfileRepo) CreateProfile(ctx context.Context, profile models.Profile)
 }
 
 func (r *ProfileRepo) GetProfile(ctx context.Context, uID uint) (models.Profile, error) {
-	q := `SELECT id, full_name, email, phone_number, imgsrc FROM ozon.user_profile WHERE id = $1;`
+	q := `SELECT id, full_name, email, phone_number, imgsrc FROM user_profile WHERE id = $1;`
 	var profileRow dao.ProfileTable
 	if err := r.storage.Get(ctx, &profileRow, q, uID); err != nil {
 		logger.Error(ctx, "select error: "+err.Error())
@@ -40,8 +40,8 @@ func (r *ProfileRepo) GetProfile(ctx context.Context, uID uint) (models.Profile,
 	return dao.ConvertTableToProfile(profileRow), nil
 }
 
-func (r *ProfileRepo) UpdateProfile(ctx context.Context, uID uint, profileNew models.Profile) error {
-	q := `UPDATE ozon.user_profile SET full_name=$1, email=$2, phone_number=$3, imgsrc=$4 WHERE id = $5 RETURNING id;`
+func (r *ProfileRepo) UpdateProfile(ctx context.Context, uID uint, profileNew models.ProfileUpdateInput) error {
+	q := `UPDATE user_profile SET full_name=$1, email=$2, phone_number=$3, imgsrc=$4 WHERE id = $5 RETURNING id;`
 	_, err := r.storage.Exec(ctx, q,
 		profileNew.FullName,
 		profileNew.Email,
@@ -55,14 +55,22 @@ func (r *ProfileRepo) UpdateProfile(ctx context.Context, uID uint, profileNew mo
 	return nil
 }
 
-func (r *ProfileRepo) UpdateAvatarByProfileID(ctx context.Context, uID uint, imgSrc string) error {
-	q := `UPDATE ozon.user_profile SET imgsrc=$1 WHERE id = $2;`
-	_, err := r.storage.Exec(ctx, q, imgSrc, uID)
-	if err != nil {
+func (r *ProfileRepo) UpdateAvatarByProfileID(ctx context.Context, uID uint, imgSrc string) (string, error) {
+	q := `WITH prev_imgsrc AS (
+    		  SELECT imgsrc
+    		  FROM user_profile
+    		  WHERE id = ?
+		  )
+		  UPDATE user_profile
+		  SET imgsrc = ?
+		  WHERE id = ?
+		  RETURNING (SELECT imgsrc FROM prev_imgsrc);`
+	var prevImgSrc string
+	if err := r.storage.Get(ctx, &prevImgSrc, q, uID, imgSrc, uID); err != nil {
 		logger.Error(ctx, "update error: "+err.Error())
-		return models.ErrNoProfile
+		return "", models.ErrNoProfile
 	}
-	return nil
+	return prevImgSrc, nil
 }
 
 func (r *ProfileRepo) GetAvatarByProfileID(ctx context.Context, uID uint) (string, error) {
@@ -76,12 +84,20 @@ func (r *ProfileRepo) GetAvatarByProfileID(ctx context.Context, uID uint) (strin
 	return imgSrc, nil
 }
 
-func (r *ProfileRepo) DeleteAvatarByProfileID(ctx context.Context, uID uint) error {
-	q := `UPDATE user_profile SET imgsrc = '' WHERE id = $1;`
-	_, err := r.storage.Exec(ctx, q, uID)
-	if err != nil {
+func (r *ProfileRepo) DeleteAvatarByProfileID(ctx context.Context, uID uint) (string, error) {
+	q := `WITH prev_imgsrc AS (
+    	  	  SELECT imgsrc
+    	  	  FROM user_profile
+    	  	  WHERE id = ?
+		  )
+		  UPDATE user_profile
+	  	  SET imgsrc = ''
+		  WHERE id = ?
+		  RETURNING (SELECT imgsrc FROM prev_imgsrc);`
+	var prevImgSrc string
+	if err := r.storage.Get(ctx, &prevImgSrc, q, uID, uID); err != nil {
 		logger.Error(ctx, "update error: "+err.Error())
-		return models.ErrNoProfile
+		return "", models.ErrNoProfile
 	}
-	return nil
+	return prevImgSrc, nil
 }

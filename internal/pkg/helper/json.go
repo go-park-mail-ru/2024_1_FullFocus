@@ -29,10 +29,10 @@ func GetLoginData(r *http.Request) (dto.LoginData, error) {
 	return data, nil
 }
 
-func GetProfileData(r *http.Request) (dto.ProfileData, error) {
-	var data dto.ProfileData
+func GetProfileData(r *http.Request) (dto.ProfileUpdateInput, error) {
+	var data dto.ProfileUpdateInput
 	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-		return dto.ProfileData{}, err
+		return dto.ProfileUpdateInput{}, err
 	}
 	return data, nil
 }

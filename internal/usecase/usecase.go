@@ -4,7 +4,6 @@ package usecase
 import (
 	"context"
 
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 )
 
@@ -37,9 +36,9 @@ type (
 	}
 
 	Profiles interface {
-		UpdateProfile(ctx context.Context, uID uint, newProfile dto.ProfileData) error
-		GetProfile(ctx context.Context, uID uint) (dto.ProfileData, error)
-		CreateProfile(ctx context.Context, profile dto.ProfileData) (uint, error)
+		UpdateProfile(ctx context.Context, uID uint, newProfile models.ProfileUpdateInput) error
+		GetProfile(ctx context.Context, uID uint) (models.Profile, error)
+		CreateProfile(ctx context.Context, profile models.Profile) (uint, error)
 	}
 	Carts interface {
 		GetAllCartItems(ctx context.Context, uID uint) (models.CartContent, error)
