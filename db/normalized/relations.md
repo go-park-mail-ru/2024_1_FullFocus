@@ -7,8 +7,8 @@ erDiagram
         int id PK
         text user_login UK "from 4 to 32 symbols"
         text password_hash "from 8 to 255 symbols"
-        timestamp created_at
-        timestamp updated_at
+        timestamptz created_at
+        timestamptz updated_at
     }
 
     ORDERING }|--|| USER_PROFILE : creates
@@ -18,8 +18,8 @@ erDiagram
         text email "from 4 to 255 symbols"
         text phone_number "from 5 to 15 digits"
         text imgsrc
-        timestamp created_at
-        timestamp updated_at
+        timestamptz created_at
+        timestamptz updated_at
     }
 
     CART_ITEM }|--|| PRODUCT : contains
@@ -29,16 +29,16 @@ erDiagram
         int product_id FK
         int profile_id FK
         int count ">= 0"
-        timestamp created_at
-        timestamp updated_at
+        timestamptz created_at
+        timestamptz updated_at
     }
 
     ORDERING ||--|{ ORDER_ITEM : contains
     ORDERING {
         int id PK
         int profile_id FK
-        timestamp created_at
-        timestamp updated_at
+        timestamptz created_at
+        timestamptz updated_at
     }
 
     ORDER_ITEM }|--|| PRODUCT : contains
@@ -46,15 +46,15 @@ erDiagram
         int ordering_id PK, FK
         int product_id PK, FK
         int count ">= 0"
-        timestamp created_at
-        timestamp updated_at
+        timestamptz created_at
+        timestamptz updated_at
     }
      
     PRODUCT_CATEGORY {
         int product_id PK, FK
         int category_id PK, FK
-        timestamp created_at
-        timestamp updated_at
+        timestamptz created_at
+        timestamptz updated_at
     }
 
     CATEGORY ||--|{ PRODUCT_CATEGORY : belongs
@@ -74,8 +74,8 @@ erDiagram
         text imgsrc
         text seller
         float rating ">= 0 "
-        timestamp created_at
-        timestamp updated_at
+        timestamptz created_at
+        timestamptz updated_at
     }
 ```
 
