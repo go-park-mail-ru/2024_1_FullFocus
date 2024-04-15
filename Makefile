@@ -15,14 +15,6 @@ setup: ## Установить все необходимые утилиты
 	go install github.com/pressly/goose/v3/cmd/goose@latest
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.57.1
 
-.PHONY: up
-up: ## Поднять контейнеры
-	docker compose up -d
-
-.PHONY: down
-down: ## Остановить контейнеры
-	docker compose down
-
 .PHONY: migrations-up
 migrations-up: ## Накатить миграции
 	goose -dir db/migrations postgres $(DB_DSN) up
@@ -32,16 +24,22 @@ migrations-down: ## Откатить миграции
 	goose -dir db/migrations postgres $(DB_DSN) down
 
 .PHONY: run-prod
-run-prod: up ## Запустить приложение
-	make migrations-up
+run-prod: ## Запустить прод
+	docker compose -f docker-compose.yaml up -d
+
+.PHONY: stop-prod
+stop-prod: ## Остановить прод
+	docker compose -f docker-compose.yaml down
 
 .PHONY: run-local
 run-local: ## Локальный запуск
 	docker compose -f docker-compose.local.yaml up -d
 	go run cmd/main/main.go --config_path=./config/local.yaml
 
-.PHONY: stop-app
-stop-app: down ## Остановить приложение
+.PHONY: stop-all
+stop-all: ## Остановить все контейнеры
+	docker compose -f docker-compose.yaml down
+	docker compose -f docker-compose.local.yaml down
 
 .PHONY: build
 build: ## Сбилдить бинарь приложения
@@ -50,14 +48,6 @@ build: ## Сбилдить бинарь приложения
 .PHONY: lint
 lint: ## Проверить код линтерами
 	golangci-lint run ./... -c golangci.local.yaml
-
-.PHONY: api-test-up
-api-test-up: ## Запустить локально контейнеры и приложение для интеграционных тестов
-	docker compose -f ${LOCAL_COMPOSE} up -d
-	go run cmd/main/main.go -config_path=config/local.yaml
-
-.PHONY: api-test-down
-api-test-down: down ## Откатить миграции и остановить контейнеры
 
 .PHONY: test
 test: ## Запустить тесты
