@@ -5,8 +5,8 @@ erDiagram
     USER_PROFILE ||--|| DEFAULT_USER : identifies
     DEFAULT_USER {
         int id PK
-        text user_login UK
-        text password_hash
+        text user_login UK "from 4 to 32 symbols"
+        text password_hash "from 8 to 255 symbols"
         timestamp created_at
         timestamp updated_at
     }
@@ -14,9 +14,9 @@ erDiagram
     ORDERING }|--|| USER_PROFILE : creates
     USER_PROFILE {
         int id PK, FK
-        text fullname
-        text email
-        text phone_number
+        text fullname "from 1 to 255 symbols"
+        text email "from 4 to 255 symbols"
+        text phone_number "from 5 to 15 digits"
         text imgsrc
         timestamp created_at
         timestamp updated_at
@@ -28,7 +28,7 @@ erDiagram
         id int PK
         int product_id FK
         int profile_id FK
-        int count
+        int count ">= 0"
         timestamp created_at
         timestamp updated_at
     }
@@ -45,7 +45,7 @@ erDiagram
     ORDER_ITEM {
         int ordering_id PK, FK
         int product_id PK, FK
-        int count
+        int count ">= 0"
         timestamp created_at
         timestamp updated_at
     }
@@ -61,19 +61,19 @@ erDiagram
     CATEGORY ||--|| CATEGORY : inherits
     CATEGORY {
         int id PK
-        text name
+        text name UK "from 1 to 50 symbols"
         int parent_id FK
     }
 
     PRODUCT }|--|{ PRODUCT_CATEGORY : belongs
     PRODUCT {
         int id PK
-        text product_name
-        text product_description
-        numeric price
+        text product_name "from 1 to 50 symbols"
+        text product_description "from 0 to 255 symbols"
+        numeric price "> 0"
         text imgsrc
         text seller
-        float rating
+        float rating ">= 0 "
         timestamp created_at
         timestamp updated_at
     }
