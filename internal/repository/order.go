@@ -28,12 +28,20 @@ func (r *OrderRepo) Create(ctx context.Context, userID uint, orderItems []models
 	if err != nil {
 		return 0, err
 	}
+	defer func() {
+		if err != nil {
+			rollbackErr := tx.Rollback()
+			if rollbackErr != nil {
+				err = errors.Join(err, rollbackErr)
+			}
+		}
+	}()
 	q := `INSERT INTO ordering (profile_id, order_status) VALUES ($1, $2) RETURNING id;`
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d $2 = %s", userID, "created")))
 	start := time.Now()
 	var orderID uint
 	if err = tx.GetContext(ctx, &orderID, q, userID, "created"); err != nil {
-		logger.Error(ctx, "error while creating order: %v", errors.Join(err, tx.Rollback()))
+		logger.Error(ctx, "error while creating order: "+err.Error())
 		return 0, err
 	}
 	logger.Info(ctx, fmt.Sprintf("inserted in %s", time.Since(start)))
@@ -44,7 +52,7 @@ func (r *OrderRepo) Create(ctx context.Context, userID uint, orderItems []models
 	start = time.Now()
 	_, err = tx.NamedExecContext(ctx, q, items)
 	if err != nil {
-		logger.Error(ctx, "error while inserting order items: %v", errors.Join(err, tx.Rollback()))
+		logger.Error(ctx, "error while inserting order items: "+err.Error())
 		return 0, err
 	}
 	logger.Info(ctx, fmt.Sprintf("inserted in %s", time.Since(start)))
@@ -61,14 +69,14 @@ func (r *OrderRepo) Create(ctx context.Context, userID uint, orderItems []models
 	start = time.Now()
 	_, err = tx.ExecContext(ctx, q, orderID, orderID)
 	if err != nil {
-		logger.Error(ctx, "error while inserting sum: %v", errors.Join(err, tx.Rollback()))
+		logger.Error(ctx, "error while inserting sum: "+err.Error())
 		return 0, err
 	}
 	logger.Info(ctx, fmt.Sprintf("inserted in %s", time.Since(start)))
 	if err = tx.Commit(); err != nil {
 		return 0, err
 	}
-	return orderID, nil
+	return orderID, err
 }
 
 func (r *OrderRepo) GetOrderByID(ctx context.Context, orderID uint) (models.GetOrderPayload, error) {
