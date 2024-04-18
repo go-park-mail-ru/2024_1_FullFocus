@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"time"
@@ -32,7 +33,7 @@ func (r *OrderRepo) Create(ctx context.Context, userID uint, orderItems []models
 	start := time.Now()
 	var orderID uint
 	if err = tx.GetContext(ctx, &orderID, q, userID, "created"); err != nil {
-		logger.Error(ctx, "error while creating order: "+err.Error())
+		logger.Error(ctx, "error while creating order: %v", errors.Join(err, tx.Rollback()))
 		return 0, err
 	}
 	logger.Info(ctx, fmt.Sprintf("inserted in %s", time.Since(start)))
@@ -43,7 +44,7 @@ func (r *OrderRepo) Create(ctx context.Context, userID uint, orderItems []models
 	start = time.Now()
 	_, err = tx.NamedExecContext(ctx, q, items)
 	if err != nil {
-		logger.Error(ctx, "error while inserting order items: "+err.Error())
+		logger.Error(ctx, "error while inserting order items: %v", errors.Join(err, tx.Rollback()))
 		return 0, err
 	}
 	logger.Info(ctx, fmt.Sprintf("inserted in %s", time.Since(start)))
@@ -60,7 +61,7 @@ func (r *OrderRepo) Create(ctx context.Context, userID uint, orderItems []models
 	start = time.Now()
 	_, err = tx.ExecContext(ctx, q, orderID, orderID)
 	if err != nil {
-		logger.Error(ctx, "error while inserting sum: "+err.Error())
+		logger.Error(ctx, "error while inserting sum: %v", errors.Join(err, tx.Rollback()))
 		return 0, err
 	}
 	logger.Info(ctx, fmt.Sprintf("inserted in %s", time.Since(start)))
