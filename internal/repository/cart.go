@@ -26,7 +26,7 @@ func (r *CartRepo) GetAllCartItems(ctx context.Context, uID uint) ([]models.Cart
 	FROM product AS p JOIN cart_item AS c ON p.id = c.product_id
 	WHERE profile_id = $1;`
 
-	cartProductRows := []dao.CartProductTable{}
+	var cartProductRows []dao.CartProductTable
 	err := r.storage.Select(ctx, &cartProductRows, q, uID)
 	if err != nil {
 		logger.Error(ctx, "Error: %s", err.Error())
@@ -42,7 +42,7 @@ func (r *CartRepo) GetAllCartItems(ctx context.Context, uID uint) ([]models.Cart
 func (r *CartRepo) GetAllCartItemsID(ctx context.Context, uID uint) ([]models.CartItem, error) {
 	q := `SELECT product_id, count FROM cart_item WHERE profile_id = $1;`
 
-	cartItemRows := []dao.CartItemTable{}
+	var cartItemRows []dao.CartItemTable
 	err := r.storage.Select(ctx, &cartItemRows, q, uID)
 	if err != nil {
 		logger.Error(ctx, "Error: %s", err.Error())
