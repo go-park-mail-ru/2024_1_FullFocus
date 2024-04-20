@@ -33,7 +33,7 @@ CREATE TABLE user_profile (
 CREATE TABLE product (
 	id SERIAL PRIMARY KEY,
 	product_name TEXT NOT NULL CHECK (char_length(product_name) BETWEEN 1 AND 50),
-	product_description TEXT DEFAULT NULL CHECK (char_length(product_description) BETWEEN 1 AND 255),
+	product_description TEXT DEFAULT '' CHECK (char_length(product_description) < 255),
 	price int4 NOT NULL CHECK (price > 0),
 	imgsrc TEXT DEFAULT '',
 	seller TEXT NOT NULL CHECK (char_length(seller) > 0),
