@@ -16,15 +16,10 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
 )
 
-type product struct {
-	Name string `json:"product_name"`
-}
-
 const (
-	_categoryIndex = "category"
-	_productIndex  = "product"
-	_numItems      = 10
-	_productIndexSettings := `
+	_categoryIndex        = "category"
+	_productIndex         = "product"
+	_productIndexSettings = `
     {
         "settings": {
             "analysis": {
@@ -60,7 +55,11 @@ const (
     `
 )
 
-type category struct {
+type product struct {
+	Name string `json:"product_name"`
+}
+
+type categoryTuple struct {
 	id   uint   `db:"id"`
 	name string `db:"category_name"`
 }
@@ -76,7 +75,7 @@ func CreateCategoryIndex(ctx context.Context, db database.Database, es *elastics
 	if err := DropIndex(es, _categoryIndex); err != nil {
 		return err
 	}
-	var categories []category
+	var categories []categoryTuple
 	q := `SELECT id, category_name
 		  FROM category;`
 	if err := db.Select(ctx, &categories, q); err != nil {
