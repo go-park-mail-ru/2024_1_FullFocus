@@ -39,7 +39,7 @@ type App struct {
 	logger *slog.Logger
 }
 
-func Init() *App {
+func MustInit() *App {
 	// Config
 
 	cfg := config.MustLoad()
