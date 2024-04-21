@@ -12,12 +12,13 @@ import (
 )
 
 type Config struct {
-	Env        string         `yaml:"env" env-required:"true"`
-	SessionTTL time.Duration  `yaml:"session_ttl"`
-	Server     ServerConfig   `yaml:"server"`
-	Redis      RedisConfig    `yaml:"redis"`
-	Minio      MinioConfig    `yaml:"minio"`
-	Postgres   PostgresConfig `yaml:"postgres"`
+	Env           string              `yaml:"env" env-required:"true"`
+	SessionTTL    time.Duration       `yaml:"session_ttl"`
+	Server        ServerConfig        `yaml:"server"`
+	Redis         RedisConfig         `yaml:"redis"`
+	Minio         MinioConfig         `yaml:"minio"`
+	Postgres      PostgresConfig      `yaml:"postgres"`
+	Elasticsearch ElasticsearchConfig `yaml:"elasticsearch"`
 }
 
 type ServerConfig struct {
@@ -49,6 +50,13 @@ type PostgresConfig struct {
 	SearchPath   string `yaml:"search_path"`
 	MaxOpenConns int    `yaml:"max_open_conns"`
 	MaxIdleTime  int    `yaml:"max_idle_time"`
+}
+
+type ElasticsearchConfig struct {
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	User     string `yaml:"user" env:"ELASTIC_USER"`
+	Password string `yaml:"password" env:"ELASTIC_PASSWORD"`
 }
 
 func MustLoad() *Config {
