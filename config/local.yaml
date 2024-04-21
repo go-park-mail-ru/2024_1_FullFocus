@@ -23,3 +23,8 @@ postgres:
   search_path: "ozon"
   max_open_conns: 10
   max_idle_time: 10
+elasticsearch:
+  host: "localhost"
+  port: "9200"
+  user: elastic
+  password: elastic
