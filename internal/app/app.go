@@ -10,16 +10,18 @@ import (
 	"syscall"
 	"time"
 
-	minio2 "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/minio"
 	"github.com/gorilla/mux"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
+	elasticsetup "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/elasticsearch"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware"
+	miniosetup "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/minio"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/server"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/elasticsearch"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/minio"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/postgres"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/redis"
@@ -76,7 +78,7 @@ func Init() *App {
 		panic("minio connection error: " + err.Error())
 	}
 
-	if err = minio2.InitBucket(context.Background(), minioClient, cfg.Minio.AvatarBucket); err != nil {
+	if err = miniosetup.InitBucket(context.Background(), minioClient, cfg.Minio.AvatarBucket); err != nil {
 		panic("minio init bucket error: " + err.Error())
 	}
 
@@ -87,6 +89,25 @@ func Init() *App {
 	pgxClient, err := postgres.NewPgxDatabase(ctx, cfg.Postgres)
 	if err != nil {
 		panic("postgres connection error: " + err.Error())
+	}
+
+	// Elasticsearch
+
+	elasticClient, err := elasticsearch.NewClient(cfg.Elasticsearch)
+	if err != nil {
+		panic("elasticsearch connection error: " + err.Error())
+	}
+
+	_, err = elasticClient.Ping()
+	if err != nil {
+		panic("elasticsearch ping error: " + err.Error())
+	}
+
+	ctx, cancel = context.WithTimeout(context.Background(), _timeout)
+	defer cancel()
+
+	if err = elasticsetup.CreateElasticsearchIndices(ctx, pgxClient, elasticClient); err != nil {
+		panic("elasticsearch create index error: " + err.Error())
 	}
 
 	// Server init
