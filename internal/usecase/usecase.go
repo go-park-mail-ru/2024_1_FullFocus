@@ -50,4 +50,8 @@ type (
 	Categories interface {
 		GetAllCategories(ctx context.Context) ([]models.Category, error)
 	}
+
+	Reviews interface {
+		GetProductReviews(ctx context.Context, input models.GetProductReviewsInput) ([]models.ProductReview, error)
+	}
 )
