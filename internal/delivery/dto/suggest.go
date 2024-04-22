@@ -13,7 +13,7 @@ type Suggestion struct {
 }
 
 func convertCategorySuggestToDTO(suggestions []models.CategorySuggest) []CategorySuggest {
-	var categorySuggests []CategorySuggest
+	categorySuggests := make([]CategorySuggest, 0, len(suggestions))
 	for _, suggestion := range suggestions {
 		categorySuggests = append(categorySuggests, CategorySuggest{
 			ID:   suggestion.ID,
