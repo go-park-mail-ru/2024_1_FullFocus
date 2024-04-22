@@ -44,3 +44,11 @@ func GetCartItemData(r *http.Request) (dto.UpdateCartItemInput, error) {
 	}
 	return data, nil
 }
+
+func GetReviewsData(r *http.Request) (dto.GetProductReviewsInput, error) {
+	var data dto.GetProductReviewsInput
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		return dto.GetProductReviewsInput{}, err
+	}
+	return data, nil
+}
