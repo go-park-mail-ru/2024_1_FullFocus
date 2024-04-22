@@ -106,8 +106,8 @@ func MustInit() *App {
 	ctx, cancel = context.WithTimeout(context.Background(), _timeout)
 	defer cancel()
 
-	if err = elasticsetup.CreateElasticsearchIndices(ctx, pgxClient, elasticClient); err != nil {
-		panic("elasticsearch create index error: " + err.Error())
+	if err = elasticsetup.InitElasticData(ctx, pgxClient, elasticClient); err != nil {
+		panic("elasticsearch init data error: " + err.Error())
 	}
 
 	// Server init
@@ -121,9 +121,6 @@ func MustInit() *App {
 	profileUsecase := usecase.NewProfileUsecase(profileRepo)
 	profileHandler := delivery.NewProfileHandler(profileUsecase)
 	profileHandler.InitRouter(apiRouter)
-	// if err = minio2.InitBucket(context.Background(), minioClient, cfg.Minio.AvatarBucket); err != nil {
-	//	panic("minio setup error: " + err.Error())
-	//}
 
 	// Auth
 	userRepo := repository.NewUserRepo(pgxClient)
@@ -164,6 +161,12 @@ func MustInit() *App {
 	categoryUsecase := usecase.NewCategoryUsecase(categoryRepo)
 	categoryHandler := delivery.NewCategoryHandler(categoryUsecase)
 	categoryHandler.InitRouter(apiRouter)
+
+	// Suggests
+	suggestRepo := repository.NewSuggestRepo(elasticClient)
+	suggestUsecase := usecase.NewSuggestUsecase(suggestRepo)
+	suggestHandler := delivery.NewSuggestHandler(suggestUsecase)
+	suggestHandler.InitRouter(apiRouter)
 
 	return &App{
 		config: cfg,
