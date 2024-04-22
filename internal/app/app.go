@@ -111,7 +111,6 @@ func MustInit() *App {
 	}
 
 	// Server init
-
 	srv := server.NewServer(cfg.Server, r)
 
 	// Layers
