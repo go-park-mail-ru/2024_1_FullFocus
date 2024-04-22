@@ -60,4 +60,9 @@ type (
 	Categories interface {
 		GetAllCategories(ctx context.Context) ([]models.Category, error)
 	}
+
+	Suggests interface {
+		GetCategorySuggests(ctx context.Context, query string) ([]models.CategorySuggest, error)
+		GetProductSuggests(ctx context.Context, query string) ([]string, error)
+	}
 )

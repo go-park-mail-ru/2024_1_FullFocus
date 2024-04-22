@@ -50,4 +50,8 @@ type (
 	Categories interface {
 		GetAllCategories(ctx context.Context) ([]models.Category, error)
 	}
+
+	Suggests interface {
+		GetSuggestions(ctx context.Context, query string) (models.Suggestion, error)
+	}
 )
