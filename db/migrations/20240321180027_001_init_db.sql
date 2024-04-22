@@ -100,6 +100,28 @@ CREATE TABLE cart_item (
 	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );
 
+-- ozon.review definition
+
+CREATE TABLE review (
+	profile_id int NOT NULL REFERENCES user_profile(id) ON DELETE NO ACTION ON UPDATE CASCADE,
+	product_id int NOT NULL REFERENCES product(id) ON DELETE CASCADE ON UPDATE CASCADE,
+	rating float NOT NULL,
+	advantages text NOT NULL DEFAULT "",
+	disadvantages text NOT NULL DEFAULT "",
+	comments text NOT NULL DEFAULT "",
+	CONSTRAINT review_pk PRIMARY KEY (profile_id, product_id),
+	created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+	updated_at TIMESTAMPTZ DEFAULT now() NOT NULL
+);
+
+-- +goose StatementEnd
+
+-- +goose Down
+-- +goose StatementBegin
+
+-- +goose StatementEnd
+
+
 -- +goose StatementEnd
 
 -- +goose Down
@@ -114,6 +136,7 @@ DROP TABLE IF EXISTS default_user;
 DROP TABLE IF EXISTS product_category;
 DROP TABLE IF EXISTS product;
 DROP TABLE IF EXISTS category;
+DROP TABLE IF EXISTS review;
 
 DROP SCHEMA IF EXISTS ozon CASCADE;
 SET search_path TO public;
