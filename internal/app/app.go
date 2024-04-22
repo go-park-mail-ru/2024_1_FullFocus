@@ -144,6 +144,12 @@ func Init() *App {
 	categoryHandler := delivery.NewCategoryHandler(categoryUsecase)
 	categoryHandler.InitRouter(apiRouter)
 
+	// Reviews
+	reviewRepo := repository.NewReviewRepo(pgxClient)
+	reviewUsecase := usecase.NewReviewUsecase(reviewRepo)
+	reviewHandler := delivery.NewReviewHandler(reviewUsecase)
+	reviewHandler.InitRouter(apiRouter)
+
 	return &App{
 		config: cfg,
 		server: srv,

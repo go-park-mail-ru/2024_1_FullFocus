@@ -62,6 +62,6 @@ type (
 	}
 
 	Reviews interface {
-		GetProductReviews(ctx context.Context, input models.GetAllProductsInput) ([]models.ProductReview, error)
+		GetProductReviews(ctx context.Context, input models.GetProductReviewsInput) ([]models.ProductReview, error)
 	}
 )
