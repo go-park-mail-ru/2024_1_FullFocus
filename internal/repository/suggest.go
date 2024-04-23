@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"github.com/elastic/go-elasticsearch/v8"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
+
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	elasticsetup "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/elasticsearch"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/dao"
@@ -14,7 +16,7 @@ import (
 
 const (
 	_categoriesLimit = 3
-	_productsLimit   = 10
+	_productsLimit   = 6
 )
 
 type SuggestRepo struct {
@@ -121,5 +123,5 @@ func (r *SuggestRepo) GetProductSuggests(ctx context.Context, query string) ([]s
 			products = append(products, option.Text)
 		}
 	}
-	return products, nil
+	return helper.SortSuggests(products), nil
 }
