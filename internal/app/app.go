@@ -131,12 +131,6 @@ func MustInit() *App {
 	// Auth Middleware
 	r.Use(middleware.NewAuthMiddleware(authUsecase))
 
-	// Products
-	productRepo := repository.NewProductRepo(pgxClient)
-	productUsecase := usecase.NewProductUsecase(productRepo)
-	productHandler := delivery.NewProductHandler(productUsecase)
-	productHandler.InitRouter(apiRouter)
-
 	// Cart
 	cartRepo := repository.NewCartRepo(pgxClient)
 	cartUsecase := usecase.NewCartUsecase(cartRepo)
@@ -160,6 +154,12 @@ func MustInit() *App {
 	categoryUsecase := usecase.NewCategoryUsecase(categoryRepo)
 	categoryHandler := delivery.NewCategoryHandler(categoryUsecase)
 	categoryHandler.InitRouter(apiRouter)
+
+	// Products
+	productRepo := repository.NewProductRepo(pgxClient)
+	productUsecase := usecase.NewProductUsecase(productRepo, categoryRepo)
+	productHandler := delivery.NewProductHandler(productUsecase)
+	productHandler.InitRouter(apiRouter)
 
 	// Suggests
 	suggestRepo := repository.NewSuggestRepo(elasticClient)
