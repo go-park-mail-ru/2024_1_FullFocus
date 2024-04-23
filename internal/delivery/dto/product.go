@@ -1,6 +1,8 @@
 package dto
 
-import "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+import (
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+)
 
 // TODO: inCart
 
@@ -34,9 +36,6 @@ type GetAllProductsPayload struct {
 	ProductCards []ProductCard `json:"productCards"`
 }
 
-// TODO: inCart
-// TODO: how to handle ErrNoRows
-
 type Product struct {
 	ID          uint     `json:"id"`
 	Name        string   `json:"name"`
@@ -60,5 +59,17 @@ func ConvertProductToDTO(product models.Product) Product {
 		Rating:      product.Rating,
 		InCart:      product.InCart,
 		Categories:  product.Categories,
+	}
+}
+
+type GetProductsByCategoryIDPayload struct {
+	CategoryName string               `json:"categoryName"`
+	Products     []models.ProductCard `json:"productCards"`
+}
+
+func ConvertProductsByCategoryIDPayload(payload models.GetProductsByCategoryIDPayload) GetProductsByCategoryIDPayload {
+	return GetProductsByCategoryIDPayload{
+		CategoryName: payload.CategoryName,
+		Products:     payload.Products,
 	}
 }

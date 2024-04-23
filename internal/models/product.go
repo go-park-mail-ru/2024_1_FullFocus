@@ -34,3 +34,8 @@ type GetProductsByCategoryIDInput struct {
 	PageNum    uint
 	PageSize   uint
 }
+
+type GetProductsByCategoryIDPayload struct {
+	CategoryName string
+	Products     []ProductCard
+}
