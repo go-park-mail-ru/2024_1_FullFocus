@@ -44,3 +44,7 @@ func (u *ProductUsecase) GetProductsByCategoryID(ctx context.Context, input mode
 		Products:     products,
 	}, nil
 }
+
+func (u *ProductUsecase) GetProductsByQuery(ctx context.Context, input models.GetProductsByQueryInput) ([]models.ProductCard, error) {
+	return u.productRepo.GetProductsByQuery(ctx, input)
+}

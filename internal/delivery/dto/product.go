@@ -63,13 +63,18 @@ func ConvertProductToDTO(product models.Product) Product {
 }
 
 type GetProductsByCategoryIDPayload struct {
-	CategoryName string               `json:"categoryName"`
-	Products     []models.ProductCard `json:"productCards"`
+	CategoryName string        `json:"categoryName"`
+	Products     []ProductCard `json:"productCards"`
 }
 
 func ConvertProductsByCategoryIDPayload(payload models.GetProductsByCategoryIDPayload) GetProductsByCategoryIDPayload {
 	return GetProductsByCategoryIDPayload{
 		CategoryName: payload.CategoryName,
-		Products:     payload.Products,
+		Products:     ConvertProductCardsToDTO(payload.Products),
 	}
+}
+
+type GetProductsByQueryPayload struct {
+	Query    string        `json:"query"`
+	Products []ProductCard `json:"productCards"`
 }
