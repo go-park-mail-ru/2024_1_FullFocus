@@ -103,13 +103,14 @@ CREATE TABLE cart_item (
 -- ozon.review definition
 
 CREATE TABLE review (
+	id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	profile_id int NOT NULL REFERENCES user_profile(id) ON DELETE NO ACTION ON UPDATE CASCADE,
 	product_id int NOT NULL REFERENCES product(id) ON DELETE CASCADE ON UPDATE CASCADE,
-	rating float NOT NULL,
-	advantages text NOT NULL DEFAULT "",
-	disadvantages text NOT NULL DEFAULT "",
-	comments text NOT NULL DEFAULT "",
-	CONSTRAINT review_pk PRIMARY KEY (profile_id, product_id),
+	rating float NOT null CHECK (rating >= 0 AND rating <= 5),
+	advantages text NOT NULL DEFAULT '',
+	disadvantages text NOT NULL DEFAULT '',
+	comments text NOT NULL DEFAULT '',
+	CONSTRAINT review_unique UNIQUE (profile_id, product_id),
 	created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
 	updated_at TIMESTAMPTZ DEFAULT now() NOT NULL
 );

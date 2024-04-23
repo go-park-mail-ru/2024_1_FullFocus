@@ -1,0 +1,29 @@
+package dao
+
+import "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+
+type ProductReviewTable struct {
+	ProfileName   string  `db:"user_login"`
+	ProfileAvatar string  `db:"imgsrc"`
+	Rating        float32 `db:"rating"`
+	CreatedAt     string  `db:"created_at"`
+	Comment       string  `db:"comments"`
+	Advanatages   string  `db:"advanatages"`
+	Disadvantages string  `db:"disadvantages"`
+}
+
+func ConvertReviewsToModels(tt []ProductReviewTable) []models.ProductReview {
+	productReviews := make([]models.ProductReview, 0)
+	for _, t := range tt {
+		productReviews = append(productReviews, models.ProductReview{
+			AuthorName:    t.ProfileName,
+			AuthorAvatar:  t.ProfileAvatar,
+			Rating:        t.Rating,
+			CreatedAt:     t.CreatedAt,
+			Comment:       t.Comment,
+			Advanatages:   t.Advanatages,
+			Disadvantages: t.Disadvantages,
+		})
+	}
+	return productReviews
+}

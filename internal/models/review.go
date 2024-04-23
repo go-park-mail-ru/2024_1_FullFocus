@@ -3,7 +3,7 @@ package models
 type ProductReview struct {
 	AuthorName    string
 	AuthorAvatar  string
-	Date          string
+	CreatedAt     string
 	Rating        float32
 	Advanatages   string
 	Disadvantages string
