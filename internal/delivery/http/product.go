@@ -175,6 +175,6 @@ func (h *ProductHandler) GetProductsByCategoryID(w http.ResponseWriter, r *http.
 	}
 	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
-		Data:   dto.ConvertProductCardsToDTO(products),
+		Data:   dto.ConvertProductsByCategoryIDPayload(products),
 	})
 }

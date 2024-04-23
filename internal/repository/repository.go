@@ -59,6 +59,7 @@ type (
 
 	Categories interface {
 		GetAllCategories(ctx context.Context) ([]models.Category, error)
+		GetCategoryNameById(ctx context.Context, categoryID uint) (string, error)
 	}
 
 	Suggests interface {
