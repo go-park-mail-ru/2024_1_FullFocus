@@ -69,3 +69,11 @@ func GetReviewsData(r *http.Request) (dto.GetProductReviewsInput, error) {
 		PageSize:     uint(limit),
 	}, nil
 }
+
+func GetCreateReviewData(r *http.Request) (dto.CreateReviewInput, error) {
+	var data dto.CreateReviewInput
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		return dto.CreateReviewInput{}, err
+	}
+	return data, nil
+}

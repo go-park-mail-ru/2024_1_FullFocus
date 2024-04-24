@@ -25,3 +25,7 @@ func (u *ReviewUsecase) GetProductReviews(ctx context.Context, input models.GetP
 	}
 	return u.reviewRepo.GetProductReviews(ctx, input)
 }
+
+func (u *ReviewUsecase) CreateProductReview(ctx context.Context, uID uint, input models.ProductReview) error {
+	return u.reviewRepo.CreateProductReview(ctx, uID, input)
+}

@@ -27,7 +27,7 @@ func (h *ReviewHandler) InitRouter(r *mux.Router) {
 	h.router = r.PathPrefix("/reviews").Subrouter()
 	{
 		h.router.Handle("/public/v1/{productID:[1-9]+[0-9]*}", http.HandlerFunc(h.GetProductReviews)).Methods("GET", "OPTIONS")
-		//  h.router.Handle("/v1/new", http.HandlerFunc()).Methods("POST", "OPTIONS")
+		h.router.Handle("/v1/new", http.HandlerFunc(h.CreateProductReview)).Methods("POST", "OPTIONS")
 	}
 }
 
@@ -43,7 +43,7 @@ func (h *ReviewHandler) GetProductReviews(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	input := dto.ConvertGetProductReviewInputToModel(inputData)
+	input := dto.ConvertGetReviewInputToModel(inputData)
 	reviews, err := h.reviewUsecase.GetProductReviews(ctx, input)
 	switch {
 	case errors.Is(err, models.ErrInternal):
@@ -63,6 +63,43 @@ func (h *ReviewHandler) GetProductReviews(w http.ResponseWriter, r *http.Request
 
 	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
-		Data:   reviews,
+		Data:   dto.ConvertReviewsToDto(reviews),
+	})
+}
+
+func (h *ReviewHandler) CreateProductReview(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	uID, err := helper.GetUserIDFromContext(ctx)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 403,
+			Msg:    err.Error(),
+			MsgRus: "Пользователь не авторизован",
+		})
+		return
+	}
+
+	inputData, err := helper.GetCreateReviewData(r)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 400,
+			Msg:    err.Error(),
+			MsgRus: "Ошибка обработки данных",
+		})
+		return
+	}
+
+	input := dto.ConvertCreateReviewInputToModel(inputData)
+	if err = h.reviewUsecase.CreateProductReview(ctx, uID, input); err != nil {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 404,
+			Msg:    err.Error(),
+			MsgRus: "Ошибка обработки данных",
+		})
+		return
+	}
+
+	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
+		Status: 201,
 	})
 }
