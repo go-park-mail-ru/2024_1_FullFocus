@@ -26,7 +26,7 @@ func NewReviewHandler(u usecase.Reviews) *ReviewHandler {
 func (h *ReviewHandler) InitRouter(r *mux.Router) {
 	h.router = r.PathPrefix("/reviews").Subrouter()
 	{
-		h.router.Handle("/public/v1", http.HandlerFunc(h.GetProductReviews)).Methods("GET", "OPTIONS")
+		h.router.Handle("/public/v1/{productID:[1-9]+[0-9]*}", http.HandlerFunc(h.GetProductReviews)).Methods("GET", "OPTIONS")
 		//  h.router.Handle("/v1/new", http.HandlerFunc()).Methods("POST", "OPTIONS")
 	}
 }

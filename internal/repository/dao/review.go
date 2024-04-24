@@ -8,7 +8,7 @@ type ProductReviewTable struct {
 	Rating        float32 `db:"rating"`
 	CreatedAt     string  `db:"created_at"`
 	Comment       string  `db:"comments"`
-	Advanatages   string  `db:"advanatages"`
+	Advantages    string  `db:"advantages"`
 	Disadvantages string  `db:"disadvantages"`
 }
 
@@ -21,7 +21,7 @@ func ConvertReviewsToModels(tt []ProductReviewTable) []models.ProductReview {
 			Rating:        t.Rating,
 			CreatedAt:     t.CreatedAt,
 			Comment:       t.Comment,
-			Advanatages:   t.Advanatages,
+			Advanatages:   t.Advantages,
 			Disadvantages: t.Disadvantages,
 		})
 	}

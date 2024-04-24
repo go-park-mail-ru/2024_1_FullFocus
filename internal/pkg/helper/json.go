@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
+	"github.com/gorilla/mux"
 )
 
 // JSONResponse - принимает ResponseWriter, значение ответа сервера и соответствующее сообщение.
@@ -46,9 +48,24 @@ func GetCartItemData(r *http.Request) (dto.UpdateCartItemInput, error) {
 }
 
 func GetReviewsData(r *http.Request) (dto.GetProductReviewsInput, error) {
-	var data dto.GetProductReviewsInput
-	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+	prID, err := strconv.Atoi(mux.Vars(r)["productID"])
+	if err != nil {
 		return dto.GetProductReviewsInput{}, err
 	}
-	return data, nil
+
+	query := r.URL.Query()
+	lastID, err := strconv.Atoi(query.Get("lastReviewID"))
+	if err != nil {
+		lastID = 0
+	}
+	limit, err := strconv.Atoi(query.Get("limit"))
+	if err != nil {
+		limit = 0
+	}
+
+	return dto.GetProductReviewsInput{
+		ProductID:    uint(prID),
+		LastReviewID: uint(lastID),
+		PageSize:     uint(limit),
+	}, nil
 }

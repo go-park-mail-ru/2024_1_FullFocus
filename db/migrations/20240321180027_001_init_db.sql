@@ -120,14 +120,6 @@ CREATE TABLE review (
 -- +goose Down
 -- +goose StatementBegin
 
--- +goose StatementEnd
-
-
--- +goose StatementEnd
-
--- +goose Down
--- +goose StatementBegin
-
 DROP TABLE IF EXISTS cart_item;
 DROP TABLE IF EXISTS order_item;
 DROP TABLE IF EXISTS ordering;
