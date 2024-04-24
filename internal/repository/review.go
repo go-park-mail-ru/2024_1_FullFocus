@@ -34,7 +34,7 @@ func (r *ReviewRepo) GetProductReviews(ctx context.Context, input models.GetProd
 		return []models.ProductReview{}, models.ErrInternal
 	}
 	if len(reviews) == 0 {
-		return []models.ProductReview{}, models.ErrNoRowsFound
+		return []models.ProductReview{}, models.ErrNoReviews
 	}
 	return dao.ConvertReviewsToModels(reviews), nil
 }
