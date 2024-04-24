@@ -2,11 +2,14 @@ package repository
 
 import (
 	"context"
+	"errors"
+	"strings"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/dao"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type ReviewRepo struct {
@@ -45,7 +48,16 @@ func (r *ReviewRepo) CreateProductReview(ctx context.Context, uID uint, input mo
 
 	if _, err := r.storage.Exec(ctx, q, uID, input.ProductID, input.Rating, input.Comment, input.Advanatages, input.Disadvantages); err != nil {
 		logger.Info(ctx, "Error:"+err.Error())
-		return models.ErrNoProduct
+		var sqlErr *pgconn.PgError
+		if errors.As(err, &sqlErr) {
+			if strings.Contains(sqlErr.Message, "duplicate") {
+				return models.ErrReviewAlreadyExists
+			}
+			if strings.Contains(sqlErr.Message, "foreign") {
+				return models.ErrNoProduct
+			}
+		}
+		return models.ErrInternal
 	}
 	return nil
 }

@@ -90,11 +90,20 @@ func (h *ReviewHandler) CreateProductReview(w http.ResponseWriter, r *http.Reque
 	}
 
 	input := dto.ConvertCreateReviewInputToModel(inputData)
-	if err = h.reviewUsecase.CreateProductReview(ctx, uID, input); err != nil {
+	err = h.reviewUsecase.CreateProductReview(ctx, uID, input)
+	switch {
+	case errors.Is(err, models.ErrNoProduct):
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 404,
 			Msg:    err.Error(),
-			MsgRus: "Ошибка обработки данных",
+			MsgRus: "Товар не найден",
+		})
+		return
+	case errors.Is(err, models.ErrReviewAlreadyExists):
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 400,
+			Msg:    err.Error(),
+			MsgRus: "Отзыв на этот товар от этого пользователя уже существует",
 		})
 		return
 	}
