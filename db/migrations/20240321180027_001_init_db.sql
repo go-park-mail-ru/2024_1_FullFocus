@@ -60,9 +60,9 @@ CREATE TABLE product_category (
     CONSTRAINT product_category_pk PRIMARY KEY (product_id, category_id)
 );
 
--- ozon.order definition
+-- ozon.order_data definition
 
-CREATE TABLE "order" (
+CREATE TABLE order_data (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     sum INT DEFAULT 0 NOT NULL CHECK (sum >= 0),
     profile_id BIGINT NOT NULL REFERENCES user_profile(id) ON DELETE CASCADE ON UPDATE CASCADE ,
@@ -74,7 +74,7 @@ CREATE TABLE "order" (
 -- ozon.order_item definition
 
 CREATE TABLE order_item (
-    order_id BIGINT NOT NULL REFERENCES "order"(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    order_id BIGINT NOT NULL REFERENCES order_data(id) ON DELETE CASCADE ON UPDATE CASCADE,
     product_id BIGINT NOT NULL REFERENCES product(id) ON DELETE CASCADE ON UPDATE CASCADE,
     count SMALLINT DEFAULT 1 NOT NULL CHECK (count > 0),
     created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
@@ -100,7 +100,7 @@ CREATE TABLE cart_item (
 
 DROP TABLE IF EXISTS cart_item;
 DROP TABLE IF EXISTS order_item;
-DROP TABLE IF EXISTS "order";
+DROP TABLE IF EXISTS order_data;
 DROP TABLE IF EXISTS user_profile;
 DROP TABLE IF EXISTS default_user;
 DROP TABLE IF EXISTS product_category;
