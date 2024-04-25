@@ -23,16 +23,15 @@ func NewReviewRepo(st database.Database) *ReviewRepo {
 }
 
 func (r *ReviewRepo) GetProductReviews(ctx context.Context, input models.GetProductReviewsInput) ([]models.ProductReview, error) {
-	q := `SELECT u.user_login , p.imgsrc, r.rating, r.created_at, r.comments, r.advantages, r.disadvantages
+	q := `SELECT p.full_name , p.imgsrc, r.rating, r.created_at, r.comments, r.advantages, r.disadvantages
 	FROM review r
 	JOIN user_profile p ON r.profile_id = p.id
-	JOIN default_user u ON p.id = u.id
-	WHERE r.product_id = $1 AND r.id > $2
+	WHERE r.product_id = $1
 	ORDER BY r.created_at 
-	LIMIT $3;`
+	LIMIT $2 OFFSET $3;`
 
 	reviews := make([]dao.ProductReviewTable, 0)
-	if err := r.storage.Select(ctx, &reviews, q, input.ProductID, input.LastReviewID, input.PageSize); err != nil {
+	if err := r.storage.Select(ctx, &reviews, q, input.ProductID, input.PageSize, input.LastReviewID); err != nil {
 		logger.Info(ctx, "Error:"+err.Error())
 		return []models.ProductReview{}, models.ErrInternal
 	}

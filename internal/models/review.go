@@ -5,7 +5,7 @@ type ProductReview struct {
 	AuthorName    string
 	AuthorAvatar  string
 	CreatedAt     string
-	Rating        float32
+	Rating        uint
 	Advanatages   string
 	Disadvantages string
 	Comment       string

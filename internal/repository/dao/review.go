@@ -3,13 +3,13 @@ package dao
 import "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 
 type ProductReviewTable struct {
-	ProfileName   string  `db:"user_login"`
-	ProfileAvatar string  `db:"imgsrc"`
-	Rating        float32 `db:"rating"`
-	CreatedAt     string  `db:"created_at"`
-	Comment       string  `db:"comments"`
-	Advantages    string  `db:"advantages"`
-	Disadvantages string  `db:"disadvantages"`
+	ProfileName   string `db:"full_name"`
+	ProfileAvatar string `db:"imgsrc"`
+	Rating        uint   `db:"rating"`
+	CreatedAt     string `db:"created_at"`
+	Comment       string `db:"comments"`
+	Advantages    string `db:"advantages"`
+	Disadvantages string `db:"disadvantages"`
 }
 
 func ConvertReviewsToModels(tt []ProductReviewTable) []models.ProductReview {

@@ -17,13 +17,13 @@ func ConvertGetReviewInputToModel(d GetProductReviewsInput) models.GetProductRev
 }
 
 type ProductReview struct {
-	ProfileName   string  `json:"profileName"`
-	ProfileAvatar string  `json:"profileAvatar"`
-	CreatedAt     string  `json:"createdAt"`
-	Rating        float32 `json:"rating"`
-	Advanatages   string  `json:"advanatages"`
-	Disadvantages string  `json:"disadvantages"`
-	Comment       string  `json:"comment"`
+	ProfileName   string `json:"profileName"`
+	ProfileAvatar string `json:"profileAvatar"`
+	CreatedAt     string `json:"createdAt"`
+	Rating        uint   `json:"rating"`
+	Advanatages   string `json:"advanatages"`
+	Disadvantages string `json:"disadvantages"`
+	Comment       string `json:"comment"`
 }
 
 func ConvertReviewsToDto(mm []models.ProductReview) []ProductReview {
@@ -43,11 +43,11 @@ func ConvertReviewsToDto(mm []models.ProductReview) []ProductReview {
 }
 
 type CreateReviewInput struct {
-	ProductID     uint    `json:"productID"`
-	Rating        float32 `json:"rating"`
-	Comment       string  `json:"comment"`
-	Advantages    string  `json:"advantages"`
-	Disadvantages string  `json:"disadvantages"`
+	ProductID     uint   `json:"productID"`
+	Rating        uint   `json:"rating"`
+	Comment       string `json:"comment"`
+	Advantages    string `json:"advantages"`
+	Disadvantages string `json:"disadvantages"`
 }
 
 func ConvertCreateReviewInputToModel(d CreateReviewInput) models.ProductReview {
