@@ -28,13 +28,14 @@ func (h *ReviewHandler) InitRouter(r *mux.Router) {
 	{
 		h.router.Handle("/public/v1/{productID:[1-9]+[0-9]*}", http.HandlerFunc(h.GetProductReviews)).Methods("GET", "OPTIONS")
 		h.router.Handle("/v1/new", http.HandlerFunc(h.CreateProductReview)).Methods("POST", "OPTIONS")
+		h.router.Handle("/public/v1/sorting", http.HandlerFunc(h.GetReviewSortingTypes)).Methods("GET", "OPTIONS")
 	}
 }
 
 func (h *ReviewHandler) GetProductReviews(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	inputData, err := helper.GetReviewsData(r)
-	sortingData := helper.GetSortParams(r, false)
+	sortingData := helper.GetSortParams(r)
 
 	if err != nil {
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
@@ -54,13 +55,6 @@ func (h *ReviewHandler) GetProductReviews(w http.ResponseWriter, r *http.Request
 			Status: 404,
 			Msg:    err.Error(),
 			MsgRus: "Отзывы не найдены",
-		})
-		return
-	case errors.Is(err, models.ErrInvalidParameters):
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 400,
-			Msg:    err.Error(),
-			MsgRus: "Некорректный параметр сортировки",
 		})
 		return
 	case errors.Is(err, models.ErrInternal):
@@ -120,5 +114,12 @@ func (h *ReviewHandler) CreateProductReview(w http.ResponseWriter, r *http.Reque
 
 	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 201,
+	})
+}
+
+func (h *ReviewHandler) GetReviewSortingTypes(w http.ResponseWriter, r *http.Request) {
+	helper.JSONResponse(r.Context(), w, 200, dto.SuccessResponse{
+		Status: 200,
+		Data:   dto.ConvertSortTypesToDTO(helper.GetReviewSortTypes()),
 	})
 }

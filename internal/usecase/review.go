@@ -4,10 +4,14 @@ import (
 	"context"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
 )
 
-const _productReviewsLimit = 5
+const (
+	_productReviewsLimit   = 5
+	_defaultReviewSortType = 4
+)
 
 type ReviewUsecase struct {
 	reviewRepo repository.Reviews
@@ -24,7 +28,11 @@ func (u *ReviewUsecase) GetProductReviews(ctx context.Context, input models.GetP
 		input.PageSize = _productReviewsLimit
 	}
 	if input.Sorting.ID != 3 && input.Sorting.ID != 4 {
-		return []models.ProductReview{}, models.ErrInvalidParameters
+		defaultSorting, err := helper.GetSortTypeByID(_defaultReviewSortType)
+		if err != nil {
+			return []models.ProductReview{}, models.ErrInternal
+		}
+		input.Sorting = defaultSorting
 	}
 	return u.reviewRepo.GetProductReviews(ctx, input)
 }

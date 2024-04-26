@@ -29,8 +29,9 @@ func (h *ProductHandler) InitRouter(r *mux.Router) {
 	h.router = r.PathPrefix("/v1/public/products").Subrouter()
 	{
 		h.router.Handle("", http.HandlerFunc(h.GetProducts)).Methods("GET", "OPTIONS")
-		h.router.Handle("/{id}", http.HandlerFunc(h.GetProductByID)).Methods("GET", "OPTIONS")
-		h.router.Handle("/category/{id}", http.HandlerFunc(h.GetProductsByCategoryID)).Methods("GET", "OPTIONS")
+		h.router.Handle("/{id:[1-9]+[0-9]*}", http.HandlerFunc(h.GetProductByID)).Methods("GET", "OPTIONS")
+		h.router.Handle("/category/{id:[1-9]+[0-9]*}", http.HandlerFunc(h.GetProductsByCategoryID)).Methods("GET", "OPTIONS")
+		h.router.Handle("/sorting", http.HandlerFunc(h.GetProductSortingTypes)).Methods("GET", "OPTIONS")
 	}
 }
 
@@ -176,5 +177,12 @@ func (h *ProductHandler) GetProductsByCategoryID(w http.ResponseWriter, r *http.
 	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
 		Data:   dto.ConvertProductCardsToDTO(products),
+	})
+}
+
+func (h *ProductHandler) GetProductSortingTypes(w http.ResponseWriter, r *http.Request) {
+	helper.JSONResponse(r.Context(), w, 200, dto.SuccessResponse{
+		Status: 200,
+		Data:   dto.ConvertSortTypesToDTO(helper.GetProductSortTypes()),
 	})
 }

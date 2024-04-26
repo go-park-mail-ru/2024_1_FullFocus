@@ -8,24 +8,51 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 )
 
-func GetSortParams(r *http.Request, product bool) models.SortType {
-	sortID, err := strconv.Atoi(r.URL.Query().Get("sortID"))
-	if err != nil || sortID < 0 || sortID > 4 {
-		if product {
-			sortID = models.DefaultProductSortType
-		} else {
-			sortID = models.DefaultReviewSortType
-		}
+var sorting = [...]models.SortType{
+	{
+		ID:   0,
+		Name: "Не сортировать",
+	},
+	{
+		ID:        1,
+		Name:      "Сначала дорогие",
+		QueryPart: "price DESC",
+	},
+	{
+		ID:        2,
+		Name:      "Сначала недорогие",
+		QueryPart: "price ASC",
+	},
+	{
+		ID:        3,
+		Name:      "Сначала с лучшей оценкой",
+		QueryPart: "rating DESC",
+	},
+	{
+		ID:        4,
+		Name:      "Сначала новые",
+		QueryPart: "created_at DESC",
+	},
+}
+
+func GetSortParams(r *http.Request) models.SortType {
+	sortID, _ := strconv.Atoi(r.URL.Query().Get("sortID"))
+	return sorting[sortID]
+}
+
+func GetSortTypeByID(ID int) (models.SortType, error) {
+	if ID < 0 || ID > len(sorting) {
+		return models.SortType{}, models.ErrInvalidParameters
 	}
-	return models.Sorting[sortID]
+	return sorting[ID], nil
 }
 
 func GetProductSortTypes() []models.SortType {
-	return models.Sorting[1:4]
+	return sorting[1:4]
 }
 
 func GetReviewSortTypes() []models.SortType {
-	return models.Sorting[3:]
+	return sorting[3:]
 }
 
 func ApplySorting(q string, sorting models.SortType) string {
