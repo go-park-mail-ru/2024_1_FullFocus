@@ -34,6 +34,8 @@ func (h *ReviewHandler) InitRouter(r *mux.Router) {
 func (h *ReviewHandler) GetProductReviews(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	inputData, err := helper.GetReviewsData(r)
+	sortingData := helper.GetSortParams(r, false)
+
 	if err != nil {
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 400,
@@ -44,19 +46,27 @@ func (h *ReviewHandler) GetProductReviews(w http.ResponseWriter, r *http.Request
 	}
 
 	input := dto.ConvertGetReviewInputToModel(inputData)
+	input.Sorting = sortingData
 	reviews, err := h.reviewUsecase.GetProductReviews(ctx, input)
 	switch {
-	case errors.Is(err, models.ErrInternal):
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 500,
-			Msg:    err.Error(),
-		})
-		return
 	case errors.Is(err, models.ErrNoReviews):
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 404,
 			Msg:    err.Error(),
 			MsgRus: "Отзывы не найдены",
+		})
+		return
+	case errors.Is(err, models.ErrInvalidParameters):
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 400,
+			Msg:    err.Error(),
+			MsgRus: "Некорректный параметр сортировки",
+		})
+		return
+	case errors.Is(err, models.ErrInternal):
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 500,
+			Msg:    err.Error(),
 		})
 		return
 	}

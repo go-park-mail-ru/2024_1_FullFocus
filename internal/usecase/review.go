@@ -23,6 +23,9 @@ func (u *ReviewUsecase) GetProductReviews(ctx context.Context, input models.GetP
 	if input.PageSize == 0 {
 		input.PageSize = _productReviewsLimit
 	}
+	if input.Sorting.ID != 3 && input.Sorting.ID != 4 {
+		return []models.ProductReview{}, models.ErrInvalidParameters
+	}
 	return u.reviewRepo.GetProductReviews(ctx, input)
 }
 

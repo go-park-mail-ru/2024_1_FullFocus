@@ -15,4 +15,5 @@ type GetProductReviewsInput struct {
 	ProductID    uint
 	LastReviewID uint
 	PageSize     uint
+	Sorting      SortType
 }

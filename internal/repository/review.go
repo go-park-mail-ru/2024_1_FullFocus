@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/dao"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -27,9 +28,10 @@ func (r *ReviewRepo) GetProductReviews(ctx context.Context, input models.GetProd
 	FROM review r
 	JOIN user_profile p ON r.profile_id = p.id
 	WHERE r.product_id = $1
-	ORDER BY r.created_at 
+	%s
 	LIMIT $2 OFFSET $3;`
 
+	q = helper.ApplySorting(q, input.Sorting)
 	reviews := make([]dao.ProductReviewTable, 0)
 	if err := r.storage.Select(ctx, &reviews, q, input.ProductID, input.PageSize, input.LastReviewID); err != nil {
 		logger.Info(ctx, "Error:"+err.Error())
