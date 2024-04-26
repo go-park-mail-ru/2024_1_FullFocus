@@ -26,6 +26,7 @@ type GetAllProductsInput struct {
 	ProfileID uint
 	PageNum   uint
 	PageSize  uint
+	Sorting   SortType
 }
 
 type GetProductsByCategoryIDInput struct {
@@ -33,4 +34,5 @@ type GetProductsByCategoryIDInput struct {
 	ProfileID  uint
 	PageNum    uint
 	PageSize   uint
+	Sorting    SortType
 }

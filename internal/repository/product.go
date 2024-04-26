@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/dao"
 )
@@ -35,9 +36,12 @@ func (r *ProductRepo) GetAllProductCards(ctx context.Context, input models.GetAl
 		 )
 		 SELECT * FROM products_info pi
 		 WHERE pi.id - (SELECT MIN(id) from product) < ?
-		 ORDER BY pi.id DESC LIMIT ?;`
+		 %s
+		 LIMIT ?;`
+
 	offset := input.PageNum * input.PageSize
 	var products []dao.ProductCard
+	q = helper.ApplySorting(q, input.Sorting)
 	if err := r.storage.Select(ctx, &products, q, input.ProfileID, offset, input.PageSize); err != nil {
 		logger.Info(ctx, "error while selecting: "+err.Error())
 		return nil, models.ErrNoRowsFound
@@ -96,9 +100,12 @@ func (r *ProductRepo) GetProductsByCategoryID(ctx context.Context, input models.
 				) cart_query ON p.id = cart_query.product_id
 			)
 			SELECT * FROM products_info pi
+			%s
 			OFFSET ? LIMIT ?;`
+
 	offset := (input.PageNum - 1) * input.PageSize
 	var products []dao.ProductCard
+	q = helper.ApplySorting(q, input.Sorting)
 	if err := r.storage.Select(ctx, &products, q, input.CategoryID, input.ProfileID, offset, input.PageSize); err != nil {
 		logger.Info(ctx, "error while selecting: "+err.Error())
 		return nil, models.ErrNoRowsFound

@@ -56,10 +56,20 @@ func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	sortingData, err := helper.GetSortParams(r)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 400,
+			Msg:    "invalid limit value",
+			MsgRus: "Невалидный параметр сортировки",
+		})
+		return
+	}
 	getProductsInput := models.GetAllProductsInput{
 		ProfileID: uID,
 		PageNum:   uint(pageNum),
 		PageSize:  uint(pageSize),
+		Sorting:   sortingData,
 	}
 	products, err := h.usecase.GetAllProductCards(ctx, getProductsInput)
 	if err != nil {
@@ -152,11 +162,21 @@ func (h *ProductHandler) GetProductsByCategoryID(w http.ResponseWriter, r *http.
 		})
 		return
 	}
+	sortingData, err := helper.GetSortParams(r)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 400,
+			Msg:    "invalid limit value",
+			MsgRus: "Невалидный параметр сортировки",
+		})
+		return
+	}
 	getProductsInput := models.GetProductsByCategoryIDInput{
 		CategoryID: uint(categoryID),
 		ProfileID:  uID,
 		PageNum:    uint(pageNum),
 		PageSize:   uint(pageSize),
+		Sorting:    sortingData,
 	}
 	products, err := h.usecase.GetProductsByCategoryID(ctx, getProductsInput)
 	if err != nil {

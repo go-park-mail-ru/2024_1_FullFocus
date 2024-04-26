@@ -35,13 +35,16 @@ var sorting = [...]models.SortType{
 	},
 }
 
-func GetSortParams(r *http.Request) models.SortType {
+func GetSortParams(r *http.Request) (models.SortType, error) {
 	sortID, _ := strconv.Atoi(r.URL.Query().Get("sortID"))
-	return sorting[sortID]
+	if sortID < 0 || sortID > len(sorting)-1 {
+		return models.SortType{}, models.ErrInvalidField
+	}
+	return sorting[sortID], nil
 }
 
 func GetSortTypeByID(ID int) (models.SortType, error) {
-	if ID < 0 || ID > len(sorting) {
+	if ID < 0 || ID > len(sorting)-1 {
 		return models.SortType{}, models.ErrInvalidParameters
 	}
 	return sorting[ID], nil

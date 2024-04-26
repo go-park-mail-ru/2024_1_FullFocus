@@ -35,8 +35,6 @@ func (h *ReviewHandler) InitRouter(r *mux.Router) {
 func (h *ReviewHandler) GetProductReviews(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	inputData, err := helper.GetReviewsData(r)
-	sortingData := helper.GetSortParams(r)
-
 	if err != nil {
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 400,
@@ -45,7 +43,15 @@ func (h *ReviewHandler) GetProductReviews(w http.ResponseWriter, r *http.Request
 		})
 		return
 	}
-
+	sortingData, err := helper.GetSortParams(r)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 400,
+			Msg:    "invalid limit value",
+			MsgRus: "Невалидный параметр сортировки",
+		})
+		return
+	}
 	input := dto.ConvertGetReviewInputToModel(inputData)
 	input.Sorting = sortingData
 	reviews, err := h.reviewUsecase.GetProductReviews(ctx, input)

@@ -27,16 +27,25 @@ func (u *ReviewUsecase) GetProductReviews(ctx context.Context, input models.GetP
 	if input.PageSize == 0 {
 		input.PageSize = _productReviewsLimit
 	}
-	if input.Sorting.ID != 3 && input.Sorting.ID != 4 {
-		defaultSorting, err := helper.GetSortTypeByID(_defaultReviewSortType)
-		if err != nil {
-			return []models.ProductReview{}, models.ErrInternal
-		}
-		input.Sorting = defaultSorting
+	sorting, err := validateReviewSorting(input.Sorting)
+	if err != nil {
+		return []models.ProductReview{}, err
 	}
+	input.Sorting = sorting
 	return u.reviewRepo.GetProductReviews(ctx, input)
 }
 
 func (u *ReviewUsecase) CreateProductReview(ctx context.Context, uID uint, input models.ProductReview) error {
 	return u.reviewRepo.CreateProductReview(ctx, uID, input)
+}
+
+func validateReviewSorting(input models.SortType) (models.SortType, error) {
+	if input.ID != 3 && input.ID != 4 {
+		defaultSorting, err := helper.GetSortTypeByID(_defaultReviewSortType)
+		if err != nil {
+			return models.SortType{}, models.ErrInternal
+		}
+		return defaultSorting, nil
+	}
+	return input, nil
 }
