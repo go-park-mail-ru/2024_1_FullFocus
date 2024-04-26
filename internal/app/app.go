@@ -150,6 +150,11 @@ func Init() *App {
 	reviewHandler := delivery.NewReviewHandler(reviewUsecase)
 	reviewHandler.InitRouter(apiRouter)
 
+	// Sorting
+
+	sortHandler := delivery.NewSortingHandler()
+	sortHandler.InitRouter(apiRouter)
+
 	return &App{
 		config: cfg,
 		server: srv,
