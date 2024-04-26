@@ -8,7 +8,6 @@ import (
 	context "context"
 	reflect "reflect"
 
-	dto "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	models "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	gomock "github.com/golang/mock/gomock"
 )
@@ -147,34 +146,34 @@ func (mr *MockProductsMockRecorder) GetAllProductCards(ctx, input interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllProductCards", reflect.TypeOf((*MockProducts)(nil).GetAllProductCards), ctx, input)
 }
 
-// GetProductById mocks base method.
-func (m *MockProducts) GetProductById(ctx context.Context, profileID, productID uint) (models.Product, error) {
+// GetProductByID mocks base method.
+func (m *MockProducts) GetProductByID(ctx context.Context, profileID, productID uint) (models.Product, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetProductById", ctx, profileID, productID)
+	ret := m.ctrl.Call(m, "GetProductByID", ctx, profileID, productID)
 	ret0, _ := ret[0].(models.Product)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetProductById indicates an expected call of GetProductById.
-func (mr *MockProductsMockRecorder) GetProductById(ctx, profileID, productID interface{}) *gomock.Call {
+// GetProductByID indicates an expected call of GetProductByID.
+func (mr *MockProductsMockRecorder) GetProductByID(ctx, profileID, productID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProductById", reflect.TypeOf((*MockProducts)(nil).GetProductById), ctx, profileID, productID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProductByID", reflect.TypeOf((*MockProducts)(nil).GetProductByID), ctx, profileID, productID)
 }
 
-// GetProductsByCategoryId mocks base method.
-func (m *MockProducts) GetProductsByCategoryId(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error) {
+// GetProductsByCategoryID mocks base method.
+func (m *MockProducts) GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetProductsByCategoryId", ctx, input)
+	ret := m.ctrl.Call(m, "GetProductsByCategoryID", ctx, input)
 	ret0, _ := ret[0].([]models.ProductCard)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetProductsByCategoryId indicates an expected call of GetProductsByCategoryId.
-func (mr *MockProductsMockRecorder) GetProductsByCategoryId(ctx, input interface{}) *gomock.Call {
+// GetProductsByCategoryID indicates an expected call of GetProductsByCategoryID.
+func (mr *MockProductsMockRecorder) GetProductsByCategoryID(ctx, input interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProductsByCategoryId", reflect.TypeOf((*MockProducts)(nil).GetProductsByCategoryId), ctx, input)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProductsByCategoryID", reflect.TypeOf((*MockProducts)(nil).GetProductsByCategoryID), ctx, input)
 }
 
 // MockAvatars is a mock of Avatars interface.
@@ -201,31 +200,46 @@ func (m *MockAvatars) EXPECT() *MockAvatarsMockRecorder {
 }
 
 // DeleteAvatar mocks base method.
-func (m *MockAvatars) DeleteAvatar(ctx context.Context, profileID uint) error {
+func (m *MockAvatars) DeleteAvatar(ctx context.Context, uID uint) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteAvatar", ctx, profileID)
+	ret := m.ctrl.Call(m, "DeleteAvatar", ctx, uID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteAvatar indicates an expected call of DeleteAvatar.
-func (mr *MockAvatarsMockRecorder) DeleteAvatar(ctx, profileID interface{}) *gomock.Call {
+func (mr *MockAvatarsMockRecorder) DeleteAvatar(ctx, uID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAvatar", reflect.TypeOf((*MockAvatars)(nil).DeleteAvatar), ctx, profileID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAvatar", reflect.TypeOf((*MockAvatars)(nil).DeleteAvatar), ctx, uID)
+}
+
+// GetAvatar mocks base method.
+func (m *MockAvatars) GetAvatar(ctx context.Context, profileID uint) (models.Avatar, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAvatar", ctx, profileID)
+	ret0, _ := ret[0].(models.Avatar)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAvatar indicates an expected call of GetAvatar.
+func (mr *MockAvatarsMockRecorder) GetAvatar(ctx, profileID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAvatar", reflect.TypeOf((*MockAvatars)(nil).GetAvatar), ctx, profileID)
 }
 
 // UploadAvatar mocks base method.
-func (m *MockAvatars) UploadAvatar(ctx context.Context, img dto.Image, profileID uint) error {
+func (m *MockAvatars) UploadAvatar(ctx context.Context, profileID uint, img models.Avatar) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UploadAvatar", ctx, img, profileID)
+	ret := m.ctrl.Call(m, "UploadAvatar", ctx, profileID, img)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UploadAvatar indicates an expected call of UploadAvatar.
-func (mr *MockAvatarsMockRecorder) UploadAvatar(ctx, img, profileID interface{}) *gomock.Call {
+func (mr *MockAvatarsMockRecorder) UploadAvatar(ctx, profileID, img interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadAvatar", reflect.TypeOf((*MockAvatars)(nil).UploadAvatar), ctx, img, profileID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadAvatar", reflect.TypeOf((*MockAvatars)(nil).UploadAvatar), ctx, profileID, img)
 }
 
 // MockOrders is a mock of Orders interface.
@@ -334,7 +348,7 @@ func (m *MockProfiles) EXPECT() *MockProfilesMockRecorder {
 }
 
 // CreateProfile mocks base method.
-func (m *MockProfiles) CreateProfile(ctx context.Context, profile dto.Profile) (uint, error) {
+func (m *MockProfiles) CreateProfile(ctx context.Context, profile models.Profile) (uint, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateProfile", ctx, profile)
 	ret0, _ := ret[0].(uint)
@@ -349,10 +363,10 @@ func (mr *MockProfilesMockRecorder) CreateProfile(ctx, profile interface{}) *gom
 }
 
 // GetProfile mocks base method.
-func (m *MockProfiles) GetProfile(ctx context.Context, uID uint) (dto.Profile, error) {
+func (m *MockProfiles) GetProfile(ctx context.Context, uID uint) (models.Profile, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetProfile", ctx, uID)
-	ret0, _ := ret[0].(dto.Profile)
+	ret0, _ := ret[0].(models.Profile)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -364,7 +378,7 @@ func (mr *MockProfilesMockRecorder) GetProfile(ctx, uID interface{}) *gomock.Cal
 }
 
 // UpdateProfile mocks base method.
-func (m *MockProfiles) UpdateProfile(ctx context.Context, uID uint, newProfile dto.Profile) error {
+func (m *MockProfiles) UpdateProfile(ctx context.Context, uID uint, newProfile models.ProfileUpdateInput) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateProfile", ctx, uID, newProfile)
 	ret0, _ := ret[0].(error)
@@ -495,4 +509,56 @@ func (m *MockCategories) GetAllCategories(ctx context.Context) ([]models.Categor
 func (mr *MockCategoriesMockRecorder) GetAllCategories(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllCategories", reflect.TypeOf((*MockCategories)(nil).GetAllCategories), ctx)
+}
+
+// MockReviews is a mock of Reviews interface.
+type MockReviews struct {
+	ctrl     *gomock.Controller
+	recorder *MockReviewsMockRecorder
+}
+
+// MockReviewsMockRecorder is the mock recorder for MockReviews.
+type MockReviewsMockRecorder struct {
+	mock *MockReviews
+}
+
+// NewMockReviews creates a new mock instance.
+func NewMockReviews(ctrl *gomock.Controller) *MockReviews {
+	mock := &MockReviews{ctrl: ctrl}
+	mock.recorder = &MockReviewsMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockReviews) EXPECT() *MockReviewsMockRecorder {
+	return m.recorder
+}
+
+// CreateProductReview mocks base method.
+func (m *MockReviews) CreateProductReview(ctx context.Context, uID uint, input models.ProductReview) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateProductReview", ctx, uID, input)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateProductReview indicates an expected call of CreateProductReview.
+func (mr *MockReviewsMockRecorder) CreateProductReview(ctx, uID, input interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateProductReview", reflect.TypeOf((*MockReviews)(nil).CreateProductReview), ctx, uID, input)
+}
+
+// GetProductReviews mocks base method.
+func (m *MockReviews) GetProductReviews(ctx context.Context, input models.GetProductReviewsInput) ([]models.ProductReview, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetProductReviews", ctx, input)
+	ret0, _ := ret[0].([]models.ProductReview)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetProductReviews indicates an expected call of GetProductReviews.
+func (mr *MockReviewsMockRecorder) GetProductReviews(ctx, input interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProductReviews", reflect.TypeOf((*MockReviews)(nil).GetProductReviews), ctx, input)
 }
