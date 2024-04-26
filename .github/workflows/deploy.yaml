@@ -55,8 +55,8 @@ jobs:
       - name: Pull the image
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ context.HOST }}
-          username: ${{ context.USER }}
+          host: ${{ vars.HOST }}
+          username: ${{ vars.USER }}
           password: ${{ secrets.PASSWORD }}
           script: |
             cd ~/ozon_project/backend/
