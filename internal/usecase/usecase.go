@@ -19,7 +19,8 @@ type (
 	Products interface {
 		GetAllProductCards(ctx context.Context, input models.GetAllProductsInput) ([]models.ProductCard, error)
 		GetProductByID(ctx context.Context, profileID uint, productID uint) (models.Product, error)
-		GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error)
+		GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) (models.GetProductsByCategoryIDPayload, error)
+		GetProductsByQuery(ctx context.Context, input models.GetProductsByQueryInput) ([]models.ProductCard, error)
 	}
 
 	Avatars interface {
@@ -49,5 +50,9 @@ type (
 
 	Categories interface {
 		GetAllCategories(ctx context.Context) ([]models.Category, error)
+	}
+
+	Suggests interface {
+		GetSuggestions(ctx context.Context, query string) (models.Suggestion, error)
 	}
 )

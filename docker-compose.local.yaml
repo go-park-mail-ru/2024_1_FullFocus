@@ -3,6 +3,7 @@ version: '3.8'
 services:
   redis:
     image: 'redis'
+    container_name: redis
     restart: always
     ports:
       - '6379:6379'
@@ -15,6 +16,7 @@ services:
       - 'redis-data:/data'
   minio:
     image: minio/minio:RELEASE.2024-01-18T22-51-28Z-cpuv1
+    container_name: minio
     volumes:
       - 'minio-data:/data'
     ports:
@@ -31,6 +33,7 @@ services:
       retries: 3
   postgres:
     image: postgres:16
+    container_name: postgres
     volumes:
       - 'postgres-data:/var/lib/postgresql/data'
     ports:
@@ -44,7 +47,24 @@ services:
       interval: 10s
       timeout: 10s
       retries: 3
+  elasticsearch:
+    image: bitnami/elasticsearch:7.17.20-debian-12-r2
+    container_name: elasticsearch
+    restart: always
+    environment:
+      node.name: 'es01'
+      bootstrap.memory_lock: true
+      ES_JAVA_OPTS: '-Xms750m -Xmx750m'
+      ELASTIC_USERNAME: elastic
+      ELASTIC_PASSWORD: elastic
+    ports:
+      - '9200:9200'
+    volumes:
+      - 'elastic-data:/usr/share/elasticsearch/data'
+      - '/etc/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml'
+      - '/etc/elasticsearch/plugins:/usr/share/elasticsearch/plugins'
 volumes:
   redis-data:
   minio-data:
   postgres-data:
+  elastic-data:

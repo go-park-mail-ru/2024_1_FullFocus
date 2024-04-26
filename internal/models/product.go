@@ -28,9 +28,21 @@ type GetAllProductsInput struct {
 	PageSize  uint
 }
 
+type GetProductsByQueryInput struct {
+	Query     string
+	ProfileID uint
+	PageNum   uint
+	PageSize  uint
+}
+
 type GetProductsByCategoryIDInput struct {
 	CategoryID uint
 	ProfileID  uint
 	PageNum    uint
 	PageSize   uint
+}
+
+type GetProductsByCategoryIDPayload struct {
+	CategoryName string
+	Products     []ProductCard
 }

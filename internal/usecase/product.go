@@ -8,12 +8,14 @@ import (
 )
 
 type ProductUsecase struct {
-	productRepo repository.Products
+	productRepo  repository.Products
+	categoryRepo repository.Categories
 }
 
-func NewProductUsecase(pr repository.Products) *ProductUsecase {
+func NewProductUsecase(pr repository.Products, cr repository.Categories) *ProductUsecase {
 	return &ProductUsecase{
-		productRepo: pr,
+		productRepo:  pr,
+		categoryRepo: cr,
 	}
 }
 
@@ -28,6 +30,21 @@ func (u *ProductUsecase) GetProductByID(ctx context.Context, profileID uint, pro
 	return u.productRepo.GetProductByID(ctx, profileID, productID)
 }
 
-func (u *ProductUsecase) GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error) {
-	return u.productRepo.GetProductsByCategoryID(ctx, input)
+func (u *ProductUsecase) GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) (models.GetProductsByCategoryIDPayload, error) {
+	products, err := u.productRepo.GetProductsByCategoryID(ctx, input)
+	if err != nil {
+		return models.GetProductsByCategoryIDPayload{}, err
+	}
+	categoryName, err := u.categoryRepo.GetCategoryNameById(ctx, input.CategoryID)
+	if err != nil {
+		return models.GetProductsByCategoryIDPayload{}, err
+	}
+	return models.GetProductsByCategoryIDPayload{
+		CategoryName: categoryName,
+		Products:     products,
+	}, nil
+}
+
+func (u *ProductUsecase) GetProductsByQuery(ctx context.Context, input models.GetProductsByQueryInput) ([]models.ProductCard, error) {
+	return u.productRepo.GetProductsByQuery(ctx, input)
 }
