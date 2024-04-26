@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"github.com/gorilla/mux"
 )
@@ -47,10 +48,10 @@ func GetCartItemData(r *http.Request) (dto.UpdateCartItemInput, error) {
 	return data, nil
 }
 
-func GetReviewsData(r *http.Request) (dto.GetProductReviewsInput, error) {
+func GetReviewsData(r *http.Request) (models.GetProductReviewsInput, error) {
 	prID, err := strconv.Atoi(mux.Vars(r)["productID"])
 	if err != nil {
-		return dto.GetProductReviewsInput{}, err
+		return models.GetProductReviewsInput{}, err
 	}
 
 	query := r.URL.Query()
@@ -63,7 +64,7 @@ func GetReviewsData(r *http.Request) (dto.GetProductReviewsInput, error) {
 		limit = 0
 	}
 
-	return dto.GetProductReviewsInput{
+	return models.GetProductReviewsInput{
 		ProductID:    uint(prID),
 		LastReviewID: uint(lastID),
 		PageSize:     uint(limit),

@@ -33,7 +33,7 @@ func (h *ReviewHandler) InitRouter(r *mux.Router) {
 
 func (h *ReviewHandler) GetProductReviews(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	inputData, err := helper.GetReviewsData(r)
+	input, err := helper.GetReviewsData(r)
 	if err != nil {
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 400,
@@ -43,7 +43,6 @@ func (h *ReviewHandler) GetProductReviews(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	input := dto.ConvertGetReviewInputToModel(inputData)
 	reviews, err := h.reviewUsecase.GetProductReviews(ctx, input)
 	switch {
 	case errors.Is(err, models.ErrInternal):
