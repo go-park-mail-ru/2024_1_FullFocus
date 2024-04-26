@@ -35,8 +35,9 @@ func (r *ProductRepo) GetAllProductCards(ctx context.Context, input models.GetAl
 			) cart_query ON p.id = cart_query.product_id
 		 )
 		 SELECT * FROM products_info pi
-		 WHERE pi.id - (SELECT MIN(id) from product) < ?
-		 ORDER BY pi.id DESC LIMIT ?;`
+		 ORDER BY pi.id DESC
+		 OFFSET ?
+		 LIMIT ?;`
 	offset := input.PageNum * input.PageSize
 	var products []dao.ProductCard
 	if err := r.storage.Select(ctx, &products, q, input.ProfileID, offset, input.PageSize); err != nil {
@@ -97,7 +98,8 @@ func (r *ProductRepo) GetProductsByCategoryID(ctx context.Context, input models.
 				) cart_query ON p.id = cart_query.product_id
 			)
 			SELECT * FROM products_info pi
-			OFFSET ? LIMIT ?;`
+			OFFSET ?
+			LIMIT ?;`
 	offset := (input.PageNum - 1) * input.PageSize
 	var products []dao.ProductCard
 	if err := r.storage.Select(ctx, &products, q, input.CategoryID, input.ProfileID, offset, input.PageSize); err != nil {
