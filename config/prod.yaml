@@ -24,7 +24,8 @@ postgres:
   max_open_conns: 10
   max_idle_time: 10
 elasticsearch:
-  host: "localhost"
+  host: "elasticsearch"
   port: "9200"
   user: ${ELASTIC_USER}
   password: ${ELASTIC_PASSWORD}
+
