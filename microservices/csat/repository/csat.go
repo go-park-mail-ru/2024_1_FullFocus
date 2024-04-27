@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"log"
 	"strings"
 
 	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
@@ -29,11 +30,12 @@ func (r *CSATRepo) GetAllPolls(ctx context.Context, profileID uint) ([]models.Po
 		WHEN r.profile_id IS NULL THEN 0
 		ELSE 1
 	END AS voted
-	FROM poll p
+	FROM public.poll p
 	LEFT JOIN response r ON p.id = r.poll_id AND r.profile_id = $1;`
 
 	polls := make([]dao.PollTable, 0)
 	if err := r.storage.Select(ctx, &polls, q, profileID); err != nil {
+		log.Println(err)
 		logger.Error(ctx, err.Error())
 		return []models.Poll{}, commonError.ErrInternal
 	}
@@ -44,7 +46,7 @@ func (r *CSATRepo) GetAllPolls(ctx context.Context, profileID uint) ([]models.Po
 }
 
 func (r *CSATRepo) CreatePollRate(ctx context.Context, input models.CreatePollRate) error {
-	q := `INSERT INTO response(poll_id, profile_id, rate) VALUES($1, $2, $3);`
+	q := `INSERT INTO public.response (poll_id, profile_id, rate) VALUES($1, $2, $3);`
 
 	if _, err := r.storage.Exec(ctx, q, input.PollID, input.ProfileID, input.Rate); err != nil {
 		logger.Error(ctx, err.Error())
@@ -64,7 +66,7 @@ func (r *CSATRepo) CreatePollRate(ctx context.Context, input models.CreatePollRa
 
 func (r *CSATRepo) GetPollStats(ctx context.Context, pollID uint) (string, []models.StatRate, error) {
 	q := `SELECT p.title
-	FROM poll p
+	FROM public.poll p
 	WHERE p.id = $1;`
 
 	var title string
@@ -77,7 +79,7 @@ func (r *CSATRepo) GetPollStats(ctx context.Context, pollID uint) (string, []mod
 	}
 
 	q = `SELECT r.rate, count(*) AS amount
-	FROM response r
+	FROM public.response r
 	WHERE r.poll_id = $1
 	GROUP BY r.rate;`
 

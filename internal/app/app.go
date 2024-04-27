@@ -172,11 +172,11 @@ func MustInit() *App {
 
 	// CSAT
 
-	csatConn, err := grpc.Dial(fmt.Sprintf("%s:%d", "main-app", 9090), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	csatConn, err := grpc.Dial(fmt.Sprintf("%s:%d", "localhost", 9090), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		panic(err)
 	}
-	defer csatConn.Close()
+	// defer csatConn.Close()
 
 	csatClient := gen.NewCSATClient(csatConn)
 	csatUsecase := usecase.NewCsatUsecase(csatClient)
