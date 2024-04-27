@@ -5,8 +5,9 @@ option go_package = "github.com/go-park-mail-ru/2024_1_FullFocus/microservices/c
 import "google/protobuf/empty.proto";
 
 service CSAT {
-    rpc GetPolls(google.protobuf.Empty) returns (GetPollsResponse) {}
     rpc CreatePollRate(CreatePollRateRequest) returns (google.protobuf.Empty) {}
+    rpc GetPolls(google.protobuf.Empty) returns (GetPollsResponse) {}
+    rpc GetPollStats(GetPollStatsResponse) return (GetPollStatsRequest) {}
 }
 
 message GetPollsResponse {
@@ -23,3 +24,28 @@ message CreatePollRateRequest {
     uint32 pollID = 2;
     uint32 rate = 3;
 }
+
+message GetPollStatsRequest {
+    uint32 pollID = 1;
+}
+
+message GetPollStatsResponse {
+  StatsData Stats = 1;
+  StatsData PrimaryStats = 2;
+}
+
+message StatsData {
+    int32 rate1 = 1;
+    int32 rate2 = 2;
+    int32 rate3 = 3;
+    int32 rate4 = 4;
+    int32 rate5 = 5;
+    int32 rate6 = 6;
+    int32 rate7 = 7;
+    int32 rate8 = 8;
+    int32 rate9 = 9;
+    int32 rate10 = 10;
+    int32 amount = 11;
+    int32 above70 = 12;
+}
+
