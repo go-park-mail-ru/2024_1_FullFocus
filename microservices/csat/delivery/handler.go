@@ -25,7 +25,7 @@ func NewCSATHandler(u CSATs) *CSATHandler {
 	}
 }
 
-func (h *CSATHandler) GetPolls(ctx context.Context, r *gen.CreatePollRateRequest) (*gen.GetPollsResponse, error) {
+func (h *CSATHandler) GetPolls(ctx context.Context, r *gen.GetPollsRequest) (*gen.GetPollsResponse, error) {
 	polls, err := h.csatUsecase.GetAllPolls(ctx, uint(r.ProfileID))
 	if err != nil {
 		return &gen.GetPollsResponse{}, err
