@@ -6,8 +6,12 @@ import "google/protobuf/empty.proto";
 
 service CSAT {
     rpc CreatePollRate(CreatePollRateRequest) returns (google.protobuf.Empty) {}
-    rpc GetPolls(google.protobuf.Empty) returns (GetPollsResponse) {}
-    rpc GetPollStats(GetPollStatsResponse) return (GetPollStatsRequest) {}
+    rpc GetPolls(GetPollsRequest) returns (GetPollsResponse) {}
+    rpc GetPollStats(GetPollStatsRequest) returns (GetPollStatsResponse) {}
+}
+
+message GetPollsRequest {
+    uint32 profileID = 1;
 }
 
 message GetPollsResponse {
@@ -17,6 +21,7 @@ message GetPollsResponse {
 message Poll {
     uint32 id = 1;
     string title = 2;
+    bool voted = 3;
 }
 
 message CreatePollRateRequest {
@@ -30,22 +35,13 @@ message GetPollStatsRequest {
 }
 
 message GetPollStatsResponse {
-  StatsData Stats = 1;
-  StatsData PrimaryStats = 2;
+    StatsData Stats = 1;
+    StatsData PrimaryStats = 2;
 }
 
 message StatsData {
-    int32 rate1 = 1;
-    int32 rate2 = 2;
-    int32 rate3 = 3;
-    int32 rate4 = 4;
-    int32 rate5 = 5;
-    int32 rate6 = 6;
-    int32 rate7 = 7;
-    int32 rate8 = 8;
-    int32 rate9 = 9;
-    int32 rate10 = 10;
-    int32 amount = 11;
-    int32 above70 = 12;
+    repeated uint32 rates = 1;
+    uint32 amount = 2;
+    uint32 above70 = 3;
 }
 
