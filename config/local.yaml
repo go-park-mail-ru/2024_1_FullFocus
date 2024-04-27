@@ -30,7 +30,7 @@ postgres_csat:
   password: ${POSTGRES_PASSWORD}
   database: "csat"
   sslmode: "disable"
-  search_path: "csat"
+  search_path: "public"
   max_open_conns: 10
   max_idle_time: 10
 elasticsearch:
