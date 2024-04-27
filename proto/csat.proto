@@ -35,14 +35,9 @@ message GetPollStatsRequest {
 }
 
 message GetPollStatsResponse {
-    string pollTitle = 1;
-    StatsData Stats = 2;
-    StatsData PrimaryStats = 3;
-}
-
-message StatsData {
-    repeated uint32 rates = 1;
-    uint32 amount = 2;
-    uint32 above70 = 3;
+    string PollName = 1;
+    repeated uint32 rates = 2;
+    uint32 amount = 3;
+    uint32 above70 = 4;
 }
 
