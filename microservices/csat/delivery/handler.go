@@ -64,18 +64,15 @@ func (h *CSATHandler) GetPollStats(ctx context.Context, r *gen.GetPollStatsReque
 		return &gen.GetPollStatsResponse{}, err
 	}
 
-	pollStats := gen.StatsData{
-		Amount:  uint32(stats.Stats.Amount),
-		Above70: uint32(stats.Stats.Above70),
-	}
 	rates := make([]uint32, 0)
 	for i := range len(stats.Stats.Rates) {
 		rates = append(rates, uint32(stats.Stats.Rates[i]))
 	}
-	pollStats.Rates = rates
 
 	return &gen.GetPollStatsResponse{
-		PollTitle: stats.PollTitle,
-		Stats:     &pollStats,
+		PollName: stats.PollTitle,
+		Amount:   uint32(stats.Stats.Amount),
+		Above70:  uint32(stats.Stats.Above70),
+		Rates:    rates,
 	}, nil
 }
