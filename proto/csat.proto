@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package auth;
+option go_package = "github.com/go-park-mail-ru/2024_1_FullFocus/microservices/csat/delivery/gen;gen";
+import "google/protobuf/empty.proto";
+
+service CSAT {
+    rpc GetPolls(google.protobuf.Empty) returns (GetPollsResponse) {}
+    rpc CreatePollRate(CreatePollRateRequest) returns (google.protobuf.Empty) {}
+}
+
+message GetPollsResponse {
+    repeated Poll polls = 1;
+}
+
+message Poll {
+    uint32 id = 1;
+    string title = 2;
+}
+
+message CreatePollRateRequest {
+    uint32 profileID = 1;
+    uint32 pollID = 2;
+    uint32 rate = 3;
+}
