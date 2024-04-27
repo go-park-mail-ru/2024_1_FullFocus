@@ -23,11 +23,17 @@ func NewCSATRepo(st db.Database) *CSATRepo {
 	}
 }
 
-func (r *CSATRepo) GetAllPolls(ctx context.Context) ([]models.Poll, error) {
-	q := `SELECT id, title FROM poll;`
+func (r *CSATRepo) GetAllPolls(ctx context.Context, profileID uint) ([]models.Poll, error) {
+	q := `SELECT p.id, p.title,
+	CASE
+		WHEN r.profile_id IS NULL THEN 0
+		ELSE 1
+	END AS voted
+	FROM poll p
+	LEFT JOIN response r ON p.id = r.poll_id AND r.profile_id = $1;`
 
 	polls := make([]dao.PollTable, 0)
-	if err := r.storage.Select(ctx, &polls, q); err != nil {
+	if err := r.storage.Select(ctx, &polls, q, profileID); err != nil {
 		logger.Error(ctx, err.Error())
 		return []models.Poll{}, commonError.ErrInternal
 	}

@@ -10,13 +10,13 @@ import (
 )
 
 type CSATs interface {
-	GetAllPolls(context.Context) ([]models.Poll, error)
+	GetAllPolls(context.Context, uint) ([]models.Poll, error)
 	CreatePollRate(context.Context, models.CreatePollRate) error
 }
 
 type CSATHandler struct {
 	csatUsecase CSATs
-	gen.CSATServer
+	gen.UnimplementedCSATServer
 }
 
 func NewCSATHandler(u CSATs) *CSATHandler {
@@ -25,8 +25,8 @@ func NewCSATHandler(u CSATs) *CSATHandler {
 	}
 }
 
-func (h *CSATHandler) GetPolls(ctx context.Context, r *empty.Empty) (*gen.GetPollsResponse, error) {
-	polls, err := h.csatUsecase.GetAllPolls(ctx)
+func (h *CSATHandler) GetPolls(ctx context.Context, r *gen.CreatePollRateRequest) (*gen.GetPollsResponse, error) {
+	polls, err := h.csatUsecase.GetAllPolls(ctx, uint(r.ProfileID))
 	if err != nil {
 		return &gen.GetPollsResponse{}, err
 	}
@@ -38,6 +38,7 @@ func (h *CSATHandler) GetPolls(ctx context.Context, r *empty.Empty) (*gen.GetPol
 		payload.Polls = append(payload.Polls, &gen.Poll{
 			Id:    uint32(poll.ID),
 			Title: poll.Title,
+			Voted: poll.Voted,
 		})
 	}
 	return &payload, nil

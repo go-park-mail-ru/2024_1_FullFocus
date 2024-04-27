@@ -7,7 +7,7 @@ import (
 )
 
 type CSATs interface {
-	GetAllPolls(context.Context) ([]models.Poll, error)
+	GetAllPolls(context.Context, uint) ([]models.Poll, error)
 	CreatePollRate(context.Context, models.CreatePollRate) error
 }
 
@@ -21,8 +21,8 @@ func NewCSATUsecase(r CSATs) *CSATUsecase {
 	}
 }
 
-func (u *CSATUsecase) GetAllPolls(ctx context.Context) ([]models.Poll, error) {
-	return u.csatRepo.GetAllPolls(ctx)
+func (u *CSATUsecase) GetAllPolls(ctx context.Context, profileID uint) ([]models.Poll, error) {
+	return u.csatRepo.GetAllPolls(ctx, profileID)
 }
 
 func (u *CSATUsecase) CreatePollRate(ctx context.Context, input models.CreatePollRate) error {

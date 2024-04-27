@@ -20,16 +20,18 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	CSAT_GetPolls_FullMethodName       = "/auth.CSAT/GetPolls"
 	CSAT_CreatePollRate_FullMethodName = "/auth.CSAT/CreatePollRate"
+	CSAT_GetPolls_FullMethodName       = "/auth.CSAT/GetPolls"
+	CSAT_GetPollStats_FullMethodName   = "/auth.CSAT/GetPollStats"
 )
 
 // CSATClient is the client API for CSAT service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CSATClient interface {
-	GetPolls(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetPollsResponse, error)
 	CreatePollRate(ctx context.Context, in *CreatePollRateRequest, opts ...grpc.CallOption) (*empty.Empty, error)
+	GetPolls(ctx context.Context, in *GetPollsRequest, opts ...grpc.CallOption) (*GetPollsResponse, error)
+	GetPollStats(ctx context.Context, in *GetPollStatsRequest, opts ...grpc.CallOption) (*GetPollStatsResponse, error)
 }
 
 type cSATClient struct {
@@ -38,15 +40,6 @@ type cSATClient struct {
 
 func NewCSATClient(cc grpc.ClientConnInterface) CSATClient {
 	return &cSATClient{cc}
-}
-
-func (c *cSATClient) GetPolls(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetPollsResponse, error) {
-	out := new(GetPollsResponse)
-	err := c.cc.Invoke(ctx, CSAT_GetPolls_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *cSATClient) CreatePollRate(ctx context.Context, in *CreatePollRateRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
@@ -58,12 +51,31 @@ func (c *cSATClient) CreatePollRate(ctx context.Context, in *CreatePollRateReque
 	return out, nil
 }
 
+func (c *cSATClient) GetPolls(ctx context.Context, in *GetPollsRequest, opts ...grpc.CallOption) (*GetPollsResponse, error) {
+	out := new(GetPollsResponse)
+	err := c.cc.Invoke(ctx, CSAT_GetPolls_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *cSATClient) GetPollStats(ctx context.Context, in *GetPollStatsRequest, opts ...grpc.CallOption) (*GetPollStatsResponse, error) {
+	out := new(GetPollStatsResponse)
+	err := c.cc.Invoke(ctx, CSAT_GetPollStats_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CSATServer is the server API for CSAT service.
 // All implementations must embed UnimplementedCSATServer
 // for forward compatibility
 type CSATServer interface {
-	GetPolls(context.Context, *empty.Empty) (*GetPollsResponse, error)
 	CreatePollRate(context.Context, *CreatePollRateRequest) (*empty.Empty, error)
+	GetPolls(context.Context, *GetPollsRequest) (*GetPollsResponse, error)
+	GetPollStats(context.Context, *GetPollStatsRequest) (*GetPollStatsResponse, error)
 	mustEmbedUnimplementedCSATServer()
 }
 
@@ -71,11 +83,14 @@ type CSATServer interface {
 type UnimplementedCSATServer struct {
 }
 
-func (UnimplementedCSATServer) GetPolls(context.Context, *empty.Empty) (*GetPollsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetPolls not implemented")
-}
 func (UnimplementedCSATServer) CreatePollRate(context.Context, *CreatePollRateRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreatePollRate not implemented")
+}
+func (UnimplementedCSATServer) GetPolls(context.Context, *GetPollsRequest) (*GetPollsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPolls not implemented")
+}
+func (UnimplementedCSATServer) GetPollStats(context.Context, *GetPollStatsRequest) (*GetPollStatsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPollStats not implemented")
 }
 func (UnimplementedCSATServer) mustEmbedUnimplementedCSATServer() {}
 
@@ -88,24 +103,6 @@ type UnsafeCSATServer interface {
 
 func RegisterCSATServer(s grpc.ServiceRegistrar, srv CSATServer) {
 	s.RegisterService(&CSAT_ServiceDesc, srv)
-}
-
-func _CSAT_GetPolls_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(empty.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CSATServer).GetPolls(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: CSAT_GetPolls_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CSATServer).GetPolls(ctx, req.(*empty.Empty))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _CSAT_CreatePollRate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -126,6 +123,42 @@ func _CSAT_CreatePollRate_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CSAT_GetPolls_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPollsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CSATServer).GetPolls(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CSAT_GetPolls_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CSATServer).GetPolls(ctx, req.(*GetPollsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _CSAT_GetPollStats_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetPollStatsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CSATServer).GetPollStats(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: CSAT_GetPollStats_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CSATServer).GetPollStats(ctx, req.(*GetPollStatsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CSAT_ServiceDesc is the grpc.ServiceDesc for CSAT service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,12 +167,16 @@ var CSAT_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*CSATServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "CreatePollRate",
+			Handler:    _CSAT_CreatePollRate_Handler,
+		},
+		{
 			MethodName: "GetPolls",
 			Handler:    _CSAT_GetPolls_Handler,
 		},
 		{
-			MethodName: "CreatePollRate",
-			Handler:    _CSAT_CreatePollRate_Handler,
+			MethodName: "GetPollStats",
+			Handler:    _CSAT_GetPollStats_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
