@@ -61,3 +61,34 @@ func (r *CSATRepo) CreatePollRate(ctx context.Context, input models.CreatePollRa
 	}
 	return nil
 }
+
+func (r *CSATRepo) GetPollStats(ctx context.Context, pollID uint) (string, []models.StatRate, error) {
+	q := `SELECT p.title
+	FROM poll p
+	WHERE p.id = $1;`
+
+	var title string
+	if err := r.storage.Get(ctx, &title, q, pollID); err != nil {
+		logger.Error(ctx, err.Error())
+		return "", []models.StatRate{}, commonError.ErrInternal
+	}
+	if title == "" {
+		return "", []models.StatRate{}, commonError.ErrNotFound
+	}
+
+	q = `SELECT r.rate, count(*) AS amount
+	FROM response r
+	WHERE r.poll_id = $1
+	GROUP BY r.rate;`
+
+	stats := make([]dao.Stat, 0)
+	if err := r.storage.Select(ctx, &stats, q, pollID); err != nil {
+		logger.Error(ctx, err.Error())
+		return "", []models.StatRate{}, commonError.ErrInternal
+	}
+	if len(stats) == 0 {
+		return "", []models.StatRate{}, commonError.ErrNotFound
+	}
+
+	return title, dao.ConvertStatsToModels(stats), nil
+}

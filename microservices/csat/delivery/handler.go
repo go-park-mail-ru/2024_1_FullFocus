@@ -12,6 +12,7 @@ import (
 type CSATs interface {
 	GetAllPolls(context.Context, uint) ([]models.Poll, error)
 	CreatePollRate(context.Context, models.CreatePollRate) error
+	GetPollStats(context.Context, uint) (models.PollStats, error)
 }
 
 type CSATHandler struct {
@@ -44,15 +45,37 @@ func (h *CSATHandler) GetPolls(ctx context.Context, r *gen.CreatePollRateRequest
 	return &payload, nil
 }
 
-func (h *CSATHandler) CreatePollRate(ctx context.Context, in *gen.CreatePollRateRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (h *CSATHandler) CreatePollRate(ctx context.Context, r *gen.CreatePollRateRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
 	input := models.CreatePollRate{
-		ProfileID: uint(in.ProfileID),
-		PollID:    uint(in.PollID),
-		Rate:      uint(in.Rate),
+		ProfileID: uint(r.ProfileID),
+		PollID:    uint(r.PollID),
+		Rate:      uint(r.Rate),
 	}
 
 	if err := h.csatUsecase.CreatePollRate(ctx, input); err != nil {
 		return &empty.Empty{}, err
 	}
 	return &empty.Empty{}, nil
+}
+
+func (h *CSATHandler) GetPollStats(ctx context.Context, r *gen.GetPollStatsRequest) (*gen.GetPollStatsResponse, error) {
+	stats, err := h.csatUsecase.GetPollStats(ctx, uint(r.PollID))
+	if err != nil {
+		return &gen.GetPollStatsResponse{}, err
+	}
+
+	pollStats := gen.StatsData{
+		Amount:  uint32(stats.Stats.Amount),
+		Above70: uint32(stats.Stats.Above70),
+	}
+	rates := make([]uint32, 0)
+	for i := range len(stats.Stats.Rates) {
+		rates = append(rates, uint32(stats.Stats.Rates[i]))
+	}
+	pollStats.Rates = rates
+
+	return &gen.GetPollStatsResponse{
+		PollTitle: stats.PollTitle,
+		Stats:     &pollStats,
+	}, nil
 }

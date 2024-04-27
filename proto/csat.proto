@@ -35,8 +35,9 @@ message GetPollStatsRequest {
 }
 
 message GetPollStatsResponse {
-    StatsData Stats = 1;
-    StatsData PrimaryStats = 2;
+    string pollTitle = 1;
+    StatsData Stats = 2;
+    StatsData PrimaryStats = 3;
 }
 
 message StatsData {
