@@ -15,11 +15,11 @@ import (
 
 type CsatHandler struct {
 	router  *mux.Router
-	usecase usecase.CsatUsecase
+	usecase *usecase.CsatUsecase
 }
 
-func NewCsatHandler(u usecase.Avatars) *AvatarHandler {
-	return &AvatarHandler{
+func NewCsatHandler(u *usecase.CsatUsecase) *CsatHandler {
+	return &CsatHandler{
 		router:  mux.NewRouter(),
 		usecase: u,
 	}
@@ -120,6 +120,6 @@ func (h *CsatHandler) GetPollStats(w http.ResponseWriter, r *http.Request) {
 	}
 	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
-		Data:   data,
+		Data:   dto.ConvertStatsData(stats),
 	})
 }

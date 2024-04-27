@@ -13,7 +13,7 @@ minio:
   minio_access_key: ${MINIO_ACCESS_KEY}
   minio_secret_key: ${MINIO_SECRET_KEY}
   avatar_bucket: "avatars"
-postgres:
+postgres_main:
   host: "postgres"
   port: "5432"
   user: ${POSTGRES_USER}
@@ -21,6 +21,16 @@ postgres:
   database: "ozon"
   sslmode: "disable"
   search_path: "ozon"
+  max_open_conns: 10
+  max_idle_time: 10
+postgres_csat:
+  host: "postgres"
+  port: "5433"
+  user: ${POSTGRES_USER}
+  password: ${POSTGRES_PASSWORD}
+  database: "csat"
+  sslmode: "disable"
+  search_path: "csat"
   max_open_conns: 10
   max_idle_time: 10
 elasticsearch:

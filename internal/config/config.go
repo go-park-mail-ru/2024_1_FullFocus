@@ -17,7 +17,8 @@ type Config struct {
 	Server        ServerConfig        `yaml:"server"`
 	Redis         RedisConfig         `yaml:"redis"`
 	Minio         MinioConfig         `yaml:"minio"`
-	Postgres      PostgresConfig      `yaml:"postgres"`
+	PostgresMain  PostgresConfig      `yaml:"postgres_main"`
+	PostgresCSAT  PostgresConfig      `yaml:"postgres_csat"`
 	Elasticsearch ElasticsearchConfig `yaml:"elasticsearch"`
 }
 

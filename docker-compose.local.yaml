@@ -31,13 +31,29 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
-  postgres:
+  postgres-main:
     image: postgres:16
-    container_name: postgres
+    container_name: postgres-main
     volumes:
       - 'postgres-data:/var/lib/postgresql/data'
     ports:
       - '5432:5432'
+    user: postgres
+    environment:
+      - POSTGRES_DB=ozon
+      - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: pg_isready
+      interval: 10s
+      timeout: 10s
+      retries: 3
+  postgres-csat:
+    image: postgres:16
+    container_name: postgres-csat
+    volumes:
+      - 'postgres-data-csat:/var/lib/postgresql/data'
+    ports:
+      - '5433:5432'
     user: postgres
     environment:
       - POSTGRES_DB=ozon
@@ -67,4 +83,5 @@ volumes:
   redis-data:
   minio-data:
   postgres-data:
+  postgres-data-csat:
   elastic-data:

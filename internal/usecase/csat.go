@@ -52,8 +52,10 @@ func (u *CsatUsecase) GetPollStats(ctx context.Context, pollID uint) (models.Pol
 		return models.PollStats{}, err
 	}
 	stats := models.PollStats{
-		Stats:        basicStats,
-		PrimaryStats: primaryStats,
+		Title:   res.PollName,
+		Rates:   res.Rates,
+		Amount:  res.Amount,
+		Above70: res.Above70,
 	}
 	return stats, nil
 }
