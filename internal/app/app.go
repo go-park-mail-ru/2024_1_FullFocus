@@ -10,16 +10,18 @@ import (
 	"syscall"
 	"time"
 
-	minio2 "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/minio"
 	"github.com/gorilla/mux"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
+	elasticsetup "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/elasticsearch"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware"
+	miniosetup "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/minio"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/server"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/elasticsearch"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/minio"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/postgres"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/redis"
@@ -37,7 +39,7 @@ type App struct {
 	logger *slog.Logger
 }
 
-func Init() *App {
+func MustInit() *App {
 	// Config
 
 	cfg := config.MustLoad()
@@ -76,7 +78,7 @@ func Init() *App {
 		panic("minio connection error: " + err.Error())
 	}
 
-	if err = minio2.InitBucket(context.Background(), minioClient, cfg.Minio.AvatarBucket); err != nil {
+	if err = miniosetup.InitBucket(context.Background(), minioClient, cfg.Minio.AvatarBucket); err != nil {
 		panic("minio init bucket error: " + err.Error())
 	}
 
@@ -89,8 +91,26 @@ func Init() *App {
 		panic("postgres connection error: " + err.Error())
 	}
 
-	// Server init
+	// Elasticsearch
 
+	elasticClient, err := elasticsearch.NewClient(cfg.Elasticsearch)
+	if err != nil {
+		panic("elasticsearch connection error: " + err.Error())
+	}
+
+	_, err = elasticClient.Ping()
+	if err != nil {
+		panic("elasticsearch ping error: " + err.Error())
+	}
+
+	ctx, cancel = context.WithTimeout(context.Background(), _timeout)
+	defer cancel()
+
+	if err = elasticsetup.InitElasticData(ctx, pgxClient, elasticClient); err != nil {
+		panic("elasticsearch init data error: " + err.Error())
+	}
+
+	// Server init
 	srv := server.NewServer(cfg.Server, r)
 
 	// Layers
@@ -100,9 +120,6 @@ func Init() *App {
 	profileUsecase := usecase.NewProfileUsecase(profileRepo)
 	profileHandler := delivery.NewProfileHandler(profileUsecase)
 	profileHandler.InitRouter(apiRouter)
-	// if err = minio2.InitBucket(context.Background(), minioClient, cfg.Minio.AvatarBucket); err != nil {
-	//	panic("minio setup error: " + err.Error())
-	//}
 
 	// Auth
 	userRepo := repository.NewUserRepo(pgxClient)
@@ -113,12 +130,6 @@ func Init() *App {
 
 	// Auth Middleware
 	r.Use(middleware.NewAuthMiddleware(authUsecase))
-
-	// Products
-	productRepo := repository.NewProductRepo(pgxClient)
-	productUsecase := usecase.NewProductUsecase(productRepo)
-	productHandler := delivery.NewProductHandler(productUsecase)
-	productHandler.InitRouter(apiRouter)
 
 	// Cart
 	cartRepo := repository.NewCartRepo(pgxClient)
@@ -149,6 +160,18 @@ func Init() *App {
 	reviewUsecase := usecase.NewReviewUsecase(reviewRepo)
 	reviewHandler := delivery.NewReviewHandler(reviewUsecase)
 	reviewHandler.InitRouter(apiRouter)
+
+	// Products
+	productRepo := repository.NewProductRepo(pgxClient)
+	productUsecase := usecase.NewProductUsecase(productRepo, categoryRepo)
+	productHandler := delivery.NewProductHandler(productUsecase)
+	productHandler.InitRouter(apiRouter)
+
+	// Suggests
+	suggestRepo := repository.NewSuggestRepo(elasticClient)
+	suggestUsecase := usecase.NewSuggestUsecase(suggestRepo)
+	suggestHandler := delivery.NewSuggestHandler(suggestUsecase)
+	suggestHandler.InitRouter(apiRouter)
 
 	return &App{
 		config: cfg,

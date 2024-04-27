@@ -24,6 +24,7 @@ type (
 		GetAllProductCards(ctx context.Context, input models.GetAllProductsInput) ([]models.ProductCard, error)
 		GetProductByID(ctx context.Context, profileID uint, productID uint) (models.Product, error)
 		GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error)
+		GetProductsByQuery(ctx context.Context, input models.GetProductsByQueryInput) ([]models.ProductCard, error)
 	}
 
 	Avatars interface {
@@ -59,6 +60,12 @@ type (
 
 	Categories interface {
 		GetAllCategories(ctx context.Context) ([]models.Category, error)
+		GetCategoryNameById(ctx context.Context, categoryID uint) (string, error)
+	}
+
+	Suggests interface {
+		GetCategorySuggests(ctx context.Context, query string) ([]models.CategorySuggest, error)
+		GetProductSuggests(ctx context.Context, query string) ([]string, error)
 	}
 
 	Reviews interface {

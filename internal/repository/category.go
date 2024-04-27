@@ -30,3 +30,15 @@ func (r *CategoryRepo) GetAllCategories(ctx context.Context) ([]models.Category,
 	}
 	return dao.ConvertTablesToCategories(categoryRows), nil
 }
+
+func (r *CategoryRepo) GetCategoryNameById(ctx context.Context, categoryID uint) (string, error) {
+	q := `SELECT category_name
+		  FROM category
+		  WHERE id = ?;`
+	var categoryName string
+	if err := r.storage.Get(ctx, &categoryName, q, categoryID); err != nil {
+		logger.Error(ctx, "category_name select error: "+err.Error())
+		return "", err
+	}
+	return categoryName, nil
+}
