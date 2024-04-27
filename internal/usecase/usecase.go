@@ -52,6 +52,11 @@ type (
 		GetAllCategories(ctx context.Context) ([]models.Category, error)
 	}
 
+	Reviews interface {
+		GetProductReviews(ctx context.Context, input models.GetProductReviewsInput) ([]models.ProductReview, error)
+		CreateProductReview(ctx context.Context, uID uint, input models.ProductReview) error
+	}
+
 	Suggests interface {
 		GetSuggestions(ctx context.Context, query string) (models.Suggestion, error)
 	}

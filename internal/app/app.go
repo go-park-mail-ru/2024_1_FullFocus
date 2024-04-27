@@ -155,6 +155,12 @@ func MustInit() *App {
 	categoryHandler := delivery.NewCategoryHandler(categoryUsecase)
 	categoryHandler.InitRouter(apiRouter)
 
+	// Reviews
+	reviewRepo := repository.NewReviewRepo(pgxClient)
+	reviewUsecase := usecase.NewReviewUsecase(reviewRepo)
+	reviewHandler := delivery.NewReviewHandler(reviewUsecase)
+	reviewHandler.InitRouter(apiRouter)
+
 	// Products
 	productRepo := repository.NewProductRepo(pgxClient)
 	productUsecase := usecase.NewProductUsecase(productRepo, categoryRepo)

@@ -21,4 +21,6 @@ var (
 	ErrEmptyCart            = errors.New("no cart items found")
 	ErrCantUpload           = errors.New("can't upload")
 	ErrInternal             = errors.New("internal server error")
+	ErrNoReviews            = errors.New("no reviews found")
+	ErrReviewAlreadyExists  = errors.New("review exists")
 )
