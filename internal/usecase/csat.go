@@ -26,9 +26,9 @@ func (u *CsatUsecase) CreatePollRate(ctx context.Context, input models.CreatePol
 	return err
 }
 
-func (u *CsatUsecase) GetPolls(ctx context.Context, input models.GetPollsInput) ([]models.Poll, error) {
+func (u *CsatUsecase) GetPolls(ctx context.Context, userID uint) ([]models.Poll, error) {
 	res, err := u.client.GetPolls(ctx, &grpc.GetPollsRequest{
-		ProfileID: uint32(input.ProfileID),
+		ProfileID: uint32(userID),
 	})
 	if err != nil {
 		return nil, err
@@ -50,16 +50,6 @@ func (u *CsatUsecase) GetPollStats(ctx context.Context, pollID uint) (models.Pol
 	})
 	if err != nil {
 		return models.PollStats{}, err
-	}
-	basicStats := models.StatsData{
-		Rates:   res.Stats.Rates,
-		Amount:  res.Stats.Amount,
-		Above70: res.Stats.Above70,
-	}
-	primaryStats := models.StatsData{
-		Rates:   res.PrimaryStats.Rates,
-		Amount:  res.PrimaryStats.Amount,
-		Above70: res.PrimaryStats.Above70,
 	}
 	stats := models.PollStats{
 		Stats:        basicStats,

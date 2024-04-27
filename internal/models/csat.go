@@ -17,11 +17,7 @@ type CreatePollRateInput struct {
 }
 
 type PollStats struct {
-	Stats        StatsData
-	PrimaryStats StatsData
-}
-
-type StatsData struct {
+	Title   string
 	Rates   []uint32
 	Amount  uint32
 	Above70 uint32
