@@ -1,10 +1,7 @@
 package delivery
 
 import (
-	"fmt"
 	"net/http"
-	"strconv"
-	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
@@ -15,28 +12,28 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 )
 
-type AvatarHandler struct {
+type CsatHandler struct {
 	router  *mux.Router
-	usecase usecase.Avatars
+	usecase usecase.CsatUsecase
 }
 
-func NewAvatarHandler(u usecase.Avatars) *AvatarHandler {
+func NewCsatHandler(u usecase.Avatars) *AvatarHandler {
 	return &AvatarHandler{
 		router:  mux.NewRouter(),
 		usecase: u,
 	}
 }
 
-func (h *AvatarHandler) InitRouter(r *mux.Router) {
-	h.router = r.PathPrefix("/v1/avatar").Subrouter()
+func (h *CsatHandler) InitRouter(r *mux.Router) {
+	h.router = r.PathPrefix("/v1/csat").Subrouter()
 	{
-		h.router.Handle("/upload", http.HandlerFunc(h.UploadAvatar)).Methods("POST", "OPTIONS")
-		h.router.Handle("/delete", http.HandlerFunc(h.DeleteAvatar)).Methods("POST", "OPTIONS")
-		h.router.Handle("/get", http.HandlerFunc(h.GetAvatar)).Methods("GET", "OPTIONS")
+		h.router.Handle("/{id:[1-9]+[0-9]*}", http.HandlerFunc(h.CreatePollRate)).Methods("POST", "OPTIONS")
+		h.router.Handle("/all", http.HandlerFunc(h.GetPolls)).Methods("GET", "OPTIONS")
+		h.router.Handle("/{id:[1-9]+[0-9]*", http.HandlerFunc(h.GetPollStats)).Methods("GET", "OPTIONS")
 	}
 }
 
-func (h *AvatarHandler) GetAvatar(w http.ResponseWriter, r *http.Request) {
+func (h *CsatHandler) CreatePollRate(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	uID, err := helper.GetUserIDFromContext(ctx)
 	if err != nil {
@@ -47,77 +44,24 @@ func (h *AvatarHandler) GetAvatar(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	avatar, err := h.usecase.GetAvatar(ctx, uID)
+	orderID, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 32)
 	if err != nil {
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 400,
 			Msg:    err.Error(),
-			MsgRus: "Аватар не найден",
+			MsgRus: "Невалидный параметр",
 		})
 		return
 	}
-	fileName := strconv.FormatInt(time.Now().UnixNano(), 10)
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", fileName))
-	http.ServeContent(w, r, fileName, time.Now(), avatar.Payload)
-}
-
-func (h *AvatarHandler) UploadAvatar(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	uID, err := helper.GetUserIDFromContext(ctx)
-	if err != nil {
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 403,
-			Msg:    err.Error(),
-			MsgRus: "Пользователь не авторизован",
-		})
-		return
+	createInput := models.CreatePollRateInput{
+		ProfileID: uID,
+		PollID: ,
 	}
-	src, hdr, err := r.FormFile("avatar")
-	if err != nil {
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 400,
-			Msg:    err.Error(),
-			MsgRus: "Ошибка загрузки",
-		})
-		return
-	}
-	img := models.Avatar{
-		Payload:     src,
-		PayloadSize: hdr.Size,
-	}
-	if err = h.usecase.UploadAvatar(ctx, uID, img); err != nil {
-		if validationError := new(helper.ValidationError); errors.As(err, &validationError) {
-			helper.JSONResponse(ctx, w, 200, validationError.WithCode(400))
-			return
-		}
+	if err = h.usecase.CreatePollRate(ctx, )
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 400,
 			Msg:    err.Error(),
 			MsgRus: "Ошибка загрузки фото",
-		})
-		return
-	}
-	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
-		Status: 200,
-	})
-}
-
-func (h *AvatarHandler) DeleteAvatar(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	uID, err := helper.GetUserIDFromContext(ctx)
-	if err != nil {
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 403,
-			Msg:    err.Error(),
-			MsgRus: "Пользователь не авторизован",
-		})
-		return
-	}
-	if err = h.usecase.DeleteAvatar(ctx, uID); err != nil {
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 400,
-			Msg:    err.Error(),
-			MsgRus: "Аватар не найден",
 		})
 		return
 	}
