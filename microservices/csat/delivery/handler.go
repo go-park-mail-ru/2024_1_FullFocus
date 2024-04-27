@@ -6,7 +6,6 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/csat/delivery/gen"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/csat/models"
 	"github.com/golang/protobuf/ptypes/empty"
-	"google.golang.org/grpc"
 )
 
 type CSATs interface {
@@ -45,7 +44,7 @@ func (h *CSATHandler) GetPolls(ctx context.Context, r *gen.CreatePollRateRequest
 	return &payload, nil
 }
 
-func (h *CSATHandler) CreatePollRate(ctx context.Context, r *gen.CreatePollRateRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (h *CSATHandler) CreatePollRate(ctx context.Context, r *gen.CreatePollRateRequest) (*empty.Empty, error) {
 	input := models.CreatePollRate{
 		ProfileID: uint(r.ProfileID),
 		PollID:    uint(r.PollID),
