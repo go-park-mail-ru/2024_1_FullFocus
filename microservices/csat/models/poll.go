@@ -6,7 +6,7 @@ type Poll struct {
 }
 
 type CreatePollRate struct {
-	profileID uint
-	pollID    uint
-	rate      uint
+	ProfileID uint
+	PollID    uint
+	Rate      uint
 }
