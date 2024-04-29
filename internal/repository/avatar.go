@@ -9,7 +9,7 @@ import (
 	"github.com/minio/minio-go/v7"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 )
 
 type AvatarStorage struct {

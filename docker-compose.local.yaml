@@ -47,22 +47,22 @@ services:
       interval: 10s
       timeout: 10s
       retries: 3
-  postgres-csat:
-    image: postgres:16
-    container_name: postgres-csat
-    volumes:
-      - 'postgres-data-csat:/var/lib/postgresql/data'
-    ports:
-      - '5433:5432'
-    user: postgres
-    environment:
-      - POSTGRES_DB=ozon
-      - POSTGRES_PASSWORD=postgres
-    healthcheck:
-      test: pg_isready
-      interval: 10s
-      timeout: 10s
-      retries: 3
+  # postgres-csat:
+  #   image: postgres:16
+  #   container_name: postgres-csat
+  #   volumes:
+  #     - 'postgres-data-csat:/var/lib/postgresql/data'
+  #   ports:
+  #     - '5433:5432'
+  #   user: postgres
+  #   environment:
+  #     - POSTGRES_DB=ozon
+  #     - POSTGRES_PASSWORD=postgres
+  #   healthcheck:
+  #     test: pg_isready
+  #     interval: 10s
+  #     timeout: 10s
+  #     retries: 3
   elasticsearch:
     image: bitnami/elasticsearch:7.17.20-debian-12-r2
     container_name: elasticsearch

@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package auth;
+option go_package = "github.com/go-park-mail-ru/2024_1_FullFocus/microservices/auth/delivery/gen;gen";
+import "google/protobuf/empty.proto";
+
+// protoc --go_out=../gen/auth/ --go_opt=paths=source_relative --go-grpc_out=../gen/auth/ --go-grpc_opt=paths=source_relative auth.proto
+
+service Auth {
+    rpc Login(LoginRequest) returns (LoginResponse) {}
+    rpc Signup(SignupRequest) returns (SignupResponse) {}
+    rpc Logout(LogoutRequest) returns (google.protobuf.Empty) {}
+    rpc GetUserIDBySessionID(GetUserIDRequest) returns (GetUserIDResponse) {}
+    rpc CheckAuth(CheckAuthRequest) returns (CheckAuthResponse) {}
+}
+
+message LoginRequest {
+    string Login = 1;
+    string Password = 2;
+}
+
+message LoginResponse {
+    string SessionID = 1;
+}
+
+message SignupRequest {
+    string Login = 1;
+    string Password = 2;
+}
+
+message SignupResponse {
+    uint32 UserID = 1;
+    string SessionID = 2;
+}
+
+message LogoutRequest {
+    string SessionID = 1;
+}
+
+message GetUserIDRequest {
+    string SessionID = 1;
+}
+
+message GetUserIDResponse {
+    uint32 UserID = 1;
+}
+
+message CheckAuthRequest {
+    string SessionID = 1;
+}
+
+message CheckAuthResponse {
+    bool IsLoggedIn = 1;
+}
+

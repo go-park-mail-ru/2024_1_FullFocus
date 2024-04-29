@@ -4,22 +4,11 @@ import (
 	"context"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/dao"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 )
 
-type UserRepo struct {
-	storage db.Database
-}
-
-func NewUserRepo(dbClient db.Database) *UserRepo {
-	return &UserRepo{
-		storage: dbClient,
-	}
-}
-
-func (r *UserRepo) CreateUser(ctx context.Context, user models.User) (uint, error) {
+func (r *AuthRepo) CreateUser(ctx context.Context, user models.User) (uint, error) {
 	userRow := dao.ConvertUserToTable(user)
 	q := `INSERT INTO default_user (user_login, password_hash) VALUES ($1, $2) returning id;`
 
@@ -32,7 +21,7 @@ func (r *UserRepo) CreateUser(ctx context.Context, user models.User) (uint, erro
 	return resRow.ID, nil
 }
 
-func (r *UserRepo) GetUser(ctx context.Context, username string) (models.User, error) {
+func (r *AuthRepo) GetUser(ctx context.Context, username string) (models.User, error) {
 	q := `SELECT id, password_hash FROM default_user WHERE user_login = $1;`
 
 	userRow := &dao.UserTable{}

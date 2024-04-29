@@ -8,25 +8,25 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 )
 
-type CSATs interface {
+type csat interface {
 	GetAllPolls(context.Context, uint) ([]models.Poll, error)
 	CreatePollRate(context.Context, models.CreatePollRate) error
 	GetPollStats(context.Context, uint) (models.PollStats, error)
 }
 
-type CSATHandler struct {
-	csatUsecase CSATs
+type CSATServer struct {
+	csatUsecase csat
 	gen.UnimplementedCSATServer
 }
 
-func NewCSATHandler(u CSATs) *CSATHandler {
-	return &CSATHandler{
+func NewCSATServer(u csat) *CSATServer {
+	return &CSATServer{
 		csatUsecase: u,
 	}
 }
 
-func (h *CSATHandler) GetPolls(ctx context.Context, r *gen.GetPollsRequest) (*gen.GetPollsResponse, error) {
-	polls, err := h.csatUsecase.GetAllPolls(ctx, uint(r.ProfileID))
+func (s *CSATServer) GetPolls(ctx context.Context, r *gen.GetPollsRequest) (*gen.GetPollsResponse, error) {
+	polls, err := s.csatUsecase.GetAllPolls(ctx, uint(r.ProfileID))
 	if err != nil {
 		return &gen.GetPollsResponse{}, err
 	}
@@ -44,21 +44,21 @@ func (h *CSATHandler) GetPolls(ctx context.Context, r *gen.GetPollsRequest) (*ge
 	return &payload, nil
 }
 
-func (h *CSATHandler) CreatePollRate(ctx context.Context, r *gen.CreatePollRateRequest) (*empty.Empty, error) {
+func (s *CSATServer) CreatePollRate(ctx context.Context, r *gen.CreatePollRateRequest) (*empty.Empty, error) {
 	input := models.CreatePollRate{
 		ProfileID: uint(r.ProfileID),
 		PollID:    uint(r.PollID),
 		Rate:      uint(r.Rate),
 	}
 
-	if err := h.csatUsecase.CreatePollRate(ctx, input); err != nil {
+	if err := s.csatUsecase.CreatePollRate(ctx, input); err != nil {
 		return &empty.Empty{}, err
 	}
 	return &empty.Empty{}, nil
 }
 
-func (h *CSATHandler) GetPollStats(ctx context.Context, r *gen.GetPollStatsRequest) (*gen.GetPollStatsResponse, error) {
-	stats, err := h.csatUsecase.GetPollStats(ctx, uint(r.PollID))
+func (s *CSATServer) GetPollStats(ctx context.Context, r *gen.GetPollStatsRequest) (*gen.GetPollStatsResponse, error) {
+	stats, err := s.csatUsecase.GetPollStats(ctx, uint(r.PollID))
 	if err != nil {
 		return &gen.GetPollStatsResponse{}, err
 	}

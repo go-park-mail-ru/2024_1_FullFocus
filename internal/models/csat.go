@@ -6,10 +6,6 @@ type Poll struct {
 	Voted bool
 }
 
-type GetPollsInput struct {
-	ProfileID uint
-}
-
 type CreatePollRateInput struct {
 	ProfileID uint
 	PollID    uint

@@ -6,17 +6,17 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/csat/models"
 )
 
-type CSATs interface {
+type csats interface {
 	GetAllPolls(context.Context, uint) ([]models.Poll, error)
 	CreatePollRate(context.Context, models.CreatePollRate) error
 	GetPollStats(context.Context, uint) (string, []models.StatRate, error)
 }
 
 type CSATUsecase struct {
-	csatRepo CSATs
+	csatRepo csats
 }
 
-func NewCSATUsecase(r CSATs) *CSATUsecase {
+func NewCSATUsecase(r csats) *CSATUsecase {
 	return &CSATUsecase{
 		csatRepo: r,
 	}

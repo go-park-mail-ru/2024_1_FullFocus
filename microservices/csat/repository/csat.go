@@ -7,10 +7,10 @@ import (
 	"strings"
 
 	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/csat/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/csat/repository/dao"
 	commonError "github.com/go-park-mail-ru/2024_1_FullFocus/pkg/error"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 	"github.com/jackc/pgx/v5/pgconn"
 )
 

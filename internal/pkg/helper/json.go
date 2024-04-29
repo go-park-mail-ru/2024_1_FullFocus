@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 )
 
 // JSONResponse - принимает ResponseWriter, значение ответа сервера и соответствующее сообщение.

@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 
+	authgrpc "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/auth/grpc"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
@@ -21,15 +22,13 @@ const (
 )
 
 type AuthUsecase struct {
-	userRepo    repository.Users
-	sessionRepo repository.Sessions
+	client      *authgrpc.Client
 	profileRepo repository.Profiles
 }
 
-func NewAuthUsecase(ur repository.Users, sr repository.Sessions, pr repository.Profiles) *AuthUsecase {
+func NewAuthUsecase(c *authgrpc.Client, pr repository.Profiles) *AuthUsecase {
 	return &AuthUsecase{
-		userRepo:    ur,
-		sessionRepo: sr,
+		client:      c,
 		profileRepo: pr,
 	}
 }
@@ -43,18 +42,7 @@ func (u *AuthUsecase) Login(ctx context.Context, login string, password string) 
 		return "", helper.NewValidationError("invalid password input",
 			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
 	}
-
-	user, err := u.userRepo.GetUser(ctx, login)
-	if err != nil {
-		return "", models.ErrNoUser
-	}
-	if err = helper.CheckPassword(password, user.PasswordHash); err != nil {
-		return "", models.ErrWrongPassword
-	}
-	// if password != user.PasswordHash {
-	// 	   return "", models.ErrWrongPassword
-	// }
-	return u.sessionRepo.CreateSession(ctx, user.ID), nil
+	return u.client.Login(ctx, login, password)
 }
 
 func (u *AuthUsecase) Signup(ctx context.Context, login string, password string) (string, error) {
@@ -66,40 +54,31 @@ func (u *AuthUsecase) Signup(ctx context.Context, login string, password string)
 		return "", helper.NewValidationError("invalid password input",
 			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
 	}
-	passwordHash, err := helper.HashPassword(password)
+	uID, sID, err := u.client.Signup(ctx, login, password)
 	if err != nil {
 		return "", err
 	}
-	user := models.User{
-		Username:     login,
-		PasswordHash: passwordHash,
-	}
-	uID, err := u.userRepo.CreateUser(ctx, user)
-	if err != nil {
-		return "", models.ErrUserAlreadyExists
-	}
-	profile := models.Profile{
+	u.profileRepo.CreateProfile(ctx, models.Profile{
 		ID:          uID,
 		FullName:    login,
 		Email:       _defaultEmail,
 		PhoneNumber: _defaultPhoneNumber,
-	}
-	_, err = u.profileRepo.CreateProfile(ctx, profile)
-	if err != nil {
-		return "", models.ErrProfileAlreadyExists
-	}
-	sID := u.sessionRepo.CreateSession(ctx, uID)
+	})
 	return sID, nil
 }
 
 func (u *AuthUsecase) GetUserIDBySessionID(ctx context.Context, sID string) (uint, error) {
-	return u.sessionRepo.GetUserIDBySessionID(ctx, sID)
+	uID, err := u.client.GetUserIDBySessionID(ctx, sID)
+	if err != nil {
+		return 0, err
+	}
+	return uID, nil
 }
 
 func (u *AuthUsecase) Logout(ctx context.Context, sID string) error {
-	return u.sessionRepo.DeleteSession(ctx, sID)
+	return u.client.Logout(ctx, sID)
 }
 
 func (u *AuthUsecase) IsLoggedIn(ctx context.Context, sID string) bool {
-	return u.sessionRepo.SessionExists(ctx, sID)
+	return u.client.CheckAuth(ctx, sID)
 }

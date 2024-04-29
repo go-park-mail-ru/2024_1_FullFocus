@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"log/slog"
 	"net"
 	"os"
@@ -14,12 +13,12 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/postgres"
-
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/csat/delivery"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/csat/delivery/gen"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/csat/repository"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/csat/usecase"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/postgres"
 )
 
 const (
@@ -30,6 +29,10 @@ func run() {
 	// Config
 
 	cfg := config.MustLoad()
+
+	// Logger
+
+	log := logger.NewLogger(cfg.Env)
 
 	// Postgres
 
@@ -44,19 +47,19 @@ func run() {
 
 	csatRepo := repository.NewCSATRepo(pgxClient)
 	csatUsecase := usecase.NewCSATUsecase(csatRepo)
-	csatHandler := delivery.NewCSATHandler(csatUsecase)
+	csatServer := delivery.NewCSATServer(csatUsecase)
 
 	grpcServer := grpc.NewServer()
-	gen.RegisterCSATServer(grpcServer, csatHandler)
+	gen.RegisterCSATServer(grpcServer, csatServer)
 
 	go func() {
 		listener, err := net.Listen("tcp", fmt.Sprintf(":%d", 9090))
 		if err != nil {
-			panic(err)
+			log.Error("listen error: " + err.Error())
 		}
-		log.Println("grpc server started", slog.String("addr", listener.Addr().String()))
-		if err := grpcServer.Serve(listener); err != nil {
-			log.Println("serve returned err: " + err.Error())
+		log.Info("grpc server started", slog.String("addr", listener.Addr().String()))
+		if err = grpcServer.Serve(listener); err != nil {
+			log.Error("serve returned err: " + err.Error())
 		}
 	}()
 
@@ -67,7 +70,7 @@ func run() {
 
 	<-exit
 
-	log.Printf("shutting down...")
+	log.Info("shutting down...")
 	grpcServer.GracefulStop()
 }
 

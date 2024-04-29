@@ -1,11 +1,43 @@
 env: "prod"
 session_ttl: 24h
-server:
-  port: ":8080"
-  timeout: 5s
-  idle_timeout: 60s
-redis:
-  addr: "redis:6379"
+
+# Services
+main:
+  server:
+    port: ":8080"
+    timeout: 5s
+    idle_timeout: 60s
+  clients:
+    auth:
+      addr: "auth:9091"
+      retries: 3
+      retry_timeout: 2s
+    csat:
+      addr: "csat:9092"
+      retries: 3
+      retry_timeout: 2s
+auth:
+  server:
+    port: "9091"
+    timeout: 5s
+  redis:
+    addr: "redis:6379"
+csat:
+  server:
+    port: "9092"
+    timeout: 5s
+  postgres:
+    host: "postgres"
+    port: "5433"
+    user: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    database: "csat"
+    sslmode: "disable"
+    search_path: "csat"
+    max_open_conns: 10
+    max_idle_time: 10
+
+# Data
 minio:
   addr: "minio:9000"
   minio_user: ${MINIO_USER}
@@ -13,7 +45,7 @@ minio:
   minio_access_key: ${MINIO_ACCESS_KEY}
   minio_secret_key: ${MINIO_SECRET_KEY}
   avatar_bucket: "avatars"
-postgres_main:
+postgres:
   host: "postgres"
   port: "5432"
   user: ${POSTGRES_USER}
@@ -21,16 +53,6 @@ postgres_main:
   database: "ozon"
   sslmode: "disable"
   search_path: "ozon"
-  max_open_conns: 10
-  max_idle_time: 10
-postgres_csat:
-  host: "postgres"
-  port: "5433"
-  user: ${POSTGRES_USER}
-  password: ${POSTGRES_PASSWORD}
-  database: "csat"
-  sslmode: "disable"
-  search_path: "csat"
   max_open_conns: 10
   max_idle_time: 10
 elasticsearch:
