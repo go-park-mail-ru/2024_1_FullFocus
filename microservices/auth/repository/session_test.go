@@ -11,8 +11,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/auth/models"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/auth/repository"
 )
 
 const _sessionTTL = 24 * time.Hour

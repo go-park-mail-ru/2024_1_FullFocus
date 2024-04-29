@@ -2,9 +2,10 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/auth/models"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/auth/pkg/helper"
 )
 
 type auth interface {
@@ -29,10 +30,10 @@ func NewAuthUsecase(a auth) *Auth {
 func (u *Auth) Login(ctx context.Context, login string, password string) (string, error) {
 	user, err := u.repo.GetUser(ctx, login)
 	if err != nil {
-		return "", models.ErrNoUser
+		return "", fmt.Errorf("no user found")
 	}
 	if err = helper.CheckPassword(password, user.PasswordHash); err != nil {
-		return "", models.ErrWrongPassword
+		return "", fmt.Errorf("wrong password")
 	}
 	return u.repo.CreateSession(ctx, user.ID), nil
 }
@@ -48,7 +49,7 @@ func (u *Auth) Signup(ctx context.Context, login string, password string) (uint,
 	}
 	uID, err := u.repo.CreateUser(ctx, user)
 	if err != nil {
-		return 0, "", models.ErrUserAlreadyExists
+		return 0, "", fmt.Errorf("user already exists")
 	}
 	sID := u.repo.CreateSession(ctx, uID)
 	return uID, sID, nil

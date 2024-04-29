@@ -7,7 +7,6 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 )
 
@@ -24,7 +23,7 @@ func (r *AuthRepo) GetUserIDBySessionID(ctx context.Context, sID string) (uint, 
 	uID, err := r.redis.Get(sID).Uint64()
 	if err != nil {
 		logger.Error(ctx, "no session found")
-		return 0, models.ErrNoSession
+		return 0, fmt.Errorf("no session found")
 	}
 	logger.Info(ctx, fmt.Sprintf("user_id selected in %s", time.Since(start)))
 	return uint(uID), nil
@@ -46,7 +45,7 @@ func (r *AuthRepo) DeleteSession(ctx context.Context, sID string) error {
 	start := time.Now()
 	if err := r.redis.Get(sID).Err(); err != nil {
 		logger.Error(ctx, "no session found")
-		return models.ErrNoSession
+		return fmt.Errorf("no session found")
 	}
 	logger.Info(ctx, fmt.Sprintf("session checked in %s", time.Since(start)))
 	start = time.Now()
