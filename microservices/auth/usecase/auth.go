@@ -15,6 +15,8 @@ type auth interface {
 	GetUserIDBySessionID(ctx context.Context, sID string) (uint, error)
 	SessionExists(ctx context.Context, sID string) bool
 	DeleteSession(ctx context.Context, sID string) error
+	UpdatePassword(ctx context.Context, userID uint, password string) error
+	GetUserPassword(ctx context.Context, userID uint) (string, error)
 }
 
 type Auth struct {
@@ -65,4 +67,19 @@ func (u *Auth) Logout(ctx context.Context, sID string) error {
 
 func (u *Auth) IsLoggedIn(ctx context.Context, sID string) bool {
 	return u.repo.SessionExists(ctx, sID)
+}
+
+func (u *Auth) UpdatePassword(ctx context.Context, userID uint, password string, newPassword string) error {
+	prevPassword, err := u.repo.GetUserPassword(ctx, userID)
+	if err != nil {
+		return err
+	}
+	if err = helper.CheckPassword(password, prevPassword); err != nil {
+		return fmt.Errorf("wrong password")
+	}
+	passwordHash, err := helper.HashPassword(newPassword)
+	if err != nil {
+		return err
+	}
+	return u.repo.UpdatePassword(ctx, userID, passwordHash)
 }

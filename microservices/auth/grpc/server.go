@@ -15,6 +15,7 @@ type Auth interface {
 	GetUserIDBySessionID(ctx context.Context, sID string) (uint, error)
 	Logout(ctx context.Context, sID string) error
 	IsLoggedIn(ctx context.Context, sID string) bool
+	UpdatePassword(ctx context.Context, userID uint, password string, newPassword string) error
 }
 
 type serverAPI struct {
@@ -69,4 +70,8 @@ func (s *serverAPI) CheckAuth(ctx context.Context, r *authv1.CheckAuthRequest) (
 	return &authv1.CheckAuthResponse{
 		IsLoggedIn: s.authUsecase.IsLoggedIn(ctx, r.GetSessionID()),
 	}, nil
+}
+
+func (s *serverAPI) UpdatePassword(ctx context.Context, r *authv1.UpdatePasswordRequest) (*empty.Empty, error) {
+	return nil, s.authUsecase.UpdatePassword(ctx, uint(r.GetUserID()), r.GetPassword(), r.GetNewPassword())
 }

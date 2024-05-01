@@ -15,8 +15,8 @@ import (
 )
 
 const (
-	_categoriesLimit = 3
-	_productsLimit   = 6
+	_categoriesLimit = 2
+	_productsLimit   = 5
 )
 
 type SuggestRepo struct {

@@ -14,6 +14,7 @@ type (
 		GetUserIDBySessionID(ctx context.Context, sID string) (uint, error)
 		Logout(ctx context.Context, sID string) error
 		IsLoggedIn(ctx context.Context, isID string) bool
+		UpdatePassword(ctx context.Context, userID uint, password string, newPassword string) error
 	}
 
 	Products interface {

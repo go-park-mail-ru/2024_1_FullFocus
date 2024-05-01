@@ -12,6 +12,7 @@ service Auth {
     rpc Logout(LogoutRequest) returns (google.protobuf.Empty) {}
     rpc GetUserIDBySessionID(GetUserIDRequest) returns (GetUserIDResponse) {}
     rpc CheckAuth(CheckAuthRequest) returns (CheckAuthResponse) {}
+    rpc UpdatePassword(UpdatePasswordRequest) returns (google.protobuf.Empty) {}
 }
 
 message LoginRequest {
@@ -53,3 +54,8 @@ message CheckAuthResponse {
     bool IsLoggedIn = 1;
 }
 
+message UpdatePasswordRequest {
+    uint32 UserID = 1;
+    string Password = 2;
+    string NewPassword = 3;
+}

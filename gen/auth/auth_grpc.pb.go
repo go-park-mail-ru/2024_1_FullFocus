@@ -25,6 +25,7 @@ const (
 	Auth_Logout_FullMethodName               = "/auth.Auth/Logout"
 	Auth_GetUserIDBySessionID_FullMethodName = "/auth.Auth/GetUserIDBySessionID"
 	Auth_CheckAuth_FullMethodName            = "/auth.Auth/CheckAuth"
+	Auth_UpdatePassword_FullMethodName       = "/auth.Auth/UpdatePassword"
 )
 
 // AuthClient is the client API for Auth service.
@@ -36,6 +37,7 @@ type AuthClient interface {
 	Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	GetUserIDBySessionID(ctx context.Context, in *GetUserIDRequest, opts ...grpc.CallOption) (*GetUserIDResponse, error)
 	CheckAuth(ctx context.Context, in *CheckAuthRequest, opts ...grpc.CallOption) (*CheckAuthResponse, error)
+	UpdatePassword(ctx context.Context, in *UpdatePasswordRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 }
 
 type authClient struct {
@@ -91,6 +93,15 @@ func (c *authClient) CheckAuth(ctx context.Context, in *CheckAuthRequest, opts .
 	return out, nil
 }
 
+func (c *authClient) UpdatePassword(ctx context.Context, in *UpdatePasswordRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+	out := new(empty.Empty)
+	err := c.cc.Invoke(ctx, Auth_UpdatePassword_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AuthServer is the server API for Auth service.
 // All implementations must embed UnimplementedAuthServer
 // for forward compatibility
@@ -100,6 +111,7 @@ type AuthServer interface {
 	Logout(context.Context, *LogoutRequest) (*empty.Empty, error)
 	GetUserIDBySessionID(context.Context, *GetUserIDRequest) (*GetUserIDResponse, error)
 	CheckAuth(context.Context, *CheckAuthRequest) (*CheckAuthResponse, error)
+	UpdatePassword(context.Context, *UpdatePasswordRequest) (*empty.Empty, error)
 	mustEmbedUnimplementedAuthServer()
 }
 
@@ -121,6 +133,9 @@ func (UnimplementedAuthServer) GetUserIDBySessionID(context.Context, *GetUserIDR
 }
 func (UnimplementedAuthServer) CheckAuth(context.Context, *CheckAuthRequest) (*CheckAuthResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckAuth not implemented")
+}
+func (UnimplementedAuthServer) UpdatePassword(context.Context, *UpdatePasswordRequest) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdatePassword not implemented")
 }
 func (UnimplementedAuthServer) mustEmbedUnimplementedAuthServer() {}
 
@@ -225,6 +240,24 @@ func _Auth_CheckAuth_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Auth_UpdatePassword_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdatePasswordRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServer).UpdatePassword(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Auth_UpdatePassword_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServer).UpdatePassword(ctx, req.(*UpdatePasswordRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Auth_ServiceDesc is the grpc.ServiceDesc for Auth service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -251,6 +284,10 @@ var Auth_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CheckAuth",
 			Handler:    _Auth_CheckAuth_Handler,
+		},
+		{
+			MethodName: "UpdatePassword",
+			Handler:    _Auth_UpdatePassword_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

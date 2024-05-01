@@ -32,3 +32,24 @@ func (r *AuthRepo) GetUser(ctx context.Context, username string) (models.User, e
 	}
 	return dao.ConvertTableToUser(userRow), nil
 }
+
+func (r *AuthRepo) GetUserPassword(ctx context.Context, userID uint) (string, error) {
+	q := `SELECT password_hash FROM default_user WHERE id = ?;`
+
+	var password string
+	err := r.storage.Get(ctx, &password, q, userID)
+	if err != nil {
+		logger.Error(ctx, err.Error())
+	}
+	return password, err
+}
+
+func (r *AuthRepo) UpdatePassword(ctx context.Context, userID uint, password string) error {
+	q := `UPDATE default_user SET password_hash = ? WHERE id = ?;`
+
+	_, err := r.storage.Exec(ctx, q, password, userID)
+	if err != nil {
+		logger.Error(ctx, err.Error())
+	}
+	return err
+}

@@ -94,3 +94,12 @@ func (c *Client) CheckAuth(ctx context.Context, sID string) bool {
 	}
 	return res.GetIsLoggedIn()
 }
+
+func (c *Client) UpdatePassword(ctx context.Context, userID uint, password string, newPassword string) error {
+	_, err := c.api.UpdatePassword(ctx, &authv1.UpdatePasswordRequest{
+		UserID:      uint32(userID),
+		Password:    password,
+		NewPassword: newPassword,
+	})
+	return err
+}

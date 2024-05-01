@@ -1,6 +1,7 @@
 package delivery
 
 import (
+	"encoding/json"
 	"net/http"
 	"time"
 
@@ -34,6 +35,7 @@ func (h *AuthHandler) InitRouter(r *mux.Router) {
 		h.router.Handle("/public/v1/signup", http.HandlerFunc(h.Signup)).Methods("POST", "OPTIONS")
 		h.router.Handle("/v1/logout", http.HandlerFunc(h.Logout)).Methods("POST", "OPTIONS")
 		h.router.Handle("/public/v1/check", http.HandlerFunc(h.CheckAuth)).Methods("GET", "OPTIONS")
+		h.router.Handle("/v1/password", http.HandlerFunc(h.UpdatePassword)).Methods("POST", "OPTIONS")
 	}
 }
 
@@ -153,6 +155,39 @@ func (h *AuthHandler) CheckAuth(w http.ResponseWriter, r *http.Request) {
 			Status: 401,
 			Msg:    "no session",
 			MsgRus: "авторизация отсутствует",
+		})
+		return
+	}
+	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
+		Status: 200,
+	})
+}
+
+func (h *AuthHandler) UpdatePassword(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	uID, err := helper.GetUserIDFromContext(ctx)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 403,
+			Msg:    err.Error(),
+			MsgRus: "Пользователь не авторизован",
+		})
+		return
+	}
+	var updateInput dto.UpdatePasswordInput
+	if err = json.NewDecoder(r.Body).Decode(&updateInput); err != nil {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 400,
+			Msg:    err.Error(),
+			MsgRus: "Ошибка обработки данных",
+		})
+		return
+	}
+	if err = h.usecase.UpdatePassword(ctx, uID, updateInput.Password, updateInput.NewPassword); err != nil {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 400,
+			Msg:    err.Error(),
+			MsgRus: "Неверный пароль",
 		})
 		return
 	}
