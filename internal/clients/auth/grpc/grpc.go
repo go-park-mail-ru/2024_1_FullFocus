@@ -10,9 +10,11 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/status"
 
 	authv1 "github.com/go-park-mail-ru/2024_1_FullFocus/gen/auth"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 )
 
@@ -51,10 +53,22 @@ func (c *Client) Login(ctx context.Context, login string, password string) (stri
 		Login:    login,
 		Password: password,
 	})
-	if err != nil {
+	st, ok := status.FromError(err)
+	if !ok {
 		return "", err
 	}
-	return res.GetSessionID(), nil
+	switch st.Code() {
+	case codes.OK:
+		return res.GetSessionID(), nil
+	case codes.InvalidArgument:
+		return "", models.ErrInvalidField
+	case codes.NotFound:
+		return "", models.ErrUserNotFound
+	case codes.PermissionDenied:
+		return "", models.ErrWrongPassword
+	default:
+		return "", st.Err()
+	}
 }
 
 func (c *Client) Signup(ctx context.Context, login string, password string) (uint, string, error) {
@@ -62,37 +76,74 @@ func (c *Client) Signup(ctx context.Context, login string, password string) (uin
 		Login:    login,
 		Password: password,
 	})
-	if err != nil {
+	st, ok := status.FromError(err)
+	if !ok {
 		return 0, "", err
 	}
-	return uint(res.GetUserID()), res.SessionID, nil
+	switch st.Code() {
+	case codes.OK:
+		return uint(res.GetUserID()), res.GetSessionID(), nil
+	case codes.InvalidArgument:
+		return 0, "", models.ErrInvalidField
+	case codes.Internal:
+		return 0, "", models.ErrInternal
+	case codes.AlreadyExists:
+		return 0, "", models.ErrUserAlreadyExists
+	default:
+		return 0, "", st.Err()
+	}
 }
 
 func (c *Client) GetUserIDBySessionID(ctx context.Context, sID string) (uint, error) {
 	res, err := c.api.GetUserIDBySessionID(ctx, &authv1.GetUserIDRequest{
 		SessionID: sID,
 	})
-	if err != nil {
+	st, ok := status.FromError(err)
+	if !ok {
 		return 0, err
 	}
-	return uint(res.GetUserID()), nil
+	switch st.Code() {
+	case codes.OK:
+		return uint(res.GetUserID()), nil
+	case codes.PermissionDenied:
+		return 0, models.ErrNoSession
+	default:
+		return 0, st.Err()
+	}
 }
 
 func (c *Client) Logout(ctx context.Context, sID string) error {
 	_, err := c.api.Logout(ctx, &authv1.LogoutRequest{
 		SessionID: sID,
 	})
-	return err
+	st, ok := status.FromError(err)
+	if !ok {
+		return err
+	}
+	switch st.Code() {
+	case codes.OK:
+		return nil
+	case codes.PermissionDenied:
+		return models.ErrNoSession
+	default:
+		return st.Err()
+	}
 }
 
 func (c *Client) CheckAuth(ctx context.Context, sID string) bool {
 	res, err := c.api.CheckAuth(ctx, &authv1.CheckAuthRequest{
 		SessionID: sID,
 	})
-	if err != nil {
+	st, ok := status.FromError(err)
+	if !ok {
+		return res.GetIsLoggedIn()
+	}
+	switch st.Code() {
+	case codes.OK:
+		return res.GetIsLoggedIn()
+	default:
 		return false
 	}
-	return res.GetIsLoggedIn()
 }
 
 func (c *Client) UpdatePassword(ctx context.Context, userID uint, password string, newPassword string) error {
@@ -101,5 +152,22 @@ func (c *Client) UpdatePassword(ctx context.Context, userID uint, password strin
 		Password:    password,
 		NewPassword: newPassword,
 	})
-	return err
+	st, ok := status.FromError(err)
+	if !ok {
+		return err
+	}
+	switch st.Code() {
+	case codes.OK:
+		return nil
+	case codes.InvalidArgument:
+		return models.ErrInvalidField
+	case codes.NotFound:
+		return models.ErrUserNotFound
+	case codes.PermissionDenied:
+		return models.ErrWrongPassword
+	case codes.Internal:
+		return models.ErrInternal
+	default:
+		return st.Err()
+	}
 }
