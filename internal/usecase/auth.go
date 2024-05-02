@@ -7,6 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -42,7 +43,15 @@ func (u *AuthUsecase) Login(ctx context.Context, login string, password string) 
 		return "", helper.NewValidationError("invalid password input",
 			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
 	}
-	return u.client.Login(ctx, login, password)
+	sID, err := u.client.Login(ctx, login, password)
+	if err != nil {
+		if errors.Is(err, models.ErrInvalidField) {
+			return "", helper.NewValidationError("invalid input",
+				"Невалидные данные")
+		}
+		return "", err
+	}
+	return sID, nil
 }
 
 func (u *AuthUsecase) Signup(ctx context.Context, login string, password string) (string, error) {
@@ -56,6 +65,10 @@ func (u *AuthUsecase) Signup(ctx context.Context, login string, password string)
 	}
 	uID, sID, err := u.client.Signup(ctx, login, password)
 	if err != nil {
+		if errors.Is(err, models.ErrInvalidField) {
+			return "", helper.NewValidationError("invalid input",
+				"Невалидные данные")
+		}
 		return "", err
 	}
 	_, err = u.profileRepo.CreateProfile(ctx, models.Profile{
@@ -91,5 +104,12 @@ func (u *AuthUsecase) UpdatePassword(ctx context.Context, userID uint, password 
 		return helper.NewValidationError("invalid new password input",
 			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
 	}
-	return u.client.UpdatePassword(ctx, userID, password, newPassword)
+	if err := u.client.UpdatePassword(ctx, userID, password, newPassword); err != nil {
+		if errors.Is(err, models.ErrInvalidField) {
+			return helper.NewValidationError("invalid input",
+				"Невалидные данные")
+		}
+		return err
+	}
+	return nil
 }

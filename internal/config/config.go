@@ -16,6 +16,7 @@ type Config struct {
 	SessionTTL    time.Duration       `yaml:"session_ttl"`
 	Main          Main                `yaml:"main"`
 	Auth          Auth                `yaml:"auth"`
+	Profile       Profile             `yaml:"profile"`
 	CSAT          CSAT                `yaml:"csat"`
 	Minio         MinioConfig         `yaml:"minio"`
 	Postgres      PostgresConfig      `yaml:"postgres"`
@@ -36,8 +37,9 @@ type ServerConfig struct {
 }
 
 type ClientsConfig struct {
-	AuthClient ClientConfig `yaml:"auth"`
-	CSATClient ClientConfig `yaml:"csat"`
+	AuthClient    ClientConfig `yaml:"auth"`
+	ProfileClient ClientConfig `yaml:"profile"`
+	CSATClient    ClientConfig `yaml:"csat"`
 }
 
 type ClientConfig struct {
@@ -60,6 +62,12 @@ type GRPCServer struct {
 
 type RedisConfig struct {
 	Addr string `yaml:"addr"`
+}
+
+// Profile service
+
+type Profile struct {
+	Server GRPCServer `yaml:"server"`
 }
 
 // CSAT service

@@ -56,10 +56,25 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 			helper.JSONResponse(ctx, w, 200, validationError.WithCode(400))
 			return
 		}
+		if errors.Is(err, models.ErrUserNotFound) {
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 400,
+				Msg:    err.Error(),
+				MsgRus: "Пользователь не найден",
+			})
+			return
+		} else if errors.Is(err, models.ErrWrongPassword) {
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 400,
+				Msg:    err.Error(),
+				MsgRus: "Неверный логин или пароль",
+			})
+			return
+		}
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 400,
+			Status: 500,
 			Msg:    err.Error(),
-			MsgRus: "Неверный логин или пароль",
+			MsgRus: "Неизвестная ошибка",
 		})
 		return
 	}
@@ -93,10 +108,18 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 			helper.JSONResponse(ctx, w, 200, validationError.WithCode(400))
 			return
 		}
+		if errors.Is(err, models.ErrUserAlreadyExists) || errors.Is(err, models.ErrProfileAlreadyExists) {
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 400,
+				Msg:    err.Error(),
+				MsgRus: "Пользователь уже существует",
+			})
+			return
+		}
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 400,
+			Status: 500,
 			Msg:    err.Error(),
-			MsgRus: "Пользователь уже существует",
+			MsgRus: "Неизвестная ошибка",
 		})
 		return
 	}
@@ -125,10 +148,18 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err = h.usecase.Logout(ctx, session.Value); errors.Is(err, models.ErrNoSession) {
+		if errors.Is(err, models.ErrNoSession) {
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 401,
+				Msg:    err.Error(),
+				MsgRus: "Авторизация отсутствует",
+			})
+			return
+		}
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 401,
+			Status: 500,
 			Msg:    err.Error(),
-			MsgRus: "Авторизация отсутствует",
+			MsgRus: "Неизвестная ошибка",
 		})
 		return
 	}
@@ -151,10 +182,18 @@ func (h *AuthHandler) CheckAuth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if !h.usecase.IsLoggedIn(ctx, session.Value) {
+		if errors.Is(err, models.ErrNoSession) {
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 401,
+				Msg:    err.Error(),
+				MsgRus: "авторизация отсутствует",
+			})
+			return
+		}
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 401,
-			Msg:    "no session",
-			MsgRus: "авторизация отсутствует",
+			Status: 500,
+			Msg:    err.Error(),
+			MsgRus: "Неизвестная ошибка",
 		})
 		return
 	}
@@ -184,10 +223,29 @@ func (h *AuthHandler) UpdatePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err = h.usecase.UpdatePassword(ctx, uID, updateInput.Password, updateInput.NewPassword); err != nil {
+		if validationError := new(helper.ValidationError); errors.As(err, &validationError) {
+			helper.JSONResponse(ctx, w, 200, validationError.WithCode(400))
+			return
+		}
+		if errors.Is(err, models.ErrUserNotFound) {
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 400,
+				Msg:    err.Error(),
+				MsgRus: "Пользователь не найден",
+			})
+			return
+		} else if errors.Is(err, models.ErrWrongPassword) {
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 403,
+				Msg:    err.Error(),
+				MsgRus: "Неверный пароль",
+			})
+			return
+		}
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 400,
+			Status: 500,
 			Msg:    err.Error(),
-			MsgRus: "Неверный пароль",
+			MsgRus: "Неизвестная ошибка",
 		})
 		return
 	}

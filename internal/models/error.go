@@ -6,7 +6,7 @@ import (
 
 var (
 	ErrNoSession            = errors.New("no session")
-	ErrNoUser               = errors.New("no user")
+	ErrUserNotFound         = errors.New("user not found")
 	ErrUserAlreadyExists    = errors.New("user exists")
 	ErrWrongPassword        = errors.New("wrong password")
 	ErrNoProduct            = errors.New("no product")
