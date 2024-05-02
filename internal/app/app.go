@@ -13,6 +13,7 @@ import (
 	"github.com/gorilla/mux"
 
 	authclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/auth/grpc"
+	profileclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/profile/grpc"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
 	elasticsetup "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/elasticsearch"
@@ -114,7 +115,17 @@ func MustInit() *App {
 		panic("auth service connection error: " + err.Error())
 	}
 
-	// CSAT Service
+	// Profile
+
+	ctx, cancel = context.WithTimeout(context.Background(), _connTimeout)
+	defer cancel()
+
+	profileClient, err := profileclient.New(ctx, log, cfg.Main.Clients.ProfileClient)
+	if err != nil {
+		panic("profile service connection error: " + err.Error())
+	}
+
+	// CSAT
 
 	// csatConn, err := grpc.Dial(fmt.Sprintf("%s:%d", "localhost", 9090), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	// if err != nil {
@@ -129,13 +140,12 @@ func MustInit() *App {
 	// Layers
 
 	// Profile
-	profileRepo := repository.NewProfileRepo(pgxClient)
-	profileUsecase := usecase.NewProfileUsecase(profileRepo)
+	profileUsecase := usecase.NewProfileUsecase(profileClient)
 	profileHandler := delivery.NewProfileHandler(profileUsecase)
 	profileHandler.InitRouter(apiRouter)
 
 	// Auth
-	authUsecase := usecase.NewAuthUsecase(authClient, profileRepo)
+	authUsecase := usecase.NewAuthUsecase(authClient, profileClient)
 	authHandler := delivery.NewAuthHandler(authUsecase, cfg.SessionTTL)
 	authHandler.InitRouter(apiRouter)
 
@@ -153,7 +163,7 @@ func MustInit() *App {
 
 	// Avatar
 	avatarStorage := repository.NewAvatarStorage(minioClient, cfg.Minio)
-	avatarUsecase := usecase.NewAvatarUsecase(avatarStorage, profileRepo)
+	avatarUsecase := usecase.NewAvatarUsecase(avatarStorage, profileClient)
 	avatarHandler := delivery.NewAvatarHandler(avatarUsecase)
 	avatarHandler.InitRouter(apiRouter)
 

@@ -4,9 +4,9 @@ import (
 	"context"
 
 	authgrpc "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/auth/grpc"
+	profilegrpc "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/profile/grpc"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
 	"github.com/pkg/errors"
 )
 
@@ -23,14 +23,14 @@ const (
 )
 
 type AuthUsecase struct {
-	client      *authgrpc.Client
-	profileRepo repository.Profiles
+	authClient    *authgrpc.Client
+	profileClient *profilegrpc.Client
 }
 
-func NewAuthUsecase(c *authgrpc.Client, pr repository.Profiles) *AuthUsecase {
+func NewAuthUsecase(ac *authgrpc.Client, pc *profilegrpc.Client) *AuthUsecase {
 	return &AuthUsecase{
-		client:      c,
-		profileRepo: pr,
+		authClient:    ac,
+		profileClient: pc,
 	}
 }
 
@@ -43,7 +43,7 @@ func (u *AuthUsecase) Login(ctx context.Context, login string, password string) 
 		return "", helper.NewValidationError("invalid password input",
 			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
 	}
-	sID, err := u.client.Login(ctx, login, password)
+	sID, err := u.authClient.Login(ctx, login, password)
 	if err != nil {
 		if errors.Is(err, models.ErrInvalidField) {
 			return "", helper.NewValidationError("invalid input",
@@ -63,7 +63,7 @@ func (u *AuthUsecase) Signup(ctx context.Context, login string, password string)
 		return "", helper.NewValidationError("invalid password input",
 			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
 	}
-	uID, sID, err := u.client.Signup(ctx, login, password)
+	uID, sID, err := u.authClient.Signup(ctx, login, password)
 	if err != nil {
 		if errors.Is(err, models.ErrInvalidField) {
 			return "", helper.NewValidationError("invalid input",
@@ -71,20 +71,19 @@ func (u *AuthUsecase) Signup(ctx context.Context, login string, password string)
 		}
 		return "", err
 	}
-	_, err = u.profileRepo.CreateProfile(ctx, models.Profile{
+	if err = u.profileClient.CreateProfile(ctx, models.Profile{
 		ID:          uID,
 		FullName:    login,
 		Email:       _defaultEmail,
 		PhoneNumber: _defaultPhoneNumber,
-	})
-	if err != nil {
+	}); err != nil {
 		return "", err
 	}
 	return sID, nil
 }
 
 func (u *AuthUsecase) GetUserIDBySessionID(ctx context.Context, sID string) (uint, error) {
-	uID, err := u.client.GetUserIDBySessionID(ctx, sID)
+	uID, err := u.authClient.GetUserIDBySessionID(ctx, sID)
 	if err != nil {
 		return 0, err
 	}
@@ -92,11 +91,11 @@ func (u *AuthUsecase) GetUserIDBySessionID(ctx context.Context, sID string) (uin
 }
 
 func (u *AuthUsecase) Logout(ctx context.Context, sID string) error {
-	return u.client.Logout(ctx, sID)
+	return u.authClient.Logout(ctx, sID)
 }
 
 func (u *AuthUsecase) IsLoggedIn(ctx context.Context, sID string) bool {
-	return u.client.CheckAuth(ctx, sID)
+	return u.authClient.CheckAuth(ctx, sID)
 }
 
 func (u *AuthUsecase) UpdatePassword(ctx context.Context, userID uint, password string, newPassword string) error {
@@ -104,7 +103,7 @@ func (u *AuthUsecase) UpdatePassword(ctx context.Context, userID uint, password 
 		return helper.NewValidationError("invalid new password input",
 			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
 	}
-	if err := u.client.UpdatePassword(ctx, userID, password, newPassword); err != nil {
+	if err := u.authClient.UpdatePassword(ctx, userID, password, newPassword); err != nil {
 		if errors.Is(err, models.ErrInvalidField) {
 			return helper.NewValidationError("invalid input",
 				"Невалидные данные")

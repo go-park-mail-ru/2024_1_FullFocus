@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 
@@ -71,9 +72,10 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
+		logger.Error(ctx, err.Error())
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 500,
-			Msg:    err.Error(),
+			Msg:    "Internal error",
 			MsgRus: "Неизвестная ошибка",
 		})
 		return
@@ -116,9 +118,10 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
+		logger.Error(ctx, err.Error())
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 500,
-			Msg:    err.Error(),
+			Msg:    "Internal error",
 			MsgRus: "Неизвестная ошибка",
 		})
 		return
@@ -156,9 +159,10 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
+		logger.Error(ctx, err.Error())
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 500,
-			Msg:    err.Error(),
+			Msg:    "Internal error",
 			MsgRus: "Неизвестная ошибка",
 		})
 		return
@@ -190,9 +194,10 @@ func (h *AuthHandler) CheckAuth(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
+		logger.Error(ctx, err.Error())
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 500,
-			Msg:    err.Error(),
+			Msg:    "Internal error",
 			MsgRus: "Неизвестная ошибка",
 		})
 		return

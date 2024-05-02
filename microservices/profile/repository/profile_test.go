@@ -17,7 +17,7 @@ func TestNewProfileRepo(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	db := mock_database.NewMockDatabase(ctrl)
 	defer ctrl.Finish()
-	t.Run("Check ProfileRepo creation", func(t *testing.T) {
+	t.Run("Check Repo creation", func(t *testing.T) {
 		pr := repository.NewProfileRepo(db)
 		require.NotEmpty(t, pr, "profile repo not created")
 	})

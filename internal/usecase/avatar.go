@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	profilegrpc "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/profile/grpc"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
@@ -16,19 +17,19 @@ import (
 const _avatarMaxSize = 1 << 21
 
 type AvatarUsecase struct {
-	avatarRepo  repository.Avatars
-	profileRepo repository.Profiles
+	avatarRepo    repository.Avatars
+	profileClient *profilegrpc.Client
 }
 
-func NewAvatarUsecase(ar repository.Avatars, pr repository.Profiles) *AvatarUsecase {
+func NewAvatarUsecase(ar repository.Avatars, pc *profilegrpc.Client) *AvatarUsecase {
 	return &AvatarUsecase{
-		avatarRepo:  ar,
-		profileRepo: pr,
+		avatarRepo:    ar,
+		profileClient: pc,
 	}
 }
 
 func (u *AvatarUsecase) GetAvatar(ctx context.Context, profileID uint) (models.Avatar, error) {
-	fileName, err := u.profileRepo.GetAvatarByProfileID(ctx, profileID)
+	fileName, err := u.profileClient.GetAvatarByID(ctx, profileID)
 	if err != nil {
 		return models.Avatar{}, err
 	}
@@ -59,7 +60,7 @@ func (u *AvatarUsecase) UploadAvatar(ctx context.Context, profileID uint, img mo
 	if err = u.avatarRepo.UploadAvatar(ctx, fileName, object); err != nil {
 		return err
 	}
-	prevFileName, err := u.profileRepo.UpdateAvatarByProfileID(ctx, profileID, fileName)
+	prevFileName, err := u.profileClient.UpdateAvatarByProfileID(ctx, profileID, fileName)
 	if err != nil {
 		return err
 	}
@@ -70,7 +71,7 @@ func (u *AvatarUsecase) UploadAvatar(ctx context.Context, profileID uint, img mo
 }
 
 func (u *AvatarUsecase) DeleteAvatar(ctx context.Context, uID uint) error {
-	fileName, err := u.profileRepo.DeleteAvatarByProfileID(ctx, uID)
+	fileName, err := u.profileClient.DeleteAvatarByProfileID(ctx, uID)
 	if err != nil {
 		return err
 	}

@@ -7,6 +7,7 @@ type Profile struct {
 	FullName    string `json:"fullName"`
 	Email       string `json:"email"`
 	PhoneNumber string `json:"phoneNumber"`
+	AvatarName  string `json:"avatarName"`
 }
 
 func ConvertProfileDataToProfile(profile model.Profile) Profile {
@@ -15,6 +16,7 @@ func ConvertProfileDataToProfile(profile model.Profile) Profile {
 		FullName:    profile.FullName,
 		Email:       profile.Email,
 		PhoneNumber: profile.PhoneNumber,
+		AvatarName:  profile.AvatarName,
 	}
 }
 

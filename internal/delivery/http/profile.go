@@ -2,13 +2,13 @@ package delivery
 
 import (
 	"errors"
-
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
-
 	"net/http"
 
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 	"github.com/gorilla/mux"
 )
 
@@ -45,10 +45,19 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	}
 	profile, err := h.usecase.GetProfile(ctx, uID)
 	if err != nil {
+		if errors.Is(err, models.ErrNoProfile) {
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 400,
+				Msg:    err.Error(),
+				MsgRus: "Пользователя не существует",
+			})
+			return
+		}
+		logger.Error(ctx, err.Error())
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 400,
-			Msg:    err.Error(),
-			MsgRus: "Пользователя не существует",
+			Status: 500,
+			Msg:    "Internal error",
+			MsgRus: "Неизвестная ошибка",
 		})
 		return
 	}
@@ -85,10 +94,19 @@ func (h *ProfileHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 			helper.JSONResponse(ctx, w, 200, validationError.WithCode(400))
 			return
 		}
+		if errors.Is(err, models.ErrNoProfile) {
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 400,
+				Msg:    err.Error(),
+				MsgRus: "Пользователя не существует",
+			})
+			return
+		}
+		logger.Error(ctx, err.Error())
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 400,
-			Msg:    err.Error(),
-			MsgRus: "Пользователя не существует",
+			Status: 500,
+			Msg:    "Internal error",
+			MsgRus: "Неизвестная ошибка",
 		})
 		return
 	}

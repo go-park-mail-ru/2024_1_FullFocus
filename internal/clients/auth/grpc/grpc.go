@@ -40,7 +40,7 @@ func New(ctx context.Context, log *slog.Logger, cfg config.ClientConfig) (*Clien
 		),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("client create error: %w", err)
+		return nil, fmt.Errorf("auth client create error: %w", err)
 	}
 	c := &Client{
 		api: authv1.NewAuthClient(conn),

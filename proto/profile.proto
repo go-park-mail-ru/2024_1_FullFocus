@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package profile;
+option go_package = "github.com/go-park-mail-ru/2024_1_FullFocus/microservices/profile/delivery/gen;gen";
+import "google/protobuf/empty.proto";
+
+// protoc --go_out=../gen/profile/ --go_opt=paths=source_relative --go-grpc_out=../gen/profile/ --go-grpc_opt=paths=source_relative profile.proto
+
+service Profile {
+  rpc CreateProfile(CreateProfileRequest) returns (google.protobuf.Empty) {}
+  rpc GetProfileByID(GetProfileByIDRequest) returns (GetProfileByIDResponse) {}
+  rpc GetProfileNamesByIDs(GetProfileNamesByIDsRequest) returns (GetProfileNamesByIDsResponse) {}
+  rpc GetAvatarByID(GetAvatarByIDRequest) returns (GetAvatarByIDResponse) {}
+  rpc UpdateAvatarByProfileID(UpdateAvatarByProfileIDRequest) returns (UpdateAvatarByProfileIDResponse) {}
+  rpc UpdateProfile(UpdateProfileRequest) returns (google.protobuf.Empty) {}
+  rpc DeleteAvatarByProfileID(DeleteAvatarByProfileIDRequest) returns (DeleteAvatarByProfileIDResponse) {}
+}
+
+message CreateProfileRequest {
+  uint32 ProfileID = 1;
+  string Name = 2;
+  string Email = 3;
+  string PhoneNumber = 4;
+}
+
+message GetProfileByIDRequest {
+  uint32 ProfileID = 1;
+}
+
+message GetProfileByIDResponse {
+  string Name = 1;
+  string Email = 2;
+  string PhoneNumber = 3;
+  string AvatarName = 4;
+}
+
+message GetProfileNamesByIDsRequest {
+  repeated uint32 ProfileIDs = 1;
+}
+
+message GetProfileNamesByIDsResponse {
+  repeated string Names = 1;
+}
+
+message GetAvatarByIDRequest {
+  uint32 ProfileID = 1;
+}
+
+message GetAvatarByIDResponse {
+  string AvatarName = 1;
+}
+
+message UpdateAvatarByProfileIDRequest {
+  uint32 ProfileID = 1;
+  string AvatarName = 2;
+}
+
+message UpdateAvatarByProfileIDResponse {
+  string PrevAvatarName = 1;
+}
+
+message UpdateProfileRequest {
+  uint32 ProfileID = 1;
+  string Name = 2;
+  string Email = 3;
+  string PhoneNumber = 4;
+}
+
+message DeleteAvatarByProfileIDRequest {
+  uint32 ProfileID = 1;
+}
+
+message DeleteAvatarByProfileIDResponse {
+  string PrevAvatarName = 1;
+}

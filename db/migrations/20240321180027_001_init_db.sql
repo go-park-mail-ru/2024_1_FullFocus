@@ -23,7 +23,7 @@ CREATE TABLE user_profile (
 	full_name TEXT NOT NULL CHECK (char_length(full_name) BETWEEN 1 AND 255),
 	email TEXT NOT NULL CHECK ((char_length(email) BETWEEN 4 AND 255) AND (email ~* '^[a-z0-9\.\-]+@[a-z0-9\.\-]+\.[a-z]+$')),
 	phone_number TEXT NOT NULL CHECK ((char_length(phone_number) BETWEEN 5 AND 15) AND (phone_number ~ '\+?[0-9]+')),
-	imgsrc TEXT DEFAULT '',
+	imgsrc TEXT NOT NULL DEFAULT '',
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL,
 	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL
 );

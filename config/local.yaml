@@ -12,8 +12,12 @@ main:
       addr: "localhost:9091"
       retries: 3
       retry_timeout: 2s
-    csat:
+    profile:
       addr: "localhost:9092"
+      retries: 3
+      retry_timeout: 2s
+    csat:
+      addr: "localhost:9093"
       retries: 3
       retry_timeout: 2s
 auth:
@@ -22,9 +26,13 @@ auth:
     timeout: 5s
   redis:
     addr: "localhost:6379"
-csat:
+profile:
   server:
     port: "9092"
+    timeout: 5s
+csat:
+  server:
+    port: "9093"
     timeout: 5s
   postgres:
     host: "localhost"
