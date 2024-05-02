@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/auth/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/auth/pkg/helper"
@@ -30,20 +29,26 @@ func NewAuthUsecase(a auth) *Auth {
 }
 
 func (u *Auth) Login(ctx context.Context, login string, password string) (string, error) {
+	if login == "" || password == "" {
+		return "", models.ErrInvalidInput
+	}
 	user, err := u.repo.GetUser(ctx, login)
 	if err != nil {
-		return "", fmt.Errorf("no user found")
+		return "", err
 	}
 	if err = helper.CheckPassword(password, user.PasswordHash); err != nil {
-		return "", fmt.Errorf("wrong password")
+		return "", models.ErrWrongPassword
 	}
 	return u.repo.CreateSession(ctx, user.ID), nil
 }
 
 func (u *Auth) Signup(ctx context.Context, login string, password string) (uint, string, error) {
+	if login == "" || password == "" {
+		return 0, "", models.ErrInvalidInput
+	}
 	passwordHash, err := helper.HashPassword(password)
 	if err != nil {
-		return 0, "", err
+		return 0, "", models.ErrUnableToHash
 	}
 	user := models.User{
 		Username:     login,
@@ -51,7 +56,7 @@ func (u *Auth) Signup(ctx context.Context, login string, password string) (uint,
 	}
 	uID, err := u.repo.CreateUser(ctx, user)
 	if err != nil {
-		return 0, "", fmt.Errorf("user already exists")
+		return 0, "", err
 	}
 	sID := u.repo.CreateSession(ctx, uID)
 	return uID, sID, nil
@@ -70,16 +75,19 @@ func (u *Auth) IsLoggedIn(ctx context.Context, sID string) bool {
 }
 
 func (u *Auth) UpdatePassword(ctx context.Context, userID uint, password string, newPassword string) error {
+	if password == "" || newPassword == "" {
+		return models.ErrInvalidInput
+	}
 	prevPassword, err := u.repo.GetUserPassword(ctx, userID)
 	if err != nil {
 		return err
 	}
 	if err = helper.CheckPassword(password, prevPassword); err != nil {
-		return fmt.Errorf("wrong password")
+		return models.ErrWrongPassword
 	}
 	passwordHash, err := helper.HashPassword(newPassword)
 	if err != nil {
-		return err
+		return models.ErrUnableToHash
 	}
 	return u.repo.UpdatePassword(ctx, userID, passwordHash)
 }

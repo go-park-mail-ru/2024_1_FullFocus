@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net"
 
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
 	"google.golang.org/grpc"
@@ -36,10 +37,16 @@ func New(log *slog.Logger, authService authgrpc.Auth, cfg config.Auth) *App {
 			return status.Errorf(codes.Internal, "internal error")
 		}),
 	}
-	gRPCServer := grpc.NewServer(grpc.ChainUnaryInterceptor(
-		recovery.UnaryServerInterceptor(recoveryOpts...),
-		logging.UnaryServerInterceptor(InterceptorLogger(log), loggingOpts...),
-	))
+	gRPCServer := grpc.NewServer(
+		grpc.ChainStreamInterceptor(
+			logger.StreamInterceptor(log),
+		),
+		grpc.ChainUnaryInterceptor(
+			logger.UnaryInterceptor(log),
+			recovery.UnaryServerInterceptor(recoveryOpts...),
+			logging.UnaryServerInterceptor(InterceptorLogger(log), loggingOpts...),
+		),
+	)
 	authgrpc.Register(gRPCServer, authService)
 
 	return &App{

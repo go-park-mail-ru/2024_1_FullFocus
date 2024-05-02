@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/auth/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 )
 
@@ -22,8 +23,7 @@ func (r *AuthRepo) GetUserIDBySessionID(ctx context.Context, sID string) (uint, 
 	start := time.Now()
 	uID, err := r.redis.Get(sID).Uint64()
 	if err != nil {
-		logger.Error(ctx, "no session found")
-		return 0, fmt.Errorf("no session found")
+		return 0, models.ErrUnauthorized
 	}
 	logger.Info(ctx, fmt.Sprintf("user_id selected in %s", time.Since(start)))
 	return uint(uID), nil
@@ -34,23 +34,20 @@ func (r *AuthRepo) SessionExists(ctx context.Context, sID string) bool {
 	_, err := r.redis.Get(sID).Uint64()
 	logger.Info(ctx, fmt.Sprintf("session checked in %s", time.Since(start)))
 	if err != nil {
-		logger.Info(ctx, "no session")
+		logger.Info(ctx, err.Error())
 		return false
 	}
-	logger.Info(ctx, "session found")
 	return true
 }
 
 func (r *AuthRepo) DeleteSession(ctx context.Context, sID string) error {
 	start := time.Now()
 	if err := r.redis.Get(sID).Err(); err != nil {
-		logger.Error(ctx, "no session found")
-		return fmt.Errorf("no session found")
+		return models.ErrUnauthorized
 	}
 	logger.Info(ctx, fmt.Sprintf("session checked in %s", time.Since(start)))
 	start = time.Now()
 	r.redis.Del(sID)
 	logger.Info(ctx, fmt.Sprintf("session deleted in %s", time.Since(start)))
-
 	return nil
 }

@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/auth/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/auth/repository/dao"
@@ -17,7 +16,7 @@ func (r *AuthRepo) CreateUser(ctx context.Context, user models.User) (uint, erro
 	err := r.storage.Get(ctx, &resRow, q, userRow.Login, userRow.PasswordHash)
 	if err != nil {
 		logger.Info(ctx, "user already exists")
-		return 0, fmt.Errorf("user already exists")
+		return 0, models.ErrUserAlreadyExists
 	}
 	return resRow.ID, nil
 }
@@ -28,7 +27,7 @@ func (r *AuthRepo) GetUser(ctx context.Context, username string) (models.User, e
 	userRow := dao.UserTable{}
 	if err := r.storage.Get(ctx, &userRow, q, username); err != nil {
 		logger.Error(ctx, "user not found")
-		return models.User{}, fmt.Errorf("no user found")
+		return models.User{}, models.ErrUserNotFound
 	}
 	return dao.ConvertTableToUser(userRow), nil
 }
@@ -40,8 +39,9 @@ func (r *AuthRepo) GetUserPassword(ctx context.Context, userID uint) (string, er
 	err := r.storage.Get(ctx, &password, q, userID)
 	if err != nil {
 		logger.Error(ctx, err.Error())
+		return "", models.ErrUserNotFound
 	}
-	return password, err
+	return password, nil
 }
 
 func (r *AuthRepo) UpdatePassword(ctx context.Context, userID uint, password string) error {
@@ -50,6 +50,7 @@ func (r *AuthRepo) UpdatePassword(ctx context.Context, userID uint, password str
 	_, err := r.storage.Exec(ctx, q, password, userID)
 	if err != nil {
 		logger.Error(ctx, err.Error())
+		return models.ErrUserNotFound
 	}
-	return err
+	return nil
 }
