@@ -28,11 +28,7 @@ func NewAvatarUsecase(ar repository.Avatars, pc *profilegrpc.Client) *AvatarUsec
 	}
 }
 
-func (u *AvatarUsecase) GetAvatar(ctx context.Context, profileID uint) (models.Avatar, error) {
-	fileName, err := u.profileClient.GetAvatarByID(ctx, profileID)
-	if err != nil {
-		return models.Avatar{}, err
-	}
+func (u *AvatarUsecase) GetAvatar(ctx context.Context, fileName string) (models.Avatar, error) {
 	return u.avatarRepo.GetAvatar(ctx, fileName)
 }
 

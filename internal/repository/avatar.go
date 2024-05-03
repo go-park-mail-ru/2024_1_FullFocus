@@ -32,12 +32,12 @@ func (s *AvatarStorage) GetAvatar(ctx context.Context, fileName string) (models.
 		fileName,
 		minio.GetObjectOptions{})
 	if err != nil {
-		logger.Error(ctx, "get avatar error: "+err.Error())
+		logger.Error(ctx, err.Error())
 		return models.Avatar{}, models.ErrNoAvatar
 	}
 	info, err := reader.Stat()
 	if err != nil {
-		logger.Error(ctx, "get file stat error: "+err.Error())
+		logger.Error(ctx, err.Error())
 		return models.Avatar{}, models.ErrNoAvatar
 	}
 	avatar := models.Avatar{
@@ -58,7 +58,7 @@ func (s *AvatarStorage) UploadAvatar(ctx context.Context, fileName string, img m
 		img.PayloadSize,
 		minio.PutObjectOptions{})
 	if err != nil {
-		logger.Error(ctx, "upload avatar error: "+err.Error())
+		logger.Error(ctx, err.Error())
 		return models.ErrCantUpload
 	}
 	logger.Info(ctx, fmt.Sprintf("%d bytes uploaded in %s: %s", info.Size, time.Since(start), fileName))
@@ -73,7 +73,7 @@ func (s *AvatarStorage) DeleteAvatar(ctx context.Context, fileName string) error
 		fileName,
 		minio.RemoveObjectOptions{})
 	if err != nil {
-		logger.Error(ctx, "delete avatar error: "+err.Error())
+		logger.Error(ctx, err.Error())
 		return models.ErrNoAvatar
 	}
 	logger.Info(ctx, fmt.Sprintf("file `%s` removed in %s", fileName, time.Since(start)))

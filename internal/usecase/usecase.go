@@ -25,7 +25,7 @@ type (
 	}
 
 	Avatars interface {
-		GetAvatar(ctx context.Context, profileID uint) (models.Avatar, error)
+		GetAvatar(ctx context.Context, fileName string) (models.Avatar, error)
 		UploadAvatar(ctx context.Context, profileID uint, img models.Avatar) error
 		DeleteAvatar(ctx context.Context, uID uint) error
 	}
