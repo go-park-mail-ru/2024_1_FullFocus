@@ -17,6 +17,7 @@ type Profile interface {
 	UpdateProfile(ctx context.Context, uID uint, newProfile models.ProfileUpdateInput) error
 	GetProfile(ctx context.Context, uID uint) (models.Profile, error)
 	GetProfileNamesByIDs(ctx context.Context, pIDs []uint) ([]string, error)
+	GetProfileMetaInfo(ctx context.Context, pID uint) (models.ProfileMetaInfo, error)
 	CreateProfile(ctx context.Context, profile models.Profile) error
 	UpdateAvatarByProfileID(ctx context.Context, uID uint, imgSrc string) (string, error)
 	GetAvatarByProfileID(ctx context.Context, uID uint) (string, error)
@@ -78,6 +79,19 @@ func (s *serverAPI) GetProfileNamesByIDs(ctx context.Context, r *profilev1.GetPr
 	}
 	return &profilev1.GetProfileNamesByIDsResponse{
 		Names: names,
+	}, status.Error(codes.OK, "")
+}
+
+func (s *serverAPI) GetProfileMetaInfo(ctx context.Context, r *profilev1.GetProfileMetaInfoRequest) (*profilev1.GetProfileMetaInfoResponse, error) {
+	info, err := s.usecase.GetProfileMetaInfo(ctx, uint(r.GetProfileID()))
+	if err != nil {
+		if errors.Is(err, models.ErrNoProfile) {
+			return nil, status.Error(codes.NotFound, err.Error())
+		}
+	}
+	return &profilev1.GetProfileMetaInfoResponse{
+		ProfileName: info.FullName,
+		AvatarName:  info.AvatarName,
 	}, status.Error(codes.OK, "")
 }
 

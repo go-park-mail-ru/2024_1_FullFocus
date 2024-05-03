@@ -11,6 +11,7 @@ type Profile interface {
 	CreateProfile(ctx context.Context, profile models.Profile) error
 	GetProfile(ctx context.Context, uID uint) (models.Profile, error)
 	GetProfileNamesByIDs(ctx context.Context, pIDs []uint) ([]string, error)
+	GetProfileMetaInfo(ctx context.Context, pID uint) (models.ProfileMetaInfo, error)
 	UpdateProfile(ctx context.Context, uID uint, profileNew models.ProfileUpdateInput) error
 	UpdateAvatarByProfileID(ctx context.Context, uID uint, imgSrc string) (string, error)
 	GetAvatarByProfileID(ctx context.Context, uID uint) (string, error)
@@ -45,6 +46,10 @@ func (u *Usecase) GetProfile(ctx context.Context, uID uint) (models.Profile, err
 
 func (u *Usecase) GetProfileNamesByIDs(ctx context.Context, pIDs []uint) ([]string, error) {
 	return u.repo.GetProfileNamesByIDs(ctx, pIDs)
+}
+
+func (u *Usecase) GetProfileMetaInfo(ctx context.Context, pID uint) (models.ProfileMetaInfo, error) {
+	return u.repo.GetProfileMetaInfo(ctx, pID)
 }
 
 func (u *Usecase) CreateProfile(ctx context.Context, profile models.Profile) error {

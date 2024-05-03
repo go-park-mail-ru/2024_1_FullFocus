@@ -116,6 +116,28 @@ func (c *Client) GetProfileNamesByIDs(ctx context.Context, pIDs []uint) ([]strin
 	}
 }
 
+func (c *Client) GetProfileMetaInfo(ctx context.Context, pID uint) (models.ProfileMetaInfo, error) {
+	res, err := c.api.GetProfileMetaInfo(ctx, &profilev1.GetProfileMetaInfoRequest{
+		ProfileID: uint32(pID),
+	})
+	st, ok := status.FromError(err)
+	if !ok {
+		return models.ProfileMetaInfo{}, err
+	}
+	switch st.Code() {
+	case codes.OK:
+		info := models.ProfileMetaInfo{
+			FullName:   res.GetProfileName(),
+			AvatarName: res.GetAvatarName(),
+		}
+		return info, nil
+	case codes.NotFound:
+		return models.ProfileMetaInfo{}, models.ErrNoProfile
+	default:
+		return models.ProfileMetaInfo{}, st.Err()
+	}
+}
+
 func (c *Client) GetAvatarByID(ctx context.Context, pID uint) (string, error) {
 	res, err := c.api.GetAvatarByID(ctx, &profilev1.GetAvatarByIDRequest{
 		ProfileID: uint32(pID),

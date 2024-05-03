@@ -7,16 +7,19 @@ import (
 	profilegrpc "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/profile/grpc"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
 	"github.com/pkg/errors"
 )
 
 type ProfileUsecase struct {
 	profileClient *profilegrpc.Client
+	cartRepo      repository.Carts
 }
 
-func NewProfileUsecase(pr *profilegrpc.Client) *ProfileUsecase {
+func NewProfileUsecase(pr *profilegrpc.Client, cr repository.Carts) *ProfileUsecase {
 	return &ProfileUsecase{
 		profileClient: pr,
+		cartRepo:      cr,
 	}
 }
 
@@ -50,6 +53,19 @@ func (u *ProfileUsecase) GetProfile(ctx context.Context, uID uint) (models.Profi
 	}
 	profile.FullName = html.EscapeString(profile.FullName)
 	return profile, nil
+}
+
+func (u *ProfileUsecase) GetProfileMetaInfo(ctx context.Context, uID uint) (models.ProfileMetaInfo, error) {
+	info, err := u.profileClient.GetProfileMetaInfo(ctx, uID)
+	if err != nil {
+		return models.ProfileMetaInfo{}, err
+	}
+	amount, err := u.cartRepo.GetCartItemsAmount(ctx, uID)
+	if err != nil {
+		return models.ProfileMetaInfo{}, err
+	}
+	info.CartItemsAmount = amount
+	return info, nil
 }
 
 func (u *ProfileUsecase) CreateProfile(ctx context.Context, profile models.Profile) error {
