@@ -34,6 +34,10 @@ migrations-up: ## Накатить миграции
 migrations-down: ## Откатить миграции
 	goose -dir db/migrations postgres $(DB_DSN) down
 
+.PHONY: migration-create
+migration-create: ## Пример команды для создания миграции
+	@echo "goose -dir migrations create <add_some_column> sql"
+
 .PHONY: run-prod
 run-prod: ## Запустить прод
 	docker compose -f docker-compose.yaml up -d
