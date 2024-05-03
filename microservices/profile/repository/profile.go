@@ -75,7 +75,7 @@ func (r *Repo) UpdateAvatarByProfileID(ctx context.Context, uID uint, imgSrc str
 		  RETURNING (SELECT imgsrc FROM prev_imgsrc);`
 	var prevImgSrc string
 	if err := r.storage.Get(ctx, &prevImgSrc, q, uID, imgSrc, uID); err != nil {
-		logger.Error(ctx, "update error: "+err.Error())
+		logger.Error(ctx, err.Error())
 		return "", models.ErrNoProfile
 	}
 	return prevImgSrc, nil
@@ -86,7 +86,7 @@ func (r *Repo) GetAvatarByProfileID(ctx context.Context, uID uint) (string, erro
 	var imgSrc string
 	err := r.storage.Get(ctx, &imgSrc, q, uID)
 	if err != nil {
-		logger.Error(ctx, "profile select error: "+err.Error())
+		logger.Error(ctx, err.Error())
 		return "", models.ErrNoProfile
 	}
 	return imgSrc, nil
@@ -104,7 +104,7 @@ func (r *Repo) DeleteAvatarByProfileID(ctx context.Context, uID uint) (string, e
 		  RETURNING (SELECT imgsrc FROM prev_imgsrc);`
 	var prevImgSrc string
 	if err := r.storage.Get(ctx, &prevImgSrc, q, uID, uID); err != nil {
-		logger.Error(ctx, "update error: "+err.Error())
+		logger.Error(ctx, err.Error())
 		return "", models.ErrNoProfile
 	}
 	return prevImgSrc, nil

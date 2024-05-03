@@ -15,7 +15,7 @@ func (r *AuthRepo) CreateUser(ctx context.Context, user models.User) (uint, erro
 	resRow := dao.UserTable{}
 	err := r.storage.Get(ctx, &resRow, q, userRow.Login, userRow.PasswordHash)
 	if err != nil {
-		logger.Info(ctx, "user already exists")
+		logger.Error(ctx, err.Error())
 		return 0, models.ErrUserAlreadyExists
 	}
 	return resRow.ID, nil
@@ -26,7 +26,7 @@ func (r *AuthRepo) GetUser(ctx context.Context, username string) (models.User, e
 
 	userRow := dao.UserTable{}
 	if err := r.storage.Get(ctx, &userRow, q, username); err != nil {
-		logger.Error(ctx, "user not found")
+		logger.Error(ctx, err.Error())
 		return models.User{}, models.ErrUserNotFound
 	}
 	return dao.ConvertTableToUser(userRow), nil
