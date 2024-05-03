@@ -55,6 +55,17 @@ func (r *CartRepo) GetAllCartItemsID(ctx context.Context, uID uint) ([]models.Ca
 	return dao.ConvertTablesToCartItems(cartItemRows), nil
 }
 
+func (r *CartRepo) GetCartItemsAmount(ctx context.Context, uID uint) (uint, error) {
+	q := `SELECT count(*) FROM cart_item ci WHERE ci.profile_id = ?;`
+
+	var amount uint
+	if err := r.storage.Get(ctx, &amount, q, uID); err != nil {
+		logger.Error(ctx, err.Error())
+		return 0, models.ErrNoProfile
+	}
+	return amount, nil
+}
+
 func (r *CartRepo) UpdateCartItem(ctx context.Context, uID, prID uint) (uint, error) {
 	q := `INSERT INTO cart_item(profile_id, product_id) VALUES($1, $2)
 	ON CONFLICT (profile_id, product_id)
