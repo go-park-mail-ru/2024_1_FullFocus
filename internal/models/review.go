@@ -1,6 +1,7 @@
 package models
 
 type ProductReview struct {
+	ReviewID      uint
 	ProductID     uint
 	AuthorName    string
 	AuthorAvatar  string
