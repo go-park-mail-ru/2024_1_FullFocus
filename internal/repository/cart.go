@@ -29,11 +29,10 @@ func (r *CartRepo) GetAllCartItems(ctx context.Context, uID uint) ([]models.Cart
 	var cartProductRows []dao.CartProductTable
 	err := r.storage.Select(ctx, &cartProductRows, q, uID)
 	if err != nil {
-		logger.Error(ctx, "Error: %s", err.Error())
+		logger.Error(ctx, err.Error())
 		return nil, models.ErrEmptyCart
 	}
 	if len(cartProductRows) == 0 {
-		logger.Info(ctx, "users cart is empty")
 		return nil, models.ErrEmptyCart
 	}
 	return dao.ConvertTablesToCartProducts(cartProductRows), nil
@@ -45,11 +44,10 @@ func (r *CartRepo) GetAllCartItemsID(ctx context.Context, uID uint) ([]models.Ca
 	var cartItemRows []dao.CartItemTable
 	err := r.storage.Select(ctx, &cartItemRows, q, uID)
 	if err != nil {
-		logger.Error(ctx, "Error: %s", err.Error())
+		logger.Error(ctx, err.Error())
 		return nil, models.ErrEmptyCart
 	}
 	if len(cartItemRows) == 0 {
-		logger.Info(ctx, "users cart is empty")
 		return nil, models.ErrEmptyCart
 	}
 	return dao.ConvertTablesToCartItems(cartItemRows), nil
@@ -76,10 +74,9 @@ func (r *CartRepo) UpdateCartItem(ctx context.Context, uID, prID uint) (uint, er
 	err := r.storage.Get(ctx, &resRow, q, uID, prID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			logger.Info(ctx, "users cart is empty")
 			return 0, models.ErrNoProduct
 		}
-		logger.Error(ctx, "Error: %s", err.Error())
+		logger.Error(ctx, err.Error())
 		// TODO ErrNoProduct
 		return 0, models.ErrEmptyCart
 	}
@@ -95,10 +92,9 @@ func (r *CartRepo) DeleteCartItem(ctx context.Context, uID, prID uint) (uint, er
 	err := r.storage.Get(ctx, &resRow, q, uID, prID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			logger.Info(ctx, "users cart is empty")
 			return 0, models.ErrNoProduct
 		}
-		logger.Error(ctx, "Error: %s", err.Error())
+		logger.Error(ctx, err.Error())
 		// TODO ErrNoProduct
 		return 0, models.ErrEmptyCart
 	}
@@ -119,11 +115,10 @@ func (r *CartRepo) DeleteAllCartItems(ctx context.Context, uID uint) error {
 
 	res, err := r.storage.Exec(ctx, q, uID)
 	if err != nil {
-		logger.Error(ctx, "Error: %s", err.Error())
+		logger.Error(ctx, err.Error())
 		return models.ErrEmptyCart
 	}
 	if count, _ := res.RowsAffected(); count == 0 {
-		logger.Error(ctx, "users cart is empty")
 		return models.ErrEmptyCart
 	}
 	return nil
