@@ -5,11 +5,12 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/jackc/pgx/v5/pgconn"
+
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/dao"
-	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 )
 
 type ReviewRepo struct {
@@ -23,7 +24,7 @@ func NewReviewRepo(st database.Database) *ReviewRepo {
 }
 
 func (r *ReviewRepo) GetProductReviews(ctx context.Context, input models.GetProductReviewsInput) ([]models.ProductReview, error) {
-	q := `SELECT p.full_name , p.imgsrc, r.rating, r.created_at, r.comments, r.advantages, r.disadvantages
+	q := `SELECT p.full_name , p.imgsrc, r.rating, DATE(r.created_at) AS created_at, r.comments, r.advantages, r.disadvantages
 	FROM review r
 	JOIN user_profile p ON r.profile_id = p.id
 	WHERE r.product_id = $1
