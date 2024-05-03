@@ -43,10 +43,18 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build image
-        run: docker build -t b0pof/bizon-main .
+      - name: Build main
+        run: docker build -t b0pof/bizon-main ./build/main.Dockerfile
       - name: Push the image
         run: docker push b0pof/bizon-main
+      - name: Build auth
+        run: docker build -t b0pof/bizon-auth ./build/auth.Dockerfile
+      - name: Push the image
+        run: docker push b0pof/bizon-auth
+      - name: Build profile
+        run: docker build -t b0pof/bizon-profile ./build/profile.Dockerfile
+      - name: Push the image
+        run: docker push b0pof/bizon-profile
   deploy:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest

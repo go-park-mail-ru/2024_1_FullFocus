@@ -4,6 +4,17 @@ DB_NAME=ozon
 
 LOCAL_COMPOSE=docker-compose.local.yaml
 
+ALLOWED_TARGETS := main auth profile
+TARGET ?= main
+
+ifndef TARGET
+    $(error параметр TARGET не указан. Usage: make build TARGET=<binary_name>)
+endif
+
+ifeq (,$(filter $(TARGET),$(ALLOWED_TARGETS)))
+    $(error Неверная цель "$(TARGET)". Доступные параметры: $(ALLOWED_TARGETS))
+endif
+
 ifneq ("$(wildcard .env)","")
 include .env
 endif
@@ -43,7 +54,7 @@ stop-all: ## Остановить все контейнеры
 
 .PHONY: build
 build: ## Сбилдить бинарь приложения
-	go build -o ./bin/app ./cmd/main/main.go
+	go build -o ./bin/$(TARGET) ./cmd/$(TARGET)/main.go
 
 .PHONY: lint
 lint: ## Проверить код линтерами

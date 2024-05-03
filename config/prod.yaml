@@ -9,11 +9,15 @@ main:
     idle_timeout: 60s
   clients:
     auth:
-      addr: "auth:9091"
+      addr: "bizon-auth:9091"
+      retries: 3
+      retry_timeout: 2s
+    profile:
+      addr: "bizon-profile:9092"
       retries: 3
       retry_timeout: 2s
     csat:
-      addr: "csat:9092"
+      addr: "bizon-csat:9092"
       retries: 3
       retry_timeout: 2s
 auth:
@@ -22,12 +26,16 @@ auth:
     timeout: 5s
   redis:
     addr: "redis:6379"
+profile:
+  server:
+    port: "9092"
+    timeout: 5s
 csat:
   server:
     port: "9092"
     timeout: 5s
   postgres:
-    host: "postgres"
+    host: "postgres-csat"
     port: "5433"
     user: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
@@ -46,7 +54,7 @@ minio:
   minio_secret_key: ${MINIO_SECRET_KEY}
   avatar_bucket: "avatars"
 postgres:
-  host: "postgres"
+  host: "postgres-main"
   port: "5432"
   user: ${POSTGRES_USER}
   password: ${POSTGRES_PASSWORD}
@@ -60,4 +68,3 @@ elasticsearch:
   port: "9200"
   user: ${ELASTIC_USER}
   password: ${ELASTIC_PASSWORD}
-
