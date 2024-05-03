@@ -23,6 +23,7 @@ const (
 	Profile_CreateProfile_FullMethodName           = "/profile.Profile/CreateProfile"
 	Profile_GetProfileByID_FullMethodName          = "/profile.Profile/GetProfileByID"
 	Profile_GetProfileNamesByIDs_FullMethodName    = "/profile.Profile/GetProfileNamesByIDs"
+	Profile_GetProfileMetaInfo_FullMethodName      = "/profile.Profile/GetProfileMetaInfo"
 	Profile_GetAvatarByID_FullMethodName           = "/profile.Profile/GetAvatarByID"
 	Profile_UpdateAvatarByProfileID_FullMethodName = "/profile.Profile/UpdateAvatarByProfileID"
 	Profile_UpdateProfile_FullMethodName           = "/profile.Profile/UpdateProfile"
@@ -36,6 +37,7 @@ type ProfileClient interface {
 	CreateProfile(ctx context.Context, in *CreateProfileRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	GetProfileByID(ctx context.Context, in *GetProfileByIDRequest, opts ...grpc.CallOption) (*GetProfileByIDResponse, error)
 	GetProfileNamesByIDs(ctx context.Context, in *GetProfileNamesByIDsRequest, opts ...grpc.CallOption) (*GetProfileNamesByIDsResponse, error)
+	GetProfileMetaInfo(ctx context.Context, in *GetProfileMetaInfoRequest, opts ...grpc.CallOption) (*GetProfileMetaInfoResponse, error)
 	GetAvatarByID(ctx context.Context, in *GetAvatarByIDRequest, opts ...grpc.CallOption) (*GetAvatarByIDResponse, error)
 	UpdateAvatarByProfileID(ctx context.Context, in *UpdateAvatarByProfileIDRequest, opts ...grpc.CallOption) (*UpdateAvatarByProfileIDResponse, error)
 	UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*empty.Empty, error)
@@ -71,6 +73,15 @@ func (c *profileClient) GetProfileByID(ctx context.Context, in *GetProfileByIDRe
 func (c *profileClient) GetProfileNamesByIDs(ctx context.Context, in *GetProfileNamesByIDsRequest, opts ...grpc.CallOption) (*GetProfileNamesByIDsResponse, error) {
 	out := new(GetProfileNamesByIDsResponse)
 	err := c.cc.Invoke(ctx, Profile_GetProfileNamesByIDs_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *profileClient) GetProfileMetaInfo(ctx context.Context, in *GetProfileMetaInfoRequest, opts ...grpc.CallOption) (*GetProfileMetaInfoResponse, error) {
+	out := new(GetProfileMetaInfoResponse)
+	err := c.cc.Invoke(ctx, Profile_GetProfileMetaInfo_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -120,6 +131,7 @@ type ProfileServer interface {
 	CreateProfile(context.Context, *CreateProfileRequest) (*empty.Empty, error)
 	GetProfileByID(context.Context, *GetProfileByIDRequest) (*GetProfileByIDResponse, error)
 	GetProfileNamesByIDs(context.Context, *GetProfileNamesByIDsRequest) (*GetProfileNamesByIDsResponse, error)
+	GetProfileMetaInfo(context.Context, *GetProfileMetaInfoRequest) (*GetProfileMetaInfoResponse, error)
 	GetAvatarByID(context.Context, *GetAvatarByIDRequest) (*GetAvatarByIDResponse, error)
 	UpdateAvatarByProfileID(context.Context, *UpdateAvatarByProfileIDRequest) (*UpdateAvatarByProfileIDResponse, error)
 	UpdateProfile(context.Context, *UpdateProfileRequest) (*empty.Empty, error)
@@ -139,6 +151,9 @@ func (UnimplementedProfileServer) GetProfileByID(context.Context, *GetProfileByI
 }
 func (UnimplementedProfileServer) GetProfileNamesByIDs(context.Context, *GetProfileNamesByIDsRequest) (*GetProfileNamesByIDsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetProfileNamesByIDs not implemented")
+}
+func (UnimplementedProfileServer) GetProfileMetaInfo(context.Context, *GetProfileMetaInfoRequest) (*GetProfileMetaInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetProfileMetaInfo not implemented")
 }
 func (UnimplementedProfileServer) GetAvatarByID(context.Context, *GetAvatarByIDRequest) (*GetAvatarByIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAvatarByID not implemented")
@@ -215,6 +230,24 @@ func _Profile_GetProfileNamesByIDs_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ProfileServer).GetProfileNamesByIDs(ctx, req.(*GetProfileNamesByIDsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Profile_GetProfileMetaInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetProfileMetaInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProfileServer).GetProfileMetaInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Profile_GetProfileMetaInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProfileServer).GetProfileMetaInfo(ctx, req.(*GetProfileMetaInfoRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -309,6 +342,10 @@ var Profile_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetProfileNamesByIDs",
 			Handler:    _Profile_GetProfileNamesByIDs_Handler,
+		},
+		{
+			MethodName: "GetProfileMetaInfo",
+			Handler:    _Profile_GetProfileMetaInfo_Handler,
 		},
 		{
 			MethodName: "GetAvatarByID",
