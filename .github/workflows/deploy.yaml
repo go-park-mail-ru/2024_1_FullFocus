@@ -44,15 +44,15 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build main
-        run: docker build -t b0pof/bizon-main ./build/main.Dockerfile .
+        run: docker build -t b0pof/bizon-main -f ./build/main.Dockerfile .
       - name: Push the image
         run: docker push b0pof/bizon-main
       - name: Build auth
-        run: docker build -t b0pof/bizon-auth ./build/auth.Dockerfile .
+        run: docker build -t b0pof/bizon-auth -f ./build/auth.Dockerfile .
       - name: Push the image
         run: docker push b0pof/bizon-auth
       - name: Build profile
-        run: docker build -t b0pof/bizon-profile ./build/profile.Dockerfile .
+        run: docker build -t b0pof/bizon-profile -f ./build/profile.Dockerfile .
       - name: Push the image
         run: docker push b0pof/bizon-profile
   deploy:
