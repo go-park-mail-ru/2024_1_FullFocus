@@ -139,11 +139,6 @@ func MustInit() *App {
 
 	// Layers
 
-	// Profile
-	profileUsecase := usecase.NewProfileUsecase(profileClient)
-	profileHandler := delivery.NewProfileHandler(profileUsecase)
-	profileHandler.InitRouter(apiRouter)
-
 	// Auth
 	authUsecase := usecase.NewAuthUsecase(authClient, profileClient)
 	authHandler := delivery.NewAuthHandler(authUsecase, cfg.SessionTTL)
@@ -154,6 +149,11 @@ func MustInit() *App {
 	cartUsecase := usecase.NewCartUsecase(cartRepo)
 	cartHandler := delivery.NewCartHandler(cartUsecase)
 	cartHandler.InitRouter(apiRouter)
+
+	// Profile
+	profileUsecase := usecase.NewProfileUsecase(profileClient, cartRepo)
+	profileHandler := delivery.NewProfileHandler(profileUsecase)
+	profileHandler.InitRouter(apiRouter)
 
 	// Order
 	orderRepo := repository.NewOrderRepo(pgxClient)

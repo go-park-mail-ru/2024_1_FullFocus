@@ -40,8 +40,10 @@ type (
 	Profiles interface {
 		UpdateProfile(ctx context.Context, uID uint, newProfile models.ProfileUpdateInput) error
 		GetProfile(ctx context.Context, uID uint) (models.Profile, error)
+		GetProfileMetaInfo(ctx context.Context, uID uint) (models.ProfileMetaInfo, error)
 		CreateProfile(ctx context.Context, profile models.Profile) error
 	}
+
 	Carts interface {
 		GetAllCartItems(ctx context.Context, uID uint) (models.CartContent, error)
 		UpdateCartItem(ctx context.Context, uID, prID uint) (uint, error)
