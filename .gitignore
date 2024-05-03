@@ -5,6 +5,10 @@
 *.so
 *.dylib
 
+./bin/auth
+./bin/main
+./bin/profile
+
 # Test binary, built with `go test -c`
 *.test
 *.txt
