@@ -14,4 +14,5 @@ type ProfileClient interface {
 	GetProfileNamesByIDs(ctx context.Context, pIDs []uint) ([]string, error)
 	UpdateAvatarByProfileID(ctx context.Context, pID uint, avatarName string) (string, error)
 	UpdateProfile(ctx context.Context, pID uint, newProfile models.ProfileUpdateInput) error
+	GetProfileMetaInfo(ctx context.Context, uID uint) (models.ProfileMetaInfo, error)
 }

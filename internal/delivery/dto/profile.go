@@ -33,3 +33,17 @@ func ConvertProfileToProfileData(profile ProfileUpdateInput) model.ProfileUpdate
 		PhoneNumber: profile.PhoneNumber,
 	}
 }
+
+type ProfileMetaInfo struct {
+	FullName        string `json:"fullName"`
+	CartItemsAmount uint   `json:"cartItemsAmount"`
+	AvatarName      string `json:"avatarName"`
+}
+
+func ConvertProfileToMetaInfo(profile model.ProfileMetaInfo) ProfileMetaInfo {
+	return ProfileMetaInfo{
+		FullName:        profile.FullName,
+		CartItemsAmount: profile.CartItemsAmount,
+		AvatarName:      profile.AvatarName,
+	}
+}

@@ -10,6 +10,7 @@ service Profile {
   rpc CreateProfile(CreateProfileRequest) returns (google.protobuf.Empty) {}
   rpc GetProfileByID(GetProfileByIDRequest) returns (GetProfileByIDResponse) {}
   rpc GetProfileNamesByIDs(GetProfileNamesByIDsRequest) returns (GetProfileNamesByIDsResponse) {}
+  rpc GetProfileMetaInfo(GetProfileMetaInfoRequest) returns (GetProfileMetaInfoResponse) {}
   rpc GetAvatarByID(GetAvatarByIDRequest) returns (GetAvatarByIDResponse) {}
   rpc UpdateAvatarByProfileID(UpdateAvatarByProfileIDRequest) returns (UpdateAvatarByProfileIDResponse) {}
   rpc UpdateProfile(UpdateProfileRequest) returns (google.protobuf.Empty) {}
@@ -40,6 +41,15 @@ message GetProfileNamesByIDsRequest {
 
 message GetProfileNamesByIDsResponse {
   repeated string Names = 1;
+}
+
+message GetProfileMetaInfoRequest {
+  uint32 ProfileID = 1;
+}
+
+message GetProfileMetaInfoResponse {
+  string ProfileName = 1;
+  string AvatarName = 2;
 }
 
 message GetAvatarByIDRequest {

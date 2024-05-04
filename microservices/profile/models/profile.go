@@ -8,6 +8,11 @@ type Profile struct {
 	AvatarName  string
 }
 
+type ProfileMetaInfo struct {
+	FullName   string
+	AvatarName string
+}
+
 type ProfileUpdateInput struct {
 	FullName    string
 	Email       string

@@ -133,17 +133,7 @@ func MustInit() *App {
 		panic("csat service connection error: " + err.Error())
 	}
 
-	// csatConn, err := grpc.Dial(fmt.Sprintf("%s:%d", "localhost", 9090), grpc.WithTransportCredentials(insecure.NewCredentials()))
-	// if err != nil {
-	// 	panic(err)
-	// }
-
 	// Layers
-
-	// Profile
-	profileUsecase := usecase.NewProfileUsecase(profileClient)
-	profileHandler := delivery.NewProfileHandler(profileUsecase)
-	profileHandler.InitRouter(apiRouter)
 
 	// Auth
 	authUsecase := usecase.NewAuthUsecase(authClient, profileClient)
@@ -155,6 +145,11 @@ func MustInit() *App {
 	cartUsecase := usecase.NewCartUsecase(cartRepo)
 	cartHandler := delivery.NewCartHandler(cartUsecase)
 	cartHandler.InitRouter(apiRouter)
+
+	// Profile
+	profileUsecase := usecase.NewProfileUsecase(profileClient, cartRepo)
+	profileHandler := delivery.NewProfileHandler(profileUsecase)
+	profileHandler.InitRouter(apiRouter)
 
 	// Order
 	orderRepo := repository.NewOrderRepo(pgxClient)

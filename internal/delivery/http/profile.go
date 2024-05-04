@@ -29,6 +29,7 @@ func (h *ProfileHandler) InitRouter(r *mux.Router) {
 	{
 		h.router.Handle("/get", http.HandlerFunc(h.GetProfile)).Methods("GET", "OPTIONS")
 		h.router.Handle("/update", http.HandlerFunc(h.UpdateProfile)).Methods("GET", "POST", "OPTIONS")
+		h.router.Handle("/meta", http.HandlerFunc(h.GetProfileMetaInfo)).Methods("GET", "OPTIONS")
 	}
 }
 
@@ -65,6 +66,41 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
 		Data:   data,
+	})
+}
+
+func (h *ProfileHandler) GetProfileMetaInfo(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	uID, err := helper.GetUserIDFromContext(ctx)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 403,
+			Msg:    err.Error(),
+			MsgRus: "Пользователь не авторизован",
+		})
+		return
+	}
+	info, err := h.usecase.GetProfileMetaInfo(ctx, uID)
+	if err != nil {
+		if errors.Is(err, models.ErrNoProfile) {
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 400,
+				Msg:    err.Error(),
+				MsgRus: "Пользователь не найден",
+			})
+			return
+		}
+		logger.Error(ctx, err.Error())
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 500,
+			Msg:    "Internal error",
+			MsgRus: "Неизвестная ошибка",
+		})
+		return
+	}
+	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
+		Status: 200,
+		Data:   dto.ConvertProfileToMetaInfo(info),
 	})
 }
 

@@ -25,7 +25,7 @@ type (
 	}
 
 	Avatars interface {
-		GetAvatar(ctx context.Context, profileID uint) (models.Avatar, error)
+		GetAvatar(ctx context.Context, fileName string) (models.Avatar, error)
 		UploadAvatar(ctx context.Context, profileID uint, img models.Avatar) error
 		DeleteAvatar(ctx context.Context, uID uint) error
 	}
@@ -40,6 +40,7 @@ type (
 	Profiles interface {
 		UpdateProfile(ctx context.Context, uID uint, newProfile models.ProfileUpdateInput) error
 		GetProfile(ctx context.Context, uID uint) (models.Profile, error)
+		GetProfileMetaInfo(ctx context.Context, uID uint) (models.ProfileMetaInfo, error)
 		CreateProfile(ctx context.Context, profile models.Profile) error
 	}
 
