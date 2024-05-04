@@ -13,6 +13,7 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/profile/models"
 )
 
+//go:generate mockgen -source=server.go -destination=../usecase/mocks/usecase_mock.go
 type Profile interface {
 	UpdateProfile(ctx context.Context, uID uint, newProfile models.ProfileUpdateInput) error
 	GetProfile(ctx context.Context, uID uint) (models.Profile, error)

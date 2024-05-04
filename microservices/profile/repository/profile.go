@@ -46,6 +46,9 @@ func (r *Repo) GetProfileNamesByIDs(ctx context.Context, pIDs []uint) ([]string,
 		logger.Error(ctx, err.Error())
 		return nil, models.ErrNoProfile
 	}
+	if len(pIDs) != len(names) {
+		return nil, models.ErrNoProfile
+	}
 	return names, nil
 }
 

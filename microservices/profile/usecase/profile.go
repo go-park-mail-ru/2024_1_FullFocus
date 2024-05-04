@@ -7,6 +7,7 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/profile/models"
 )
 
+//go:generate mockgen -source=profile.go -destination=../repository/mocks/repository_mock.go
 type Profile interface {
 	CreateProfile(ctx context.Context, profile models.Profile) error
 	GetProfile(ctx context.Context, uID uint) (models.Profile, error)
