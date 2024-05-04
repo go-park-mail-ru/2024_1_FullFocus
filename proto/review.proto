@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package review;
+option go_package = "github.com/go-park-mail-ru/2024_1_FullFocus/microservices/review/delivery/gen;gen";
+import "google/protobuf/empty.proto";
+
+// protoc --go_out=../gen/review/ --go_opt=paths=source_relative --go-grpc_out=../gen/review/ --go-grpc_opt=paths=source_relative review.proto
+
+service Review {
+  rpc CreateProductReview(CreateProductReviewRequest) returns (google.protobuf.Empty) {}
+  rpc GetProductReviews(GetProductReviewsRequest) returns (GetProductReviewsResponse) {}
+}
+
+message CreateProductReviewRequest {
+  uint32 ProfileID = 1;
+  uint32 ProductID = 2;
+  uint32 Rating = 3;
+  string Advantages = 4;
+  string Disadvantages = 5;
+  string Comment = 6;
+}
+
+message GetProductReviewsRequest {
+  uint32 ProductID = 1;
+  uint32 LastReviewID = 2;
+  uint32 Limit = 3;
+}
+
+message GetProductReviewsResponse {
+  repeated ProductReview reviews = 1;
+}
+
+message ProductReview {
+  uint32 ReviewID = 1;
+  string AuthorName = 2;
+  string AuthorAvatar = 3;
+  uint32 Rating = 4;
+  string Advantages = 5;
+  string Disadvantages = 6;
+  string Comment = 7;
+  string CreatedAt = 8;
+}
