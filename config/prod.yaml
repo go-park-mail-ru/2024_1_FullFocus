@@ -36,7 +36,7 @@ csat:
     timeout: 5s
   postgres:
     host: "postgres-csat"
-    port: "5433"
+    port: "5432"
     user: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
     database: "csat"

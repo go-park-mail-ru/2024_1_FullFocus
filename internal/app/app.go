@@ -13,7 +13,7 @@ import (
 	"github.com/gorilla/mux"
 
 	authclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/auth/grpc"
-	csatClient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/csat/grpc"
+	csatclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/csat/grpc"
 	profileclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/profile/grpc"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
@@ -128,7 +128,7 @@ func MustInit() *App {
 	ctx, cancel = context.WithTimeout(context.Background(), _connTimeout)
 	defer cancel()
 
-	csatClient, err := csatClient.New(ctx, log, cfg.Main.Clients.CSATClient)
+	csatClient, err := csatclient.New(ctx, log, cfg.Main.Clients.CSATClient)
 	if err != nil {
 		panic("csat service connection error: " + err.Error())
 	}
