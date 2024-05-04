@@ -5,9 +5,7 @@
 *.so
 *.dylib
 
-./bin/auth
-./bin/main
-./bin/profile
+./bin
 
 # Test binary, built with `go test -c`
 *.test
