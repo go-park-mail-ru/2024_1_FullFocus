@@ -4,7 +4,7 @@ DB_NAME=ozon
 
 LOCAL_COMPOSE=docker-compose.local.yaml
 
-ALLOWED_TARGETS := main auth profile
+ALLOWED_TARGETS := main auth profile csat
 TARGET ?= main
 
 ifndef TARGET
