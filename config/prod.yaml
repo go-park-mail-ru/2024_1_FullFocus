@@ -32,7 +32,7 @@ profile:
     timeout: 5s
 csat:
   server:
-    port: "9092"
+    port: "9093"
     timeout: 5s
   postgres:
     host: "postgres-csat"
