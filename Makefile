@@ -1,6 +1,8 @@
 DB_HOST=127.0.0.1
 DB_PORT=5432
+CSAT_DB_PORT=5433
 DB_NAME=ozon
+CSAT_DB_NAME=csat
 
 LOCAL_COMPOSE=docker-compose.local.yaml
 
@@ -20,6 +22,7 @@ include .env
 endif
 
 DB_DSN="postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable"
+CSAT_DB_DSN="postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(DB_HOST):$(CSAT_DB_PORT)/$(CSAT_DB_NAME)?sslmode=disable"
 
 .PHONY: setup
 setup: ## Установить все необходимые утилиты
@@ -27,12 +30,26 @@ setup: ## Установить все необходимые утилиты
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.57.1
 
 .PHONY: migrations-up
-migrations-up: ## Накатить миграции
-	goose -dir db/migrations postgres $(DB_DSN) up
-
+migrations-up: migrations-main-up migrations-csat-up ## Накатить миграции
+	
 .PHONY: migrations-down
-migrations-down: ## Откатить миграции
-	goose -dir db/migrations postgres $(DB_DSN) down
+migrations-down: migrations-main-down migrations-csat-down  ## Откатить миграции 
+
+.PHONY: migrations-main-up
+migrations-main-up: ## Накатить миграции основной бд
+	goose -dir db/migrations/main postgres $(DB_DSN) up
+
+.PHONY: migrations-main-down
+migrations-main-down: ## Откатить миграции основной бд
+	goose -dir db/migrations/main postgres $(DB_DSN) down
+
+.PHONY: migrations-csat-up
+migrations-csat-up: ## Накатить миграции csat бд
+	goose -dir db/migrations/csat postgres $(CSAT_DB_DSN) up
+
+.PHONY: migrations-csat-down
+migrations-csat-down: ## Откатить миграции csat бд
+	goose -dir db/migrations/csat postgres $(CSAT_DB_DSN) down
 
 .PHONY: migration-create
 migration-create: ## Пример команды для создания миграции
