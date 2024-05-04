@@ -17,7 +17,7 @@ main:
       retries: 3
       retry_timeout: 2s
     csat:
-      addr: "bizon-csat:9092"
+      addr: "bizon-csat:9093"
       retries: 3
       retry_timeout: 2s
 auth:
