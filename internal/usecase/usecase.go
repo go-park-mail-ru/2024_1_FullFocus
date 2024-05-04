@@ -14,6 +14,7 @@ type (
 		GetUserIDBySessionID(ctx context.Context, sID string) (uint, error)
 		Logout(ctx context.Context, sID string) error
 		IsLoggedIn(ctx context.Context, isID string) bool
+		UpdatePassword(ctx context.Context, userID uint, password string, newPassword string) error
 	}
 
 	Products interface {
@@ -24,7 +25,7 @@ type (
 	}
 
 	Avatars interface {
-		GetAvatar(ctx context.Context, profileID uint) (models.Avatar, error)
+		GetAvatar(ctx context.Context, fileName string) (models.Avatar, error)
 		UploadAvatar(ctx context.Context, profileID uint, img models.Avatar) error
 		DeleteAvatar(ctx context.Context, uID uint) error
 	}
@@ -39,8 +40,10 @@ type (
 	Profiles interface {
 		UpdateProfile(ctx context.Context, uID uint, newProfile models.ProfileUpdateInput) error
 		GetProfile(ctx context.Context, uID uint) (models.Profile, error)
-		CreateProfile(ctx context.Context, profile models.Profile) (uint, error)
+		GetProfileMetaInfo(ctx context.Context, uID uint) (models.ProfileMetaInfo, error)
+		CreateProfile(ctx context.Context, profile models.Profile) error
 	}
+
 	Carts interface {
 		GetAllCartItems(ctx context.Context, uID uint) (models.CartContent, error)
 		UpdateCartItem(ctx context.Context, uID, prID uint) (uint, error)

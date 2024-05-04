@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 )
 
 var ErrHijackAssertion = errors.New("type assertion to http.Hijacker failed")

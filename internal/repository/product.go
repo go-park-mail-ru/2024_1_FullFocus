@@ -6,8 +6,8 @@ import (
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/dao"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 )
 
 type ProductRepo struct {
@@ -38,10 +38,10 @@ func (r *ProductRepo) GetAllProductCards(ctx context.Context, input models.GetAl
 		 ORDER BY pi.id DESC
 		 OFFSET ?
 		 LIMIT ?;`
-	offset := input.PageNum * input.PageSize
+	offset := (input.PageNum - 1) * input.PageSize
 	var products []dao.ProductCard
 	if err := r.storage.Select(ctx, &products, q, input.ProfileID, offset, input.PageSize); err != nil {
-		logger.Info(ctx, "error while selecting: "+err.Error())
+		logger.Info(ctx, err.Error())
 		return nil, models.ErrNoRowsFound
 	}
 	return dao.ConvertProductCardsFromTable(products), nil

@@ -7,6 +7,7 @@ type Profile struct {
 	FullName    string `json:"fullName"`
 	Email       string `json:"email"`
 	PhoneNumber string `json:"phoneNumber"`
+	AvatarName  string `json:"avatarName"`
 }
 
 func ConvertProfileDataToProfile(profile model.Profile) Profile {
@@ -15,6 +16,7 @@ func ConvertProfileDataToProfile(profile model.Profile) Profile {
 		FullName:    profile.FullName,
 		Email:       profile.Email,
 		PhoneNumber: profile.PhoneNumber,
+		AvatarName:  profile.AvatarName,
 	}
 }
 
@@ -29,5 +31,19 @@ func ConvertProfileToProfileData(profile ProfileUpdateInput) model.ProfileUpdate
 		FullName:    profile.FullName,
 		Email:       profile.Email,
 		PhoneNumber: profile.PhoneNumber,
+	}
+}
+
+type ProfileMetaInfo struct {
+	FullName        string `json:"fullName"`
+	CartItemsAmount uint   `json:"cartItemsAmount"`
+	AvatarName      string `json:"avatarName"`
+}
+
+func ConvertProfileToMetaInfo(profile model.ProfileMetaInfo) ProfileMetaInfo {
+	return ProfileMetaInfo{
+		FullName:        profile.FullName,
+		CartItemsAmount: profile.CartItemsAmount,
+		AvatarName:      profile.AvatarName,
 	}
 }

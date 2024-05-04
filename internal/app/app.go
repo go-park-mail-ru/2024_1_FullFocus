@@ -12,19 +12,21 @@ import (
 
 	"github.com/gorilla/mux"
 
+	authclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/auth/grpc"
+	csatclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/csat/grpc"
+	profileclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/profile/grpc"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
 	elasticsetup "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/elasticsearch"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware"
 	miniosetup "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/minio"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/server"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/elasticsearch"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/minio"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/postgres"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/redis"
 )
 
 const (
@@ -57,19 +59,6 @@ func MustInit() *App {
 		http.Error(w, `Not found`, 404)
 	})
 
-	// Middleware
-
-	r.Use(middleware.NewLoggingMiddleware(log))
-	r.Use(middleware.NewCORSMiddleware([]string{}))
-
-	// Redis
-
-	redisClient := redis.NewClient(cfg.Redis)
-
-	if err := redisClient.Ping().Err(); err != nil {
-		panic("redis error: " + err.Error())
-	}
-
 	// Minio
 
 	minioClient, err := minio.NewClient(cfg.Minio)
@@ -86,6 +75,7 @@ func MustInit() *App {
 
 	ctx, cancel := context.WithTimeout(context.Background(), _connTimeout)
 	defer cancel()
+
 	pgxClient, err := postgres.NewPgxDatabase(ctx, cfg.Postgres)
 	if err != nil {
 		panic("postgres connection error: " + err.Error())
@@ -110,32 +100,56 @@ func MustInit() *App {
 		panic("elasticsearch init data error: " + err.Error())
 	}
 
-	// Server init
-	srv := server.NewServer(cfg.Server, r)
+	// Server
+
+	srv := server.NewServer(cfg.Main.Server, r)
+
+	// Clients
+
+	// Auth
+	ctx, cancel = context.WithTimeout(context.Background(), _connTimeout)
+	defer cancel()
+
+	authClient, err := authclient.New(ctx, log, cfg.Main.Clients.AuthClient)
+	if err != nil {
+		panic("auth service connection error: " + err.Error())
+	}
+
+	// Profile
+	ctx, cancel = context.WithTimeout(context.Background(), _connTimeout)
+	defer cancel()
+
+	profileClient, err := profileclient.New(ctx, log, cfg.Main.Clients.ProfileClient)
+	if err != nil {
+		panic("profile service connection error: " + err.Error())
+	}
+
+	// CSAT
+	ctx, cancel = context.WithTimeout(context.Background(), _connTimeout)
+	defer cancel()
+
+	csatClient, err := csatclient.New(ctx, log, cfg.Main.Clients.CSATClient)
+	if err != nil {
+		panic("csat service connection error: " + err.Error())
+	}
 
 	// Layers
 
-	// Profile
-	profileRepo := repository.NewProfileRepo(pgxClient)
-	profileUsecase := usecase.NewProfileUsecase(profileRepo)
-	profileHandler := delivery.NewProfileHandler(profileUsecase)
-	profileHandler.InitRouter(apiRouter)
-
 	// Auth
-	userRepo := repository.NewUserRepo(pgxClient)
-	sessionRepo := repository.NewSessionRepo(redisClient, cfg.SessionTTL)
-	authUsecase := usecase.NewAuthUsecase(userRepo, sessionRepo, profileRepo)
+	authUsecase := usecase.NewAuthUsecase(authClient, profileClient)
 	authHandler := delivery.NewAuthHandler(authUsecase, cfg.SessionTTL)
 	authHandler.InitRouter(apiRouter)
-
-	// Auth Middleware
-	r.Use(middleware.NewAuthMiddleware(authUsecase))
 
 	// Cart
 	cartRepo := repository.NewCartRepo(pgxClient)
 	cartUsecase := usecase.NewCartUsecase(cartRepo)
 	cartHandler := delivery.NewCartHandler(cartUsecase)
 	cartHandler.InitRouter(apiRouter)
+
+	// Profile
+	profileUsecase := usecase.NewProfileUsecase(profileClient, cartRepo)
+	profileHandler := delivery.NewProfileHandler(profileUsecase)
+	profileHandler.InitRouter(apiRouter)
 
 	// Order
 	orderRepo := repository.NewOrderRepo(pgxClient)
@@ -145,7 +159,7 @@ func MustInit() *App {
 
 	// Avatar
 	avatarStorage := repository.NewAvatarStorage(minioClient, cfg.Minio)
-	avatarUsecase := usecase.NewAvatarUsecase(avatarStorage, profileRepo)
+	avatarUsecase := usecase.NewAvatarUsecase(avatarStorage, profileClient)
 	avatarHandler := delivery.NewAvatarHandler(avatarUsecase)
 	avatarHandler.InitRouter(apiRouter)
 
@@ -172,6 +186,16 @@ func MustInit() *App {
 	suggestUsecase := usecase.NewSuggestUsecase(suggestRepo)
 	suggestHandler := delivery.NewSuggestHandler(suggestUsecase)
 	suggestHandler.InitRouter(apiRouter)
+
+	// CSAT
+	csatUsecase := usecase.NewCsatUsecase(csatClient)
+	csatHandler := delivery.NewCsatHandler(csatUsecase)
+	csatHandler.InitRouter(apiRouter)
+
+	// Middleware
+	r.Use(middleware.NewLoggingMiddleware(log))
+	r.Use(middleware.NewCORSMiddleware([]string{}))
+	r.Use(middleware.NewAuthMiddleware(authClient))
 
 	return &App{
 		config: cfg,

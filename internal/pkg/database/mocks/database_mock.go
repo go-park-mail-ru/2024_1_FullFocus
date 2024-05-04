@@ -119,18 +119,18 @@ func (mr *MockDatabaseMockRecorder) GetRawDB() *gomock.Call {
 }
 
 // NamedExec mocks base method.
-func (m *MockDatabase) NamedExec(ctx context.Context, query string, arg interface{}) (sql.Result, error) {
+func (m *MockDatabase) NamedExec(ctx context.Context, q string, arg interface{}) (sql.Result, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "NamedExec", ctx, query, arg)
+	ret := m.ctrl.Call(m, "NamedExec", ctx, q, arg)
 	ret0, _ := ret[0].(sql.Result)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // NamedExec indicates an expected call of NamedExec.
-func (mr *MockDatabaseMockRecorder) NamedExec(ctx, query, arg interface{}) *gomock.Call {
+func (mr *MockDatabaseMockRecorder) NamedExec(ctx, q, arg interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NamedExec", reflect.TypeOf((*MockDatabase)(nil).NamedExec), ctx, query, arg)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NamedExec", reflect.TypeOf((*MockDatabase)(nil).NamedExec), ctx, q, arg)
 }
 
 // Select mocks base method.

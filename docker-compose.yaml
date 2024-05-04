@@ -1,15 +1,69 @@
 version: '3.8'
 
 services:
-  main-app:
-    #  restart: always
+  bizon-auth:
+    image: b0pof/bizon-auth
+    environment:
+      - CONFIG_PATH=./config/prod.yaml
+    ports:
+      - '9091:9091'
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "echo -n '' > /dev/tcp/127.0.0.1/9091" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    volumes:
+      - '${PWD}/.env:/project/.env'
+      - '${PWD}/logs:/project/logs'
+      - '${PWD}/config:/project/config'
+    networks:
+      - services_data_access_network
+  bizon-profile:
+    image: b0pof/bizon-profile
+    environment:
+      - CONFIG_PATH=./config/prod.yaml
+    ports:
+      - '9092:9092'
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "echo -n '' > /dev/tcp/127.0.0.1/9092" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    volumes:
+      - '${PWD}/.env:/project/.env'
+      - '${PWD}/logs:/project/logs'
+      - '${PWD}/config:/project/config'
+    networks:
+      - services_data_access_network
+  bizon-csat:
+    image: b0pof/bizon-csat
+    environment:
+     - CONFIG_PATH=./config/prod.yaml
+    ports:
+     - '9093:9093'
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "echo -n '' > /dev/tcp/127.0.0.1/9093" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    volumes:
+     - '${PWD}/.env:/project/.env'
+     - '${PWD}/logs:/project/logs'
+     - '${PWD}/config:/project/config'
+    networks:
+     - services_data_access_network
+  bizon-main:
     image: b0pof/bizon-main
+    depends_on:
+      - bizon-auth
+      - bizon-profile
+      # - bizon-csat
     environment:
       - CONFIG_PATH=./config/prod.yaml
     ports:
       - '8080:8080'
     healthcheck:
-      test: ["CMD", "bash", "-c", "echo -n '' > /dev/tcp/127.0.0.1/8080"]
+      test: [ "CMD", "bash", "-c", "echo -n '' > /dev/tcp/127.0.0.1/8080" ]
       interval: 30s
       timeout: 20s
       retries: 3

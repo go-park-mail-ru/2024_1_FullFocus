@@ -5,6 +5,13 @@ type Profile struct {
 	FullName    string
 	Email       string
 	PhoneNumber string
+	AvatarName  string
+}
+
+type ProfileMetaInfo struct {
+	FullName        string
+	CartItemsAmount uint
+	AvatarName      string
 }
 
 type ProfileUpdateInput struct {
