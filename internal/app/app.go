@@ -13,6 +13,7 @@ import (
 	"github.com/gorilla/mux"
 
 	authclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/auth/grpc"
+	csatClient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/csat/grpc"
 	profileclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/profile/grpc"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
@@ -106,7 +107,6 @@ func MustInit() *App {
 	// Clients
 
 	// Auth
-
 	ctx, cancel = context.WithTimeout(context.Background(), _connTimeout)
 	defer cancel()
 
@@ -116,7 +116,6 @@ func MustInit() *App {
 	}
 
 	// Profile
-
 	ctx, cancel = context.WithTimeout(context.Background(), _connTimeout)
 	defer cancel()
 
@@ -126,16 +125,18 @@ func MustInit() *App {
 	}
 
 	// CSAT
+	ctx, cancel = context.WithTimeout(context.Background(), _connTimeout)
+	defer cancel()
+
+	csatClient, err := csatClient.New(ctx, log, cfg.Main.Clients.CSATClient)
+	if err != nil {
+		panic("csat service connection error: " + err.Error())
+	}
 
 	// csatConn, err := grpc.Dial(fmt.Sprintf("%s:%d", "localhost", 9090), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	// if err != nil {
 	// 	panic(err)
 	// }
-
-	// csatClient := gen.NewCSATClient(csatConn)
-	// csatUsecase := usecase.NewCsatUsecase(csatClient)
-	// csatHandler := delivery.NewCsatHandler(csatUsecase)
-	// csatHandler.InitRouter(apiRouter)
 
 	// Layers
 
@@ -191,8 +192,12 @@ func MustInit() *App {
 	suggestHandler := delivery.NewSuggestHandler(suggestUsecase)
 	suggestHandler.InitRouter(apiRouter)
 
-	// Middleware
+	// CSAT
+	csatUsecase := usecase.NewCsatUsecase(csatClient)
+	csatHandler := delivery.NewCsatHandler(csatUsecase)
+	csatHandler.InitRouter(apiRouter)
 
+	// Middleware
 	r.Use(middleware.NewLoggingMiddleware(log))
 	r.Use(middleware.NewCORSMiddleware([]string{}))
 	r.Use(middleware.NewAuthMiddleware(authClient))

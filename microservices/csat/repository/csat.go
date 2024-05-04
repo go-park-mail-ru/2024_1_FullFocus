@@ -18,7 +18,7 @@ type CSATRepo struct {
 	storage db.Database
 }
 
-func NewCSATRepo(st db.Database) *CSATRepo {
+func NewRepo(st db.Database) *CSATRepo {
 	return &CSATRepo{
 		storage: st,
 	}

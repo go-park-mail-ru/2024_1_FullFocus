@@ -23,4 +23,6 @@ var (
 	ErrInternal             = errors.New("internal server error")
 	ErrNoReviews            = errors.New("no reviews found")
 	ErrReviewAlreadyExists  = errors.New("review exists")
+	ErrNoPolls              = errors.New("no polls found")
+	ErrPollAlreadyRated     = errors.New("poll is already rated")
 )

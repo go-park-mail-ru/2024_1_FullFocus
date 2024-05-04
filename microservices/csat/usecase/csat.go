@@ -16,7 +16,7 @@ type CSATUsecase struct {
 	csatRepo csats
 }
 
-func NewCSATUsecase(r csats) *CSATUsecase {
+func NewUsecase(r csats) *CSATUsecase {
 	return &CSATUsecase{
 		csatRepo: r,
 	}

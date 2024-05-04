@@ -3,59 +3,28 @@ package usecase
 import (
 	"context"
 
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/csat"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-	grpc "github.com/go-park-mail-ru/2024_1_FullFocus/microservices/csat/delivery/gen"
 )
 
 type CsatUsecase struct {
-	client grpc.CSATClient
+	client csat.CsatClient
 }
 
-func NewCsatUsecase(c grpc.CSATClient) *CsatUsecase {
+func NewCsatUsecase(c csat.CsatClient) *CsatUsecase {
 	return &CsatUsecase{
 		client: c,
 	}
 }
 
 func (u *CsatUsecase) CreatePollRate(ctx context.Context, input models.CreatePollRateInput) error {
-	_, err := u.client.CreatePollRate(ctx, &grpc.CreatePollRateRequest{
-		ProfileID: uint32(input.ProfileID),
-		PollID:    uint32(input.PollID),
-		Rate:      uint32(input.Rate),
-	})
-	return err
+	return u.client.CreatePollRate(ctx, input)
 }
 
 func (u *CsatUsecase) GetPolls(ctx context.Context, userID uint) ([]models.Poll, error) {
-	res, err := u.client.GetPolls(ctx, &grpc.GetPollsRequest{
-		ProfileID: uint32(userID),
-	})
-	if err != nil {
-		return nil, err
-	}
-	var polls []models.Poll
-	for _, p := range res.Polls {
-		polls = append(polls, models.Poll{
-			ID:    uint(p.Id),
-			Title: p.Title,
-			Voted: p.Voted,
-		})
-	}
-	return polls, nil
+	return u.client.GetAllPolls(ctx, userID)
 }
 
 func (u *CsatUsecase) GetPollStats(ctx context.Context, pollID uint) (models.PollStats, error) {
-	res, err := u.client.GetPollStats(ctx, &grpc.GetPollStatsRequest{
-		PollID: uint32(pollID),
-	})
-	if err != nil {
-		return models.PollStats{}, err
-	}
-	stats := models.PollStats{
-		Title:   res.PollName,
-		Rates:   res.Rates,
-		Amount:  res.Amount,
-		Above70: res.Above70,
-	}
-	return stats, nil
+	return u.client.GetPollStats(ctx, pollID)
 }

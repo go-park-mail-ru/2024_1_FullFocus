@@ -3,8 +3,8 @@ package usecase
 import (
 	"context"
 
-	authgrpc "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/auth/grpc"
-	profilegrpc "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/profile/grpc"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/auth"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/profile"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/pkg/errors"
@@ -23,11 +23,11 @@ const (
 )
 
 type AuthUsecase struct {
-	authClient    *authgrpc.Client
-	profileClient *profilegrpc.Client
+	authClient    auth.AuthClient
+	profileClient profile.ProfileClient
 }
 
-func NewAuthUsecase(ac *authgrpc.Client, pc *profilegrpc.Client) *AuthUsecase {
+func NewAuthUsecase(ac auth.AuthClient, pc profile.ProfileClient) *AuthUsecase {
 	return &AuthUsecase{
 		authClient:    ac,
 		profileClient: pc,

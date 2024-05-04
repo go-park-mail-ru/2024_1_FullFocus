@@ -4,17 +4,17 @@ import (
 	"context"
 	"html"
 
-	profilegrpc "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/profile/grpc"
+	profile "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/profile"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/pkg/errors"
 )
 
 type ProfileUsecase struct {
-	profileClient *profilegrpc.Client
+	profileClient profile.ProfileClient
 }
 
-func NewProfileUsecase(pr *profilegrpc.Client) *ProfileUsecase {
+func NewProfileUsecase(pr profile.ProfileClient) *ProfileUsecase {
 	return &ProfileUsecase{
 		profileClient: pr,
 	}
