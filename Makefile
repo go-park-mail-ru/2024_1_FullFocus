@@ -1,6 +1,6 @@
-DB_HOST=127.0.0.1
-DB_PORT=5432
-DB_NAME=ozon
+DB_HOST := 127.0.0.1
+DB_PORT := 5432
+DB_NAME := postgres
 
 LOCAL_COMPOSE=docker-compose.local.yaml
 
@@ -15,6 +15,16 @@ ifeq (,$(filter $(TARGET),$(ALLOWED_TARGETS)))
     $(error Неверная цель "$(TARGET)". Доступные параметры: $(ALLOWED_TARGETS))
 endif
 
+ifeq ($(TARGET),main)
+    DB_PORT := 5432
+    DB_NAME := ozon
+endif
+
+ifeq ($(TARGET),csat)
+    DB_PORT := 5433
+    DB_NAME := csat
+endif
+
 ifneq ("$(wildcard .env)","")
 include .env
 endif
@@ -27,16 +37,16 @@ setup: ## Установить все необходимые утилиты
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.57.1
 
 .PHONY: migrations-up
-migrations-up: ## Накатить миграции
-	goose -dir db/migrations postgres $(DB_DSN) up
+migrations-up: ## Накатить миграции (TARGET=db_name)
+	goose -dir db/migrations/$(TARGET) postgres $(DB_DSN) up
 
 .PHONY: migrations-down
-migrations-down: ## Откатить миграции
-	goose -dir db/migrations postgres $(DB_DSN) down
+migrations-down: ## Откатить миграции (TARGET=db_name)
+	goose -dir db/migrations/$(TARGET) postgres $(DB_DSN) down
 
 .PHONY: migration-create
 migration-create: ## Пример команды для создания миграции
-	@echo "goose -dir migrations create <add_some_column> sql"
+	@echo "goose -dir db/migrations/<db> create <add_some_column> sql"
 
 .PHONY: run-prod
 run-prod: ## Запустить прод
@@ -57,7 +67,7 @@ stop-all: ## Остановить все контейнеры
 	docker compose -f docker-compose.local.yaml down
 
 .PHONY: build
-build: ## Сбилдить бинарь приложения
+build: ## Сбилдить бинарь приложения (TARGET=binary_name)
 	go build -o ./bin/$(TARGET) ./cmd/$(TARGET)/main.go
 
 .PHONY: lint

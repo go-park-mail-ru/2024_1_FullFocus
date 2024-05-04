@@ -41,7 +41,7 @@ services:
     volumes:
       - 'postgres-data:/var/lib/postgresql/data'
     ports:
-      - '5432:5432'
+      - '5433:5432'
     user: postgres
     environment:
       - POSTGRES_DB=ozon
@@ -59,10 +59,10 @@ services:
     volumes:
      - 'postgres-data-csat:/var/lib/postgresql/data'
     ports:
-     - '5433:5432'
+     - '5432:5432'
     user: postgres
     environment:
-     - POSTGRES_DB=ozon
+     - POSTGRES_DB=csat
      - POSTGRES_PASSWORD=postgres
     healthcheck:
      test: pg_isready

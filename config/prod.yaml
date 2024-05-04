@@ -36,7 +36,7 @@ csat:
     timeout: 5s
   postgres:
     host: "postgres-csat"
-    port: "5433"
+    port: "5432"
     user: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
     database: "csat"
@@ -55,7 +55,7 @@ minio:
   avatar_bucket: "avatars"
 postgres:
   host: "postgres-main"
-  port: "5432"
+  port: "5433"
   user: ${POSTGRES_USER}
   password: ${POSTGRES_PASSWORD}
   database: "ozon"
