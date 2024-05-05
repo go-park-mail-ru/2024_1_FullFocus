@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"errors"
-	"log"
 	"strings"
 
 	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
@@ -35,7 +34,6 @@ func (r *CSATRepo) GetAllPolls(ctx context.Context, profileID uint) ([]models.Po
 
 	polls := make([]dao.PollTable, 0)
 	if err := r.storage.Select(ctx, &polls, q, profileID); err != nil {
-		log.Println(err)
 		logger.Error(ctx, err.Error())
 		return []models.Poll{}, commonError.ErrInternal
 	}

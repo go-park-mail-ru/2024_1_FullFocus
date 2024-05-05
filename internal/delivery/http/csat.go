@@ -30,7 +30,7 @@ func (h *CsatHandler) InitRouter(r *mux.Router) {
 	{
 		h.router.Handle("/vote", http.HandlerFunc(h.CreatePollRate)).Methods("POST", "OPTIONS")
 		h.router.Handle("/all", http.HandlerFunc(h.GetPolls)).Methods("GET", "OPTIONS")
-		h.router.Handle("/{id}", http.HandlerFunc(h.GetPollStats)).Methods("GET", "OPTIONS")
+		h.router.Handle("/{id:[1-9]+[0-9]*}", http.HandlerFunc(h.GetPollStats)).Methods("GET", "OPTIONS")
 	}
 }
 
