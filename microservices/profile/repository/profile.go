@@ -71,7 +71,7 @@ func (r *Repo) GetProfileNamesAvatarsByIDs(ctx context.Context, pIDs []uint) ([]
 	profileData := make([]dao.ProfileNameAvatar, 0)
 	if err := r.storage.Select(ctx, &profileData, q, pIDs); err != nil {
 		logger.Error(ctx, err.Error())
-		return nil, models.ErrNoProfile
+		return nil, models.ErrInternal
 	}
 	if len(pIDs) != len(profileData) {
 		return nil, models.ErrNoProfile
