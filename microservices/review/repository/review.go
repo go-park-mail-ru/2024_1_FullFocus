@@ -18,7 +18,7 @@ type ReviewRepo struct {
 	storage db.Database
 }
 
-func NewReviewRepo(st db.Database) *ReviewRepo {
+func NewRepo(st db.Database) *ReviewRepo {
 	return &ReviewRepo{
 		storage: st,
 	}
@@ -42,11 +42,11 @@ func (r *ReviewRepo) GetProductReviews(ctx context.Context, input models.GetProd
 	return dao.ConvertReviewsToModels(reviews), nil
 }
 
-func (r *ReviewRepo) CreateProductReview(ctx context.Context, uID uint, input models.ProductReview) error {
+func (r *ReviewRepo) CreateProductReview(ctx context.Context, input models.CreateProductReviewInput) error {
 	q := `INSERT INTO review(profile_id, product_id, rating, comments, advantages, disadvantages)
 	VALUES($1, $2, $3, $4, $5, $6);`
 
-	if _, err := r.storage.Exec(ctx, q, uID, input.ProductID, input.Rating, input.Comment, input.Advanatages, input.Disadvantages); err != nil {
+	if _, err := r.storage.Exec(ctx, q, input.ProfileID, input.ProductID, input.Rating, input.Comment, input.Advanatages, input.Disadvantages); err != nil {
 		logger.Info(ctx, "Error:"+err.Error())
 		var sqlErr *pgconn.PgError
 		if errors.As(err, &sqlErr) {
