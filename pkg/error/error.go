@@ -6,4 +6,5 @@ var (
 	ErrInternal      = errors.New("internal server error")
 	ErrAlreadyExists = errors.New("already exists")
 	ErrNotFound      = errors.New("not found")
+	ErrInvalidInput  = errors.New("invalid input")
 )

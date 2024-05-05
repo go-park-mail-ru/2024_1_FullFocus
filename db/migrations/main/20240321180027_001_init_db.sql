@@ -103,6 +103,7 @@ CREATE TABLE cart_item (
 -- ozon.review definition
 
 CREATE TABLE review (
+	id bigint GENERATED ALWAYS AS IDENTITY,
 	profile_id int NOT NULL REFERENCES user_profile(id) ON DELETE NO ACTION ON UPDATE CASCADE,
 	product_id int NOT NULL REFERENCES product(id) ON DELETE CASCADE ON UPDATE CASCADE,
 	rating int2 NOT null CHECK (rating >= 1 AND rating <= 5),

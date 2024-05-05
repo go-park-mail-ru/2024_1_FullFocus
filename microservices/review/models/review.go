@@ -1,16 +1,5 @@
 package models
 
-type ProductReview struct {
-	ReviewID      uint
-	AuthorName    string
-	AuthorAvatar  string
-	CreatedAt     string
-	Rating        uint
-	Advanatages   string
-	Disadvantages string
-	Comment       string
-}
-
 type ProductReviewData struct {
 	ReviewID      uint
 	ProfileID     uint
@@ -24,19 +13,13 @@ type ProductReviewData struct {
 type GetProductReviewsInput struct {
 	ProductID    uint
 	LastReviewID uint
-	PageSize     uint
-	Sorting      SortType
-}
-
-type GetProductReviewsDataInput struct {
-	ProductID    uint
-	LastReviewID uint
-	PageSize     uint
+	Limit        uint
 	SortingQuery string
 }
 
 type CreateProductReviewInput struct {
 	ProductID     uint
+	ProfileID     uint
 	Rating        uint
 	Advanatages   string
 	Disadvantages string

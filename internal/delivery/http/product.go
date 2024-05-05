@@ -30,8 +30,9 @@ func (h *ProductHandler) InitRouter(r *mux.Router) {
 	{
 		h.router.Handle("", http.HandlerFunc(h.GetProducts)).Methods("GET", "OPTIONS")
 		h.router.Handle("/search", http.HandlerFunc(h.GetProductsByQuery)).Methods("GET", "OPTIONS")
-		h.router.Handle("/{id}", http.HandlerFunc(h.GetProductByID)).Methods("GET", "OPTIONS")
-		h.router.Handle("/category/{id}", http.HandlerFunc(h.GetProductsByCategoryID)).Methods("GET", "OPTIONS")
+		h.router.Handle("/{id:[1-9]+[0-9]*}", http.HandlerFunc(h.GetProductByID)).Methods("GET", "OPTIONS")
+		h.router.Handle("/category/{id:[1-9]+[0-9]*}", http.HandlerFunc(h.GetProductsByCategoryID)).Methods("GET", "OPTIONS")
+		h.router.Handle("/sorting", http.HandlerFunc(h.GetProductSortingTypes)).Methods("GET", "OPTIONS")
 	}
 }
 
@@ -56,10 +57,20 @@ func (h *ProductHandler) GetProducts(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	sortingData, err := helper.GetSortParams(r)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 400,
+			Msg:    "invalid sortID value",
+			MsgRus: "Невалидный параметр сортировки",
+		})
+		return
+	}
 	getProductsInput := models.GetAllProductsInput{
 		ProfileID: uID,
 		PageNum:   uint(pageNum),
 		PageSize:  uint(pageSize),
+		Sorting:   sortingData,
 	}
 	products, err := h.usecase.GetAllProductCards(ctx, getProductsInput)
 	if err != nil {
@@ -152,11 +163,21 @@ func (h *ProductHandler) GetProductsByCategoryID(w http.ResponseWriter, r *http.
 		})
 		return
 	}
+	sortingData, err := helper.GetSortParams(r)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 400,
+			Msg:    "invalid sortID value",
+			MsgRus: "Невалидный параметр сортировки",
+		})
+		return
+	}
 	getProductsInput := models.GetProductsByCategoryIDInput{
 		CategoryID: uint(categoryID),
 		ProfileID:  uID,
 		PageNum:    uint(pageNum),
 		PageSize:   uint(pageSize),
+		Sorting:    sortingData,
 	}
 	products, err := h.usecase.GetProductsByCategoryID(ctx, getProductsInput)
 	if err != nil {
@@ -233,5 +254,12 @@ func (h *ProductHandler) GetProductsByQuery(w http.ResponseWriter, r *http.Reque
 	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
 		Data:   data,
+	})
+}
+
+func (h *ProductHandler) GetProductSortingTypes(w http.ResponseWriter, r *http.Request) {
+	helper.JSONResponse(r.Context(), w, 200, dto.SuccessResponse{
+		Status: 200,
+		Data:   dto.ConvertSortTypesToDTO(helper.GetProductSortTypes()),
 	})
 }
