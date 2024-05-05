@@ -8,5 +8,5 @@ import (
 
 type ReviewClient interface {
 	CreateProductReview(ctx context.Context, uID uint, input models.CreateProductReviewInput) error
-	GetProductReviews(ctx context.Context, input models.GetProductReviewsInput) ([]models.ProductReviewData, error)
+	GetProductReviews(ctx context.Context, input models.GetProductReviewsDataInput) ([]models.ProductReviewData, error)
 }

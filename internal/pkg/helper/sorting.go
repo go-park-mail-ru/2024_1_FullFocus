@@ -58,9 +58,9 @@ func GetReviewSortTypes() []models.SortType {
 	return sorting[3:]
 }
 
-func ApplySorting(q string, sorting models.SortType) string {
-	if sorting.ID != 0 {
-		return fmt.Sprintf(q, "ORDER BY "+sorting.QueryPart)
+func ApplySorting(q string, sorting string) string {
+	if sorting != "" {
+		return fmt.Sprintf(q, "ORDER BY "+sorting)
 	}
 	return fmt.Sprintf(q, "")
 }

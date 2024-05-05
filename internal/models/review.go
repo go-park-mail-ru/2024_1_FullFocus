@@ -25,6 +25,14 @@ type GetProductReviewsInput struct {
 	ProductID    uint
 	LastReviewID uint
 	PageSize     uint
+	Sorting      SortType
+}
+
+type GetProductReviewsDataInput struct {
+	ProductID    uint
+	LastReviewID uint
+	PageSize     uint
+	SortingQuery string
 }
 
 type CreateProductReviewInput struct {

@@ -14,6 +14,7 @@ type GetProductReviewsInput struct {
 	ProductID    uint
 	LastReviewID uint
 	Limit        uint
+	SortingQuery string
 }
 
 type CreateProductReviewInput struct {

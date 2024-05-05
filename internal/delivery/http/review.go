@@ -28,6 +28,7 @@ func (h *ReviewHandler) InitRouter(r *mux.Router) {
 	{
 		h.router.Handle("/public/v1/{productID:[1-9]+[0-9]*}", http.HandlerFunc(h.GetProductReviews)).Methods("GET", "OPTIONS")
 		h.router.Handle("/v1/new", http.HandlerFunc(h.CreateProductReview)).Methods("POST", "OPTIONS")
+		h.router.Handle("/public/v1/sorting", http.HandlerFunc(h.GetReviewSortingTypes)).Methods("GET", "OPTIONS")
 	}
 }
 
@@ -42,7 +43,16 @@ func (h *ReviewHandler) GetProductReviews(w http.ResponseWriter, r *http.Request
 		})
 		return
 	}
-
+	sortingData, err := helper.GetSortParams(r)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 400,
+			Msg:    "invalid limit value",
+			MsgRus: "Невалидный параметр сортировки",
+		})
+		return
+	}
+	input.Sorting = sortingData
 	reviews, err := h.reviewUsecase.GetProductReviews(ctx, input)
 	switch {
 	case errors.Is(err, models.ErrInternal):
@@ -122,5 +132,12 @@ func (h *ReviewHandler) CreateProductReview(w http.ResponseWriter, r *http.Reque
 
 	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 201,
+	})
+}
+
+func (h *ReviewHandler) GetReviewSortingTypes(w http.ResponseWriter, r *http.Request) {
+	helper.JSONResponse(r.Context(), w, 200, dto.SuccessResponse{
+		Status: 200,
+		Data:   dto.ConvertSortTypesToDTO(helper.GetReviewSortTypes()),
 	})
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 
 	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/review/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/review/repository/dao"
 	commonError "github.com/go-park-mail-ru/2024_1_FullFocus/pkg/error"
@@ -28,10 +29,10 @@ func (r *ReviewRepo) GetProductReviews(ctx context.Context, input models.GetProd
 	q := `SELECT id, profile_id, rating, DATE(created_at) AS created_at, comments, advantages, disadvantages
 	FROM review
 	WHERE product_id = $1
-	ORDER BY created_at 
+	%s 
 	LIMIT $2 OFFSET $3;`
-
 	reviews := make([]dao.ProductReviewTable, 0)
+	q = helper.ApplySorting(q, input.SortingQuery)
 	if err := r.storage.Select(ctx, &reviews, q, input.ProductID, input.Limit, input.LastReviewID); err != nil {
 		logger.Info(ctx, "Error:"+err.Error())
 		return nil, commonError.ErrInternal

@@ -58,6 +58,7 @@ func (s *serverAPI) GetProductReviews(ctx context.Context, r *reviewv1.GetProduc
 		ProductID:    uint(r.GetProductID()),
 		LastReviewID: uint(r.GetLastReviewID()),
 		Limit:        uint(r.GetLimit()),
+		SortingQuery: r.GetSortingQuery(),
 	})
 	if err != nil {
 		if errors.Is(err, models.ErrNoReviews) {

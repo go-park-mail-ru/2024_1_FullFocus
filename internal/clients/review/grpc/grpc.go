@@ -77,11 +77,12 @@ func (c *Client) CreateProductReview(ctx context.Context, uID uint, input models
 	}
 }
 
-func (c *Client) GetProductReviews(ctx context.Context, input models.GetProductReviewsInput) ([]models.ProductReviewData, error) {
+func (c *Client) GetProductReviews(ctx context.Context, input models.GetProductReviewsDataInput) ([]models.ProductReviewData, error) {
 	reviewsResp, err := c.api.GetProductReviews(ctx, &reviewv1.GetProductReviewsRequest{
 		ProductID:    uint32(input.ProductID),
 		LastReviewID: uint32(input.LastReviewID),
 		Limit:        uint32(input.PageSize),
+		SortingQuery: input.SortingQuery,
 	})
 	st, ok := status.FromError(err)
 	if !ok {

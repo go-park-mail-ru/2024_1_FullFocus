@@ -21,6 +21,7 @@ message GetProductReviewsRequest {
   uint32 ProductID = 1;
   uint32 LastReviewID = 2;
   uint32 Limit = 3;
+  string SortingQuery = 4;
 }
 
 message GetProductReviewsResponse {
