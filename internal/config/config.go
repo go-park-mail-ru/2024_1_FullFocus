@@ -18,6 +18,7 @@ type Config struct {
 	Auth          Auth                `yaml:"auth"`
 	Profile       Profile             `yaml:"profile"`
 	CSAT          CSAT                `yaml:"csat"`
+	Review        Review              `yaml:"review"`
 	Minio         MinioConfig         `yaml:"minio"`
 	Postgres      PostgresConfig      `yaml:"postgres"`
 	Elasticsearch ElasticsearchConfig `yaml:"elasticsearch"`
@@ -40,6 +41,7 @@ type ClientsConfig struct {
 	AuthClient    ClientConfig `yaml:"auth"`
 	ProfileClient ClientConfig `yaml:"profile"`
 	CSATClient    ClientConfig `yaml:"csat"`
+	ReviewClient  ClientConfig `yaml:"review"`
 }
 
 type ClientConfig struct {
@@ -75,6 +77,12 @@ type Profile struct {
 type CSAT struct {
 	Server   GRPCServer     `yaml:"server"`
 	Postgres PostgresConfig `yaml:"postgres"`
+}
+
+// Review service
+
+type Review struct {
+	Server GRPCServer `yaml:"server"`
 }
 
 // Data storage

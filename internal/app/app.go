@@ -15,6 +15,7 @@ import (
 	authclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/auth/grpc"
 	csatclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/csat/grpc"
 	profileclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/profile/grpc"
+	reviewclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/review/grpc"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
 	elasticsetup "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/elasticsearch"
@@ -133,6 +134,15 @@ func MustInit() *App {
 		panic("csat service connection error: " + err.Error())
 	}
 
+	// Review
+	ctx, cancel = context.WithTimeout(context.Background(), _connTimeout)
+	defer cancel()
+
+	reviewClient, err := reviewclient.New(ctx, log, cfg.Main.Clients.ReviewClient)
+	if err != nil {
+		panic("csat service connection error: " + err.Error())
+	}
+
 	// Layers
 
 	// Auth
@@ -170,8 +180,7 @@ func MustInit() *App {
 	categoryHandler.InitRouter(apiRouter)
 
 	// Reviews
-	reviewRepo := repository.NewReviewRepo(pgxClient)
-	reviewUsecase := usecase.NewReviewUsecase(reviewRepo)
+	reviewUsecase := usecase.NewReviewUsecase(profileClient, reviewClient)
 	reviewHandler := delivery.NewReviewHandler(reviewUsecase)
 	reviewHandler.InitRouter(apiRouter)
 

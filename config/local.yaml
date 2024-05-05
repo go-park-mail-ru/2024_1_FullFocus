@@ -20,6 +20,10 @@ main:
       addr: "localhost:9093"
       retries: 3
       retry_timeout: 2s
+    review:
+      addr: "localhost:9094"
+      retries: 3
+      retry_timeout: 2s
 auth:
   server:
     port: "9091"
@@ -44,6 +48,10 @@ csat:
     search_path: "csat"
     max_open_conns: 10
     max_idle_time: 10
+review:
+  server:
+    port: "9094"
+    timeout: 5s
 
 # Data
 minio:
