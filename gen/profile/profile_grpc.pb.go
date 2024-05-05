@@ -20,14 +20,15 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Profile_CreateProfile_FullMethodName           = "/profile.Profile/CreateProfile"
-	Profile_GetProfileByID_FullMethodName          = "/profile.Profile/GetProfileByID"
-	Profile_GetProfileNamesByIDs_FullMethodName    = "/profile.Profile/GetProfileNamesByIDs"
-	Profile_GetProfileMetaInfo_FullMethodName      = "/profile.Profile/GetProfileMetaInfo"
-	Profile_GetAvatarByID_FullMethodName           = "/profile.Profile/GetAvatarByID"
-	Profile_UpdateAvatarByProfileID_FullMethodName = "/profile.Profile/UpdateAvatarByProfileID"
-	Profile_UpdateProfile_FullMethodName           = "/profile.Profile/UpdateProfile"
-	Profile_DeleteAvatarByProfileID_FullMethodName = "/profile.Profile/DeleteAvatarByProfileID"
+	Profile_CreateProfile_FullMethodName               = "/profile.Profile/CreateProfile"
+	Profile_GetProfileByID_FullMethodName              = "/profile.Profile/GetProfileByID"
+	Profile_GetProfileNamesByIDs_FullMethodName        = "/profile.Profile/GetProfileNamesByIDs"
+	Profile_GetProfileMetaInfo_FullMethodName          = "/profile.Profile/GetProfileMetaInfo"
+	Profile_GetAvatarByID_FullMethodName               = "/profile.Profile/GetAvatarByID"
+	Profile_UpdateAvatarByProfileID_FullMethodName     = "/profile.Profile/UpdateAvatarByProfileID"
+	Profile_UpdateProfile_FullMethodName               = "/profile.Profile/UpdateProfile"
+	Profile_DeleteAvatarByProfileID_FullMethodName     = "/profile.Profile/DeleteAvatarByProfileID"
+	Profile_GetProfileNamesAvatarsByIDs_FullMethodName = "/profile.Profile/GetProfileNamesAvatarsByIDs"
 )
 
 // ProfileClient is the client API for Profile service.
@@ -42,6 +43,7 @@ type ProfileClient interface {
 	UpdateAvatarByProfileID(ctx context.Context, in *UpdateAvatarByProfileIDRequest, opts ...grpc.CallOption) (*UpdateAvatarByProfileIDResponse, error)
 	UpdateProfile(ctx context.Context, in *UpdateProfileRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	DeleteAvatarByProfileID(ctx context.Context, in *DeleteAvatarByProfileIDRequest, opts ...grpc.CallOption) (*DeleteAvatarByProfileIDResponse, error)
+	GetProfileNamesAvatarsByIDs(ctx context.Context, in *GetProfileNamesAvatarsRequest, opts ...grpc.CallOption) (*GetProfileNamesAvatarsResponse, error)
 }
 
 type profileClient struct {
@@ -124,6 +126,15 @@ func (c *profileClient) DeleteAvatarByProfileID(ctx context.Context, in *DeleteA
 	return out, nil
 }
 
+func (c *profileClient) GetProfileNamesAvatarsByIDs(ctx context.Context, in *GetProfileNamesAvatarsRequest, opts ...grpc.CallOption) (*GetProfileNamesAvatarsResponse, error) {
+	out := new(GetProfileNamesAvatarsResponse)
+	err := c.cc.Invoke(ctx, Profile_GetProfileNamesAvatarsByIDs_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProfileServer is the server API for Profile service.
 // All implementations must embed UnimplementedProfileServer
 // for forward compatibility
@@ -136,6 +147,7 @@ type ProfileServer interface {
 	UpdateAvatarByProfileID(context.Context, *UpdateAvatarByProfileIDRequest) (*UpdateAvatarByProfileIDResponse, error)
 	UpdateProfile(context.Context, *UpdateProfileRequest) (*empty.Empty, error)
 	DeleteAvatarByProfileID(context.Context, *DeleteAvatarByProfileIDRequest) (*DeleteAvatarByProfileIDResponse, error)
+	GetProfileNamesAvatarsByIDs(context.Context, *GetProfileNamesAvatarsRequest) (*GetProfileNamesAvatarsResponse, error)
 	mustEmbedUnimplementedProfileServer()
 }
 
@@ -166,6 +178,9 @@ func (UnimplementedProfileServer) UpdateProfile(context.Context, *UpdateProfileR
 }
 func (UnimplementedProfileServer) DeleteAvatarByProfileID(context.Context, *DeleteAvatarByProfileIDRequest) (*DeleteAvatarByProfileIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteAvatarByProfileID not implemented")
+}
+func (UnimplementedProfileServer) GetProfileNamesAvatarsByIDs(context.Context, *GetProfileNamesAvatarsRequest) (*GetProfileNamesAvatarsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetProfileNamesAvatarsByIDs not implemented")
 }
 func (UnimplementedProfileServer) mustEmbedUnimplementedProfileServer() {}
 
@@ -324,6 +339,24 @@ func _Profile_DeleteAvatarByProfileID_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Profile_GetProfileNamesAvatarsByIDs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetProfileNamesAvatarsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProfileServer).GetProfileNamesAvatarsByIDs(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Profile_GetProfileNamesAvatarsByIDs_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProfileServer).GetProfileNamesAvatarsByIDs(ctx, req.(*GetProfileNamesAvatarsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Profile_ServiceDesc is the grpc.ServiceDesc for Profile service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -362,6 +395,10 @@ var Profile_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DeleteAvatarByProfileID",
 			Handler:    _Profile_DeleteAvatarByProfileID_Handler,
+		},
+		{
+			MethodName: "GetProfileNamesAvatarsByIDs",
+			Handler:    _Profile_GetProfileNamesAvatarsByIDs_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

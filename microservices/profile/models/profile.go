@@ -18,3 +18,8 @@ type ProfileUpdateInput struct {
 	Email       string
 	PhoneNumber string
 }
+
+type ProfileNameAvatar struct {
+	FullName   string
+	AvatarName string
+}

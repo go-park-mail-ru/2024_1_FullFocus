@@ -19,6 +19,7 @@ type Profile interface {
 	GetProfile(ctx context.Context, uID uint) (models.Profile, error)
 	GetProfileNamesByIDs(ctx context.Context, pIDs []uint) ([]string, error)
 	GetProfileMetaInfo(ctx context.Context, pID uint) (models.ProfileMetaInfo, error)
+	GetProfileNamesAvatarsByIDs(ctx context.Context, pIDs []uint) ([]models.ProfileNameAvatar, error)
 	CreateProfile(ctx context.Context, profile models.Profile) error
 	UpdateAvatarByProfileID(ctx context.Context, uID uint, imgSrc string) (string, error)
 	GetAvatarByProfileID(ctx context.Context, uID uint) (string, error)
@@ -105,6 +106,30 @@ func (s *serverAPI) GetAvatarByID(ctx context.Context, r *profilev1.GetAvatarByI
 	}
 	return &profilev1.GetAvatarByIDResponse{
 		AvatarName: avatar,
+	}, status.Error(codes.OK, "")
+}
+
+func (s *serverAPI) GetProfileNamesAvatarsByIDs(ctx context.Context, r *profilev1.GetProfileNamesAvatarsRequest) (*profilev1.GetProfileNamesAvatarsResponse, error) {
+	pIDs := make([]uint, 0)
+	for _, id := range r.GetProfileIDs() {
+		pIDs = append(pIDs, uint(id))
+	}
+	resp, err := s.usecase.GetProfileNamesAvatarsByIDs(ctx, pIDs)
+	if err != nil {
+		if errors.Is(err, models.ErrNoProfile) {
+			return nil, status.Error(codes.NotFound, err.Error())
+		}
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	data := make([]*profilev1.ProfileNameAvatar, 0)
+	for _, r := range resp {
+		data = append(data, &profilev1.ProfileNameAvatar{
+			Name:   r.FullName,
+			Avatar: r.AvatarName,
+		})
+	}
+	return &profilev1.GetProfileNamesAvatarsResponse{
+		Data: data,
 	}, status.Error(codes.OK, "")
 }
 

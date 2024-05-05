@@ -213,3 +213,32 @@ func (c *Client) DeleteAvatarByProfileID(ctx context.Context, pID uint) (string,
 		return "", st.Err()
 	}
 }
+
+func (c *Client) GetProfileNamesAvatarsByIDs(ctx context.Context, pIDs []uint) ([]models.ProfileNameAvatar, error) {
+	var pIDs32 []uint32
+	for _, pID := range pIDs {
+		pIDs32 = append(pIDs32, uint32(pID))
+	}
+	resp, err := c.api.GetProfileNamesAvatarsByIDs(ctx, &profilev1.GetProfileNamesAvatarsRequest{
+		ProfileIDs: pIDs32,
+	})
+	st, ok := status.FromError(err)
+	if !ok {
+		return nil, err
+	}
+	switch st.Code() {
+	case codes.OK:
+		data := make([]models.ProfileNameAvatar, 0)
+		for _, r := range resp.GetData() {
+			data = append(data, models.ProfileNameAvatar{
+				FullName:   r.GetName(),
+				AvatarName: r.GetAvatar(),
+			})
+		}
+		return data, nil
+	case codes.NotFound:
+		return nil, models.ErrNoProfile
+	default:
+		return nil, st.Err()
+	}
+}

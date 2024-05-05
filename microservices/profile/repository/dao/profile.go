@@ -33,3 +33,23 @@ func ConvertProfileMetaInfo(info ProfileMetaInfo) models.ProfileMetaInfo {
 		AvatarName: info.AvatarName,
 	}
 }
+
+type ProfileNameAvatar struct {
+	FullName   string `db:"full_name"`
+	AvatarName string `db:"imgsrc"`
+}
+
+func ConvertProfileNameAvatarToModel(t ProfileNameAvatar) models.ProfileNameAvatar {
+	return models.ProfileNameAvatar{
+		FullName:   t.FullName,
+		AvatarName: t.AvatarName,
+	}
+}
+
+func ConvertProfileNamesAvatarsToModels(tt []ProfileNameAvatar) []models.ProfileNameAvatar {
+	data := make([]models.ProfileNameAvatar, 0)
+	for _, t := range tt {
+		data = append(data, ConvertProfileNameAvatarToModel(t))
+	}
+	return data
+}

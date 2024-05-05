@@ -63,6 +63,22 @@ func (r *Repo) GetProfileMetaInfo(ctx context.Context, pID uint) (models.Profile
 	return dao.ConvertProfileMetaInfo(info), nil
 }
 
+func (r *Repo) GetProfileNamesAvatarsByIDs(ctx context.Context, pIDs []uint) ([]models.ProfileNameAvatar, error) {
+	q := `SELECT full_name, imgsrc
+	FROM user_profile
+	WHERE id = ANY (?);`
+
+	profileData := make([]dao.ProfileNameAvatar, 0)
+	if err := r.storage.Select(ctx, &profileData, q, pIDs); err != nil {
+		logger.Error(ctx, err.Error())
+		return nil, models.ErrInternal
+	}
+	if len(pIDs) != len(profileData) {
+		return nil, models.ErrNoProfile
+	}
+	return dao.ConvertProfileNamesAvatarsToModels(profileData), nil
+}
+
 func (r *Repo) UpdateProfile(ctx context.Context, uID uint, profileNew models.ProfileUpdateInput) error {
 	q := `UPDATE user_profile SET full_name = ?, email = ?, phone_number = ? WHERE id = ? RETURNING id;`
 	_, err := r.storage.Exec(ctx, q,

@@ -15,6 +15,7 @@ service Profile {
   rpc UpdateAvatarByProfileID(UpdateAvatarByProfileIDRequest) returns (UpdateAvatarByProfileIDResponse) {}
   rpc UpdateProfile(UpdateProfileRequest) returns (google.protobuf.Empty) {}
   rpc DeleteAvatarByProfileID(DeleteAvatarByProfileIDRequest) returns (DeleteAvatarByProfileIDResponse) {}
+  rpc GetProfileNamesAvatarsByIDs(GetProfileNamesAvatarsRequest) returns (GetProfileNamesAvatarsResponse) {}
 }
 
 message CreateProfileRequest {
@@ -82,4 +83,17 @@ message DeleteAvatarByProfileIDRequest {
 
 message DeleteAvatarByProfileIDResponse {
   string PrevAvatarName = 1;
+}
+
+message GetProfileNamesAvatarsRequest {
+  repeated uint32 ProfileIDs = 1;
+}
+
+message GetProfileNamesAvatarsResponse {
+  repeated ProfileNameAvatar data = 1;
+}
+
+message ProfileNameAvatar {
+  string Name = 1;
+  string Avatar = 2;
 }

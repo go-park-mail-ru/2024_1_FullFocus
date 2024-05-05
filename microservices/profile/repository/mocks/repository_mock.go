@@ -109,6 +109,21 @@ func (mr *MockProfileMockRecorder) GetProfileMetaInfo(ctx, pID interface{}) *gom
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfileMetaInfo", reflect.TypeOf((*MockProfile)(nil).GetProfileMetaInfo), ctx, pID)
 }
 
+// GetProfileNamesAvatarsByIDs mocks base method.
+func (m *MockProfile) GetProfileNamesAvatarsByIDs(ctx context.Context, pIDs []uint) ([]models.ProfileNameAvatar, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetProfileNamesAvatarsByIDs", ctx, pIDs)
+	ret0, _ := ret[0].([]models.ProfileNameAvatar)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetProfileNamesAvatarsByIDs indicates an expected call of GetProfileNamesAvatarsByIDs.
+func (mr *MockProfileMockRecorder) GetProfileNamesAvatarsByIDs(ctx, pIDs interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfileNamesAvatarsByIDs", reflect.TypeOf((*MockProfile)(nil).GetProfileNamesAvatarsByIDs), ctx, pIDs)
+}
+
 // GetProfileNamesByIDs mocks base method.
 func (m *MockProfile) GetProfileNamesByIDs(ctx context.Context, pIDs []uint) ([]string, error) {
 	m.ctrl.T.Helper()
