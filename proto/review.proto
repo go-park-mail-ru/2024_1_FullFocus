@@ -12,12 +12,7 @@ service Review {
 }
 
 message CreateProductReviewRequest {
-  uint32 ProfileID = 1;
-  uint32 ProductID = 2;
-  uint32 Rating = 3;
-  string Advantages = 4;
-  string Disadvantages = 5;
-  string Comment = 6;
+  ProductReviewData reviewData = 1;
 }
 
 message GetProductReviewsRequest {
@@ -31,12 +26,15 @@ message GetProductReviewsResponse {
 }
 
 message ProductReview {
+  ProductReviewData reviewData = 1;
+  string CreatedAt = 2;
+}
+
+message ProductReviewData {
   uint32 ReviewID = 1;
-  string AuthorName = 2;
-  string AuthorAvatar = 3;
-  uint32 Rating = 4;
-  string Advantages = 5;
-  string Disadvantages = 6;
-  string Comment = 7;
-  string CreatedAt = 8;
+  uint32 ProfileID = 2;
+  uint32 Rating = 3;
+  string Advantages = 4;
+  string Disadvantages = 5;
+  string Comment = 6;
 }
