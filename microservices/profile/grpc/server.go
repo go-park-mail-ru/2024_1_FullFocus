@@ -1,4 +1,4 @@
-package authgrpc
+package profilegrpc
 
 import (
 	"context"

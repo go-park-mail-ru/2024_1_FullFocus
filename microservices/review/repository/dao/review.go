@@ -1,10 +1,10 @@
 package dao
 
-import "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+import "github.com/go-park-mail-ru/2024_1_FullFocus/microservices/review/models"
 
 type ProductReviewTable struct {
-	ProfileName   string `db:"full_name"`
-	ProfileAvatar string `db:"imgsrc"`
+	ReviewID      uint   `db:"id"`
+	ProfileID     uint   `db:"profile_id"`
 	Rating        uint   `db:"rating"`
 	CreatedAt     string `db:"created_at"`
 	Comment       string `db:"comments"`
@@ -12,12 +12,12 @@ type ProductReviewTable struct {
 	Disadvantages string `db:"disadvantages"`
 }
 
-func ConvertReviewsToModels(tt []ProductReviewTable) []models.ProductReview {
-	productReviews := make([]models.ProductReview, 0)
+func ConvertReviewsToModels(tt []ProductReviewTable) []models.ProductReviewData {
+	productReviews := make([]models.ProductReviewData, 0)
 	for _, t := range tt {
-		productReviews = append(productReviews, models.ProductReview{
-			AuthorName:    t.ProfileName,
-			AuthorAvatar:  t.ProfileAvatar,
+		productReviews = append(productReviews, models.ProductReviewData{
+			ReviewID:      t.ReviewID,
+			ProfileID:     t.ProfileID,
 			Rating:        t.Rating,
 			CreatedAt:     t.CreatedAt,
 			Comment:       t.Comment,

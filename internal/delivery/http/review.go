@@ -105,6 +105,19 @@ func (h *ReviewHandler) CreateProductReview(w http.ResponseWriter, r *http.Reque
 			MsgRus: "Отзыв на этот товар от этого пользователя уже существует",
 		})
 		return
+	case errors.Is(err, models.ErrInvalidField):
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 400,
+			Msg:    err.Error(),
+			MsgRus: "Некорректные параметры",
+		})
+		return
+	case errors.Is(err, models.ErrInternal):
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 500,
+			Msg:    err.Error(),
+		})
+		return
 	}
 
 	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{

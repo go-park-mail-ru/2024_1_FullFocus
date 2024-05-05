@@ -38,8 +38,8 @@ type CreateReviewInput struct {
 	Disadvantages string `json:"disadvantages"`
 }
 
-func ConvertCreateReviewInputToModel(d CreateReviewInput) models.ProductReview {
-	return models.ProductReview{
+func ConvertCreateReviewInputToModel(d CreateReviewInput) models.CreateProductReviewInput {
+	return models.CreateProductReviewInput{
 		ProductID:     d.ProductID,
 		Rating:        d.Rating,
 		Comment:       d.Comment,
