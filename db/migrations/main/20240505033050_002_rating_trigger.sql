@@ -25,7 +25,9 @@ EXECUTE FUNCTION update_product_rating();
 -- +goose Down
 -- +goose StatementBegin
 
-DROP TRIGGER update_product_rating_trigger;
+SET search_path TO ozon, public;
+
+DROP TRIGGER update_product_rating_trigger ON review;
 DROP FUNCTION update_product_rating;
 
 -- +goose StatementEnd
