@@ -31,10 +31,13 @@ func (r *AuthRepo) GetUserIDBySessionID(ctx context.Context, sID string) (uint, 
 
 func (r *AuthRepo) SessionExists(ctx context.Context, sID string) bool {
 	start := time.Now()
-	_, err := r.redis.Get(sID).Uint64()
-	logger.Info(ctx, fmt.Sprintf("session checked in %s", time.Since(start)))
+	uID, err := r.redis.Get(sID).Uint64()
 	if err != nil {
 		logger.Info(ctx, err.Error())
+		return false
+	}
+	logger.Info(ctx, fmt.Sprintf("session checked in %s", time.Since(start)))
+	if uID == 0 {
 		return false
 	}
 	return true

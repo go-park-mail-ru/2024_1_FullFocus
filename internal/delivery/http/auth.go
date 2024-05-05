@@ -181,24 +181,15 @@ func (h *AuthHandler) CheckAuth(w http.ResponseWriter, r *http.Request) {
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 401,
 			Msg:    "no session",
-			MsgRus: "авторизация отсутствует",
+			MsgRus: "Авторизация отсутствует",
 		})
 		return
 	}
 	if !h.usecase.IsLoggedIn(ctx, session.Value) {
-		if errors.Is(err, models.ErrNoSession) {
-			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-				Status: 401,
-				Msg:    err.Error(),
-				MsgRus: "авторизация отсутствует",
-			})
-			return
-		}
-		logger.Error(ctx, err.Error())
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 500,
-			Msg:    "Internal error",
-			MsgRus: "Неизвестная ошибка",
+			Status: 401,
+			Msg:    "no session",
+			MsgRus: "Авторизация отсутствует",
 		})
 		return
 	}
