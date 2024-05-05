@@ -1,10 +1,50 @@
 package models
 
+type ProductCard struct {
+	ID     uint
+	Name   string
+	Price  uint
+	ImgSrc string
+	Seller string
+	Rating uint
+	InCart bool
+}
+
 type Product struct {
-	PrID        uint   `json:"id"`
-	Name        string `json:"name"`
-	Price       uint   `json:"price"`
-	Category    string `json:"category"`
-	Description string `json:"description"`
-	Img         string `json:"img-link"`
+	ID          uint
+	Name        string
+	Description string
+	Price       uint
+	ImgSrc      string
+	Seller      string
+	Rating      uint
+	InCart      bool
+	Categories  []string
+}
+
+type GetAllProductsInput struct {
+	ProfileID uint
+	PageNum   uint
+	PageSize  uint
+	Sorting   SortType
+}
+
+type GetProductsByQueryInput struct {
+	Query     string
+	ProfileID uint
+	PageNum   uint
+	PageSize  uint
+}
+
+type GetProductsByCategoryIDInput struct {
+	CategoryID uint
+	ProfileID  uint
+	PageNum    uint
+	PageSize   uint
+	Sorting    SortType
+}
+
+type GetProductsByCategoryIDPayload struct {
+	CategoryName string
+	Products     []ProductCard
 }

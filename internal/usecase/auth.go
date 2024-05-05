@@ -1,71 +1,114 @@
 package usecase
 
 import (
-	"crypto/md5"
-	"encoding/hex"
-	"log"
-	"strconv"
+	"context"
 
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/auth"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/profile"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
-	passwordvalidator "github.com/wagslane/go-password-validator"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
+	"github.com/pkg/errors"
+)
+
+const (
+	_minLoginLength    = 4
+	_maxLoginLength    = 32
+	_minPasswordLength = 8
+	_maxPasswordLength = 32
+)
+
+const (
+	_defaultEmail       = "yourawesome@mail.ru"
+	_defaultPhoneNumber = "70000000000"
 )
 
 type AuthUsecase struct {
-	userRepo    repository.Users
-	sessionRepo repository.Sessions
+	authClient    auth.AuthClient
+	profileClient profile.ProfileClient
 }
 
-func NewAuthUsecase(ur repository.Users, sr repository.Sessions) *AuthUsecase {
+func NewAuthUsecase(ac auth.AuthClient, pc profile.ProfileClient) *AuthUsecase {
 	return &AuthUsecase{
-		userRepo:    ur,
-		sessionRepo: sr,
+		authClient:    ac,
+		profileClient: pc,
 	}
 }
 
-func (u *AuthUsecase) Login(login string, password string) (string, error) {
-	user, err := u.userRepo.GetUser(login)
+func (u *AuthUsecase) Login(ctx context.Context, login string, password string) (string, error) {
+	if err := helper.ValidateField(login, _minLoginLength, _maxLoginLength); err != nil {
+		return "", helper.NewValidationError("invalid login input",
+			"Логин должен содержать от 4 до 32 букв английского алфавита или цифр")
+	}
+	if err := helper.ValidateField(password, _minPasswordLength, _maxPasswordLength); err != nil {
+		return "", helper.NewValidationError("invalid password input",
+			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
+	}
+	sID, err := u.authClient.Login(ctx, login, password)
 	if err != nil {
+		if errors.Is(err, models.ErrInvalidField) {
+			return "", helper.NewValidationError("invalid input",
+				"Невалидные данные")
+		}
 		return "", err
 	}
-	if password != user.Password {
-		return "", models.ErrWrongPassword
-	}
-	return u.sessionRepo.CreateSession(user.ID), nil
+	return sID, nil
 }
 
-func (u *AuthUsecase) Signup(login string, password string) (string, string, error) {
-	const passwordStrength = 50
-	switch {
-	case len(login) < 5:
-		return "", "", models.ErrShortUsername
-	case passwordvalidator.Validate(password, passwordStrength) != nil:
-		return "", "", models.ErrWeakPassword
+func (u *AuthUsecase) Signup(ctx context.Context, login string, password string) (string, error) {
+	if err := helper.ValidateField(login, _minLoginLength, _maxLoginLength); err != nil {
+		return "", helper.NewValidationError("invalid login input",
+			"Логин должен содержать от 4 до 32 букв английского алфавита или цифр")
 	}
-	user := models.User{
-		Username: login,
-		Password: password,
+	if err := helper.ValidateField(password, _minPasswordLength, _maxPasswordLength); err != nil {
+		return "", helper.NewValidationError("invalid password input",
+			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
 	}
-	uID, err := u.userRepo.CreateUser(user)
+	uID, sID, err := u.authClient.Signup(ctx, login, password)
 	if err != nil {
-		return "", "", err
+		if errors.Is(err, models.ErrInvalidField) {
+			return "", helper.NewValidationError("invalid input",
+				"Невалидные данные")
+		}
+		return "", err
 	}
-	sID := u.sessionRepo.CreateSession(uID)
-
-	uIDHash := md5.Sum([]byte(strconv.Itoa(int(uID))))
-	stringUID := hex.EncodeToString(uIDHash[:])
-	log.Printf("User ID hash: %s", stringUID)
-	return sID, stringUID, nil
+	if err = u.profileClient.CreateProfile(ctx, models.Profile{
+		ID:          uID,
+		FullName:    login,
+		Email:       _defaultEmail,
+		PhoneNumber: _defaultPhoneNumber,
+	}); err != nil {
+		return "", err
+	}
+	return sID, nil
 }
 
-func (u *AuthUsecase) GetUserIDBySessionID(sID string) (uint, error) {
-	return u.sessionRepo.GetUserIDBySessionID(sID)
+func (u *AuthUsecase) GetUserIDBySessionID(ctx context.Context, sID string) (uint, error) {
+	uID, err := u.authClient.GetUserIDBySessionID(ctx, sID)
+	if err != nil {
+		return 0, err
+	}
+	return uID, nil
 }
 
-func (u *AuthUsecase) Logout(sID string) error {
-	return u.sessionRepo.DeleteSession(sID)
+func (u *AuthUsecase) Logout(ctx context.Context, sID string) error {
+	return u.authClient.Logout(ctx, sID)
 }
 
-func (u *AuthUsecase) IsLoggedIn(sID string) bool {
-	return u.sessionRepo.SessionExists(sID)
+func (u *AuthUsecase) IsLoggedIn(ctx context.Context, sID string) bool {
+	return u.authClient.CheckAuth(ctx, sID)
+}
+
+func (u *AuthUsecase) UpdatePassword(ctx context.Context, userID uint, password string, newPassword string) error {
+	if err := helper.ValidateField(newPassword, _minPasswordLength, _maxPasswordLength); err != nil {
+		return helper.NewValidationError("invalid new password input",
+			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
+	}
+	if err := u.authClient.UpdatePassword(ctx, userID, password, newPassword); err != nil {
+		if errors.Is(err, models.ErrInvalidField) {
+			return helper.NewValidationError("invalid input",
+				"Невалидные данные")
+		}
+		return err
+	}
+	return nil
 }

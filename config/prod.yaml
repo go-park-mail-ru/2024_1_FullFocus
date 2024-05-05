@@ -1,0 +1,78 @@
+env: "prod"
+session_ttl: 24h
+
+# Services
+main:
+  server:
+    port: ":8080"
+    timeout: 5s
+    idle_timeout: 60s
+  clients:
+    auth:
+      addr: "bizon-auth:9091"
+      retries: 3
+      retry_timeout: 2s
+    profile:
+      addr: "bizon-profile:9092"
+      retries: 3
+      retry_timeout: 2s
+    csat:
+      addr: "bizon-csat:9093"
+      retries: 3
+      retry_timeout: 2s
+    review:
+      addr: "bizon-review:9094"
+      retries: 3
+      retry_timeout: 2s
+auth:
+  server:
+    port: "9091"
+    timeout: 5s
+  redis:
+    addr: "redis:6379"
+profile:
+  server:
+    port: "9092"
+    timeout: 5s
+csat:
+  server:
+    port: "9093"
+    timeout: 5s
+  postgres:
+    host: "postgres-csat"
+    port: "5432"
+    user: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    database: "csat"
+    sslmode: "disable"
+    search_path: "csat"
+    max_open_conns: 10
+    max_idle_time: 10
+review:
+  server:
+    port: "9094"
+    timeout: 5s
+
+# Data
+minio:
+  addr: "minio:9000"
+  minio_user: ${MINIO_USER}
+  minio_password: ${MINIO_PASSWORD}
+  minio_access_key: ${MINIO_ACCESS_KEY}
+  minio_secret_key: ${MINIO_SECRET_KEY}
+  avatar_bucket: "avatars"
+postgres:
+  host: "postgres-main"
+  port: "5432"
+  user: ${POSTGRES_USER}
+  password: ${POSTGRES_PASSWORD}
+  database: "ozon"
+  sslmode: "disable"
+  search_path: "ozon"
+  max_open_conns: 10
+  max_idle_time: 10
+elasticsearch:
+  host: "elasticsearch"
+  port: "9200"
+  user: ${ELASTIC_USER}
+  password: ${ELASTIC_PASSWORD}

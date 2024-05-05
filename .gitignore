@@ -5,8 +5,11 @@
 *.so
 *.dylib
 
+./bin
+
 # Test binary, built with `go test -c`
 *.test
+*.txt
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
@@ -16,5 +19,15 @@
 
 # Go workspace file
 go.work
+
+# Logs
+logs/
+*.log
+
+# Env files
+.env
+
+# tmp
+tmp/
 
 .idea

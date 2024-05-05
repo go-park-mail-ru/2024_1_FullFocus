@@ -1,52 +1,142 @@
 package repository
 
 import (
-	"sync"
+	"context"
+	"fmt"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/dao"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 )
 
 type ProductRepo struct {
-	sync.Mutex
-	products []models.Product
+	storage db.Database
 }
 
-func NewProductRepo() *ProductRepo {
-	r := &ProductRepo{
-		products: make([]models.Product, 0, 20),
+func NewProductRepo(dbClient db.Database) *ProductRepo {
+	return &ProductRepo{
+		storage: dbClient,
 	}
-	r.products = append(r.products, models.Product{PrID: 1, Name: "Триммер бензиновый Калибр БК-2600", Price: 4932, Category: "Дача и сад", Description: "Бензотриммер Калибр БК-2600 подходит для подравнивания краев газона и скашивания травы. Имеет двухтактный двигатель внутреннего сгорания мощностью 2.6 кВт. Мотор работает на топливной смеси. Праймер служит для облегчения запуска. Предусмотрена клавиша защиты от случайного включения. В комплект входит наплечный ремень. Его использование снижает утомляемость при длительной работе.", Img: "https://ir.ozone.ru/s3/multimedia-1-3/wc1000/6908471715.jpg"})
-	r.products = append(r.products, models.Product{PrID: 2, Name: "Bestway Бассейн", Price: 8905, Category: "Дача и сад", Description: "Каркасный бассейн Bestway 56706 отличается высокой прочностью и устойчивостью. Чаша выполнена из высококачественного трехслойного ПВХ: два слоя плотного винила и между ними сетка из полиэстера для особой прочности. Цвет чаши бассейна снаружи синий. Каркас металлический, покрытый предотвращающим появление коррозии слоем пластика. Не требует бетонирования и подготовки ямы, все, что нужно, это плоская, горизонтальная площадка. Сезонный бассейн (рекомендуется разбирать на холодное время года) обладает простой конструкцией - может быть легко разобран и собран заново. Время сборки и подключения бассейна составляет около 20 мин. Удобный сливной клапан позволяет присоединить садовый шланг, что дает возможность слить воду в любое место.", Img: "https://ir.ozone.ru/s3/multimedia-z/wc1000/6439192619.jpg"})
-	r.products = append(r.products, models.Product{PrID: 3, Name: "Конструктор Техник набор \"Порше 911\"", Price: 2054, Category: "Игрушки и игры", Description: "Конструктор гоночная машинка Порше 911 РСР ( ГТ3 РС ), автомобиль technique", Img: "https://ir.ozone.ru/s3/multimedia-b/wc1000/6724011035.jpg"})
-	r.products = append(r.products, models.Product{PrID: 4, Name: "Тестораскатка-лапшерезка настольная электрическая XINXIN DHH-240C", Price: 17220, Category: "Посуда и кухонные принадлежности", Description: "Комплектация: Тестораскатка-лапшерезка - 1Нож для нарезания лапши - 1 Лоток для подачи теста - 1 Инструкция по эксплуатации на русском языке - 1 Ручка (красный колпачок) находится в транспортировочной упаковке, закреплена в пенопласте", Img: "https://ir.ozone.ru/s3/multimedia-q/wc1000/6247490882.jpg"})
-	r.products = append(r.products, models.Product{PrID: 5, Name: "Мяч футбольный", Price: 498, Category: "Спорт и отдых", Description: "Надежный футбольный мяч - это нужный спортивный атрибут как для любителей, так и для профессионалов. Наши мячи для футбола стандартного размера 5 отвечают всем требованиям качества и надежности.", Img: "https://ir.ozone.ru/s3/multimedia-x/wc1000/6614653101.jpg"})
-	r.products = append(r.products, models.Product{PrID: 6, Name: "Bitex Хоккейный баул", Price: 4771, Category: "Спорт и отдых", Description: "Баул хоккейный на колесах RUSSIAN HOCKEY от отечественного производителя-1шт", Img: "https://ir.ozone.ru/s3/multimedia-1-c/wc1000/6926268756.jpg"})
-	r.products = append(r.products, models.Product{PrID: 7, Name: "Набор аккумуляторного инструмента 6в1 с 6 АКБ", Price: 23960, Category: "Строительство и ремонт", Description: "Комплект инструментов 6 в 1 Makita представляет собой универсальный набор для выполнения различных задач. В него входят болгарка, шуруповерт, гайковерт и перфоратор, пила дисковая, пила цепная, а также 6 аккумуляторов, 2 док-станций для зарядки.", Img: "https://ir.ozone.ru/s3/multimedia-n/wc1000/6842197355.jpg"})
-	r.products = append(r.products, models.Product{PrID: 8, Name: "Лазерная рулетка/ дальномер строительный MILESEEY X5 40м", Price: 1372, Category: "Строительство и ремонт", Description: "Дальномер / лазерная рулетка MILESEEY 40м.	Прочный корпус из пластика с ярким дисплеем с подсветкой, удобные кнопки, яркий лазерный указатель, все это гармонично сочетает в себе лазерный дальномер, позволяя с комфортом работать в любых условиях. Измерение длины отрезка. Измерение площади по двум точкам. Можно быстро измерить площадь стены, пола или потолка. Измерение объема по трём точкам.", Img: "https://ir.ozone.ru/s3/multimedia-e/wc1000/6603731330.jpg"})
-	r.products = append(r.products, models.Product{PrID: 9, Name: "Архитектура эпохи Возрождения. Италия | Лисовский Владимир", Price: 1808, Category: "Книги", Description: "Книга известного петербургского историка искусства, знатока архитектуры, доктора искусствоведения В. Г. Лисовского — это первое и пока единственное издание на русском языке, где систематически изложена история итальянской архитектуры от периода Предренессанса до Позднего Возрождения. Читателю представлена широчайшая панорама зодчества Италии XIV–XVI веков: даны описание и стилистический анализ сотен памятников, охарактеризованы их градостроительная роль и связь со знаменательными историческими событиями и личностями, рассмотрено творчество великих мастеров — Брунеллески, Альберти, Браманте, Рафаэля, Микеланджело, Виньолы, Палладио. Автор говорит по-своему о наследии великой эпохи, традиции которой остаются живыми и сегодня. Книга адресована как специалистам, так и любителям искусства. Она может оказаться полезной в качестве учебного пособия и как путеводитель в поездках по Италии.", Img: "https://ir.ozone.ru/s3/multimedia-m/wc1000/6875627422.jpg"})
-	r.products = append(r.products, models.Product{PrID: 10, Name: "Ноты для фортепиано.", Price: 503, Category: "Книги", Description: "Иоганна Штрауса еще при жизни называли королём вальса. Выдающийся композитор, автор популярных оперетт, которые по сей день украшают сцены мировых театров, сумел изменить отношение к танцевальной музыке, придав ей статус академической. Созданные им произведения, считающиеся музыкальными жемчужинами, не утратили своей актуальности и сегодня. Музыка Штрауса - залог прекрасного настроения и веселья!	В сборнике собраны самые известные вальсы и польки Штрауса. Нет сомнения, что их исполнение в домашней обстановке станет поводом для яркого музыкального праздника в стиле роскошного венского бала.", Img: "https://ir.ozone.ru/s3/multimedia-1-5/wc1000/6916219601.jpg"})
-	r.products = append(r.products, models.Product{PrID: 11, Name: "Умная колонка с голосовым помощником Салют SberBoom", Price: 7717, Category: "Электроника", Description: "Список совместимых устройств	Android, Windows	Комплектация SberBoom;	Адаптер питания;	Кабель USB Type C;	Руководство пользователя", Img: "https://ir.ozone.ru/s3/multimedia-r/wc1000/6542758131.jpg"})
-	r.products = append(r.products, models.Product{PrID: 12, Name: "Машина Ваз 2107 на радиоуправлении", Price: 1496, Category: "Игрушки и игры", Description: "Радиоуправляемая модель в масштабе 1:12", Img: "https://ir.ozone.ru/s3/multimedia-1-4/wc1000/6908714860.jpg"})
-	r.products = append(r.products, models.Product{PrID: 13, Name: "Паяльник 80 Вт", Price: 1283, Category: "Строительство и ремонт", Description: "Паяльник имеет мощность 80Вт и позволяет регулировать рабочую температуру в пределах от 180 °C до 500 °C. Набор для пайки содержит все необходимые принадлежности.", Img: "https://ir.ozone.ru/s3/multimedia-j/wc1000/6778167823.jpg"})
-	r.products = append(r.products, models.Product{PrID: 14, Name: "Конус фишка разметочная из пластика", Price: 275, Category: "Спорт и отдых", Description: "Страна-изготовитель - Россия", Img: "https://ir.ozone.ru/s3/multimedia-u/wc1000/6220554498.jpg"})
-	r.products = append(r.products, models.Product{PrID: 15, Name: "Саундбар для телевизора и компьютера", Price: 1842, Category: "Наушники и аудиосистемы", Description: "Представляем вашему вниманию новинку в мире компьютерных аксессуаров мощный саундбар для телевизора и компьютера. Это не просто колонка, это акустическая система, которая обеспечивает качественное звучание музыки, фильмов и игр. Саунд бар это большая активная акустика, оснащенная встроенным динамиком, который обеспечивает чистый и насыщенный звук. Благодаря своей большой мощности, саундбар идеально подходит для просмотра кино и прослушивания музыки, создавая атмосферу полного погружения.", Img: "https://ir.ozone.ru/s3/multimedia-1-d/wc1000/6917011861.jpg"})
-	r.products = append(r.products, models.Product{PrID: 16, Name: "PANTENE Pro-V Бальзам-ополаскиватель", Price: 849, Category: "Красота и здоровье", Description: "Теперь в большом объеме с удобным дозатором! Бальзам-ополаскиватель PANTENE Pro-V (Пантин Про-Ви) Интенсивное Восстановление идеально подходит для ослабленных, поврежденных волос. Благодаря комплексу Pro-V он насыщает волосы питательными веществами и восстанавливает волосы по всей длине, не утяжеляя их. Бальзам-ополаскиватель мгновенно устраняет ломкость и признаки повреждений, предотвращает появление секущихся кончиков и дарит волосам гладкость и здоровый блеск. Подходит для окрашенных волос.", Img: "https://ir.ozone.ru/s3/multimedia-h/wc1000/6891772793.jpg"})
-	r.products = append(r.products, models.Product{PrID: 17, Name: "Сухой корм Whiskas® для взрослых кошек", Price: 1239, Category: "Товары для животных", Description: "Это сбалансированный рацион для здоровой и счастливой жизни Вашей кошки. Хрустящие подушечки с нежным паштетом внутри обязательно придутся по вкусу Вашей любимице. Кроме того, Whiskas® содержит все необходимое, чтобы еда Вашей кошки была не только вкусной, но и полезной.", Img: "https://ir.ozone.ru/s3/multimedia-9/wc1000/6439208757.jpg"})
-	r.products = append(r.products, models.Product{PrID: 18, Name: "Кофеварка капельная электрическая REDMOND RCM-M1529", Price: 3519, Category: "Бытовая техника", Description: "Комплектация	кофеварка;	кувшин;	мерная ложка;	руководство по эксплуатации;	сервисная книжка;	съемный держатель для фильтра;	съемный фильтр", Img: "https://ir.ozone.ru/s3/multimedia-e/wc1000/6582528554.jpg"})
-	r.products = append(r.products, models.Product{PrID: 19, Name: "Гардеробная система Практичная гардеробная", Price: 12775, Category: "Мебель", Description: "Комплект заглушек для перекладины- 1 шт, Кронштейн для перекладины - 4 шт, Кронштейн для полки 435 мм - 16 шт, Несущий рельс 700 мм – 2 шт, Перекладина для вешалок 640 мм – 3 шт, Сеточная полка 603x406 мм – 4 шт, Соединитель для перекладины – 2 шт, Стойка 1025 мм – 8 шт,Сеточная полка 1203х406 – 4 шт", Img: "https://ir.ozone.ru/s3/multimedia-x/wc1000/6422067813.jpg"})
-	r.products = append(r.products, models.Product{PrID: 20, Name: "Костюм карнавальный Человек-Паук", Price: 1396, Category: "Товары для праздников", Description: "комбинезон с отдельной пуловерной маской, маску можно расстегнуть и снять для еды или других целей.", Img: "https://ir.ozone.ru/s3/multimedia-t/wc1000/6384255641.jpg"})
-	return r
 }
 
-func (r *ProductRepo) GetProducts(lastID, limit int) ([]models.Product, error) {
-	r.Lock()
-	defer r.Unlock()
-	prods := make([]models.Product, 0, limit)
-	for i := lastID - 1; i < len(r.products) && i < lastID+limit-1; i++ {
-		prods = append(prods, r.products[i])
+func (r *ProductRepo) GetAllProductCards(ctx context.Context, input models.GetAllProductsInput) ([]models.ProductCard, error) {
+	q := `WITH products_info AS (
+			SELECT p.id, p.product_name, p.price, p.imgsrc, p.seller, p.rating,
+				   CASE
+					   WHEN cart_query.in_cart IS NULL THEN 0
+					   ELSE 1
+				   END AS in_cart
+			FROM product p
+				LEFT JOIN (
+					SELECT i.product_id, i.profile_id AS in_cart
+					FROM cart_item i
+					WHERE i.profile_id = ?
+			) cart_query ON p.id = cart_query.product_id
+		 )
+		 SELECT * FROM products_info pi
+		 %s
+		 OFFSET ?
+		 LIMIT ?;`
+	offset := (input.PageNum - 1) * input.PageSize
+	var products []dao.ProductCard
+	q = helper.ApplySorting(q, input.Sorting.QueryPart)
+	if err := r.storage.Select(ctx, &products, q, input.ProfileID, offset, input.PageSize); err != nil {
+		logger.Info(ctx, err.Error())
+		return nil, models.ErrNoRowsFound
 	}
-	if count := len(prods); count == 0 {
-		return nil, models.ErrNoProduct
+	return dao.ConvertProductCardsFromTable(products), nil
+}
+
+func (r *ProductRepo) GetProductByID(ctx context.Context, profileID uint, productID uint) (models.Product, error) {
+	q := `SELECT id, product_description, product_name, price, imgsrc, seller, rating,
+   			CASE
+       			WHEN ci.product_id IS NULL THEN 0
+       			ELSE 1
+    		END AS in_cart
+		  FROM (SELECT *
+          		FROM product p
+      			WHERE p.id = ?
+		  ) subquery
+    		LEFT JOIN cart_item ci ON ci.product_id = subquery.id AND ci.profile_id = ?;`
+	var product dao.Product
+	if err := r.storage.Get(ctx, &product, q, productID, profileID); err != nil {
+		logger.Error(ctx, "error while selecting product: "+err.Error())
+		return models.Product{}, models.ErrNoRowsFound
 	}
-	return prods, nil
+
+	q = `SELECT c.category_name
+		  FROM product_category pc
+    	  	  INNER JOIN category c ON c.id = pc.category_id
+		  WHERE pc.product_id = ?;`
+	var categories []string
+	if err := r.storage.Select(ctx, &categories, q, productID); err != nil {
+		logger.Info(ctx, "error while selecting categories: "+err.Error())
+		return models.Product{}, models.ErrNoRowsFound
+	}
+	return dao.ConvertProductFromTable(categories, product), nil
+}
+
+func (r *ProductRepo) GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error) {
+	q := `WITH products_info AS (
+				SELECT p.id, p.product_name, p.price, p.imgsrc, p.seller, p.rating,
+					   CASE
+						   WHEN cart_query.in_cart IS NULL THEN 0
+						   ELSE 1
+						   END AS in_cart
+				FROM product p
+						 INNER JOIN (
+					SELECT p.id
+					FROM product p
+							 INNER JOIN product_category pc ON pc.product_id = p.id
+							 INNER JOIN category c ON c.id = pc.category_id
+					WHERE pc.category_id = ?
+				) subquery ON p.id = subquery.id
+						 LEFT JOIN (
+					SELECT i.product_id, i.profile_id AS in_cart
+					FROM cart_item i
+					WHERE i.profile_id = ?
+				) cart_query ON p.id = cart_query.product_id
+			)
+			SELECT * FROM products_info pi
+			%s
+			OFFSET ?
+			LIMIT ?;`
+	offset := (input.PageNum - 1) * input.PageSize
+	var products []dao.ProductCard
+	q = helper.ApplySorting(q, input.Sorting.QueryPart)
+	if err := r.storage.Select(ctx, &products, q, input.CategoryID, input.ProfileID, offset, input.PageSize); err != nil {
+		logger.Info(ctx, "error while selecting: "+err.Error())
+		return nil, models.ErrNoRowsFound
+	}
+	return dao.ConvertProductCardsFromTable(products), nil
+}
+
+func (r *ProductRepo) GetProductsByQuery(ctx context.Context, input models.GetProductsByQueryInput) ([]models.ProductCard, error) {
+	q := `WITH products_info AS (
+			  SELECT p.id, p.product_name, p.price, p.imgsrc, p.seller, p.rating,
+				  CASE
+					  WHEN cart_query.in_cart IS NULL THEN 0
+					  ELSE 1
+				  END AS in_cart
+			  FROM product p
+				  LEFT JOIN (
+				  SELECT i.product_id, i.profile_id AS in_cart
+				  FROM cart_item i
+				  WHERE i.profile_id = ?
+			) cart_query ON p.id = cart_query.product_id
+		)
+		SELECT * FROM products_info pi
+		WHERE pi.product_name ILIKE '%%%s%%'
+		ORDER BY pi.product_name
+		OFFSET ?
+		LIMIT ?;`
+	offset := (input.PageNum - 1) * input.PageSize
+	var products []dao.ProductCard
+	if err := r.storage.Select(ctx, &products, fmt.Sprintf(q, input.Query), input.ProfileID, offset, input.PageSize); err != nil {
+		logger.Info(ctx, "error while selecting: "+err.Error())
+		return nil, models.ErrNoRowsFound
+	}
+	return dao.ConvertProductCardsFromTable(products), nil
 }
