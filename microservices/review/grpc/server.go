@@ -44,6 +44,8 @@ func (s *serverAPI) CreateProductReview(ctx context.Context, r *reviewv1.CreateP
 			return nil, status.Error(codes.AlreadyExists, err.Error())
 		case errors.Is(err, models.ErrNoProduct):
 			return nil, status.Error(codes.NotFound, err.Error())
+		case errors.Is(err, commonError.ErrInvalidInput):
+			return nil, status.Error(codes.InvalidArgument, err.Error())
 		case errors.Is(err, commonError.ErrInternal):
 			return nil, status.Error(codes.Internal, err.Error())
 		}
