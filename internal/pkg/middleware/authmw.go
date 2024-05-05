@@ -8,13 +8,13 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 
+	auth "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/auth/grpc"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
 )
 
-func NewAuthMiddleware(uc usecase.Auth) mux.MiddlewareFunc {
+func NewAuthMiddleware(c *auth.Client) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -28,7 +28,7 @@ func NewAuthMiddleware(uc usecase.Auth) mux.MiddlewareFunc {
 					})
 					return
 				}
-				userID, err := uc.GetUserIDBySessionID(ctx, sessionID.Value)
+				userID, err := c.GetUserIDBySessionID(ctx, sessionID.Value)
 				if errors.Is(err, models.ErrNoSession) {
 					helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 						Status: 401,

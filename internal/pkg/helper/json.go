@@ -7,8 +7,9 @@ import (
 	"strconv"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
+
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"github.com/gorilla/mux"
 )
 

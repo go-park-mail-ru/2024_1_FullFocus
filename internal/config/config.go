@@ -14,11 +14,21 @@ import (
 type Config struct {
 	Env           string              `yaml:"env" env-required:"true"`
 	SessionTTL    time.Duration       `yaml:"session_ttl"`
-	Server        ServerConfig        `yaml:"server"`
-	Redis         RedisConfig         `yaml:"redis"`
+	Main          Main                `yaml:"main"`
+	Auth          Auth                `yaml:"auth"`
+	Profile       Profile             `yaml:"profile"`
+	CSAT          CSAT                `yaml:"csat"`
+	Review        Review              `yaml:"review"`
 	Minio         MinioConfig         `yaml:"minio"`
 	Postgres      PostgresConfig      `yaml:"postgres"`
 	Elasticsearch ElasticsearchConfig `yaml:"elasticsearch"`
+}
+
+// Main app
+
+type Main struct {
+	Server  ServerConfig  `yaml:"server"`
+	Clients ClientsConfig `yaml:"clients"`
 }
 
 type ServerConfig struct {
@@ -27,9 +37,55 @@ type ServerConfig struct {
 	IdleTimeout time.Duration `yaml:"idle_timeout"`
 }
 
+type ClientsConfig struct {
+	AuthClient    ClientConfig `yaml:"auth"`
+	ProfileClient ClientConfig `yaml:"profile"`
+	CSATClient    ClientConfig `yaml:"csat"`
+	ReviewClient  ClientConfig `yaml:"review"`
+}
+
+type ClientConfig struct {
+	Addr         string        `yaml:"addr"`
+	Retries      int           `yaml:"retries"`
+	RetryTimeout time.Duration `yaml:"retry_timeout"`
+}
+
+// Auth service
+
+type Auth struct {
+	Server GRPCServer  `yaml:"server"`
+	Redis  RedisConfig `yaml:"redis"`
+}
+
+type GRPCServer struct {
+	Port    string        `yaml:"port"`
+	Timeout time.Duration `yaml:"timeout"`
+}
+
 type RedisConfig struct {
 	Addr string `yaml:"addr"`
 }
+
+// Profile service
+
+type Profile struct {
+	Server GRPCServer `yaml:"server"`
+}
+
+// CSAT service
+
+type CSAT struct {
+	Server   GRPCServer     `yaml:"server"`
+	Postgres PostgresConfig `yaml:"postgres"`
+}
+
+// Review service
+
+type Review struct {
+	Server GRPCServer `yaml:"server"`
+}
+
+// Data storage
 
 type MinioConfig struct {
 	Addr           string `yaml:"addr"`

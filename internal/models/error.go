@@ -6,7 +6,7 @@ import (
 
 var (
 	ErrNoSession            = errors.New("no session")
-	ErrNoUser               = errors.New("no user")
+	ErrUserNotFound         = errors.New("user not found")
 	ErrUserAlreadyExists    = errors.New("user exists")
 	ErrWrongPassword        = errors.New("wrong password")
 	ErrNoProduct            = errors.New("no product")
@@ -23,4 +23,6 @@ var (
 	ErrInternal             = errors.New("internal server error")
 	ErrNoReviews            = errors.New("no reviews found")
 	ErrReviewAlreadyExists  = errors.New("review exists")
+	ErrNoPolls              = errors.New("no polls found")
+	ErrPollAlreadyRated     = errors.New("poll is already rated")
 )
