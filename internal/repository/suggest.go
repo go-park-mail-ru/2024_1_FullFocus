@@ -8,6 +8,7 @@ import (
 
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	elasticsetup "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/elasticsearch"
@@ -47,10 +48,12 @@ func (r *SuggestRepo) GetCategorySuggests(ctx context.Context, query string) ([]
 		r.client.Search.WithIndex(elasticsetup.CategoryIndex),
 		r.client.Search.WithBody(strings.NewReader(fmt.Sprintf(q, query, _categoriesLimit))))
 	if err != nil {
+		logger.Error(ctx, err.Error())
 		return nil, err
 	}
 	defer res.Body.Close()
 	if res.IsError() {
+		logger.Error(ctx, res.String())
 		return nil, fmt.Errorf("categories query error: " + res.String())
 	}
 	// Elasticsearch response structure
@@ -63,6 +66,7 @@ func (r *SuggestRepo) GetCategorySuggests(ctx context.Context, query string) ([]
 		} `json:"hits"`
 	}
 	if err = json.NewDecoder(res.Body).Decode(&searchResult); err != nil {
+		logger.Error(ctx, err.Error())
 		return nil, err
 	}
 	var categories []models.CategorySuggest
@@ -97,10 +101,12 @@ func (r *SuggestRepo) GetProductSuggests(ctx context.Context, query string) ([]s
 		r.client.Search.WithIndex(elasticsetup.ProductIndex),
 		r.client.Search.WithBody(strings.NewReader(fmt.Sprintf(q, query, _productsLimit))))
 	if err != nil {
+		logger.Error(ctx, err.Error())
 		return nil, err
 	}
 	defer res.Body.Close()
 	if res.IsError() {
+		logger.Error(ctx, res.String())
 		return nil, fmt.Errorf("products query error: " + res.String())
 	}
 	// Elasticsearch response structure
@@ -115,6 +121,7 @@ func (r *SuggestRepo) GetProductSuggests(ctx context.Context, query string) ([]s
 		} `json:"suggest"`
 	}
 	if err = json.NewDecoder(res.Body).Decode(&searchResult); err != nil {
+		logger.Error(ctx, err.Error())
 		return nil, err
 	}
 	var products []string
