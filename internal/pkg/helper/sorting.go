@@ -20,7 +20,7 @@ var sorting = [...]models.SortType{
 	},
 	{
 		ID:        2,
-		Name:      "Сначала недорогие",
+		Name:      "Сначала дешевые",
 		QueryPart: "price ASC",
 	},
 	{
