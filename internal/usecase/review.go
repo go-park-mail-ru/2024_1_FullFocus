@@ -43,16 +43,20 @@ func (u *ReviewUsecase) GetProductReviews(ctx context.Context, input models.GetP
 	if err != nil {
 		return nil, err
 	}
+	profileIDs := make([]uint, len(reviewsData))
+	for i := range len(profileIDs) {
+		profileIDs[i] = reviewsData[i].ProfileID
+	}
+	profileData, err := u.profileClient.GetProfileNamesAvatarsByIDs(ctx, profileIDs)
+	if err != nil {
+		return nil, err
+	}
 	reviews := make([]models.ProductReview, 0)
-	for _, r := range reviewsData {
-		authorData, err := u.profileClient.GetProfileByID(ctx, r.ProfileID)
-		if err != nil {
-			return nil, err
-		}
+	for i, r := range reviewsData {
 		reviews = append(reviews, models.ProductReview{
 			ReviewID:      r.ReviewID,
-			AuthorName:    authorData.FullName,
-			AuthorAvatar:  authorData.AvatarName,
+			AuthorName:    profileData[i].FullName,
+			AuthorAvatar:  profileData[i].AvatarName,
 			Rating:        r.Rating,
 			Advanatages:   r.Advanatages,
 			Disadvantages: r.Disadvantages,
