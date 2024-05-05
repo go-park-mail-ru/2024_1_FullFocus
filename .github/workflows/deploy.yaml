@@ -59,6 +59,10 @@ jobs:
         run: docker build -t b0pof/bizon-csat -f ./build/csat.Dockerfile .
       - name: Push the image
         run: docker push b0pof/bizon-csat
+      - name: Build review
+        run: docker build -t b0pof/bizon-review -f ./build/review.Dockerfile .
+      - name: Push the image
+        run: docker push b0pof/bizon-review
   deploy:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
