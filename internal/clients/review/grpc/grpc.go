@@ -15,6 +15,7 @@ import (
 	reviewv1 "github.com/go-park-mail-ru/2024_1_FullFocus/gen/review"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	commonError "github.com/go-park-mail-ru/2024_1_FullFocus/pkg/error"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 )
 
@@ -71,7 +72,7 @@ func (c *Client) CreateProductReview(ctx context.Context, uID uint, input models
 	case codes.NotFound:
 		return models.ErrNoProduct
 	default:
-		return st.Err()
+		return commonError.ErrInternal
 	}
 }
 
@@ -103,6 +104,6 @@ func (c *Client) GetProductReviews(ctx context.Context, input models.GetProductR
 	case codes.NotFound:
 		return nil, models.ErrNoProduct
 	default:
-		return nil, st.Err()
+		return nil, commonError.ErrInternal
 	}
 }

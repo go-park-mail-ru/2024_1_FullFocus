@@ -8,6 +8,7 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
+	commonError "github.com/go-park-mail-ru/2024_1_FullFocus/pkg/error"
 	"github.com/gorilla/mux"
 )
 
@@ -45,7 +46,7 @@ func (h *ReviewHandler) GetProductReviews(w http.ResponseWriter, r *http.Request
 
 	reviews, err := h.reviewUsecase.GetProductReviews(ctx, input)
 	switch {
-	case errors.Is(err, models.ErrInternal):
+	case errors.Is(err, commonError.ErrInternal):
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 500,
 			Msg:    err.Error(),
@@ -103,6 +104,12 @@ func (h *ReviewHandler) CreateProductReview(w http.ResponseWriter, r *http.Reque
 			Status: 400,
 			Msg:    err.Error(),
 			MsgRus: "Отзыв на этот товар от этого пользователя уже существует",
+		})
+		return
+	case errors.Is(err, commonError.ErrInternal):
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 500,
+			Msg:    err.Error(),
 		})
 		return
 	}
