@@ -33,7 +33,7 @@ func Register(gRPCServer *grpc.Server, uc Review) {
 func (s *serverAPI) CreateProductReview(ctx context.Context, r *reviewv1.CreateProductReviewRequest) (*empty.Empty, error) {
 	if err := s.usecase.CreateProductReview(ctx, models.CreateProductReviewInput{
 		ProductID:     uint(r.GetProductID()),
-		ProfileID:     uint(r.GetProductID()),
+		ProfileID:     uint(r.GetProfileID()),
 		Rating:        uint(r.GetReviewData().GetRating()),
 		Advanatages:   r.GetReviewData().GetAdvantages(),
 		Disadvantages: r.GetReviewData().GetDisadvantages(),
