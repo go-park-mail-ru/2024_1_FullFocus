@@ -114,7 +114,7 @@ func (s *serverAPI) GetProfileNamesAvatarsByIDs(ctx context.Context, r *profilev
 	for _, id := range r.GetProfileIDs() {
 		pIDs = append(pIDs, uint(id))
 	}
-	resp, err := s.usecase.GetProfileNamesAvatarsByIDs(ctx, pIDs)
+	profiles, err := s.usecase.GetProfileNamesAvatarsByIDs(ctx, pIDs)
 	if err != nil {
 		if errors.Is(err, models.ErrNoProfile) {
 			return nil, status.Error(codes.NotFound, err.Error())
@@ -122,10 +122,10 @@ func (s *serverAPI) GetProfileNamesAvatarsByIDs(ctx context.Context, r *profilev
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	data := make([]*profilev1.ProfileNameAvatar, 0)
-	for _, r := range resp {
+	for _, p := range profiles {
 		data = append(data, &profilev1.ProfileNameAvatar{
-			Name:   r.FullName,
-			Avatar: r.AvatarName,
+			Name:   p.FullName,
+			Avatar: p.AvatarName,
 		})
 	}
 	return &profilev1.GetProfileNamesAvatarsResponse{
