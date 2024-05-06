@@ -9,6 +9,12 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 )
 
+type ValidateSymbolStringInput struct {
+	Field  string
+	MinLen int
+	MaxLen int
+}
+
 func ValidateField(value string, minLength, maxLength int) error {
 	onlyValidSymbols := regexp.MustCompile(`^[A-Za-z0-9_]*$`).MatchString
 	if !onlyValidSymbols(value) {

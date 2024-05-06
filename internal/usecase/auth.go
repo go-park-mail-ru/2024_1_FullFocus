@@ -17,11 +17,6 @@ const (
 	_maxPasswordLength = 32
 )
 
-const (
-	_defaultEmail       = "yourawesome@mail.ru"
-	_defaultPhoneNumber = "70000000000"
-)
-
 type AuthUsecase struct {
 	authClient    auth.AuthClient
 	profileClient profile.ProfileClient
@@ -54,16 +49,28 @@ func (u *AuthUsecase) Login(ctx context.Context, login string, password string) 
 	return sID, nil
 }
 
-func (u *AuthUsecase) Signup(ctx context.Context, login string, password string) (string, error) {
-	if err := helper.ValidateField(login, _minLoginLength, _maxLoginLength); err != nil {
+func (u *AuthUsecase) Signup(ctx context.Context, input models.SignupData) (string, error) {
+	if err := helper.ValidateField(input.Login, _minLoginLength, _maxLoginLength); err != nil {
 		return "", helper.NewValidationError("invalid login input",
 			"Логин должен содержать от 4 до 32 букв английского алфавита или цифр")
 	}
-	if err := helper.ValidateField(password, _minPasswordLength, _maxPasswordLength); err != nil {
+	if err := helper.ValidateField(input.Password, _minPasswordLength, _maxPasswordLength); err != nil {
 		return "", helper.NewValidationError("invalid password input",
 			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
 	}
-	uID, sID, err := u.authClient.Signup(ctx, login, password)
+	if input.FullName == "" {
+		return "", helper.NewValidationError("invalid name input",
+			"Имя не может быть пустым")
+	}
+	if err := helper.ValidateEmail(input.Email); err != nil {
+		return "", helper.NewValidationError("invalid email input",
+			"Email должен содержать @ и .")
+	}
+	if err := helper.ValidateNumber(input.PhoneNumber, 5); err != nil {
+		return "", helper.NewValidationError("invalid phone number",
+			"Неверный номер телефона")
+	}
+	uID, sID, err := u.authClient.Signup(ctx, input.Login, input.Password)
 	if err != nil {
 		if errors.Is(err, models.ErrInvalidField) {
 			return "", helper.NewValidationError("invalid input",
@@ -73,9 +80,9 @@ func (u *AuthUsecase) Signup(ctx context.Context, login string, password string)
 	}
 	if err = u.profileClient.CreateProfile(ctx, models.Profile{
 		ID:          uID,
-		FullName:    login,
-		Email:       _defaultEmail,
-		PhoneNumber: _defaultPhoneNumber,
+		FullName:    input.FullName,
+		Email:       input.Email,
+		PhoneNumber: input.PhoneNumber,
 	}); err != nil {
 		return "", err
 	}

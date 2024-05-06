@@ -10,7 +10,7 @@ import (
 type (
 	Auth interface {
 		Login(ctx context.Context, login string, password string) (string, error)
-		Signup(ctx context.Context, login string, password string) (string, error)
+		Signup(ctx context.Context, input models.SignupData) (string, error)
 		GetUserIDBySessionID(ctx context.Context, sID string) (uint, error)
 		Logout(ctx context.Context, sID string) error
 		IsLoggedIn(ctx context.Context, isID string) bool
