@@ -10,6 +10,7 @@ import (
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/elastic/go-elasticsearch/v8/esutil"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
 )
@@ -107,10 +108,14 @@ type category struct {
 }
 
 func InitElasticData(ctx context.Context, db database.Database, es *elasticsearch.Client) error {
-	if err := initCategoryIndex(ctx, db, es); err != nil {
-		return err
-	}
-	return initProductIndex(ctx, db, es)
+	g := errgroup.Group{}
+	g.Go(func() error {
+		return initCategoryIndex(ctx, db, es)
+	})
+	g.Go(func() error {
+		return initProductIndex(ctx, db, es)
+	})
+	return g.Wait()
 }
 
 // Category
