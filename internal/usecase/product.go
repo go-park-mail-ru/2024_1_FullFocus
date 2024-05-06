@@ -61,6 +61,11 @@ func (u *ProductUsecase) GetProductsByCategoryID(ctx context.Context, input mode
 }
 
 func (u *ProductUsecase) GetProductsByQuery(ctx context.Context, input models.GetProductsByQueryInput) ([]models.ProductCard, error) {
+	sorting, err := validateProductSorting(input.Sorting)
+	if err != nil {
+		return nil, err
+	}
+	input.Sorting = sorting
 	return u.productRepo.GetProductsByQuery(ctx, input)
 }
 

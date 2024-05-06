@@ -224,11 +224,21 @@ func (h *ProductHandler) GetProductsByQuery(w http.ResponseWriter, r *http.Reque
 		})
 		return
 	}
+	sortingData, err := helper.GetSortParams(r)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 400,
+			Msg:    "invalid sortID value",
+			MsgRus: "Невалидный параметр сортировки",
+		})
+		return
+	}
 	getProductsInput := models.GetProductsByQueryInput{
 		Query:     query,
 		ProfileID: uID,
 		PageNum:   uint(pageNum),
 		PageSize:  uint(pageSize),
+		Sorting:   sortingData,
 	}
 	products, err := h.usecase.GetProductsByQuery(ctx, getProductsInput)
 	if err != nil {

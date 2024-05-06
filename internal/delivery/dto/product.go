@@ -4,8 +4,6 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 )
 
-// TODO: inCart
-
 type ProductCard struct {
 	ID     uint   `json:"id"`
 	Name   string `json:"name"`

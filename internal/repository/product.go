@@ -128,13 +128,16 @@ func (r *ProductRepo) GetProductsByQuery(ctx context.Context, input models.GetPr
 			) cart_query ON p.id = cart_query.product_id
 		)
 		SELECT * FROM products_info pi
-		WHERE pi.product_name ILIKE '%%%s%%'
-		ORDER BY pi.product_name
+		WHERE pi.product_name ILIKE '%%%s%%'`
+	q1 := `%s
 		OFFSET ?
 		LIMIT ?;`
 	offset := (input.PageNum - 1) * input.PageSize
 	var products []dao.ProductCard
-	if err := r.storage.Select(ctx, &products, fmt.Sprintf(q, input.Query), input.ProfileID, offset, input.PageSize); err != nil {
+	q = fmt.Sprintf(q, input.Query)
+	q1 = helper.ApplySorting(q1, input.Sorting.QueryPart)
+	q = q + q1
+	if err := r.storage.Select(ctx, &products, q, input.ProfileID, offset, input.PageSize); err != nil {
 		logger.Info(ctx, "error while selecting: "+err.Error())
 		return nil, models.ErrNoRowsFound
 	}
