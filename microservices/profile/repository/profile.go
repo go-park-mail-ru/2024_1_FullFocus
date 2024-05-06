@@ -64,7 +64,7 @@ func (r *Repo) GetProfileMetaInfo(ctx context.Context, pID uint) (models.Profile
 }
 
 func (r *Repo) GetProfileNamesAvatarsByIDs(ctx context.Context, pIDs []uint) ([]models.ProfileNameAvatar, error) {
-	q := `SELECT full_name, imgsrc
+	q := `SELECT id, full_name, imgsrc
 	FROM user_profile
 	WHERE id = ANY (?);`
 

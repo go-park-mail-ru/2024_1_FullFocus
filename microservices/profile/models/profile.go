@@ -20,6 +20,7 @@ type ProfileUpdateInput struct {
 }
 
 type ProfileNameAvatar struct {
+	ID         uint
 	FullName   string
 	AvatarName string
 }
