@@ -18,9 +18,10 @@ func NewAuthMiddleware(c *auth.Client) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
-			if !strings.Contains(r.URL.Path, "public") {
-				sessionID, err := r.Cookie("session_id")
-				if errors.Is(err, http.ErrNoCookie) {
+			isPublic := strings.Contains(r.URL.Path, "public")
+			sessionID, err := r.Cookie("session_id")
+			if err != nil {
+				if errors.Is(err, http.ErrNoCookie) && !isPublic {
 					helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 						Status: 401,
 						Msg:    "no session",
@@ -28,8 +29,9 @@ func NewAuthMiddleware(c *auth.Client) mux.MiddlewareFunc {
 					})
 					return
 				}
+			} else {
 				userID, err := c.GetUserIDBySessionID(ctx, sessionID.Value)
-				if errors.Is(err, models.ErrNoSession) {
+				if errors.Is(err, models.ErrNoSession) && !isPublic {
 					helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 						Status: 401,
 						Msg:    "no session",
