@@ -55,7 +55,20 @@ func (u *Usecase) GetProfileMetaInfo(ctx context.Context, pID uint) (models.Prof
 }
 
 func (u *Usecase) GetProfileNamesAvatarsByIDs(ctx context.Context, pIDs []uint) ([]models.ProfileNameAvatar, error) {
-	return u.repo.GetProfileNamesAvatarsByIDs(ctx, pIDs)
+	profiles, err := u.repo.GetProfileNamesAvatarsByIDs(ctx, pIDs)
+	if err != nil {
+		return nil, err
+	}
+	orderedProfiles := make([]models.ProfileNameAvatar, len(profiles))
+	for i, pID := range pIDs {
+		for _, p := range profiles {
+			if pID == p.ID {
+				orderedProfiles[i] = p
+				break
+			}
+		}
+	}
+	return orderedProfiles, nil
 }
 
 func (u *Usecase) CreateProfile(ctx context.Context, profile models.Profile) error {
