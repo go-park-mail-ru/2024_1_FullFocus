@@ -74,7 +74,7 @@ services:
     depends_on:
       - bizon-auth
       - bizon-profile
-      # - bizon-csat
+      - bizon-csat
     environment:
       - CONFIG_PATH=./config/prod.yaml
     ports:
