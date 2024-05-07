@@ -94,9 +94,10 @@ func NewLoggingMiddleware(metrics metrics.Collector, l *slog.Logger) mux.Middlew
 			if statusCode >= 300 {
 				metrics.IncreaseErr(strconv.Itoa(statusCode), r.RequestURI)
 			}
-			metrics.AddDurationToHistogram(r.RequestURI, dur)
-			metrics.AddDurationToSummary(strconv.Itoa(statusCode), r.RequestURI, dur)
-			metrics.IncreaseHits(r.RequestURI)
+
+			metrics.AddDurationToHistogram(r.URL.Path, dur)
+			metrics.AddDurationToSummary(strconv.Itoa(statusCode), r.URL.Path, dur)
+			metrics.IncreaseHits(r.URL.Path)
 		})
 	}
 }
