@@ -4,10 +4,12 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net"
 	"net/http"
 	"strconv"
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -94,10 +96,18 @@ func NewLoggingMiddleware(metrics metrics.Collector, l *slog.Logger) mux.Middlew
 			if statusCode >= 300 {
 				metrics.IncreaseErr(strconv.Itoa(statusCode), r.RequestURI)
 			}
+			path := r.URL.Path
+			println(path)
+			pathVars := mux.Vars(r)
+			for key, value := range pathVars {
+				path, _ = strings.CutSuffix(path, value)
+				path += fmt.Sprintf("{%s}", key)
 
-			metrics.AddDurationToHistogram(r.URL.Path, dur)
-			metrics.AddDurationToSummary(strconv.Itoa(statusCode), r.URL.Path, dur)
-			metrics.IncreaseHits(r.URL.Path)
+			}
+			println(path)
+			metrics.AddDurationToHistogram(path, dur)
+			metrics.AddDurationToSummary(strconv.Itoa(statusCode), path, dur)
+			metrics.IncreaseHits(path)
 		})
 	}
 }
