@@ -4,6 +4,7 @@ import (
 	"context"
 	"html"
 
+	auth "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/auth"
 	profile "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/profile"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
@@ -13,12 +14,14 @@ import (
 
 type ProfileUsecase struct {
 	profileClient profile.ProfileClient
+	authClient    auth.AuthClient
 	cartRepo      repository.Carts
 }
 
-func NewProfileUsecase(pr profile.ProfileClient, cr repository.Carts) *ProfileUsecase {
+func NewProfileUsecase(pc profile.ProfileClient, ac auth.AuthClient, cr repository.Carts) *ProfileUsecase {
 	return &ProfileUsecase{
-		profileClient: pr,
+		profileClient: pc,
+		authClient:    ac,
 		cartRepo:      cr,
 	}
 }
@@ -46,13 +49,20 @@ func (u *ProfileUsecase) UpdateProfile(ctx context.Context, uID uint, newProfile
 	return nil
 }
 
-func (u *ProfileUsecase) GetProfile(ctx context.Context, uID uint) (models.Profile, error) {
+func (u *ProfileUsecase) GetProfile(ctx context.Context, uID uint) (models.FullProfile, error) {
 	profile, err := u.profileClient.GetProfileByID(ctx, uID)
 	if err != nil {
-		return models.Profile{}, err
+		return models.FullProfile{}, err
 	}
 	profile.FullName = html.EscapeString(profile.FullName)
-	return profile, nil
+	login, err := u.authClient.GetUserLoginByUserID(ctx, uID)
+	if err != nil {
+		return models.FullProfile{}, err
+	}
+	return models.FullProfile{
+		ProfileData: profile,
+		Login:       login,
+	}, nil
 }
 
 func (u *ProfileUsecase) GetProfileMetaInfo(ctx context.Context, uID uint) (models.ProfileMetaInfo, error) {

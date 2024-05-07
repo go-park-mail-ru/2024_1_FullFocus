@@ -39,7 +39,7 @@ type (
 
 	Profiles interface {
 		UpdateProfile(ctx context.Context, uID uint, newProfile models.ProfileUpdateInput) error
-		GetProfile(ctx context.Context, uID uint) (models.Profile, error)
+		GetProfile(ctx context.Context, uID uint) (models.FullProfile, error)
 		GetProfileMetaInfo(ctx context.Context, uID uint) (models.ProfileMetaInfo, error)
 		CreateProfile(ctx context.Context, profile models.Profile) error
 	}

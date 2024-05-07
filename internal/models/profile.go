@@ -24,3 +24,8 @@ type ProfileNameAvatar struct {
 	FullName   string
 	AvatarName string
 }
+
+type FullProfile struct {
+	Login       string
+	ProfileData Profile
+}

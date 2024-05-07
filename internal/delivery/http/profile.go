@@ -62,10 +62,9 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	data := dto.ConvertProfileDataToProfile(profile)
 	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
-		Data:   data,
+		Data:   dto.ConvertFullProfileDataToDto(profile),
 	})
 }
 

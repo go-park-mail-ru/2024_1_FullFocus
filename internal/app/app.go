@@ -157,7 +157,7 @@ func MustInit() *App {
 	cartHandler.InitRouter(apiRouter)
 
 	// Profile
-	profileUsecase := usecase.NewProfileUsecase(profileClient, cartRepo)
+	profileUsecase := usecase.NewProfileUsecase(profileClient, authClient, cartRepo)
 	profileHandler := delivery.NewProfileHandler(profileUsecase)
 	profileHandler.InitRouter(apiRouter)
 

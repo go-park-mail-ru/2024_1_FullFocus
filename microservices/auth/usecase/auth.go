@@ -7,28 +7,29 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/auth/pkg/helper"
 )
 
-type auth interface {
+type Auth interface {
 	CreateUser(ctx context.Context, user models.User) (uint, error)
 	GetUser(ctx context.Context, login string) (models.User, error)
 	CreateSession(ctx context.Context, userID uint) string
 	GetUserIDBySessionID(ctx context.Context, sID string) (uint, error)
+	GetUserLoginByUserID(ctx context.Context, uID uint) (string, error)
 	SessionExists(ctx context.Context, sID string) bool
 	DeleteSession(ctx context.Context, sID string) error
 	UpdatePassword(ctx context.Context, userID uint, password string) error
 	GetUserPassword(ctx context.Context, userID uint) (string, error)
 }
 
-type Auth struct {
-	repo auth
+type Usecase struct {
+	repo Auth
 }
 
-func NewAuthUsecase(a auth) *Auth {
-	return &Auth{
+func NewAuthUsecase(a Auth) *Usecase {
+	return &Usecase{
 		repo: a,
 	}
 }
 
-func (u *Auth) Login(ctx context.Context, login string, password string) (string, error) {
+func (u *Usecase) Login(ctx context.Context, login string, password string) (string, error) {
 	if login == "" || password == "" {
 		return "", models.ErrInvalidInput
 	}
@@ -42,7 +43,7 @@ func (u *Auth) Login(ctx context.Context, login string, password string) (string
 	return u.repo.CreateSession(ctx, user.ID), nil
 }
 
-func (u *Auth) Signup(ctx context.Context, login string, password string) (uint, string, error) {
+func (u *Usecase) Signup(ctx context.Context, login string, password string) (uint, string, error) {
 	if login == "" || password == "" {
 		return 0, "", models.ErrInvalidInput
 	}
@@ -62,19 +63,23 @@ func (u *Auth) Signup(ctx context.Context, login string, password string) (uint,
 	return uID, sID, nil
 }
 
-func (u *Auth) GetUserIDBySessionID(ctx context.Context, sID string) (uint, error) {
+func (u *Usecase) GetUserIDBySessionID(ctx context.Context, sID string) (uint, error) {
 	return u.repo.GetUserIDBySessionID(ctx, sID)
 }
 
-func (u *Auth) Logout(ctx context.Context, sID string) error {
+func (u *Usecase) GetUserLoginByUserID(ctx context.Context, uID uint) (string, error) {
+	return u.repo.GetUserLoginByUserID(ctx, uID)
+}
+
+func (u *Usecase) Logout(ctx context.Context, sID string) error {
 	return u.repo.DeleteSession(ctx, sID)
 }
 
-func (u *Auth) IsLoggedIn(ctx context.Context, sID string) bool {
+func (u *Usecase) IsLoggedIn(ctx context.Context, sID string) bool {
 	return u.repo.SessionExists(ctx, sID)
 }
 
-func (u *Auth) UpdatePassword(ctx context.Context, userID uint, password string, newPassword string) error {
+func (u *Usecase) UpdatePassword(ctx context.Context, userID uint, password string, newPassword string) error {
 	if password == "" || newPassword == "" {
 		return models.ErrInvalidInput
 	}
