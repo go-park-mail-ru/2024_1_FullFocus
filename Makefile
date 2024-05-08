@@ -1,8 +1,29 @@
-DB_HOST=127.0.0.1
-DB_PORT=5432
-DB_NAME=ozon
+DB_HOST := 127.0.0.1
+DB_PORT := 5432
+DB_NAME := postgres
 
 LOCAL_COMPOSE=docker-compose.local.yaml
+
+ALLOWED_TARGETS := main auth profile csat review
+TARGET ?= main
+
+ifndef TARGET
+    $(error параметр TARGET не указан. Usage: make build TARGET=<binary_name>)
+endif
+
+ifeq (,$(filter $(TARGET),$(ALLOWED_TARGETS)))
+    $(error Неверная цель "$(TARGET)". Доступные параметры: $(ALLOWED_TARGETS))
+endif
+
+ifeq ($(TARGET),main)
+    DB_PORT := 5432
+    DB_NAME := ozon
+endif
+
+ifeq ($(TARGET),csat)
+    DB_PORT := 5433
+    DB_NAME := csat
+endif
 
 ifneq ("$(wildcard .env)","")
 include .env
@@ -15,49 +36,43 @@ setup: ## Установить все необходимые утилиты
 	go install github.com/pressly/goose/v3/cmd/goose@latest
 	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.57.1
 
-.PHONY: up
-up: ## Поднять контейнеры
-	docker compose up -d
-
-.PHONY: down
-down: ## Остановить контейнеры
-	docker compose down
-
 .PHONY: migrations-up
-migrations-up: ## Накатить миграции
-	goose -dir db/migrations postgres $(DB_DSN) up
+migrations-up: ## Накатить миграции (TARGET=db_name)
+	goose -dir db/migrations/$(TARGET) postgres $(DB_DSN) up
 
 .PHONY: migrations-down
-migrations-down: ## Откатить миграции
-	goose -dir db/migrations postgres $(DB_DSN) down
+migrations-down: ## Откатить миграции (TARGET=db_name)
+	goose -dir db/migrations/$(TARGET) postgres $(DB_DSN) down
+
+.PHONY: migration-create
+migration-create: ## Пример команды для создания миграции
+	@echo "goose -dir db/migrations/<db> create <add_some_column> sql"
 
 .PHONY: run-prod
-run-prod: up ## Запустить приложение
-	make migrations-up
+run-prod: ## Запустить прод
+	docker compose -f docker-compose.yaml up -d
+
+.PHONY: stop-prod
+stop-prod: ## Остановить прод
+	docker compose -f docker-compose.yaml down
 
 .PHONY: run-local
 run-local: ## Локальный запуск
 	docker compose -f docker-compose.local.yaml up -d
 	go run cmd/main/main.go --config_path=./config/local.yaml
 
-.PHONY: stop-app
-stop-app: down ## Остановить приложение
+.PHONY: stop-all
+stop-all: ## Остановить все контейнеры
+	docker compose -f docker-compose.yaml down
+	docker compose -f docker-compose.local.yaml down
 
 .PHONY: build
-build: ## Сбилдить бинарь приложения
-	go build -o ./bin/app ./cmd/main/main.go
+build: ## Сбилдить бинарь приложения (TARGET=binary_name)
+	go build -o ./bin/$(TARGET) ./cmd/$(TARGET)/main.go
 
 .PHONY: lint
 lint: ## Проверить код линтерами
 	golangci-lint run ./... -c golangci.local.yaml
-
-.PHONY: api-test-up
-api-test-up: ## Запустить локально контейнеры и приложение для интеграционных тестов
-	docker compose -f ${LOCAL_COMPOSE} up -d
-	go run cmd/main/main.go -config_path=config/local.yaml
-
-.PHONY: api-test-down
-api-test-down: down ## Откатить миграции и остановить контейнеры
 
 .PHONY: test
 test: ## Запустить тесты

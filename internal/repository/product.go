@@ -2,11 +2,13 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/dao"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 )
 
 type ProductRepo struct {
@@ -34,12 +36,14 @@ func (r *ProductRepo) GetAllProductCards(ctx context.Context, input models.GetAl
 			) cart_query ON p.id = cart_query.product_id
 		 )
 		 SELECT * FROM products_info pi
-		 WHERE pi.id - (SELECT MIN(id) from product) < ?
-		 ORDER BY pi.id DESC LIMIT ?;`
-	offset := input.PageNum * input.PageSize
+		 %s
+		 OFFSET ?
+		 LIMIT ?;`
+	offset := (input.PageNum - 1) * input.PageSize
 	var products []dao.ProductCard
+	q = helper.ApplySorting(q, input.Sorting.QueryPart)
 	if err := r.storage.Select(ctx, &products, q, input.ProfileID, offset, input.PageSize); err != nil {
-		logger.Info(ctx, "error while selecting: "+err.Error())
+		logger.Info(ctx, err.Error())
 		return nil, models.ErrNoRowsFound
 	}
 	return dao.ConvertProductCardsFromTable(products), nil
@@ -96,10 +100,44 @@ func (r *ProductRepo) GetProductsByCategoryID(ctx context.Context, input models.
 				) cart_query ON p.id = cart_query.product_id
 			)
 			SELECT * FROM products_info pi
-			OFFSET ? LIMIT ?;`
+			%s
+			OFFSET ?
+			LIMIT ?;`
 	offset := (input.PageNum - 1) * input.PageSize
 	var products []dao.ProductCard
+	q = helper.ApplySorting(q, input.Sorting.QueryPart)
 	if err := r.storage.Select(ctx, &products, q, input.CategoryID, input.ProfileID, offset, input.PageSize); err != nil {
+		logger.Info(ctx, "error while selecting: "+err.Error())
+		return nil, models.ErrNoRowsFound
+	}
+	return dao.ConvertProductCardsFromTable(products), nil
+}
+
+func (r *ProductRepo) GetProductsByQuery(ctx context.Context, input models.GetProductsByQueryInput) ([]models.ProductCard, error) {
+	q := `WITH products_info AS (
+			  SELECT p.id, p.product_name, p.price, p.imgsrc, p.seller, p.rating,
+				  CASE
+					  WHEN cart_query.in_cart IS NULL THEN 0
+					  ELSE 1
+				  END AS in_cart
+			  FROM product p
+				  LEFT JOIN (
+				  SELECT i.product_id, i.profile_id AS in_cart
+				  FROM cart_item i
+				  WHERE i.profile_id = ?
+			) cart_query ON p.id = cart_query.product_id
+		)
+		SELECT * FROM products_info pi
+		WHERE pi.product_name ILIKE '%%%s%%'`
+	q1 := `%s
+		OFFSET ?
+		LIMIT ?;`
+	offset := (input.PageNum - 1) * input.PageSize
+	var products []dao.ProductCard
+	q = fmt.Sprintf(q, input.Query)
+	q1 = helper.ApplySorting(q1, input.Sorting.QueryPart)
+	q = q + q1
+	if err := r.storage.Select(ctx, &products, q, input.ProfileID, offset, input.PageSize); err != nil {
 		logger.Info(ctx, "error while selecting: "+err.Error())
 		return nil, models.ErrNoRowsFound
 	}

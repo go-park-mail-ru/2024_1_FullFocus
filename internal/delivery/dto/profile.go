@@ -2,30 +2,48 @@ package dto
 
 import model "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 
-type ProfileData struct {
+type Profile struct {
 	ID          uint   `json:"id"`
 	FullName    string `json:"fullName"`
 	Email       string `json:"email"`
 	PhoneNumber string `json:"phoneNumber"`
-	ImgSrc      string `json:"imgSrc"`
+	AvatarName  string `json:"avatarName"`
 }
 
-func ConvertProfileDataToProfile(profile model.Profile) ProfileData {
-	return ProfileData{
+func ConvertProfileDataToProfile(profile model.Profile) Profile {
+	return Profile{
 		ID:          profile.ID,
 		FullName:    profile.FullName,
 		Email:       profile.Email,
 		PhoneNumber: profile.PhoneNumber,
-		ImgSrc:      profile.ImgSrc,
+		AvatarName:  profile.AvatarName,
 	}
 }
 
-func ConvertProfileToProfileData(profile ProfileData) model.Profile {
-	return model.Profile{
-		ID:          profile.ID,
+type ProfileUpdateInput struct {
+	FullName    string `json:"fullName"`
+	Email       string `json:"email"`
+	PhoneNumber string `json:"phoneNumber"`
+}
+
+func ConvertProfileToProfileData(profile ProfileUpdateInput) model.ProfileUpdateInput {
+	return model.ProfileUpdateInput{
 		FullName:    profile.FullName,
 		Email:       profile.Email,
 		PhoneNumber: profile.PhoneNumber,
-		ImgSrc:      profile.ImgSrc,
+	}
+}
+
+type ProfileMetaInfo struct {
+	FullName        string `json:"fullName"`
+	CartItemsAmount uint   `json:"cartItemsAmount"`
+	AvatarName      string `json:"avatarName"`
+}
+
+func ConvertProfileToMetaInfo(profile model.ProfileMetaInfo) ProfileMetaInfo {
+	return ProfileMetaInfo{
+		FullName:        profile.FullName,
+		CartItemsAmount: profile.CartItemsAmount,
+		AvatarName:      profile.AvatarName,
 	}
 }

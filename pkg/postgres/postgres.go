@@ -10,8 +10,8 @@ import (
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
-	_ "github.com/jackc/pgx/v5/stdlib" // postgres driver
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 )
 

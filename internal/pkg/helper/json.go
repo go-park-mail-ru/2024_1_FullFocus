@@ -4,9 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
+
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	"github.com/gorilla/mux"
 )
 
 // JSONResponse - принимает ResponseWriter, значение ответа сервера и соответствующее сообщение.
@@ -29,10 +33,10 @@ func GetLoginData(r *http.Request) (dto.LoginData, error) {
 	return data, nil
 }
 
-func GetProfileData(r *http.Request) (dto.ProfileData, error) {
-	var data dto.ProfileData
+func GetProfileData(r *http.Request) (dto.ProfileUpdateInput, error) {
+	var data dto.ProfileUpdateInput
 	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-		return dto.ProfileData{}, err
+		return dto.ProfileUpdateInput{}, err
 	}
 	return data, nil
 }
@@ -41,6 +45,37 @@ func GetCartItemData(r *http.Request) (dto.UpdateCartItemInput, error) {
 	var data dto.UpdateCartItemInput
 	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 		return dto.UpdateCartItemInput{}, err
+	}
+	return data, nil
+}
+
+func GetReviewsData(r *http.Request) (models.GetProductReviewsInput, error) {
+	prID, err := strconv.Atoi(mux.Vars(r)["productID"])
+	if err != nil {
+		return models.GetProductReviewsInput{}, err
+	}
+
+	query := r.URL.Query()
+	lastID, err := strconv.Atoi(query.Get("lastReviewID"))
+	if err != nil {
+		lastID = 0
+	}
+	limit, err := strconv.Atoi(query.Get("limit"))
+	if err != nil {
+		limit = 0
+	}
+
+	return models.GetProductReviewsInput{
+		ProductID:    uint(prID),
+		LastReviewID: uint(lastID),
+		PageSize:     uint(limit),
+	}, nil
+}
+
+func GetCreateReviewData(r *http.Request) (dto.CreateReviewInput, error) {
+	var data dto.CreateReviewInput
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		return dto.CreateReviewInput{}, err
 	}
 	return data, nil
 }

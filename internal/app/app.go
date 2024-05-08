@@ -10,18 +10,27 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/metrics"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
+	authclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/auth/grpc"
+	csatclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/csat/grpc"
+	profileclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/profile/grpc"
+	reviewclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/review/grpc"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
+	elasticsetup "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/elasticsearch"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware"
+	miniosetup "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/minio"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/server"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/elasticsearch"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/minio"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/postgres"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/redis"
 )
 
 const (
@@ -30,13 +39,14 @@ const (
 )
 
 type App struct {
-	config *config.Config
-	server *server.Server
-	router *mux.Router
-	logger *slog.Logger
+	config   *config.Config
+	server   *server.Server
+	router   *mux.Router
+	logger   *slog.Logger
+	registry *prometheus.Registry
 }
 
-func Init() *App {
+func MustInit() *App {
 	// Config
 
 	cfg := config.MustLoad()
@@ -54,19 +64,6 @@ func Init() *App {
 		http.Error(w, `Not found`, 404)
 	})
 
-	// Middleware
-
-	r.Use(middleware.NewLoggingMiddleware(log))
-	r.Use(middleware.NewCORSMiddleware([]string{}))
-
-	// Redis
-
-	redisClient := redis.NewClient(cfg.Redis)
-
-	if err := redisClient.Ping().Err(); err != nil {
-		panic("redis error: " + err.Error())
-	}
-
 	// Minio
 
 	minioClient, err := minio.NewClient(cfg.Minio)
@@ -75,51 +72,98 @@ func Init() *App {
 		panic("minio connection error: " + err.Error())
 	}
 
+	if err = miniosetup.InitBucket(context.Background(), minioClient, cfg.Minio.AvatarBucket); err != nil {
+		panic("minio init bucket error: " + err.Error())
+	}
+
 	// Postgres
 
 	ctx, cancel := context.WithTimeout(context.Background(), _connTimeout)
 	defer cancel()
+
 	pgxClient, err := postgres.NewPgxDatabase(ctx, cfg.Postgres)
 	if err != nil {
 		panic("postgres connection error: " + err.Error())
 	}
 
-	// Server init
+	// Elasticsearch
 
-	srv := server.NewServer(cfg.Server, r)
+	elasticClient, err := elasticsearch.NewClient(cfg.Elasticsearch)
+	if err != nil {
+		panic("elasticsearch connection error: " + err.Error())
+	}
+
+	_, err = elasticClient.Ping()
+	if err != nil {
+		panic("elasticsearch ping error: " + err.Error())
+	}
+
+	ctx, cancel = context.WithTimeout(context.Background(), _timeout)
+	defer cancel()
+
+	if err = elasticsetup.InitElasticData(ctx, pgxClient, elasticClient); err != nil {
+		panic("elasticsearch init data error: " + err.Error())
+	}
+
+	// Server
+
+	srv := server.NewServer(cfg.Main.Server, r)
+
+	// Clients
+
+	// Auth
+	ctx, cancel = context.WithTimeout(context.Background(), _connTimeout)
+	defer cancel()
+
+	authClient, err := authclient.New(ctx, log, cfg.Main.Clients.AuthClient)
+	if err != nil {
+		panic("auth service connection error: " + err.Error())
+	}
+
+	// Profile
+	ctx, cancel = context.WithTimeout(context.Background(), _connTimeout)
+	defer cancel()
+
+	profileClient, err := profileclient.New(ctx, log, cfg.Main.Clients.ProfileClient)
+	if err != nil {
+		panic("profile service connection error: " + err.Error())
+	}
+
+	// CSAT
+	ctx, cancel = context.WithTimeout(context.Background(), _connTimeout)
+	defer cancel()
+
+	csatClient, err := csatclient.New(ctx, log, cfg.Main.Clients.CSATClient)
+	if err != nil {
+		panic("csat service connection error: " + err.Error())
+	}
+
+	// Review
+	ctx, cancel = context.WithTimeout(context.Background(), _connTimeout)
+	defer cancel()
+
+	reviewClient, err := reviewclient.New(ctx, log, cfg.Main.Clients.ReviewClient)
+	if err != nil {
+		panic("csat service connection error: " + err.Error())
+	}
 
 	// Layers
 
-	// Profile
-	profileRepo := repository.NewProfileRepo(pgxClient)
-	profileUsecase := usecase.NewProfileUsecase(profileRepo)
-	profileHandler := delivery.NewProfileHandler(profileUsecase)
-	profileHandler.InitRouter(apiRouter)
-	// if err = minio2.InitBucket(context.Background(), minioClient, cfg.Minio.AvatarBucket); err != nil {
-	//	panic("minio setup error: " + err.Error())
-	//}
-
 	// Auth
-	userRepo := repository.NewUserRepo(pgxClient)
-	sessionRepo := repository.NewSessionRepo(redisClient, cfg.SessionTTL)
-	authUsecase := usecase.NewAuthUsecase(userRepo, sessionRepo, profileRepo)
+	authUsecase := usecase.NewAuthUsecase(authClient, profileClient)
 	authHandler := delivery.NewAuthHandler(authUsecase, cfg.SessionTTL)
 	authHandler.InitRouter(apiRouter)
-
-	// Auth Middleware
-	r.Use(middleware.NewAuthMiddleware(authUsecase))
-
-	// Products
-	productRepo := repository.NewProductRepo(pgxClient)
-	productUsecase := usecase.NewProductUsecase(productRepo)
-	productHandler := delivery.NewProductHandler(productUsecase)
-	productHandler.InitRouter(apiRouter)
 
 	// Cart
 	cartRepo := repository.NewCartRepo(pgxClient)
 	cartUsecase := usecase.NewCartUsecase(cartRepo)
 	cartHandler := delivery.NewCartHandler(cartUsecase)
 	cartHandler.InitRouter(apiRouter)
+
+	// Profile
+	profileUsecase := usecase.NewProfileUsecase(profileClient, cartRepo)
+	profileHandler := delivery.NewProfileHandler(profileUsecase)
+	profileHandler.InitRouter(apiRouter)
 
 	// Order
 	orderRepo := repository.NewOrderRepo(pgxClient)
@@ -129,7 +173,7 @@ func Init() *App {
 
 	// Avatar
 	avatarStorage := repository.NewAvatarStorage(minioClient, cfg.Minio)
-	avatarUsecase := usecase.NewAvatarUsecase(avatarStorage, profileRepo)
+	avatarUsecase := usecase.NewAvatarUsecase(avatarStorage, profileClient)
 	avatarHandler := delivery.NewAvatarHandler(avatarUsecase)
 	avatarHandler.InitRouter(apiRouter)
 
@@ -139,15 +183,51 @@ func Init() *App {
 	categoryHandler := delivery.NewCategoryHandler(categoryUsecase)
 	categoryHandler.InitRouter(apiRouter)
 
+	// Reviews
+	reviewUsecase := usecase.NewReviewUsecase(profileClient, reviewClient)
+	reviewHandler := delivery.NewReviewHandler(reviewUsecase)
+	reviewHandler.InitRouter(apiRouter)
+
+	// Products
+	productRepo := repository.NewProductRepo(pgxClient)
+	productUsecase := usecase.NewProductUsecase(productRepo, categoryRepo)
+	productHandler := delivery.NewProductHandler(productUsecase)
+	productHandler.InitRouter(apiRouter)
+
+	// Suggests
+	suggestRepo := repository.NewSuggestRepo(elasticClient)
+	suggestUsecase := usecase.NewSuggestUsecase(suggestRepo)
+	suggestHandler := delivery.NewSuggestHandler(suggestUsecase)
+	suggestHandler.InitRouter(apiRouter)
+
+	// CSAT
+	csatUsecase := usecase.NewCsatUsecase(csatClient)
+	csatHandler := delivery.NewCsatHandler(csatUsecase)
+	csatHandler.InitRouter(apiRouter)
+
+	// Middleware
+	reg := prometheus.NewRegistry()
+	r.Use(middleware.NewLoggingMiddleware(metrics.NewMetrics(reg), log))
+	r.Use(middleware.NewCORSMiddleware([]string{}))
+	r.Use(middleware.NewAuthMiddleware(authClient))
+
 	return &App{
-		config: cfg,
-		server: srv,
-		router: r,
-		logger: log,
+		config:   cfg,
+		server:   srv,
+		router:   r,
+		logger:   log,
+		registry: reg,
 	}
 }
 
 func (a *App) Run() {
+	a.router.Handle("/public/metrics", promhttp.HandlerFor(
+		a.registry,
+		promhttp.HandlerOpts{
+			Registry: a.registry,
+		},
+	))
+
 	go func() {
 		a.logger.Info("server is running...")
 		if err := a.server.Run(); err != nil {

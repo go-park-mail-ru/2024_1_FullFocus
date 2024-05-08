@@ -7,8 +7,8 @@ import (
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/dao"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 )
 
 type CartRepo struct {
@@ -26,14 +26,13 @@ func (r *CartRepo) GetAllCartItems(ctx context.Context, uID uint) ([]models.Cart
 	FROM product AS p JOIN cart_item AS c ON p.id = c.product_id
 	WHERE profile_id = $1;`
 
-	cartProductRows := []dao.CartProductTable{}
+	var cartProductRows []dao.CartProductTable
 	err := r.storage.Select(ctx, &cartProductRows, q, uID)
 	if err != nil {
-		logger.Error(ctx, "Error: %s", err.Error())
+		logger.Error(ctx, err.Error())
 		return nil, models.ErrEmptyCart
 	}
 	if len(cartProductRows) == 0 {
-		logger.Info(ctx, "users cart is empty")
 		return nil, models.ErrEmptyCart
 	}
 	return dao.ConvertTablesToCartProducts(cartProductRows), nil
@@ -42,17 +41,27 @@ func (r *CartRepo) GetAllCartItems(ctx context.Context, uID uint) ([]models.Cart
 func (r *CartRepo) GetAllCartItemsID(ctx context.Context, uID uint) ([]models.CartItem, error) {
 	q := `SELECT product_id, count FROM cart_item WHERE profile_id = $1;`
 
-	cartItemRows := []dao.CartItemTable{}
+	var cartItemRows []dao.CartItemTable
 	err := r.storage.Select(ctx, &cartItemRows, q, uID)
 	if err != nil {
-		logger.Error(ctx, "Error: %s", err.Error())
+		logger.Error(ctx, err.Error())
 		return nil, models.ErrEmptyCart
 	}
 	if len(cartItemRows) == 0 {
-		logger.Info(ctx, "users cart is empty")
 		return nil, models.ErrEmptyCart
 	}
 	return dao.ConvertTablesToCartItems(cartItemRows), nil
+}
+
+func (r *CartRepo) GetCartItemsAmount(ctx context.Context, uID uint) (uint, error) {
+	q := `SELECT count(*) FROM cart_item ci WHERE ci.profile_id = ?;`
+
+	var amount uint
+	if err := r.storage.Get(ctx, &amount, q, uID); err != nil {
+		logger.Error(ctx, err.Error())
+		return 0, models.ErrNoProfile
+	}
+	return amount, nil
 }
 
 func (r *CartRepo) UpdateCartItem(ctx context.Context, uID, prID uint) (uint, error) {
@@ -65,10 +74,9 @@ func (r *CartRepo) UpdateCartItem(ctx context.Context, uID, prID uint) (uint, er
 	err := r.storage.Get(ctx, &resRow, q, uID, prID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			logger.Info(ctx, "users cart is empty")
 			return 0, models.ErrNoProduct
 		}
-		logger.Error(ctx, "Error: %s", err.Error())
+		logger.Error(ctx, err.Error())
 		// TODO ErrNoProduct
 		return 0, models.ErrEmptyCart
 	}
@@ -84,10 +92,9 @@ func (r *CartRepo) DeleteCartItem(ctx context.Context, uID, prID uint) (uint, er
 	err := r.storage.Get(ctx, &resRow, q, uID, prID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			logger.Info(ctx, "users cart is empty")
 			return 0, models.ErrNoProduct
 		}
-		logger.Error(ctx, "Error: %s", err.Error())
+		logger.Error(ctx, err.Error())
 		// TODO ErrNoProduct
 		return 0, models.ErrEmptyCart
 	}
@@ -108,11 +115,10 @@ func (r *CartRepo) DeleteAllCartItems(ctx context.Context, uID uint) error {
 
 	res, err := r.storage.Exec(ctx, q, uID)
 	if err != nil {
-		logger.Error(ctx, "Error: %s", err.Error())
+		logger.Error(ctx, err.Error())
 		return models.ErrEmptyCart
 	}
 	if count, _ := res.RowsAffected(); count == 0 {
-		logger.Error(ctx, "users cart is empty")
 		return models.ErrEmptyCart
 	}
 	return nil

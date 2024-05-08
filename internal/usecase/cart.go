@@ -39,6 +39,10 @@ func (u *CartUsecase) GetAllCartItems(ctx context.Context, uID uint) (models.Car
 	return content, nil
 }
 
+func (u *CartUsecase) GetCartItemsAmount(ctx context.Context, uID uint) (uint, error) {
+	return u.cartRepo.GetCartItemsAmount(ctx, uID)
+}
+
 func (u *CartUsecase) UpdateCartItem(ctx context.Context, uID, prID uint) (uint, error) {
 	newCount, err := u.cartRepo.UpdateCartItem(ctx, uID, prID)
 	if errors.Is(err, models.ErrNoProduct) {

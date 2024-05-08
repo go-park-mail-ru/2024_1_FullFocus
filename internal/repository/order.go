@@ -2,14 +2,15 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"time"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/dao"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 )
 
 type OrderRepo struct {
@@ -27,6 +28,14 @@ func (r *OrderRepo) Create(ctx context.Context, userID uint, orderItems []models
 	if err != nil {
 		return 0, err
 	}
+	defer func() {
+		if err != nil {
+			rollbackErr := tx.Rollback()
+			if rollbackErr != nil {
+				err = errors.Join(err, rollbackErr)
+			}
+		}
+	}()
 	q := `INSERT INTO ordering (profile_id, order_status) VALUES ($1, $2) RETURNING id;`
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d $2 = %s", userID, "created")))
 	start := time.Now()
@@ -67,7 +76,7 @@ func (r *OrderRepo) Create(ctx context.Context, userID uint, orderItems []models
 	if err = tx.Commit(); err != nil {
 		return 0, err
 	}
-	return orderID, nil
+	return orderID, err
 }
 
 func (r *OrderRepo) GetOrderByID(ctx context.Context, orderID uint) (models.GetOrderPayload, error) {
@@ -84,7 +93,7 @@ func (r *OrderRepo) GetOrderByID(ctx context.Context, orderID uint) (models.GetO
 
 	var sum uint
 	for _, product := range orderProducts {
-		sum += product.Price
+		sum += product.Price * product.Count
 	}
 
 	var orderInfo dao.OrderInfo
@@ -107,7 +116,8 @@ func (r *OrderRepo) GetAllOrders(ctx context.Context, profileID uint) ([]models.
 		  FROM ordering o
     	  	  LEFT JOIN order_item i ON o.id = i.ordering_id
 		  WHERE o.profile_id = ?
-		  GROUP BY o.id;`
+		  GROUP BY o.id
+		  ORDER BY o.id DESC;`
 	var orders []dao.Order
 	if err := r.storage.Select(ctx, &orders, q, profileID); err != nil {
 		logger.Error(ctx, "error while selecting orders: "+err.Error())

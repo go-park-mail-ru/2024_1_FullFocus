@@ -4,7 +4,6 @@ package usecase
 import (
 	"context"
 
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 )
 
@@ -15,16 +14,18 @@ type (
 		GetUserIDBySessionID(ctx context.Context, sID string) (uint, error)
 		Logout(ctx context.Context, sID string) error
 		IsLoggedIn(ctx context.Context, isID string) bool
+		UpdatePassword(ctx context.Context, userID uint, password string, newPassword string) error
 	}
 
 	Products interface {
 		GetAllProductCards(ctx context.Context, input models.GetAllProductsInput) ([]models.ProductCard, error)
 		GetProductByID(ctx context.Context, profileID uint, productID uint) (models.Product, error)
-		GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error)
+		GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) (models.GetProductsByCategoryIDPayload, error)
+		GetProductsByQuery(ctx context.Context, input models.GetProductsByQueryInput) ([]models.ProductCard, error)
 	}
 
 	Avatars interface {
-		GetAvatar(ctx context.Context, profileID uint) (models.Avatar, error)
+		GetAvatar(ctx context.Context, fileName string) (models.Avatar, error)
 		UploadAvatar(ctx context.Context, profileID uint, img models.Avatar) error
 		DeleteAvatar(ctx context.Context, uID uint) error
 	}
@@ -37,10 +38,12 @@ type (
 	}
 
 	Profiles interface {
-		UpdateProfile(ctx context.Context, uID uint, newProfile dto.ProfileData) error
-		GetProfile(ctx context.Context, uID uint) (dto.ProfileData, error)
-		CreateProfile(ctx context.Context, profile dto.ProfileData) (uint, error)
+		UpdateProfile(ctx context.Context, uID uint, newProfile models.ProfileUpdateInput) error
+		GetProfile(ctx context.Context, uID uint) (models.Profile, error)
+		GetProfileMetaInfo(ctx context.Context, uID uint) (models.ProfileMetaInfo, error)
+		CreateProfile(ctx context.Context, profile models.Profile) error
 	}
+
 	Carts interface {
 		GetAllCartItems(ctx context.Context, uID uint) (models.CartContent, error)
 		UpdateCartItem(ctx context.Context, uID, prID uint) (uint, error)
@@ -50,5 +53,14 @@ type (
 
 	Categories interface {
 		GetAllCategories(ctx context.Context) ([]models.Category, error)
+	}
+
+	Reviews interface {
+		GetProductReviews(ctx context.Context, input models.GetProductReviewsInput) ([]models.ProductReview, error)
+		CreateProductReview(ctx context.Context, uID uint, input models.CreateProductReviewInput) error
+	}
+
+	Suggests interface {
+		GetSuggestions(ctx context.Context, query string) (models.Suggestion, error)
 	}
 )

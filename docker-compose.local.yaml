@@ -3,6 +3,7 @@ version: '3.8'
 services:
   redis:
     image: 'redis'
+    container_name: redis
     restart: always
     ports:
       - '6379:6379'
@@ -13,23 +14,30 @@ services:
       retries: 3
     volumes:
       - 'redis-data:/data'
+    networks:
+      - services_data_access_network
   minio:
     image: minio/minio:RELEASE.2024-01-18T22-51-28Z-cpuv1
+    container_name: minio
     volumes:
       - 'minio-data:/data'
     ports:
       - '9000:9000'
+      - '9001:9001'
     environment:
       MINIO_ROOT_USER: FullFocus
       MINIO_ROOT_PASSWORD: FullFocus4
-    command: minio server /data/
+    command: server --console-address :9001 /data
     healthcheck:
       test: ["CMD", "bash", "-c", "echo -n '' > /dev/tcp/127.0.0.1/9000"]
       interval: 30s
       timeout: 20s
       retries: 3
-  postgres:
+    networks:
+      - services_data_access_network
+  postgres-main:
     image: postgres:16
+    container_name: postgres-main
     volumes:
       - 'postgres-data:/var/lib/postgresql/data'
     ports:
@@ -43,7 +51,115 @@ services:
       interval: 10s
       timeout: 10s
       retries: 3
+    networks:
+      - services_data_access_network
+  postgres-csat:
+    image: postgres:16
+    container_name: postgres-csat
+    volumes:
+     - 'postgres-data-csat:/var/lib/postgresql/data'
+    ports:
+     - '5433:5432'
+    user: postgres
+    environment:
+     - POSTGRES_DB=csat
+     - POSTGRES_PASSWORD=postgres
+    healthcheck:
+     test: pg_isready
+     interval: 10s
+     timeout: 10s
+     retries: 3
+    networks:
+     - services_data_access_network
+  elasticsearch:
+    image: bitnami/elasticsearch:7.17.20-debian-12-r2
+    container_name: elasticsearch
+    restart: always
+    environment:
+      node.name: 'es01'
+      bootstrap.memory_lock: true
+      ES_JAVA_OPTS: '-Xms750m -Xmx750m'
+      ELASTIC_USERNAME: elastic
+      ELASTIC_PASSWORD: elastic
+    ports:
+      - '9200:9200'
+    volumes:
+      - 'elastic-data:/usr/share/elasticsearch/data'
+      - '/etc/elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml'
+      - '/etc/elasticsearch/plugins:/usr/share/elasticsearch/plugins'
+    networks:
+      - services_data_access_network
+
+  # Monitoring
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    user: root
+    env_file:
+      - '.env'
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+      - prometheus-data:/prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yaml
+    hostname: prometheus
+    environment:
+      TZ: "Europe/Moscow"
+    networks:
+      - services_data_access_network
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    user: root
+    env_file:
+      - '.env'
+    depends_on:
+      - prometheus
+    ports:
+      - '3100:3000'
+    volumes:
+      - grafana-data:/var/lib/grafana
+    hostname: grafana
+    environment:
+      - TERM=linux
+      - GF_LOG_LEVEL=debug
+      - GF_DATAPROXY_LOGGING=true
+      - GF_DEFAULT_APP_MODE=development
+      - TZ="Europe/Moscow"
+    networks:
+      - services_data_access_network
+  node-exporter:
+    image: prom/node-exporter
+    container_name: exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    hostname: exporter
+    command:
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+      - --collector.filesystem.ignored-mount-points
+      - ^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)
+    ports:
+      - '9100:9100'
+    restart: unless-stopped
+    environment:
+      TZ: "Europe/Moscow"
+    networks:
+      - services_data_access_network
+
 volumes:
   redis-data:
   minio-data:
   postgres-data:
+  postgres-data-csat:
+  elastic-data:
+  grafana-data:
+  prometheus-data:
+networks:
+  services_data_access_network:
+    name: services_data_access_network
+    external: true
