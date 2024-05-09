@@ -64,12 +64,13 @@ func (r *Repo) GetProfileMetaInfo(ctx context.Context, pID uint) (models.Profile
 }
 
 func (r *Repo) GetProfileNamesAvatarsByIDs(ctx context.Context, pIDs []uint) ([]models.ProfileNameAvatar, error) {
-	q := `SELECT id, full_name, imgsrc
-	FROM user_profile
-	WHERE id = ANY (?);`
+	q := `SELECT full_name, imgsrc
+		FROM user_profile
+		WHERE id = ANY(?)
+		ORDER BY array_position(?, id);`
 
 	profileData := make([]dao.ProfileNameAvatar, 0)
-	if err := r.storage.Select(ctx, &profileData, q, pIDs); err != nil {
+	if err := r.storage.Select(ctx, &profileData, q, pIDs, pIDs); err != nil {
 		logger.Error(ctx, err.Error())
 		return nil, models.ErrInternal
 	}
