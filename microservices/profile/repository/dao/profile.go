@@ -35,14 +35,12 @@ func ConvertProfileMetaInfo(info ProfileMetaInfo) models.ProfileMetaInfo {
 }
 
 type ProfileNameAvatar struct {
-	ID         uint   `db:"id"`
 	FullName   string `db:"full_name"`
 	AvatarName string `db:"imgsrc"`
 }
 
 func ConvertProfileNameAvatarToModel(t ProfileNameAvatar) models.ProfileNameAvatar {
 	return models.ProfileNameAvatar{
-		ID:         t.ID,
 		FullName:   t.FullName,
 		AvatarName: t.AvatarName,
 	}

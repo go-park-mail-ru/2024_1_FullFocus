@@ -13,5 +13,5 @@ Golang-репозиторий команды FullFocus
 [Петр Памужак]() - UI/UX  
 
 ## Сссылки
-[Деплой](http://62.233.46.235/)  
+[Деплой](https://bizonshop.site/)  
 [Фронт](https://github.com/frontend-park-mail-ru/2024_1_FullFocus)  

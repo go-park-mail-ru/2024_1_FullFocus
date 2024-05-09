@@ -10,7 +10,10 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/metrics"
 	"github.com/gorilla/mux"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	authclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/auth/grpc"
 	csatclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/csat/grpc"
@@ -36,10 +39,11 @@ const (
 )
 
 type App struct {
-	config *config.Config
-	server *server.Server
-	router *mux.Router
-	logger *slog.Logger
+	config   *config.Config
+	server   *server.Server
+	router   *mux.Router
+	logger   *slog.Logger
+	registry *prometheus.Registry
 }
 
 func MustInit() *App {
@@ -202,19 +206,28 @@ func MustInit() *App {
 	csatHandler.InitRouter(apiRouter)
 
 	// Middleware
-	r.Use(middleware.NewLoggingMiddleware(log))
+	reg := prometheus.NewRegistry()
+	r.Use(middleware.NewLoggingMiddleware(metrics.NewMetrics(reg), log))
 	r.Use(middleware.NewCORSMiddleware([]string{}))
 	r.Use(middleware.NewAuthMiddleware(authClient))
 
 	return &App{
-		config: cfg,
-		server: srv,
-		router: r,
-		logger: log,
+		config:   cfg,
+		server:   srv,
+		router:   r,
+		logger:   log,
+		registry: reg,
 	}
 }
 
 func (a *App) Run() {
+	a.router.Handle("/public/metrics", promhttp.HandlerFor(
+		a.registry,
+		promhttp.HandlerOpts{
+			Registry: a.registry,
+		},
+	))
+
 	go func() {
 		a.logger.Info("server is running...")
 		if err := a.server.Run(); err != nil {
