@@ -79,6 +79,9 @@ func (c *Client) GetProfileByID(ctx context.Context, pID uint) (models.Profile, 
 		profile := models.Profile{
 			ID:         pID,
 			FullName:   res.GetName(),
+			Address:    res.GetAddress(),
+			PhoneNum:   res.GetPhoneNum(),
+			Gender:     uint(res.GetGender()),
 			AvatarName: res.GetAvatarName(),
 		}
 		return profile, nil
@@ -172,6 +175,9 @@ func (c *Client) UpdateProfile(ctx context.Context, pID uint, newProfile models.
 	_, err := c.api.UpdateProfile(ctx, &profilev1.UpdateProfileRequest{
 		ProfileID: uint32(pID),
 		Name:      newProfile.FullName,
+		Address:   newProfile.Address,
+		PhoneNum:  newProfile.PhoneNum,
+		Gender:    uint32(newProfile.Gender),
 	})
 	st, ok := status.FromError(err)
 	if !ok {
