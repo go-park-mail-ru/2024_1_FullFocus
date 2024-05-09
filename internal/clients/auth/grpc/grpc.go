@@ -48,9 +48,9 @@ func New(ctx context.Context, log *slog.Logger, cfg config.ClientConfig) (*Clien
 	return c, nil
 }
 
-func (c *Client) Login(ctx context.Context, login string, password string) (string, error) {
+func (c *Client) Login(ctx context.Context, email, password string) (string, error) {
 	res, err := c.api.Login(ctx, &authv1.LoginRequest{
-		Login:    login,
+		Email:    email,
 		Password: password,
 	})
 	st, ok := status.FromError(err)
@@ -71,9 +71,9 @@ func (c *Client) Login(ctx context.Context, login string, password string) (stri
 	}
 }
 
-func (c *Client) Signup(ctx context.Context, login string, password string) (uint, string, error) {
+func (c *Client) Signup(ctx context.Context, email, password string) (uint, string, error) {
 	res, err := c.api.Signup(ctx, &authv1.SignupRequest{
-		Login:    login,
+		Email:    email,
 		Password: password,
 	})
 	st, ok := status.FromError(err)
@@ -113,7 +113,7 @@ func (c *Client) GetUserIDBySessionID(ctx context.Context, sID string) (uint, er
 }
 
 func (c *Client) GetUserLoginByUserID(ctx context.Context, uID uint) (string, error) {
-	res, err := c.api.GetUserLoginByUserID(ctx, &authv1.GetUserLoginByUserIDRequest{
+	res, err := c.api.GetUserEmailByUserID(ctx, &authv1.GetUserEmailByUserIDRequest{
 		UserID: uint32(uID),
 	})
 	st, ok := status.FromError(err)
@@ -122,7 +122,7 @@ func (c *Client) GetUserLoginByUserID(ctx context.Context, uID uint) (string, er
 	}
 	switch st.Code() {
 	case codes.OK:
-		return res.GetLogin(), nil
+		return res.GetEmail(), nil
 	case codes.NotFound:
 		return "", models.ErrUserNotFound
 	default:
