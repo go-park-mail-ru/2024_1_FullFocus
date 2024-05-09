@@ -48,10 +48,9 @@ func New(ctx context.Context, log *slog.Logger, cfg config.ClientConfig) (*Clien
 	return c, nil
 }
 
-func (c *Client) CreateProfile(ctx context.Context, profile models.Profile) error {
+func (c *Client) CreateProfile(ctx context.Context, pID uint) error {
 	_, err := c.api.CreateProfile(ctx, &profilev1.CreateProfileRequest{
-		ProfileID: uint32(profile.ID),
-		Name:      profile.FullName,
+		ProfileID: uint32(pID),
 	})
 	st, ok := status.FromError(err)
 	if !ok {
