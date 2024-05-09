@@ -55,13 +55,13 @@ func (u *ProfileUsecase) GetProfile(ctx context.Context, uID uint) (models.FullP
 		return models.FullProfile{}, err
 	}
 	profile.FullName = html.EscapeString(profile.FullName)
-	login, err := u.authClient.GetUserLoginByUserID(ctx, uID)
+	email, err := u.authClient.GetUserEmailByUserID(ctx, uID)
 	if err != nil {
 		return models.FullProfile{}, err
 	}
 	return models.FullProfile{
 		ProfileData: profile,
-		Login:       login,
+		Email:       email,
 	}, nil
 }
 

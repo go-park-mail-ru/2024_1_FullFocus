@@ -9,7 +9,7 @@ import (
 
 type (
 	Auth interface {
-		Login(ctx context.Context, login string, password string) (string, error)
+		Login(ctx context.Context, email string, password string) (string, error)
 		Signup(ctx context.Context, input models.SignupData) (string, error)
 		GetUserIDBySessionID(ctx context.Context, sID string) (uint, error)
 		Logout(ctx context.Context, sID string) error
@@ -46,8 +46,8 @@ type (
 
 	Carts interface {
 		GetAllCartItems(ctx context.Context, uID uint) (models.CartContent, error)
-		UpdateCartItem(ctx context.Context, uID, prID uint) (uint, error)
-		DeleteCartItem(ctx context.Context, uID, prID uint) (uint, error)
+		UpdateCartItem(ctx context.Context, uID uint, prID uint) (uint, error)
+		DeleteCartItem(ctx context.Context, uID uint, prID uint) (uint, error)
 		DeleteAllCartItems(ctx context.Context, uID uint) error
 	}
 
