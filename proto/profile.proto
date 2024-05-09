@@ -21,8 +21,6 @@ service Profile {
 message CreateProfileRequest {
   uint32 ProfileID = 1;
   string Name = 2;
-  string Email = 3;
-  string PhoneNumber = 4;
 }
 
 message GetProfileByIDRequest {
@@ -31,8 +29,6 @@ message GetProfileByIDRequest {
 
 message GetProfileByIDResponse {
   string Name = 1;
-  string Email = 2;
-  string PhoneNumber = 3;
   string AvatarName = 4;
 }
 
@@ -73,8 +69,6 @@ message UpdateAvatarByProfileIDResponse {
 message UpdateProfileRequest {
   uint32 ProfileID = 1;
   string Name = 2;
-  string Email = 3;
-  string PhoneNumber = 4;
 }
 
 message DeleteAvatarByProfileIDRequest {
