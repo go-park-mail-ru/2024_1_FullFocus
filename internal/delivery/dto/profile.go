@@ -5,26 +5,38 @@ import (
 )
 
 type Profile struct {
-	ID         uint   `json:"id"`
-	FullName   string `json:"fullName"`
-	AvatarName string `json:"avatarName"`
+	ID          uint   `json:"id"`
+	FullName    string `json:"fullName"`
+	Address     string `json:"address"`
+	PhoneNumber string `json:"phoneNum"`
+	Gender      uint   `json:"gender"`
+	AvatarName  string `json:"avatarName"`
 }
 
 func ConvertProfileDataToProfile(profile models.Profile) Profile {
 	return Profile{
-		ID:         profile.ID,
-		FullName:   profile.FullName,
-		AvatarName: profile.AvatarName,
+		ID:          profile.ID,
+		FullName:    profile.FullName,
+		Address:     profile.Address,
+		PhoneNumber: profile.PhoneNum,
+		Gender:      profile.Gender,
+		AvatarName:  profile.AvatarName,
 	}
 }
 
 type ProfileUpdateInput struct {
-	FullName string `json:"fullName"`
+	FullName    string `json:"fullName"`
+	Address     string `json:"address"`
+	PhoneNumber string `json:"phoneNum"`
+	Gender      uint   `json:"gender"`
 }
 
 func ConvertProfileToProfileData(profile ProfileUpdateInput) models.ProfileUpdateInput {
 	return models.ProfileUpdateInput{
 		FullName: profile.FullName,
+		Address:  profile.Address,
+		PhoneNum: profile.PhoneNumber,
+		Gender:   profile.Gender,
 	}
 }
 
@@ -43,17 +55,23 @@ func ConvertProfileToMetaInfo(profile models.ProfileMetaInfo) ProfileMetaInfo {
 }
 
 type FullProfile struct {
-	ID         uint   `json:"id"`
-	FullName   string `json:"fullName"`
-	Email      string `json:"email"`
-	AvatarName string `json:"avatarName"`
+	ID          uint   `json:"id"`
+	Email       string `json:"email"`
+	FullName    string `json:"fullName"`
+	Address     string `json:"address"`
+	PhoneNumber string `json:"phoneNum"`
+	Gender      uint   `json:"gender"`
+	AvatarName  string `json:"avatarName"`
 }
 
 func ConvertFullProfileDataToDto(m models.FullProfile) FullProfile {
 	return FullProfile{
-		Email:      m.Email,
-		ID:         m.ProfileData.ID,
-		FullName:   m.ProfileData.FullName,
-		AvatarName: m.ProfileData.AvatarName,
+		Email:       m.Email,
+		ID:          m.ProfileData.ID,
+		FullName:    m.ProfileData.FullName,
+		Address:     m.ProfileData.Address,
+		PhoneNumber: m.ProfileData.PhoneNum,
+		Gender:      m.ProfileData.Gender,
+		AvatarName:  m.ProfileData.AvatarName,
 	}
 }

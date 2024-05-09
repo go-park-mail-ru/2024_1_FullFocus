@@ -15,13 +15,11 @@ type UpdatePasswordInput struct {
 type SignupData struct {
 	Password string `json:"password"`
 	Email    string `json:"email"`
-	FullName string `json:"fullName"`
 }
 
 func ConvertSignupDataToModel(data SignupData) models.SignupData {
 	return models.SignupData{
 		Password: data.Password,
 		Email:    data.Email,
-		FullName: data.FullName,
 	}
 }
