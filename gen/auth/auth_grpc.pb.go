@@ -24,7 +24,7 @@ const (
 	Auth_Signup_FullMethodName               = "/auth.Auth/Signup"
 	Auth_Logout_FullMethodName               = "/auth.Auth/Logout"
 	Auth_GetUserIDBySessionID_FullMethodName = "/auth.Auth/GetUserIDBySessionID"
-	Auth_GetUserLoginByUserID_FullMethodName = "/auth.Auth/GetUserLoginByUserID"
+	Auth_GetUserEmailByUserID_FullMethodName = "/auth.Auth/GetUserEmailByUserID"
 	Auth_CheckAuth_FullMethodName            = "/auth.Auth/CheckAuth"
 	Auth_UpdatePassword_FullMethodName       = "/auth.Auth/UpdatePassword"
 )
@@ -37,7 +37,7 @@ type AuthClient interface {
 	Signup(ctx context.Context, in *SignupRequest, opts ...grpc.CallOption) (*SignupResponse, error)
 	Logout(ctx context.Context, in *LogoutRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	GetUserIDBySessionID(ctx context.Context, in *GetUserIDRequest, opts ...grpc.CallOption) (*GetUserIDResponse, error)
-	GetUserLoginByUserID(ctx context.Context, in *GetUserLoginByUserIDRequest, opts ...grpc.CallOption) (*GetUserLoginByUserIDResponse, error)
+	GetUserEmailByUserID(ctx context.Context, in *GetUserEmailByUserIDRequest, opts ...grpc.CallOption) (*GetUserEmailByUserIDResponse, error)
 	CheckAuth(ctx context.Context, in *CheckAuthRequest, opts ...grpc.CallOption) (*CheckAuthResponse, error)
 	UpdatePassword(ctx context.Context, in *UpdatePasswordRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 }
@@ -86,9 +86,9 @@ func (c *authClient) GetUserIDBySessionID(ctx context.Context, in *GetUserIDRequ
 	return out, nil
 }
 
-func (c *authClient) GetUserLoginByUserID(ctx context.Context, in *GetUserLoginByUserIDRequest, opts ...grpc.CallOption) (*GetUserLoginByUserIDResponse, error) {
-	out := new(GetUserLoginByUserIDResponse)
-	err := c.cc.Invoke(ctx, Auth_GetUserLoginByUserID_FullMethodName, in, out, opts...)
+func (c *authClient) GetUserEmailByUserID(ctx context.Context, in *GetUserEmailByUserIDRequest, opts ...grpc.CallOption) (*GetUserEmailByUserIDResponse, error) {
+	out := new(GetUserEmailByUserIDResponse)
+	err := c.cc.Invoke(ctx, Auth_GetUserEmailByUserID_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +121,7 @@ type AuthServer interface {
 	Signup(context.Context, *SignupRequest) (*SignupResponse, error)
 	Logout(context.Context, *LogoutRequest) (*empty.Empty, error)
 	GetUserIDBySessionID(context.Context, *GetUserIDRequest) (*GetUserIDResponse, error)
-	GetUserLoginByUserID(context.Context, *GetUserLoginByUserIDRequest) (*GetUserLoginByUserIDResponse, error)
+	GetUserEmailByUserID(context.Context, *GetUserEmailByUserIDRequest) (*GetUserEmailByUserIDResponse, error)
 	CheckAuth(context.Context, *CheckAuthRequest) (*CheckAuthResponse, error)
 	UpdatePassword(context.Context, *UpdatePasswordRequest) (*empty.Empty, error)
 	mustEmbedUnimplementedAuthServer()
@@ -143,8 +143,8 @@ func (UnimplementedAuthServer) Logout(context.Context, *LogoutRequest) (*empty.E
 func (UnimplementedAuthServer) GetUserIDBySessionID(context.Context, *GetUserIDRequest) (*GetUserIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUserIDBySessionID not implemented")
 }
-func (UnimplementedAuthServer) GetUserLoginByUserID(context.Context, *GetUserLoginByUserIDRequest) (*GetUserLoginByUserIDResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetUserLoginByUserID not implemented")
+func (UnimplementedAuthServer) GetUserEmailByUserID(context.Context, *GetUserEmailByUserIDRequest) (*GetUserEmailByUserIDResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUserEmailByUserID not implemented")
 }
 func (UnimplementedAuthServer) CheckAuth(context.Context, *CheckAuthRequest) (*CheckAuthResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckAuth not implemented")
@@ -237,20 +237,20 @@ func _Auth_GetUserIDBySessionID_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Auth_GetUserLoginByUserID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetUserLoginByUserIDRequest)
+func _Auth_GetUserEmailByUserID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUserEmailByUserIDRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthServer).GetUserLoginByUserID(ctx, in)
+		return srv.(AuthServer).GetUserEmailByUserID(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Auth_GetUserLoginByUserID_FullMethodName,
+		FullMethod: Auth_GetUserEmailByUserID_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServer).GetUserLoginByUserID(ctx, req.(*GetUserLoginByUserIDRequest))
+		return srv.(AuthServer).GetUserEmailByUserID(ctx, req.(*GetUserEmailByUserIDRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -315,8 +315,8 @@ var Auth_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Auth_GetUserIDBySessionID_Handler,
 		},
 		{
-			MethodName: "GetUserLoginByUserID",
-			Handler:    _Auth_GetUserLoginByUserID_Handler,
+			MethodName: "GetUserEmailByUserID",
+			Handler:    _Auth_GetUserEmailByUserID_Handler,
 		},
 		{
 			MethodName: "CheckAuth",
