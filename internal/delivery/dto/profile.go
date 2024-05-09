@@ -5,34 +5,26 @@ import (
 )
 
 type Profile struct {
-	ID          uint   `json:"id"`
-	FullName    string `json:"fullName"`
-	Email       string `json:"email"`
-	PhoneNumber string `json:"phoneNumber"`
-	AvatarName  string `json:"avatarName"`
+	ID         uint   `json:"id"`
+	FullName   string `json:"fullName"`
+	AvatarName string `json:"avatarName"`
 }
 
 func ConvertProfileDataToProfile(profile models.Profile) Profile {
 	return Profile{
-		ID:          profile.ID,
-		FullName:    profile.FullName,
-		Email:       profile.Email,
-		PhoneNumber: profile.PhoneNumber,
-		AvatarName:  profile.AvatarName,
+		ID:         profile.ID,
+		FullName:   profile.FullName,
+		AvatarName: profile.AvatarName,
 	}
 }
 
 type ProfileUpdateInput struct {
-	FullName    string `json:"fullName"`
-	Email       string `json:"email"`
-	PhoneNumber string `json:"phoneNumber"`
+	FullName string `json:"fullName"`
 }
 
 func ConvertProfileToProfileData(profile ProfileUpdateInput) models.ProfileUpdateInput {
 	return models.ProfileUpdateInput{
-		FullName:    profile.FullName,
-		Email:       profile.Email,
-		PhoneNumber: profile.PhoneNumber,
+		FullName: profile.FullName,
 	}
 }
 
@@ -51,21 +43,17 @@ func ConvertProfileToMetaInfo(profile models.ProfileMetaInfo) ProfileMetaInfo {
 }
 
 type FullProfile struct {
-	ID          uint   `json:"id"`
-	Login       string `json:"login"`
-	FullName    string `json:"fullName"`
-	Email       string `json:"email"`
-	PhoneNumber string `json:"phoneNumber"`
-	AvatarName  string `json:"avatarName"`
+	ID         uint   `json:"id"`
+	FullName   string `json:"fullName"`
+	Email      string `json:"email"`
+	AvatarName string `json:"avatarName"`
 }
 
 func ConvertFullProfileDataToDto(m models.FullProfile) FullProfile {
 	return FullProfile{
-		ID:          m.ProfileData.ID,
-		FullName:    m.ProfileData.FullName,
-		Email:       m.ProfileData.Email,
-		PhoneNumber: m.ProfileData.PhoneNumber,
-		AvatarName:  m.ProfileData.AvatarName,
-		Login:       m.Login,
+		Email:      m.Email,
+		ID:         m.ProfileData.ID,
+		FullName:   m.ProfileData.FullName,
+		AvatarName: m.ProfileData.AvatarName,
 	}
 }

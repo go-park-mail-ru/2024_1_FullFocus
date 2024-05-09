@@ -112,7 +112,7 @@ func (c *Client) GetUserIDBySessionID(ctx context.Context, sID string) (uint, er
 	}
 }
 
-func (c *Client) GetUserLoginByUserID(ctx context.Context, uID uint) (string, error) {
+func (c *Client) GetUserEmailByUserID(ctx context.Context, uID uint) (string, error) {
 	res, err := c.api.GetUserEmailByUserID(ctx, &authv1.GetUserEmailByUserIDRequest{
 		UserID: uint32(uID),
 	})
