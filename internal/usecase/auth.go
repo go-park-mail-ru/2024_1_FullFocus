@@ -70,10 +70,7 @@ func (u *AuthUsecase) Signup(ctx context.Context, input models.SignupData) (stri
 		}
 		return "", err
 	}
-	if err = u.profileClient.CreateProfile(ctx, models.Profile{
-		ID:       uID,
-		FullName: input.FullName,
-	}); err != nil {
+	if err = u.profileClient.CreateProfile(ctx, uID); err != nil {
 		return "", err
 	}
 	return sID, nil

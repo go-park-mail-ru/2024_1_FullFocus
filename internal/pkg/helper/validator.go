@@ -68,3 +68,11 @@ func ValidateEmail(value string) error {
 	}
 	return nil
 }
+
+func ValidateAddress(address string) error {
+	onlyValidSymbols := regexp.MustCompile(`([\p{L}\d_]+[\.\-\,]*)+`).MatchString
+	if !onlyValidSymbols(address) {
+		return models.ErrInvalidField
+	}
+	return nil
+}
