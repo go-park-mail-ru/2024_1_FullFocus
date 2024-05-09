@@ -14,10 +14,10 @@ import (
 )
 
 type Auth interface {
-	Login(ctx context.Context, login string, password string) (string, error)
-	Signup(ctx context.Context, login string, password string) (uint, string, error)
+	Login(ctx context.Context, email string, password string) (string, error)
+	Signup(ctx context.Context, email string, password string) (uint, string, error)
 	GetUserIDBySessionID(ctx context.Context, sID string) (uint, error)
-	GetUserLoginByUserID(ctx context.Context, uID uint) (string, error)
+	GetUserEmailByUserID(ctx context.Context, uID uint) (string, error)
 	Logout(ctx context.Context, sID string) error
 	IsLoggedIn(ctx context.Context, sID string) bool
 	UpdatePassword(ctx context.Context, userID uint, password string, newPassword string) error
@@ -35,7 +35,7 @@ func Register(gRPCServer *grpc.Server, uc Auth) {
 }
 
 func (s *serverAPI) Login(ctx context.Context, r *authv1.LoginRequest) (*authv1.LoginResponse, error) {
-	sID, err := s.authUsecase.Login(ctx, r.GetLogin(), r.GetPassword())
+	sID, err := s.authUsecase.Login(ctx, r.GetEmail(), r.GetPassword())
 	if err != nil {
 		if errors.Is(err, models.ErrInvalidInput) {
 			return &authv1.LoginResponse{}, status.Error(codes.InvalidArgument, err.Error())
@@ -51,7 +51,7 @@ func (s *serverAPI) Login(ctx context.Context, r *authv1.LoginRequest) (*authv1.
 }
 
 func (s *serverAPI) Signup(ctx context.Context, r *authv1.SignupRequest) (*authv1.SignupResponse, error) {
-	uID, sID, err := s.authUsecase.Signup(ctx, r.GetLogin(), r.GetPassword())
+	uID, sID, err := s.authUsecase.Signup(ctx, r.GetEmail(), r.GetPassword())
 	if err != nil {
 		if errors.Is(err, models.ErrInvalidInput) {
 			return &authv1.SignupResponse{}, status.Error(codes.InvalidArgument, err.Error())
@@ -85,13 +85,13 @@ func (s *serverAPI) GetUserIDBySessionID(ctx context.Context, r *authv1.GetUserI
 	}, status.Error(codes.OK, "")
 }
 
-func (s *serverAPI) GetUserLoginByUserID(ctx context.Context, r *authv1.GetUserLoginByUserIDRequest) (*authv1.GetUserLoginByUserIDResponse, error) {
-	login, err := s.authUsecase.GetUserLoginByUserID(ctx, uint(r.GetUserID()))
+func (s *serverAPI) GetUserEmailByUserID(ctx context.Context, r *authv1.GetUserEmailByUserIDRequest) (*authv1.GetUserEmailByUserIDResponse, error) {
+	email, err := s.authUsecase.GetUserEmailByUserID(ctx, uint(r.GetUserID()))
 	if err != nil {
-		return &authv1.GetUserLoginByUserIDResponse{}, status.Error(codes.NotFound, err.Error())
+		return &authv1.GetUserEmailByUserIDResponse{}, status.Error(codes.NotFound, err.Error())
 	}
-	return &authv1.GetUserLoginByUserIDResponse{
-		Login: login,
+	return &authv1.GetUserEmailByUserIDResponse{
+		Email: email,
 	}, status.Error(codes.OK, "")
 }
 

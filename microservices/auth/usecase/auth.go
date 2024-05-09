@@ -9,10 +9,10 @@ import (
 
 type Auth interface {
 	CreateUser(ctx context.Context, user models.User) (uint, error)
-	GetUser(ctx context.Context, login string) (models.User, error)
+	GetUser(ctx context.Context, email string) (models.User, error)
 	CreateSession(ctx context.Context, userID uint) string
 	GetUserIDBySessionID(ctx context.Context, sID string) (uint, error)
-	GetUserLoginByUserID(ctx context.Context, uID uint) (string, error)
+	GetUserEmailByUserID(ctx context.Context, uID uint) (string, error)
 	SessionExists(ctx context.Context, sID string) bool
 	DeleteSession(ctx context.Context, sID string) error
 	UpdatePassword(ctx context.Context, userID uint, password string) error
@@ -29,11 +29,11 @@ func NewAuthUsecase(a Auth) *Usecase {
 	}
 }
 
-func (u *Usecase) Login(ctx context.Context, login string, password string) (string, error) {
-	if login == "" || password == "" {
+func (u *Usecase) Login(ctx context.Context, email, password string) (string, error) {
+	if email == "" || password == "" {
 		return "", models.ErrInvalidInput
 	}
-	user, err := u.repo.GetUser(ctx, login)
+	user, err := u.repo.GetUser(ctx, email)
 	if err != nil {
 		return "", err
 	}
@@ -43,8 +43,8 @@ func (u *Usecase) Login(ctx context.Context, login string, password string) (str
 	return u.repo.CreateSession(ctx, user.ID), nil
 }
 
-func (u *Usecase) Signup(ctx context.Context, login string, password string) (uint, string, error) {
-	if login == "" || password == "" {
+func (u *Usecase) Signup(ctx context.Context, email, password string) (uint, string, error) {
+	if email == "" || password == "" {
 		return 0, "", models.ErrInvalidInput
 	}
 	passwordHash, err := helper.HashPassword(password)
@@ -52,7 +52,7 @@ func (u *Usecase) Signup(ctx context.Context, login string, password string) (ui
 		return 0, "", models.ErrUnableToHash
 	}
 	user := models.User{
-		Username:     login,
+		Email:        email,
 		PasswordHash: passwordHash,
 	}
 	uID, err := u.repo.CreateUser(ctx, user)
@@ -67,8 +67,8 @@ func (u *Usecase) GetUserIDBySessionID(ctx context.Context, sID string) (uint, e
 	return u.repo.GetUserIDBySessionID(ctx, sID)
 }
 
-func (u *Usecase) GetUserLoginByUserID(ctx context.Context, uID uint) (string, error) {
-	return u.repo.GetUserLoginByUserID(ctx, uID)
+func (u *Usecase) GetUserEmailByUserID(ctx context.Context, uID uint) (string, error) {
+	return u.repo.GetUserEmailByUserID(ctx, uID)
 }
 
 func (u *Usecase) Logout(ctx context.Context, sID string) error {

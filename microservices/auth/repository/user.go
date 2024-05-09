@@ -10,10 +10,10 @@ import (
 
 func (r *AuthRepo) CreateUser(ctx context.Context, user models.User) (uint, error) {
 	userRow := dao.ConvertUserToTable(user)
-	q := `INSERT INTO default_user (user_login, password_hash) VALUES ($1, $2) returning id;`
+	q := `INSERT INTO default_user (email, password_hash) VALUES ($1, $2) returning id;`
 
 	resRow := dao.UserTable{}
-	err := r.storage.Get(ctx, &resRow, q, userRow.Login, userRow.PasswordHash)
+	err := r.storage.Get(ctx, &resRow, q, userRow.Email, userRow.PasswordHash)
 	if err != nil {
 		logger.Error(ctx, err.Error())
 		return 0, models.ErrUserAlreadyExists
@@ -21,26 +21,26 @@ func (r *AuthRepo) CreateUser(ctx context.Context, user models.User) (uint, erro
 	return resRow.ID, nil
 }
 
-func (r *AuthRepo) GetUser(ctx context.Context, username string) (models.User, error) {
-	q := `SELECT id, password_hash FROM default_user WHERE user_login = $1;`
+func (r *AuthRepo) GetUser(ctx context.Context, email string) (models.User, error) {
+	q := `SELECT id, password_hash FROM default_user WHERE email = $1;`
 
 	userRow := dao.UserTable{}
-	if err := r.storage.Get(ctx, &userRow, q, username); err != nil {
+	if err := r.storage.Get(ctx, &userRow, q, email); err != nil {
 		logger.Error(ctx, err.Error())
 		return models.User{}, models.ErrUserNotFound
 	}
 	return dao.ConvertTableToUser(userRow), nil
 }
 
-func (r *AuthRepo) GetUserLoginByUserID(ctx context.Context, uID uint) (string, error) {
-	q := `SELECT user_login FROM default_user WHERE id = $1;`
+func (r *AuthRepo) GetUserEmailByUserID(ctx context.Context, uID uint) (string, error) {
+	q := `SELECT email FROM default_user WHERE id = $1;`
 
-	var login string
-	if err := r.storage.Get(ctx, &login, q, uID); err != nil {
+	var email string
+	if err := r.storage.Get(ctx, &email, q, uID); err != nil {
 		logger.Error(ctx, err.Error())
 		return "", models.ErrUserNotFound
 	}
-	return login, nil
+	return email, nil
 }
 
 func (r *AuthRepo) GetUserPassword(ctx context.Context, userID uint) (string, error) {
