@@ -43,19 +43,15 @@ func TestGetProfile(t *testing.T) {
 			pID:  1000,
 			mockBehavior: func(r *mockrepo.MockProfile, uID uint) {
 				r.EXPECT().GetProfile(context.Background(), uID).Return(models.Profile{
-					ID:          1000,
-					FullName:    "tester",
-					Email:       "tester@example.com",
-					PhoneNumber: "89107184390",
-					AvatarName:  "avatar",
+					ID:         1000,
+					FullName:   "tester",
+					AvatarName: "avatar",
 				}, nil)
 			},
 			expectedResult: models.Profile{
-				ID:          1000,
-				FullName:    "tester",
-				Email:       "tester@example.com",
-				PhoneNumber: "89107184390",
-				AvatarName:  "avatar",
+				ID:         1000,
+				FullName:   "tester",
+				AvatarName: "avatar",
 			},
 			expectedErr: nil,
 		},
@@ -88,9 +84,7 @@ func TestUpdateProfile(t *testing.T) {
 			name: "Text successful update",
 			id:   1,
 			profile: models.ProfileUpdateInput{
-				FullName:    "testing",
-				Email:       "my@mail.com",
-				PhoneNumber: "70000000000",
+				FullName: "testing",
 			},
 			mockBehavior: func(r *mockrepo.MockProfile, uID uint, profile models.ProfileUpdateInput) {
 				r.EXPECT().UpdateProfile(context.Background(), uID, profile).Return(nil)
@@ -102,9 +96,7 @@ func TestUpdateProfile(t *testing.T) {
 			name: "Test profile not found",
 			id:   1000,
 			profile: models.ProfileUpdateInput{
-				FullName:    "testing",
-				Email:       "my@mail.com",
-				PhoneNumber: "79037783633",
+				FullName: "testing",
 			},
 			mockBehavior: func(r *mockrepo.MockProfile, uID uint, profile models.ProfileUpdateInput) {
 				r.EXPECT().UpdateProfile(context.Background(), uID, profile).Return(models.ErrNoProfile)
@@ -113,26 +105,10 @@ func TestUpdateProfile(t *testing.T) {
 			valid:       true,
 		},
 		{
-			name: "Test invalid email",
-			id:   1,
-			profile: models.ProfileUpdateInput{
-				FullName:    "testingemail",
-				Email:       "",
-				PhoneNumber: "70000000000",
-			},
-			mockBehavior: func(r *mockrepo.MockProfile, uID uint, profile models.ProfileUpdateInput) {
-				r.EXPECT().UpdateProfile(context.Background(), uID, profile).Return(nil)
-			},
-			expectedErr: models.ErrInvalidInput,
-			valid:       false,
-		},
-		{
 			name: "Test invalid name",
 			id:   1,
 			profile: models.ProfileUpdateInput{
-				FullName:    "",
-				Email:       "my@email.com",
-				PhoneNumber: "7000000000",
+				FullName: "",
 			},
 			mockBehavior: func(r *mockrepo.MockProfile, uID uint, profile models.ProfileUpdateInput) {
 				r.EXPECT().UpdateProfile(context.Background(), uID, profile).Return(nil)
@@ -170,10 +146,8 @@ func TestCreateProfile(t *testing.T) {
 			name: "Test successful create",
 			id:   1,
 			profile: models.Profile{
-				ID:          1,
-				FullName:    "testing",
-				Email:       "my@mail.com",
-				PhoneNumber: "7000000000",
+				ID:       1,
+				FullName: "testing",
 			},
 			mockBehavior: func(r *mockrepo.MockProfile, profile models.Profile) {
 				r.EXPECT().CreateProfile(context.Background(), profile).Return(nil)
@@ -185,10 +159,8 @@ func TestCreateProfile(t *testing.T) {
 			name: "Test already exists",
 			id:   1,
 			profile: models.Profile{
-				ID:          1,
-				FullName:    "testing",
-				Email:       "my@mail.com",
-				PhoneNumber: "7000000000",
+				ID:       1,
+				FullName: "testing",
 			},
 			mockBehavior: func(r *mockrepo.MockProfile, profile models.Profile) {
 				r.EXPECT().CreateProfile(context.Background(), profile).Return(models.ErrProfileAlreadyExists)

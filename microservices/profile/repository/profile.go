@@ -20,8 +20,9 @@ func NewRepo(dbClient db.Database) *Repo {
 }
 
 func (r *Repo) CreateProfile(ctx context.Context, profile models.Profile) error {
-	q := `INSERT INTO user_profile (id, full_name, email, phone_number) VALUES (?, ?, ?, ?);`
-	_, err := r.storage.Exec(ctx, q, profile.ID, profile.FullName, profile.Email, profile.PhoneNumber)
+	q := `INSERT INTO user_profile (id, full_name) VALUES (?, ?);`
+
+	_, err := r.storage.Exec(ctx, q, profile.ID, profile.FullName)
 	if err != nil {
 		logger.Error(ctx, err.Error())
 		return models.ErrProfileAlreadyExists
@@ -30,7 +31,10 @@ func (r *Repo) CreateProfile(ctx context.Context, profile models.Profile) error 
 }
 
 func (r *Repo) GetProfile(ctx context.Context, uID uint) (models.Profile, error) {
-	q := `SELECT id, full_name, email, phone_number, imgsrc FROM user_profile WHERE id = ?;`
+	q := `SELECT id, full_name, imgsrc
+	FROM user_profile
+	WHERE id = ?;`
+
 	var profileRow dao.ProfileTable
 	if err := r.storage.Get(ctx, &profileRow, q, uID); err != nil {
 		logger.Error(ctx, err.Error())
@@ -40,9 +44,13 @@ func (r *Repo) GetProfile(ctx context.Context, uID uint) (models.Profile, error)
 }
 
 func (r *Repo) GetProfileNamesByIDs(ctx context.Context, pIDs []uint) ([]string, error) {
-	q := `SELECT full_name FROM user_profile WHERE id = ANY (?);`
+	q := `SELECT full_name
+	FROM user_profile
+	WHERE id = ANY (?)
+	ORDER BY array_position(?, id);`
+
 	var names []string
-	if err := r.storage.Select(ctx, &names, q, pIDs); err != nil {
+	if err := r.storage.Select(ctx, &names, q, pIDs, pIDs); err != nil {
 		logger.Error(ctx, err.Error())
 		return nil, models.ErrNoProfile
 	}
@@ -53,7 +61,9 @@ func (r *Repo) GetProfileNamesByIDs(ctx context.Context, pIDs []uint) ([]string,
 }
 
 func (r *Repo) GetProfileMetaInfo(ctx context.Context, pID uint) (models.ProfileMetaInfo, error) {
-	q := `SELECT full_name, imgsrc FROM user_profile WHERE id = ?;`
+	q := `SELECT full_name, imgsrc
+	FROM user_profile
+	WHERE id = ?;`
 
 	var info dao.ProfileMetaInfo
 	if err := r.storage.Get(ctx, &info, q, pID); err != nil {
@@ -65,9 +75,9 @@ func (r *Repo) GetProfileMetaInfo(ctx context.Context, pID uint) (models.Profile
 
 func (r *Repo) GetProfileNamesAvatarsByIDs(ctx context.Context, pIDs []uint) ([]models.ProfileNameAvatar, error) {
 	q := `SELECT full_name, imgsrc
-		FROM user_profile
-		WHERE id = ANY(?)
-		ORDER BY array_position(?, id);`
+	FROM user_profile
+	WHERE id = ANY(?)
+	ORDER BY array_position(?, id);`
 
 	profileData := make([]dao.ProfileNameAvatar, 0)
 	if err := r.storage.Select(ctx, &profileData, q, pIDs, pIDs); err != nil {
@@ -81,11 +91,13 @@ func (r *Repo) GetProfileNamesAvatarsByIDs(ctx context.Context, pIDs []uint) ([]
 }
 
 func (r *Repo) UpdateProfile(ctx context.Context, uID uint, profileNew models.ProfileUpdateInput) error {
-	q := `UPDATE user_profile SET full_name = ?, email = ?, phone_number = ? WHERE id = ? RETURNING id;`
+	q := `UPDATE user_profile
+	SET full_name = ?
+	WHERE id = ?
+	RETURNING id;`
+
 	_, err := r.storage.Exec(ctx, q,
 		profileNew.FullName,
-		profileNew.Email,
-		profileNew.PhoneNumber,
 		uID)
 	if err != nil {
 		logger.Error(ctx, err.Error())
@@ -104,6 +116,7 @@ func (r *Repo) UpdateAvatarByProfileID(ctx context.Context, uID uint, imgSrc str
 		  SET imgsrc = ?
 		  WHERE id = ?
 		  RETURNING (SELECT imgsrc FROM prev_imgsrc);`
+
 	var prevImgSrc string
 	if err := r.storage.Get(ctx, &prevImgSrc, q, uID, imgSrc, uID); err != nil {
 		logger.Error(ctx, err.Error())
@@ -113,7 +126,10 @@ func (r *Repo) UpdateAvatarByProfileID(ctx context.Context, uID uint, imgSrc str
 }
 
 func (r *Repo) GetAvatarByProfileID(ctx context.Context, uID uint) (string, error) {
-	q := `SELECT imgsrc FROM user_profile WHERE id = ?;`
+	q := `SELECT imgsrc
+	FROM user_profile
+	WHERE id = ?;`
+
 	var imgSrc string
 	err := r.storage.Get(ctx, &imgSrc, q, uID)
 	if err != nil {
@@ -133,6 +149,7 @@ func (r *Repo) DeleteAvatarByProfileID(ctx context.Context, uID uint) (string, e
 	  	  SET imgsrc = ''
 		  WHERE id = ?
 		  RETURNING (SELECT imgsrc FROM prev_imgsrc);`
+
 	var prevImgSrc string
 	if err := r.storage.Get(ctx, &prevImgSrc, q, uID, uID); err != nil {
 		logger.Error(ctx, err.Error())

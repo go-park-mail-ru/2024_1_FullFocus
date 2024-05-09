@@ -39,10 +39,8 @@ func Register(gRPCServer *grpc.Server, uc Profile) {
 
 func (s *serverAPI) CreateProfile(ctx context.Context, r *profilev1.CreateProfileRequest) (*empty.Empty, error) {
 	profile := models.Profile{
-		ID:          uint(r.GetProfileID()),
-		FullName:    r.GetName(),
-		Email:       r.GetEmail(),
-		PhoneNumber: r.GetPhoneNumber(),
+		ID:       uint(r.GetProfileID()),
+		FullName: r.GetName(),
 	}
 	if err := s.usecase.CreateProfile(ctx, profile); err != nil {
 		if errors.Is(err, models.ErrProfileAlreadyExists) {
@@ -60,10 +58,8 @@ func (s *serverAPI) GetProfileByID(ctx context.Context, r *profilev1.GetProfileB
 		}
 	}
 	profileResp := &profilev1.GetProfileByIDResponse{
-		Name:        profile.FullName,
-		Email:       profile.Email,
-		PhoneNumber: profile.PhoneNumber,
-		AvatarName:  profile.AvatarName,
+		Name:       profile.FullName,
+		AvatarName: profile.AvatarName,
 	}
 	return profileResp, status.Error(codes.OK, "")
 }
@@ -147,9 +143,7 @@ func (s *serverAPI) UpdateAvatarByProfileID(ctx context.Context, r *profilev1.Up
 
 func (s *serverAPI) UpdateProfile(ctx context.Context, r *profilev1.UpdateProfileRequest) (*empty.Empty, error) {
 	newProfile := models.ProfileUpdateInput{
-		FullName:    r.GetName(),
-		Email:       r.GetEmail(),
-		PhoneNumber: r.GetPhoneNumber(),
+		FullName: r.GetName(),
 	}
 	if err := s.usecase.UpdateProfile(ctx, uint(r.GetProfileID()), newProfile); err != nil {
 		if errors.Is(err, models.ErrNoProfile) {
