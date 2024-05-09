@@ -9,7 +9,7 @@ import (
 
 //go:generate mockgen -source=profile.go -destination=../repository/mocks/repository_mock.go
 type Profile interface {
-	CreateProfile(ctx context.Context, profile models.Profile) error
+	CreateProfile(ctx context.Context, pID uint) error
 	GetProfile(ctx context.Context, uID uint) (models.Profile, error)
 	GetProfileNamesByIDs(ctx context.Context, pIDs []uint) ([]string, error)
 	GetProfileMetaInfo(ctx context.Context, pID uint) (models.ProfileMetaInfo, error)
@@ -43,23 +43,44 @@ func (u *Usecase) GetProfile(ctx context.Context, uID uint) (models.Profile, err
 		return models.Profile{}, err
 	}
 	profile.FullName = html.EscapeString(profile.FullName)
+	profile.Address = html.EscapeString(profile.Address)
+	profile.PhoneNumber = html.EscapeString(profile.PhoneNumber)
 	return profile, nil
 }
 
 func (u *Usecase) GetProfileNamesByIDs(ctx context.Context, pIDs []uint) ([]string, error) {
-	return u.repo.GetProfileNamesByIDs(ctx, pIDs)
+	names, err := u.repo.GetProfileNamesByIDs(ctx, pIDs)
+	if err != nil {
+		return nil, err
+	}
+	for i, name := range names {
+		names[i] = html.EscapeString(name)
+	}
+	return names, nil
 }
 
 func (u *Usecase) GetProfileMetaInfo(ctx context.Context, pID uint) (models.ProfileMetaInfo, error) {
-	return u.repo.GetProfileMetaInfo(ctx, pID)
+	info, err := u.repo.GetProfileMetaInfo(ctx, pID)
+	if err != nil {
+		return models.ProfileMetaInfo{}, err
+	}
+	info.FullName = html.EscapeString(info.FullName)
+	return info, nil
 }
 
 func (u *Usecase) GetProfileNamesAvatarsByIDs(ctx context.Context, pIDs []uint) ([]models.ProfileNameAvatar, error) {
-	return u.repo.GetProfileNamesAvatarsByIDs(ctx, pIDs)
+	data, err := u.repo.GetProfileNamesAvatarsByIDs(ctx, pIDs)
+	if err != nil {
+		return nil, err
+	}
+	for i, d := range data {
+		data[i].FullName = html.EscapeString(d.FullName)
+	}
+	return data, nil
 }
 
-func (u *Usecase) CreateProfile(ctx context.Context, profile models.Profile) error {
-	return u.repo.CreateProfile(ctx, profile)
+func (u *Usecase) CreateProfile(ctx context.Context, pID uint) error {
+	return u.repo.CreateProfile(ctx, pID)
 }
 
 func (u *Usecase) UpdateAvatarByProfileID(ctx context.Context, uID uint, imgSrc string) (string, error) {

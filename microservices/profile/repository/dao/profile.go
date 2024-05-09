@@ -5,16 +5,22 @@ import (
 )
 
 type ProfileTable struct {
-	ID         uint   `db:"id"`
-	FullName   string `db:"full_name"`
-	AvatarName string `db:"imgsrc"`
+	ID          uint   `db:"id"`
+	FullName    string `db:"full_name"`
+	Address     string `db:"address"`
+	PhoneNumber string `db:"phone_num"`
+	Gender      uint   `db:"gender"`
+	AvatarName  string `db:"imgsrc"`
 }
 
 func ConvertTableToProfile(t ProfileTable) models.Profile {
 	return models.Profile{
-		ID:         t.ID,
-		FullName:   t.FullName,
-		AvatarName: t.AvatarName,
+		ID:          t.ID,
+		FullName:    t.FullName,
+		Address:     t.Address,
+		PhoneNumber: t.PhoneNumber,
+		Gender:      t.Gender,
+		AvatarName:  t.AvatarName,
 	}
 }
 

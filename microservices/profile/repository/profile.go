@@ -2,11 +2,15 @@ package repository
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"strings"
 
 	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/profile/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/profile/repository/dao"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type Repo struct {
@@ -19,10 +23,10 @@ func NewRepo(dbClient db.Database) *Repo {
 	}
 }
 
-func (r *Repo) CreateProfile(ctx context.Context, profile models.Profile) error {
-	q := `INSERT INTO user_profile (id, full_name) VALUES (?, ?);`
+func (r *Repo) CreateProfile(ctx context.Context, pID uint) error {
+	q := `INSERT INTO user_profile (id) VALUES (?);`
 
-	_, err := r.storage.Exec(ctx, q, profile.ID, profile.FullName)
+	_, err := r.storage.Exec(ctx, q, pID)
 	if err != nil {
 		logger.Error(ctx, err.Error())
 		return models.ErrProfileAlreadyExists
@@ -31,7 +35,7 @@ func (r *Repo) CreateProfile(ctx context.Context, profile models.Profile) error 
 }
 
 func (r *Repo) GetProfile(ctx context.Context, uID uint) (models.Profile, error) {
-	q := `SELECT id, full_name, imgsrc
+	q := `SELECT id, full_name, address, phone_number, gender, imgsrc
 	FROM user_profile
 	WHERE id = ?;`
 
@@ -92,16 +96,27 @@ func (r *Repo) GetProfileNamesAvatarsByIDs(ctx context.Context, pIDs []uint) ([]
 
 func (r *Repo) UpdateProfile(ctx context.Context, uID uint, profileNew models.ProfileUpdateInput) error {
 	q := `UPDATE user_profile
-	SET full_name = ?
+	SET full_name = ?, address = ?, gender = ? %s
 	WHERE id = ?
 	RETURNING id;`
 
-	_, err := r.storage.Exec(ctx, q,
-		profileNew.FullName,
-		uID)
+	var err error
+	if profileNew.PhoneNumber != "" {
+		q = fmt.Sprintf(q, "phone_num = ?")
+		_, err = r.storage.Exec(ctx, q, profileNew.FullName, profileNew.Address, profileNew.Gender, profileNew.PhoneNumber, uID)
+	} else {
+		q := fmt.Sprintf(q, "")
+		_, err = r.storage.Exec(ctx, q, profileNew.FullName, profileNew.Address, profileNew.Gender, uID)
+	}
 	if err != nil {
-		logger.Error(ctx, err.Error())
-		return models.ErrNoProfile
+		logger.Info(ctx, "Error:"+err.Error())
+		var sqlErr *pgconn.PgError
+		if errors.As(err, &sqlErr) {
+			if strings.Contains(sqlErr.Message, "unique") {
+				return models.ErrPhoneAlreadyExists
+			}
+			return models.ErrNoProfile
+		}
 	}
 	return nil
 }

@@ -1,9 +1,12 @@
 package models
 
 type Profile struct {
-	ID         uint
-	FullName   string
-	AvatarName string
+	ID          uint
+	FullName    string
+	Address     string
+	PhoneNumber string
+	Gender      uint
+	AvatarName  string
 }
 
 type ProfileMetaInfo struct {
@@ -12,7 +15,10 @@ type ProfileMetaInfo struct {
 }
 
 type ProfileUpdateInput struct {
-	FullName string
+	FullName    string
+	Address     string
+	PhoneNumber string
+	Gender      uint
 }
 
 type ProfileNameAvatar struct {

@@ -138,7 +138,7 @@ func TestCreateProfile(t *testing.T) {
 		name         string
 		id           uint
 		profile      models.Profile
-		mockBehavior func(r *mockrepo.MockProfile, profile models.Profile)
+		mockBehavior func(r *mockrepo.MockProfile, pID uint)
 		expectedErr  error
 		valid        bool
 	}{
@@ -149,8 +149,8 @@ func TestCreateProfile(t *testing.T) {
 				ID:       1,
 				FullName: "testing",
 			},
-			mockBehavior: func(r *mockrepo.MockProfile, profile models.Profile) {
-				r.EXPECT().CreateProfile(context.Background(), profile).Return(nil)
+			mockBehavior: func(r *mockrepo.MockProfile, pID uint) {
+				r.EXPECT().CreateProfile(context.Background(), pID).Return(nil)
 			},
 			expectedErr: nil,
 			valid:       true,
@@ -162,8 +162,8 @@ func TestCreateProfile(t *testing.T) {
 				ID:       1,
 				FullName: "testing",
 			},
-			mockBehavior: func(r *mockrepo.MockProfile, profile models.Profile) {
-				r.EXPECT().CreateProfile(context.Background(), profile).Return(models.ErrProfileAlreadyExists)
+			mockBehavior: func(r *mockrepo.MockProfile, pID uint) {
+				r.EXPECT().CreateProfile(context.Background(), pID).Return(models.ErrProfileAlreadyExists)
 			},
 			expectedErr: models.ErrProfileAlreadyExists,
 			valid:       true,
@@ -176,10 +176,10 @@ func TestCreateProfile(t *testing.T) {
 			defer ctrl.Finish()
 			mockProfileRepo := mockrepo.NewMockProfile(ctrl)
 			if testCase.valid {
-				testCase.mockBehavior(mockProfileRepo, testCase.profile)
+				testCase.mockBehavior(mockProfileRepo, testCase.id)
 			}
 			pu := usecase.NewUsecase(mockProfileRepo)
-			err := pu.CreateProfile(context.Background(), testCase.profile)
+			err := pu.CreateProfile(context.Background(), testCase.id)
 			require.Equal(t, testCase.expectedErr, err)
 		})
 	}

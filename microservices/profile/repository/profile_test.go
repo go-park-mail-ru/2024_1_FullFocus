@@ -28,7 +28,7 @@ func TestCreateProfile(t *testing.T) {
 	testCases := []struct {
 		name          string
 		profile       models.Profile
-		mockBehavior  func(*mockdb.MockDatabase, string, models.Profile)
+		mockBehavior  func(*mockdb.MockDatabase, string, uint)
 		expectedError error
 	}{
 		{
@@ -38,8 +38,8 @@ func TestCreateProfile(t *testing.T) {
 				FullName:   "test",
 				AvatarName: "aaa",
 			},
-			mockBehavior: func(d *mockdb.MockDatabase, q string, u models.Profile) {
-				d.EXPECT().Exec(context.Background(), q, u.ID, u.FullName).Return(mockdb.MockSQLResult{}, nil)
+			mockBehavior: func(d *mockdb.MockDatabase, q string, id uint) {
+				d.EXPECT().Exec(context.Background(), q, id).Return(mockdb.MockSQLResult{}, nil)
 			},
 			expectedError: nil,
 		},
@@ -50,8 +50,8 @@ func TestCreateProfile(t *testing.T) {
 				FullName:   "test",
 				AvatarName: "aaa",
 			},
-			mockBehavior: func(d *mockdb.MockDatabase, q string, u models.Profile) {
-				d.EXPECT().Exec(context.Background(), q, u.ID, u.FullName).Return(mockdb.MockSQLResult{}, sql.ErrNoRows)
+			mockBehavior: func(d *mockdb.MockDatabase, q string, id uint) {
+				d.EXPECT().Exec(context.Background(), q, id).Return(mockdb.MockSQLResult{}, sql.ErrNoRows)
 			},
 			expectedError: models.ErrProfileAlreadyExists,
 		},
@@ -61,10 +61,10 @@ func TestCreateProfile(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			db := mockdb.NewMockDatabase(ctrl)
 			defer ctrl.Finish()
-			testCase.mockBehavior(db, "INSERT INTO user_profile (id, full_name) VALUES (?, ?);", testCase.profile)
+			testCase.mockBehavior(db, "INSERT INTO user_profile (id) VALUES (?);", testCase.profile.ID)
 			pr := repository.NewRepo(db)
 
-			err := pr.CreateProfile(context.Background(), testCase.profile)
+			err := pr.CreateProfile(context.Background(), testCase.profile.ID)
 			require.ErrorIs(t, err, testCase.expectedError)
 		})
 	}
@@ -99,7 +99,7 @@ func TestGetProfile(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 			db := mockdb.NewMockDatabase(ctrl)
-			q := `SELECT id, full_name, imgsrc
+			q := `SELECT id, full_name, address, phone_number, gender, imgsrc
 	FROM user_profile
 	WHERE id = ?;`
 
@@ -111,11 +111,12 @@ func TestGetProfile(t *testing.T) {
 	}
 }
 
+// TODO: fix
 func TestUpdateProfile(t *testing.T) {
 	testCases := []struct {
 		name          string
 		profile       models.Profile
-		mockBehavior  func(d *mockdb.MockDatabase, q string, name string, id uint)
+		mockBehavior  func(d *mockdb.MockDatabase, q string, name, address string, gender uint, id uint)
 		expectedError error
 	}{
 		{
@@ -125,8 +126,8 @@ func TestUpdateProfile(t *testing.T) {
 				FullName:   "test",
 				AvatarName: "aaa",
 			},
-			mockBehavior: func(d *mockdb.MockDatabase, q string, name string, id uint) {
-				d.EXPECT().Exec(context.Background(), q, name, id).Return(mockdb.MockSQLResult{}, nil)
+			mockBehavior: func(d *mockdb.MockDatabase, q string, name, address string, gender uint, id uint) {
+				d.EXPECT().Exec(context.Background(), q, name, address, gender, id).Return(mockdb.MockSQLResult{}, nil)
 			},
 			expectedError: nil,
 		},
@@ -137,8 +138,8 @@ func TestUpdateProfile(t *testing.T) {
 				FullName:   "test",
 				AvatarName: "aaa",
 			},
-			mockBehavior: func(d *mockdb.MockDatabase, q string, name string, id uint) {
-				d.EXPECT().Exec(context.Background(), q, name, id).Return(mockdb.MockSQLResult{}, sql.ErrNoRows)
+			mockBehavior: func(d *mockdb.MockDatabase, q string, name, address string, gender uint, id uint) {
+				d.EXPECT().Exec(context.Background(), q, name, address, gender, id).Return(mockdb.MockSQLResult{}, sql.ErrNoRows)
 			},
 			expectedError: models.ErrNoProfile,
 		},
@@ -151,9 +152,9 @@ func TestUpdateProfile(t *testing.T) {
 
 			testCase.mockBehavior(db,
 				`UPDATE user_profile
-	SET full_name = ?
-	WHERE id = ?
-	RETURNING id;`, testCase.profile.FullName, testCase.profile.ID)
+		SET full_name = ?, address = ?, gender = ?
+		WHERE id = ?
+		RETURNING id;`, testCase.profile.FullName, testCase.profile.FullName, 0, testCase.profile.ID)
 			pr := repository.NewRepo(db)
 			err := pr.UpdateProfile(context.Background(), testCase.profile.ID, models.ProfileUpdateInput{
 				FullName: testCase.profile.FullName,

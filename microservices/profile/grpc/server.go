@@ -15,12 +15,12 @@ import (
 
 //go:generate mockgen -source=server.go -destination=../usecase/mocks/usecase_mock.go
 type Profile interface {
+	CreateProfile(ctx context.Context, pID uint) error
 	UpdateProfile(ctx context.Context, uID uint, newProfile models.ProfileUpdateInput) error
 	GetProfile(ctx context.Context, uID uint) (models.Profile, error)
 	GetProfileNamesByIDs(ctx context.Context, pIDs []uint) ([]string, error)
 	GetProfileMetaInfo(ctx context.Context, pID uint) (models.ProfileMetaInfo, error)
 	GetProfileNamesAvatarsByIDs(ctx context.Context, pIDs []uint) ([]models.ProfileNameAvatar, error)
-	CreateProfile(ctx context.Context, profile models.Profile) error
 	UpdateAvatarByProfileID(ctx context.Context, uID uint, imgSrc string) (string, error)
 	GetAvatarByProfileID(ctx context.Context, uID uint) (string, error)
 	DeleteAvatarByProfileID(ctx context.Context, uID uint) (string, error)
@@ -38,11 +38,8 @@ func Register(gRPCServer *grpc.Server, uc Profile) {
 }
 
 func (s *serverAPI) CreateProfile(ctx context.Context, r *profilev1.CreateProfileRequest) (*empty.Empty, error) {
-	profile := models.Profile{
-		ID:       uint(r.GetProfileID()),
-		FullName: r.GetName(),
-	}
-	if err := s.usecase.CreateProfile(ctx, profile); err != nil {
+	pID := uint(r.GetProfileID())
+	if err := s.usecase.CreateProfile(ctx, pID); err != nil {
 		if errors.Is(err, models.ErrProfileAlreadyExists) {
 			return nil, status.Error(codes.AlreadyExists, err.Error())
 		}
@@ -143,7 +140,10 @@ func (s *serverAPI) UpdateAvatarByProfileID(ctx context.Context, r *profilev1.Up
 
 func (s *serverAPI) UpdateProfile(ctx context.Context, r *profilev1.UpdateProfileRequest) (*empty.Empty, error) {
 	newProfile := models.ProfileUpdateInput{
-		FullName: r.GetName(),
+		FullName:    r.GetName(),
+		Address:     r.GetAddress(),
+		PhoneNumber: r.GetPhoneNum(),
+		Gender:      uint(r.GetGender()),
 	}
 	if err := s.usecase.UpdateProfile(ctx, uint(r.GetProfileID()), newProfile); err != nil {
 		if errors.Is(err, models.ErrNoProfile) {
