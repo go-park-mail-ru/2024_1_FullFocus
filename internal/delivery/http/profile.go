@@ -137,6 +137,14 @@ func (h *ProfileHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
+		if errors.Is(err, models.ErrPhoneAlreadyExists) {
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 400,
+				Msg:    err.Error(),
+				MsgRus: "Такой номер телефона уже зарегестрирован",
+			})
+			return
+		}
 		logger.Error(ctx, err.Error())
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 500,

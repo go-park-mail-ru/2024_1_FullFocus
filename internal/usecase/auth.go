@@ -54,10 +54,6 @@ func (u *AuthUsecase) Signup(ctx context.Context, input models.SignupData) (stri
 		return "", helper.NewValidationError("invalid password input",
 			"Пароль должен содержать от 8 до 32 букв английского алфавита или цифр")
 	}
-	if input.FullName == "" {
-		return "", helper.NewValidationError("invalid name input",
-			"Имя не может быть пустым")
-	}
 	if err := helper.ValidateEmail(input.Email); err != nil {
 		return "", helper.NewValidationError("invalid email input",
 			"Email должен содержать @ и .")

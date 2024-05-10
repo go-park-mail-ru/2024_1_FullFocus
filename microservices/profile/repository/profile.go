@@ -35,7 +35,11 @@ func (r *Repo) CreateProfile(ctx context.Context, pID uint) error {
 }
 
 func (r *Repo) GetProfile(ctx context.Context, uID uint) (models.Profile, error) {
-	q := `SELECT id, full_name, address, phone_number, gender, imgsrc
+	q := `SELECT id, full_name, address, gender, imgsrc,
+	CASE 
+		WHEN phone_number IS null THEN ''
+		ELSE phone_number
+	END AS phone_number
 	FROM user_profile
 	WHERE id = ?;`
 
@@ -102,7 +106,7 @@ func (r *Repo) UpdateProfile(ctx context.Context, uID uint, profileNew models.Pr
 
 	var err error
 	if profileNew.PhoneNumber != "" {
-		q = fmt.Sprintf(q, "phone_num = ?")
+		q = fmt.Sprintf(q, ", phone_number = ?")
 		_, err = r.storage.Exec(ctx, q, profileNew.FullName, profileNew.Address, profileNew.Gender, profileNew.PhoneNumber, uID)
 	} else {
 		q := fmt.Sprintf(q, "")
@@ -113,6 +117,7 @@ func (r *Repo) UpdateProfile(ctx context.Context, uID uint, profileNew models.Pr
 		var sqlErr *pgconn.PgError
 		if errors.As(err, &sqlErr) {
 			if strings.Contains(sqlErr.Message, "unique") {
+				println("ERRORORORORORORO")
 				return models.ErrPhoneAlreadyExists
 			}
 			return models.ErrNoProfile

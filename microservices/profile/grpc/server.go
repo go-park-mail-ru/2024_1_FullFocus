@@ -56,6 +56,9 @@ func (s *serverAPI) GetProfileByID(ctx context.Context, r *profilev1.GetProfileB
 	}
 	profileResp := &profilev1.GetProfileByIDResponse{
 		Name:       profile.FullName,
+		Address:    profile.Address,
+		PhoneNum:   profile.PhoneNumber,
+		Gender:     uint32(profile.Gender),
 		AvatarName: profile.AvatarName,
 	}
 	return profileResp, status.Error(codes.OK, "")
@@ -150,6 +153,8 @@ func (s *serverAPI) UpdateProfile(ctx context.Context, r *profilev1.UpdateProfil
 			return nil, status.Error(codes.NotFound, err.Error())
 		} else if errors.Is(err, models.ErrInvalidInput) {
 			return nil, status.Error(codes.InvalidArgument, err.Error())
+		} else if errors.Is(err, models.ErrPhoneAlreadyExists) {
+			return nil, status.Error(codes.AlreadyExists, err.Error())
 		}
 	}
 	return nil, status.Error(codes.OK, "")

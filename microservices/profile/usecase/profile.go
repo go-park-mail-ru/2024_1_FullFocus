@@ -31,9 +31,6 @@ func NewUsecase(pr Profile) *Usecase {
 }
 
 func (u *Usecase) UpdateProfile(ctx context.Context, uID uint, newProfile models.ProfileUpdateInput) error {
-	if len(newProfile.FullName) == 0 {
-		return models.ErrInvalidInput
-	}
 	return u.repo.UpdateProfile(ctx, uID, newProfile)
 }
 

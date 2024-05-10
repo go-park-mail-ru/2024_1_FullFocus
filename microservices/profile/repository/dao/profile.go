@@ -8,7 +8,7 @@ type ProfileTable struct {
 	ID          uint   `db:"id"`
 	FullName    string `db:"full_name"`
 	Address     string `db:"address"`
-	PhoneNumber string `db:"phone_num"`
+	PhoneNumber string `db:"phone_number"`
 	Gender      uint   `db:"gender"`
 	AvatarName  string `db:"imgsrc"`
 }

@@ -25,4 +25,5 @@ var (
 	ErrReviewAlreadyExists  = errors.New("review exists")
 	ErrNoPolls              = errors.New("no polls found")
 	ErrPollAlreadyRated     = errors.New("poll is already rated")
+	ErrPhoneAlreadyExists   = errors.New("phone is already exists")
 )

@@ -190,6 +190,8 @@ func (c *Client) UpdateProfile(ctx context.Context, pID uint, newProfile models.
 		return models.ErrNoProfile
 	case codes.InvalidArgument:
 		return models.ErrInvalidField
+	case codes.AlreadyExists:
+		return models.ErrPhoneAlreadyExists
 	default:
 		return st.Err()
 	}
