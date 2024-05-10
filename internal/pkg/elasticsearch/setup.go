@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
@@ -14,6 +15,8 @@ import (
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
 )
+
+const _updateInterval = 5 * 60 * time.Second
 
 const (
 	CategoryIndex = "category"
@@ -107,20 +110,38 @@ type category struct {
 	Name string `json:"category_name" db:"category_name"`
 }
 
-func InitElasticData(ctx context.Context, db database.Database, es *elasticsearch.Client) error {
+func RemainConsistent(ctx context.Context, db database.Database, es *elasticsearch.Client) error {
+	throttle := time.NewTicker(_updateInterval).C
+
+	return func() error {
+		for {
+			select {
+			case <-ctx.Done():
+				return nil
+			case <-throttle:
+				if err := updateElasticData(ctx, db, es); err != nil {
+					return err
+				}
+			}
+		}
+	}()
+}
+
+func updateElasticData(ctx context.Context, db database.Database, es *elasticsearch.Client) error {
+	fmt.Println("inside update")
 	g := errgroup.Group{}
 	g.Go(func() error {
-		return initCategoryIndex(ctx, db, es)
+		return updateCategoryIndex(ctx, db, es)
 	})
 	g.Go(func() error {
-		return initProductIndex(ctx, db, es)
+		return updateProductIndex(ctx, db, es)
 	})
 	return g.Wait()
 }
 
 // Category
 
-func initCategoryIndex(ctx context.Context, db database.Database, es *elasticsearch.Client) error {
+func updateCategoryIndex(ctx context.Context, db database.Database, es *elasticsearch.Client) error {
 	if err := createCategoryIndex(ctx, es); err != nil {
 		return err
 	}
@@ -180,7 +201,7 @@ func insertCategories(ctx context.Context, db database.Database, es *elasticsear
 
 // Product
 
-func initProductIndex(ctx context.Context, db database.Database, es *elasticsearch.Client) error {
+func updateProductIndex(ctx context.Context, db database.Database, es *elasticsearch.Client) error {
 	if err := createProductIndex(ctx, es); err != nil {
 		return err
 	}
