@@ -67,8 +67,11 @@ func (h *OrderHandler) Create(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	helper.JSONResponse(ctx, w, 200, dto.CreateOrderPayload{
-		OrderID: orderID,
+	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
+		Status: 200,
+		Data: dto.CreateOrderPayload{
+			OrderID: orderID,
+		},
 	})
 }
 
