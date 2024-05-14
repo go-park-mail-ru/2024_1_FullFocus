@@ -7,7 +7,7 @@ type ProductCard struct {
 	ImgSrc string
 	Seller string
 	Rating uint
-	InCart bool
+	Amount uint
 }
 
 type Product struct {
@@ -18,7 +18,7 @@ type Product struct {
 	ImgSrc      string
 	Seller      string
 	Rating      uint
-	InCart      bool
+	Amount      uint
 	Categories  []string
 }
 
