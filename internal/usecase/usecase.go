@@ -9,8 +9,8 @@ import (
 
 type (
 	Auth interface {
-		Login(ctx context.Context, login string, password string) (string, error)
-		Signup(ctx context.Context, login string, password string) (string, error)
+		Login(ctx context.Context, email string, password string) (string, error)
+		Signup(ctx context.Context, input models.SignupData) (string, error)
 		GetUserIDBySessionID(ctx context.Context, sID string) (uint, error)
 		Logout(ctx context.Context, sID string) error
 		IsLoggedIn(ctx context.Context, isID string) bool
@@ -38,16 +38,16 @@ type (
 	}
 
 	Profiles interface {
+		CreateProfile(ctx context.Context, pID uint) error
 		UpdateProfile(ctx context.Context, uID uint, newProfile models.ProfileUpdateInput) error
-		GetProfile(ctx context.Context, uID uint) (models.Profile, error)
+		GetProfile(ctx context.Context, uID uint) (models.FullProfile, error)
 		GetProfileMetaInfo(ctx context.Context, uID uint) (models.ProfileMetaInfo, error)
-		CreateProfile(ctx context.Context, profile models.Profile) error
 	}
 
 	Carts interface {
 		GetAllCartItems(ctx context.Context, uID uint) (models.CartContent, error)
-		UpdateCartItem(ctx context.Context, uID, prID uint) (uint, error)
-		DeleteCartItem(ctx context.Context, uID, prID uint) (uint, error)
+		UpdateCartItem(ctx context.Context, uID uint, prID uint) (uint, error)
+		DeleteCartItem(ctx context.Context, uID uint, prID uint) (uint, error)
 		DeleteAllCartItems(ctx context.Context, uID uint) error
 	}
 

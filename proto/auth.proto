@@ -11,12 +11,13 @@ service Auth {
     rpc Signup(SignupRequest) returns (SignupResponse) {}
     rpc Logout(LogoutRequest) returns (google.protobuf.Empty) {}
     rpc GetUserIDBySessionID(GetUserIDRequest) returns (GetUserIDResponse) {}
+    rpc GetUserEmailByUserID(GetUserEmailByUserIDRequest) returns (GetUserEmailByUserIDResponse) {}
     rpc CheckAuth(CheckAuthRequest) returns (CheckAuthResponse) {}
     rpc UpdatePassword(UpdatePasswordRequest) returns (google.protobuf.Empty) {}
 }
 
 message LoginRequest {
-    string Login = 1;
+    string Email = 1;
     string Password = 2;
 }
 
@@ -25,7 +26,7 @@ message LoginResponse {
 }
 
 message SignupRequest {
-    string Login = 1;
+    string Email = 1;
     string Password = 2;
 }
 
@@ -58,4 +59,12 @@ message UpdatePasswordRequest {
     uint32 UserID = 1;
     string Password = 2;
     string NewPassword = 3;
+}
+
+message GetUserEmailByUserIDRequest {
+    uint32 UserID = 1;
+}
+
+message GetUserEmailByUserIDResponse {
+    string Email = 1;
 }

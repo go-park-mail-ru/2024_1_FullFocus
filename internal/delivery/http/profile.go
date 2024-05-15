@@ -62,10 +62,9 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	data := dto.ConvertProfileDataToProfile(profile)
 	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
-		Data:   data,
+		Data:   dto.ConvertFullProfileDataToDto(profile),
 	})
 }
 
@@ -135,6 +134,14 @@ func (h *ProfileHandler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 				Status: 400,
 				Msg:    err.Error(),
 				MsgRus: "Пользователя не существует",
+			})
+			return
+		}
+		if errors.Is(err, models.ErrPhoneAlreadyExists) {
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 400,
+				Msg:    err.Error(),
+				MsgRus: "Такой номер телефона уже зарегестрирован",
 			})
 			return
 		}

@@ -65,18 +65,18 @@ func (mr *MockAuthMockRecorder) IsLoggedIn(ctx, isID interface{}) *gomock.Call {
 }
 
 // Login mocks base method.
-func (m *MockAuth) Login(ctx context.Context, login, password string) (string, error) {
+func (m *MockAuth) Login(ctx context.Context, email, password string) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Login", ctx, login, password)
+	ret := m.ctrl.Call(m, "Login", ctx, email, password)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Login indicates an expected call of Login.
-func (mr *MockAuthMockRecorder) Login(ctx, login, password interface{}) *gomock.Call {
+func (mr *MockAuthMockRecorder) Login(ctx, email, password interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockAuth)(nil).Login), ctx, login, password)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockAuth)(nil).Login), ctx, email, password)
 }
 
 // Logout mocks base method.
@@ -94,18 +94,18 @@ func (mr *MockAuthMockRecorder) Logout(ctx, sID interface{}) *gomock.Call {
 }
 
 // Signup mocks base method.
-func (m *MockAuth) Signup(ctx context.Context, login, password string) (string, error) {
+func (m *MockAuth) Signup(ctx context.Context, input models.SignupData) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Signup", ctx, login, password)
+	ret := m.ctrl.Call(m, "Signup", ctx, input)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Signup indicates an expected call of Signup.
-func (mr *MockAuthMockRecorder) Signup(ctx, login, password interface{}) *gomock.Call {
+func (mr *MockAuthMockRecorder) Signup(ctx, input interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Signup", reflect.TypeOf((*MockAuth)(nil).Signup), ctx, login, password)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Signup", reflect.TypeOf((*MockAuth)(nil).Signup), ctx, input)
 }
 
 // UpdatePassword mocks base method.
@@ -243,18 +243,18 @@ func (mr *MockAvatarsMockRecorder) DeleteAvatar(ctx, uID interface{}) *gomock.Ca
 }
 
 // GetAvatar mocks base method.
-func (m *MockAvatars) GetAvatar(ctx context.Context, profileID uint) (models.Avatar, error) {
+func (m *MockAvatars) GetAvatar(ctx context.Context, fileName string) (models.Avatar, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAvatar", ctx, profileID)
+	ret := m.ctrl.Call(m, "GetAvatar", ctx, fileName)
 	ret0, _ := ret[0].(models.Avatar)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetAvatar indicates an expected call of GetAvatar.
-func (mr *MockAvatarsMockRecorder) GetAvatar(ctx, profileID interface{}) *gomock.Call {
+func (mr *MockAvatarsMockRecorder) GetAvatar(ctx, fileName interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAvatar", reflect.TypeOf((*MockAvatars)(nil).GetAvatar), ctx, profileID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAvatar", reflect.TypeOf((*MockAvatars)(nil).GetAvatar), ctx, fileName)
 }
 
 // UploadAvatar mocks base method.
@@ -391,10 +391,10 @@ func (mr *MockProfilesMockRecorder) CreateProfile(ctx, profile interface{}) *gom
 }
 
 // GetProfile mocks base method.
-func (m *MockProfiles) GetProfile(ctx context.Context, uID uint) (models.Profile, error) {
+func (m *MockProfiles) GetProfile(ctx context.Context, uID uint) (models.FullProfile, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetProfile", ctx, uID)
-	ret0, _ := ret[0].(models.Profile)
+	ret0, _ := ret[0].(models.FullProfile)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -403,6 +403,21 @@ func (m *MockProfiles) GetProfile(ctx context.Context, uID uint) (models.Profile
 func (mr *MockProfilesMockRecorder) GetProfile(ctx, uID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfile", reflect.TypeOf((*MockProfiles)(nil).GetProfile), ctx, uID)
+}
+
+// GetProfileMetaInfo mocks base method.
+func (m *MockProfiles) GetProfileMetaInfo(ctx context.Context, uID uint) (models.ProfileMetaInfo, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetProfileMetaInfo", ctx, uID)
+	ret0, _ := ret[0].(models.ProfileMetaInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetProfileMetaInfo indicates an expected call of GetProfileMetaInfo.
+func (mr *MockProfilesMockRecorder) GetProfileMetaInfo(ctx, uID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfileMetaInfo", reflect.TypeOf((*MockProfiles)(nil).GetProfileMetaInfo), ctx, uID)
 }
 
 // UpdateProfile mocks base method.
@@ -563,7 +578,7 @@ func (m *MockReviews) EXPECT() *MockReviewsMockRecorder {
 }
 
 // CreateProductReview mocks base method.
-func (m *MockReviews) CreateProductReview(ctx context.Context, uID uint, input models.ProductReview) error {
+func (m *MockReviews) CreateProductReview(ctx context.Context, uID uint, input models.CreateProductReviewInput) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateProductReview", ctx, uID, input)
 	ret0, _ := ret[0].(error)

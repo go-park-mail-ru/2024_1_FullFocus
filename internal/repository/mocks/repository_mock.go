@@ -12,139 +12,6 @@ import (
 	gomock "github.com/golang/mock/gomock"
 )
 
-// MockUsers is a mock of Users interface.
-type MockUsers struct {
-	ctrl     *gomock.Controller
-	recorder *MockUsersMockRecorder
-}
-
-// MockUsersMockRecorder is the mock recorder for MockUsers.
-type MockUsersMockRecorder struct {
-	mock *MockUsers
-}
-
-// NewMockUsers creates a new mock instance.
-func NewMockUsers(ctrl *gomock.Controller) *MockUsers {
-	mock := &MockUsers{ctrl: ctrl}
-	mock.recorder = &MockUsersMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockUsers) EXPECT() *MockUsersMockRecorder {
-	return m.recorder
-}
-
-// CreateUser mocks base method.
-func (m *MockUsers) CreateUser(ctx context.Context, user models.User) (uint, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateUser", ctx, user)
-	ret0, _ := ret[0].(uint)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CreateUser indicates an expected call of CreateUser.
-func (mr *MockUsersMockRecorder) CreateUser(ctx, user interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockUsers)(nil).CreateUser), ctx, user)
-}
-
-// GetUser mocks base method.
-func (m *MockUsers) GetUser(ctx context.Context, login string) (models.User, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUser", ctx, login)
-	ret0, _ := ret[0].(models.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetUser indicates an expected call of GetUser.
-func (mr *MockUsersMockRecorder) GetUser(ctx, login interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockUsers)(nil).GetUser), ctx, login)
-}
-
-// MockSessions is a mock of Sessions interface.
-type MockSessions struct {
-	ctrl     *gomock.Controller
-	recorder *MockSessionsMockRecorder
-}
-
-// MockSessionsMockRecorder is the mock recorder for MockSessions.
-type MockSessionsMockRecorder struct {
-	mock *MockSessions
-}
-
-// NewMockSessions creates a new mock instance.
-func NewMockSessions(ctrl *gomock.Controller) *MockSessions {
-	mock := &MockSessions{ctrl: ctrl}
-	mock.recorder = &MockSessionsMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockSessions) EXPECT() *MockSessionsMockRecorder {
-	return m.recorder
-}
-
-// CreateSession mocks base method.
-func (m *MockSessions) CreateSession(ctx context.Context, userID uint) string {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateSession", ctx, userID)
-	ret0, _ := ret[0].(string)
-	return ret0
-}
-
-// CreateSession indicates an expected call of CreateSession.
-func (mr *MockSessionsMockRecorder) CreateSession(ctx, userID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSession", reflect.TypeOf((*MockSessions)(nil).CreateSession), ctx, userID)
-}
-
-// DeleteSession mocks base method.
-func (m *MockSessions) DeleteSession(ctx context.Context, sID string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteSession", ctx, sID)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// DeleteSession indicates an expected call of DeleteSession.
-func (mr *MockSessionsMockRecorder) DeleteSession(ctx, sID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSession", reflect.TypeOf((*MockSessions)(nil).DeleteSession), ctx, sID)
-}
-
-// GetUserIDBySessionID mocks base method.
-func (m *MockSessions) GetUserIDBySessionID(ctx context.Context, sID string) (uint, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetUserIDBySessionID", ctx, sID)
-	ret0, _ := ret[0].(uint)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetUserIDBySessionID indicates an expected call of GetUserIDBySessionID.
-func (mr *MockSessionsMockRecorder) GetUserIDBySessionID(ctx, sID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserIDBySessionID", reflect.TypeOf((*MockSessions)(nil).GetUserIDBySessionID), ctx, sID)
-}
-
-// SessionExists mocks base method.
-func (m *MockSessions) SessionExists(ctx context.Context, sID string) bool {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SessionExists", ctx, sID)
-	ret0, _ := ret[0].(bool)
-	return ret0
-}
-
-// SessionExists indicates an expected call of SessionExists.
-func (mr *MockSessionsMockRecorder) SessionExists(ctx, sID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SessionExists", reflect.TypeOf((*MockSessions)(nil).SessionExists), ctx, sID)
-}
-
 // MockProducts is a mock of Products interface.
 type MockProducts struct {
 	ctrl     *gomock.Controller
@@ -391,118 +258,6 @@ func (mr *MockOrdersMockRecorder) GetProfileIDByOrderID(ctx, orderID interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfileIDByOrderID", reflect.TypeOf((*MockOrders)(nil).GetProfileIDByOrderID), ctx, orderID)
 }
 
-// MockProfiles is a mock of Profiles interface.
-type MockProfiles struct {
-	ctrl     *gomock.Controller
-	recorder *MockProfilesMockRecorder
-}
-
-// MockProfilesMockRecorder is the mock recorder for MockProfiles.
-type MockProfilesMockRecorder struct {
-	mock *MockProfiles
-}
-
-// NewMockProfiles creates a new mock instance.
-func NewMockProfiles(ctrl *gomock.Controller) *MockProfiles {
-	mock := &MockProfiles{ctrl: ctrl}
-	mock.recorder = &MockProfilesMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockProfiles) EXPECT() *MockProfilesMockRecorder {
-	return m.recorder
-}
-
-// CreateProfile mocks base method.
-func (m *MockProfiles) CreateProfile(ctx context.Context, profile models.Profile) (uint, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateProfile", ctx, profile)
-	ret0, _ := ret[0].(uint)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CreateProfile indicates an expected call of CreateProfile.
-func (mr *MockProfilesMockRecorder) CreateProfile(ctx, profile interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateProfile", reflect.TypeOf((*MockProfiles)(nil).CreateProfile), ctx, profile)
-}
-
-// DeleteAvatarByProfileID mocks base method.
-func (m *MockProfiles) DeleteAvatarByProfileID(ctx context.Context, uID uint) (string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteAvatarByProfileID", ctx, uID)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// DeleteAvatarByProfileID indicates an expected call of DeleteAvatarByProfileID.
-func (mr *MockProfilesMockRecorder) DeleteAvatarByProfileID(ctx, uID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAvatarByProfileID", reflect.TypeOf((*MockProfiles)(nil).DeleteAvatarByProfileID), ctx, uID)
-}
-
-// GetAvatarByProfileID mocks base method.
-func (m *MockProfiles) GetAvatarByProfileID(ctx context.Context, uID uint) (string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAvatarByProfileID", ctx, uID)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetAvatarByProfileID indicates an expected call of GetAvatarByProfileID.
-func (mr *MockProfilesMockRecorder) GetAvatarByProfileID(ctx, uID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAvatarByProfileID", reflect.TypeOf((*MockProfiles)(nil).GetAvatarByProfileID), ctx, uID)
-}
-
-// GetProfile mocks base method.
-func (m *MockProfiles) GetProfile(ctx context.Context, uID uint) (models.Profile, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetProfile", ctx, uID)
-	ret0, _ := ret[0].(models.Profile)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetProfile indicates an expected call of GetProfile.
-func (mr *MockProfilesMockRecorder) GetProfile(ctx, uID interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProfile", reflect.TypeOf((*MockProfiles)(nil).GetProfile), ctx, uID)
-}
-
-// UpdateAvatarByProfileID mocks base method.
-func (m *MockProfiles) UpdateAvatarByProfileID(ctx context.Context, uID uint, imgSrc string) (string, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateAvatarByProfileID", ctx, uID, imgSrc)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// UpdateAvatarByProfileID indicates an expected call of UpdateAvatarByProfileID.
-func (mr *MockProfilesMockRecorder) UpdateAvatarByProfileID(ctx, uID, imgSrc interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAvatarByProfileID", reflect.TypeOf((*MockProfiles)(nil).UpdateAvatarByProfileID), ctx, uID, imgSrc)
-}
-
-// UpdateProfile mocks base method.
-func (m *MockProfiles) UpdateProfile(ctx context.Context, uID uint, profileNew models.ProfileUpdateInput) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateProfile", ctx, uID, profileNew)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// UpdateProfile indicates an expected call of UpdateProfile.
-func (mr *MockProfilesMockRecorder) UpdateProfile(ctx, uID, profileNew interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateProfile", reflect.TypeOf((*MockProfiles)(nil).UpdateProfile), ctx, uID, profileNew)
-}
-
 // MockCarts is a mock of Carts interface.
 type MockCarts struct {
 	ctrl     *gomock.Controller
@@ -583,6 +338,21 @@ func (m *MockCarts) GetAllCartItemsID(ctx context.Context, uID uint) ([]models.C
 func (mr *MockCartsMockRecorder) GetAllCartItemsID(ctx, uID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllCartItemsID", reflect.TypeOf((*MockCarts)(nil).GetAllCartItemsID), ctx, uID)
+}
+
+// GetCartItemsAmount mocks base method.
+func (m *MockCarts) GetCartItemsAmount(ctx context.Context, uID uint) (uint, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetCartItemsAmount", ctx, uID)
+	ret0, _ := ret[0].(uint)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetCartItemsAmount indicates an expected call of GetCartItemsAmount.
+func (mr *MockCartsMockRecorder) GetCartItemsAmount(ctx, uID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCartItemsAmount", reflect.TypeOf((*MockCarts)(nil).GetCartItemsAmount), ctx, uID)
 }
 
 // UpdateCartItem mocks base method.

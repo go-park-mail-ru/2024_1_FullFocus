@@ -9,6 +9,12 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 )
 
+type ValidateSymbolStringInput struct {
+	Field  string
+	MinLen int
+	MaxLen int
+}
+
 func ValidateField(value string, minLength, maxLength int) error {
 	onlyValidSymbols := regexp.MustCompile(`^[A-Za-z0-9_]*$`).MatchString
 	if !onlyValidSymbols(value) {
@@ -58,6 +64,14 @@ func ValidateNumber(value string, length int) error {
 func ValidateEmail(value string) error {
 	_, err := mail.ParseAddress(value)
 	if err != nil {
+		return models.ErrInvalidField
+	}
+	return nil
+}
+
+func ValidateAddress(address string) error {
+	onlyValidSymbols := regexp.MustCompile(`([\p{L}\d_]+[\.\-\,]*)+`).MatchString
+	if !onlyValidSymbols(address) {
 		return models.ErrInvalidField
 	}
 	return nil

@@ -98,12 +98,14 @@ func MustInit() *App {
 		panic("elasticsearch ping error: " + err.Error())
 	}
 
-	ctx, cancel = context.WithTimeout(context.Background(), _timeout)
-	defer cancel()
+	ctx, cancel = context.WithCancel(context.Background())
+	// defer cancel()
 
-	if err = elasticsetup.InitElasticData(ctx, pgxClient, elasticClient); err != nil {
-		panic("elasticsearch init data error: " + err.Error())
-	}
+	go func(ctx context.Context) {
+		if err = elasticsetup.RemainConsistent(ctx, pgxClient, elasticClient); err != nil {
+			panic("elasticsearch init data error: " + err.Error())
+		}
+	}(ctx)
 
 	// Server
 
@@ -161,7 +163,7 @@ func MustInit() *App {
 	cartHandler.InitRouter(apiRouter)
 
 	// Profile
-	profileUsecase := usecase.NewProfileUsecase(profileClient, cartRepo)
+	profileUsecase := usecase.NewProfileUsecase(profileClient, authClient, cartRepo)
 	profileHandler := delivery.NewProfileHandler(profileUsecase)
 	profileHandler.InitRouter(apiRouter)
 

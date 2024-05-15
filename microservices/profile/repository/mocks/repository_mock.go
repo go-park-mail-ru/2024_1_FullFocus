@@ -36,17 +36,17 @@ func (m *MockProfile) EXPECT() *MockProfileMockRecorder {
 }
 
 // CreateProfile mocks base method.
-func (m *MockProfile) CreateProfile(ctx context.Context, profile models.Profile) error {
+func (m *MockProfile) CreateProfile(ctx context.Context, pID uint) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateProfile", ctx, profile)
+	ret := m.ctrl.Call(m, "CreateProfile", ctx, pID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateProfile indicates an expected call of CreateProfile.
-func (mr *MockProfileMockRecorder) CreateProfile(ctx, profile interface{}) *gomock.Call {
+func (mr *MockProfileMockRecorder) CreateProfile(ctx, pID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateProfile", reflect.TypeOf((*MockProfile)(nil).CreateProfile), ctx, profile)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateProfile", reflect.TypeOf((*MockProfile)(nil).CreateProfile), ctx, pID)
 }
 
 // DeleteAvatarByProfileID mocks base method.

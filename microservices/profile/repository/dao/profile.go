@@ -7,8 +7,9 @@ import (
 type ProfileTable struct {
 	ID          uint   `db:"id"`
 	FullName    string `db:"full_name"`
-	Email       string `db:"email"`
+	Address     string `db:"address"`
 	PhoneNumber string `db:"phone_number"`
+	Gender      uint   `db:"gender"`
 	AvatarName  string `db:"imgsrc"`
 }
 
@@ -16,8 +17,9 @@ func ConvertTableToProfile(t ProfileTable) models.Profile {
 	return models.Profile{
 		ID:          t.ID,
 		FullName:    t.FullName,
-		Email:       t.Email,
+		Address:     t.Address,
 		PhoneNumber: t.PhoneNumber,
+		Gender:      t.Gender,
 		AvatarName:  t.AvatarName,
 	}
 }

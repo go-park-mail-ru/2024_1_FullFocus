@@ -28,34 +28,30 @@ func TestCreateProfile(t *testing.T) {
 	testCases := []struct {
 		name          string
 		profile       models.Profile
-		mockBehavior  func(*mockdb.MockDatabase, string, models.Profile)
+		mockBehavior  func(*mockdb.MockDatabase, string, uint)
 		expectedError error
 	}{
 		{
 			name: "Test successful profile creation",
 			profile: models.Profile{
-				ID:          1,
-				FullName:    "test",
-				Email:       "test@mail.ru",
-				PhoneNumber: "70000000000",
-				AvatarName:  "aaa",
+				ID:         1,
+				FullName:   "test",
+				AvatarName: "aaa",
 			},
-			mockBehavior: func(d *mockdb.MockDatabase, q string, u models.Profile) {
-				d.EXPECT().Exec(context.Background(), q, u.ID, u.FullName, u.Email, u.PhoneNumber).Return(mockdb.MockSQLResult{}, nil)
+			mockBehavior: func(d *mockdb.MockDatabase, q string, id uint) {
+				d.EXPECT().Exec(context.Background(), q, id).Return(mockdb.MockSQLResult{}, nil)
 			},
 			expectedError: nil,
 		},
 		{
 			name: "Test duplicate profile creation",
 			profile: models.Profile{
-				ID:          1,
-				FullName:    "test",
-				Email:       "test@mail.ru",
-				PhoneNumber: "70000000000",
-				AvatarName:  "aaa",
+				ID:         1,
+				FullName:   "test",
+				AvatarName: "aaa",
 			},
-			mockBehavior: func(d *mockdb.MockDatabase, q string, u models.Profile) {
-				d.EXPECT().Exec(context.Background(), q, u.ID, u.FullName, u.Email, u.PhoneNumber).Return(mockdb.MockSQLResult{}, sql.ErrNoRows)
+			mockBehavior: func(d *mockdb.MockDatabase, q string, id uint) {
+				d.EXPECT().Exec(context.Background(), q, id).Return(mockdb.MockSQLResult{}, sql.ErrNoRows)
 			},
 			expectedError: models.ErrProfileAlreadyExists,
 		},
@@ -65,10 +61,10 @@ func TestCreateProfile(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			db := mockdb.NewMockDatabase(ctrl)
 			defer ctrl.Finish()
-			testCase.mockBehavior(db, "INSERT INTO user_profile (id, full_name, email, phone_number) VALUES (?, ?, ?, ?);", testCase.profile)
+			testCase.mockBehavior(db, "INSERT INTO user_profile (id) VALUES (?);", testCase.profile.ID)
 			pr := repository.NewRepo(db)
 
-			err := pr.CreateProfile(context.Background(), testCase.profile)
+			err := pr.CreateProfile(context.Background(), testCase.profile.ID)
 			require.ErrorIs(t, err, testCase.expectedError)
 		})
 	}
@@ -101,9 +97,13 @@ func TestGetProfile(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
-			db := mockdb.NewMockDatabase(ctrl)
 			defer ctrl.Finish()
-			testCase.mockBehavior(db, &dao.ProfileTable{}, "SELECT id, full_name, email, phone_number, imgsrc FROM user_profile WHERE id = ?;", testCase.id)
+			db := mockdb.NewMockDatabase(ctrl)
+			q := `SELECT id, full_name, address, phone_number, gender, imgsrc
+	FROM user_profile
+	WHERE id = ?;`
+
+			testCase.mockBehavior(db, &dao.ProfileTable{}, q, testCase.id)
 			pr := repository.NewRepo(db)
 			_, err := pr.GetProfile(context.Background(), testCase.id)
 			require.ErrorIs(t, err, testCase.expectedError)
@@ -111,38 +111,35 @@ func TestGetProfile(t *testing.T) {
 	}
 }
 
+// TODO: fix
 func TestUpdateProfile(t *testing.T) {
 	testCases := []struct {
 		name          string
 		profile       models.Profile
-		mockBehavior  func(d *mockdb.MockDatabase, q string, name string, email string, number string, id uint)
+		mockBehavior  func(d *mockdb.MockDatabase, q string, name, address string, gender uint, id uint)
 		expectedError error
 	}{
 		{
 			name: "Test successful get",
 			profile: models.Profile{
-				ID:          1,
-				FullName:    "test",
-				Email:       "test@mail.ru",
-				PhoneNumber: "70000000000",
-				AvatarName:  "aaa",
+				ID:         1,
+				FullName:   "test",
+				AvatarName: "aaa",
 			},
-			mockBehavior: func(d *mockdb.MockDatabase, q string, name string, email string, number string, id uint) {
-				d.EXPECT().Exec(context.Background(), q, name, email, number, id).Return(mockdb.MockSQLResult{}, nil)
+			mockBehavior: func(d *mockdb.MockDatabase, q string, name, address string, gender uint, id uint) {
+				d.EXPECT().Exec(context.Background(), q, name, address, gender, id).Return(mockdb.MockSQLResult{}, nil)
 			},
 			expectedError: nil,
 		},
 		{
 			name: "Test fail get",
 			profile: models.Profile{
-				ID:          1,
-				FullName:    "test",
-				Email:       "test@mail.ru",
-				PhoneNumber: "70000000000",
-				AvatarName:  "aaa",
+				ID:         1,
+				FullName:   "test",
+				AvatarName: "aaa",
 			},
-			mockBehavior: func(d *mockdb.MockDatabase, q string, name string, email string, number string, id uint) {
-				d.EXPECT().Exec(context.Background(), q, name, email, number, id).Return(mockdb.MockSQLResult{}, sql.ErrNoRows)
+			mockBehavior: func(d *mockdb.MockDatabase, q string, name, address string, gender uint, id uint) {
+				d.EXPECT().Exec(context.Background(), q, name, address, gender, id).Return(mockdb.MockSQLResult{}, sql.ErrNoRows)
 			},
 			expectedError: models.ErrNoProfile,
 		},
@@ -150,16 +147,17 @@ func TestUpdateProfile(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
-			db := mockdb.NewMockDatabase(ctrl)
 			defer ctrl.Finish()
+			db := mockdb.NewMockDatabase(ctrl)
+
 			testCase.mockBehavior(db,
-				"UPDATE user_profile SET full_name = ?, email = ?, phone_number = ? WHERE id = ? RETURNING id;",
-				testCase.profile.FullName, testCase.profile.Email, testCase.profile.PhoneNumber, testCase.profile.ID)
+				`UPDATE user_profile
+		SET full_name = ?, address = ?, gender = ?
+		WHERE id = ?
+		RETURNING id;`, testCase.profile.FullName, testCase.profile.FullName, 0, testCase.profile.ID)
 			pr := repository.NewRepo(db)
 			err := pr.UpdateProfile(context.Background(), testCase.profile.ID, models.ProfileUpdateInput{
-				FullName:    testCase.profile.FullName,
-				Email:       testCase.profile.Email,
-				PhoneNumber: testCase.profile.PhoneNumber,
+				FullName: testCase.profile.FullName,
 			})
 			require.ErrorIs(t, err, testCase.expectedError)
 		})
@@ -170,15 +168,15 @@ func TestGetProfileNamesByIDs(t *testing.T) {
 	testCases := []struct {
 		name           string
 		ids            []uint
-		mockBehavior   func(d *mockdb.MockDatabase, names *[]string, q string, pIDs []uint)
+		mockBehavior   func(d *mockdb.MockDatabase, names *[]string, q string, pIDs []uint, pIDsOrder []uint)
 		expectedResult []string
 		expectedError  error
 	}{
 		{
 			name: "Test 0 id passed",
 			ids:  []uint{},
-			mockBehavior: func(d *mockdb.MockDatabase, names *[]string, q string, pIDs []uint) {
-				d.EXPECT().Select(context.Background(), names, q, pIDs).Return(sql.ErrNoRows)
+			mockBehavior: func(d *mockdb.MockDatabase, names *[]string, q string, pIDs []uint, pIDsOrder []uint) {
+				d.EXPECT().Select(context.Background(), names, q, pIDs, pIDsOrder).Return(sql.ErrNoRows)
 			},
 			expectedResult: nil,
 			expectedError:  models.ErrNoProfile,
@@ -186,8 +184,8 @@ func TestGetProfileNamesByIDs(t *testing.T) {
 		{
 			name: "Test not all profiles found",
 			ids:  []uint{23, 7, 35, 4},
-			mockBehavior: func(d *mockdb.MockDatabase, names *[]string, q string, pIDs []uint) {
-				d.EXPECT().Select(context.Background(), names, q, pIDs).
+			mockBehavior: func(d *mockdb.MockDatabase, names *[]string, q string, pIDs []uint, pIDsOrder []uint) {
+				d.EXPECT().Select(context.Background(), names, q, pIDs, pIDsOrder).
 					SetArg(1, []string{"i", "love", "mail.ru"}).Return(nil)
 			},
 			expectedResult: nil,
@@ -196,8 +194,8 @@ func TestGetProfileNamesByIDs(t *testing.T) {
 		{
 			name: "Test no profiles found",
 			ids:  []uint{1, 2, 3},
-			mockBehavior: func(d *mockdb.MockDatabase, names *[]string, q string, pIDs []uint) {
-				d.EXPECT().Select(context.Background(), names, q, pIDs).Return(sql.ErrNoRows)
+			mockBehavior: func(d *mockdb.MockDatabase, names *[]string, q string, pIDs []uint, pIDsOrder []uint) {
+				d.EXPECT().Select(context.Background(), names, q, pIDs, pIDsOrder).Return(sql.ErrNoRows)
 			},
 			expectedResult: nil,
 			expectedError:  models.ErrNoProfile,
@@ -205,8 +203,8 @@ func TestGetProfileNamesByIDs(t *testing.T) {
 		{
 			name: "Test all profiles found",
 			ids:  []uint{1, 2, 3},
-			mockBehavior: func(d *mockdb.MockDatabase, names *[]string, q string, pIDs []uint) {
-				d.EXPECT().Select(context.Background(), names, q, pIDs).
+			mockBehavior: func(d *mockdb.MockDatabase, names *[]string, q string, pIDs []uint, pIDsOrder []uint) {
+				d.EXPECT().Select(context.Background(), names, q, pIDs, pIDsOrder).
 					SetArg(1, []string{"i", "love", "mail.ru"}).Return(nil)
 			},
 			expectedResult: []string{"i", "love", "mail.ru"},
@@ -215,8 +213,8 @@ func TestGetProfileNamesByIDs(t *testing.T) {
 		{
 			name: "Test more than needed profiles found",
 			ids:  []uint{1, 2},
-			mockBehavior: func(d *mockdb.MockDatabase, names *[]string, q string, pIDs []uint) {
-				d.EXPECT().Select(context.Background(), names, q, pIDs).
+			mockBehavior: func(d *mockdb.MockDatabase, names *[]string, q string, pIDs []uint, pIDsOrder []uint) {
+				d.EXPECT().Select(context.Background(), names, q, pIDs, pIDsOrder).
 					SetArg(1, []string{"i", "love", "mail.ru"}).Return(nil)
 			},
 			expectedResult: nil,
@@ -226,10 +224,15 @@ func TestGetProfileNamesByIDs(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			ctrl := gomock.NewController(t)
-			db := mockdb.NewMockDatabase(ctrl)
-			var names []string
 			defer ctrl.Finish()
-			testCase.mockBehavior(db, &names, "SELECT full_name FROM user_profile WHERE id = ANY (?);", testCase.ids)
+			db := mockdb.NewMockDatabase(ctrl)
+			q := `SELECT full_name
+	FROM user_profile
+	WHERE id = ANY (?)
+	ORDER BY array_position(?, id);`
+
+			var names []string
+			testCase.mockBehavior(db, &names, q, testCase.ids, testCase.ids)
 			pr := repository.NewRepo(db)
 			result, err := pr.GetProfileNamesByIDs(context.Background(), testCase.ids)
 			require.Equal(t, testCase.expectedResult, result, "Wrong result")
@@ -320,8 +323,12 @@ func TestGetAvatarByProfileID(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 			db := mockdb.NewMockDatabase(ctrl)
+			q := `SELECT imgsrc
+	FROM user_profile
+	WHERE id = ?;`
+
 			var avatar string
-			testCase.mockBehavior(db, &avatar, "SELECT imgsrc FROM user_profile WHERE id = ?;", testCase.pID)
+			testCase.mockBehavior(db, &avatar, q, testCase.pID)
 			pr := repository.NewRepo(db)
 			result, err := pr.GetAvatarByProfileID(context.Background(), testCase.pID)
 			require.Equal(t, testCase.expectedResult, result, "Wrong info")

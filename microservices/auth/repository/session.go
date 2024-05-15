@@ -37,10 +37,7 @@ func (r *AuthRepo) SessionExists(ctx context.Context, sID string) bool {
 		return false
 	}
 	logger.Info(ctx, fmt.Sprintf("session checked in %s", time.Since(start)))
-	if uID == 0 {
-		return false
-	}
-	return true
+	return uID != 0
 }
 
 func (r *AuthRepo) DeleteSession(ctx context.Context, sID string) error {

@@ -51,7 +51,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	sID, err := h.usecase.Login(ctx, loginData.Login, loginData.Password)
+	sID, err := h.usecase.Login(ctx, loginData.Email, loginData.Password)
 	if err != nil {
 		if validationError := new(helper.ValidationError); errors.As(err, &validationError) {
 			helper.JSONResponse(ctx, w, 200, validationError.WithCode(400))
@@ -68,7 +68,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 				Status: 400,
 				Msg:    err.Error(),
-				MsgRus: "Неверный логин или пароль",
+				MsgRus: "Неверный адрес электронной почты или пароль",
 			})
 			return
 		}
@@ -95,7 +95,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	loginData, err := helper.GetLoginData(r)
+	signupData, err := helper.GetSignupData(r)
 	if err != nil {
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 400,
@@ -104,7 +104,7 @@ func (h *AuthHandler) Signup(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	sID, err := h.usecase.Signup(ctx, loginData.Login, loginData.Password)
+	sID, err := h.usecase.Signup(ctx, dto.ConvertSignupDataToModel(signupData))
 	if err != nil {
 		if validationError := new(helper.ValidationError); errors.As(err, &validationError) {
 			helper.JSONResponse(ctx, w, 200, validationError.WithCode(400))

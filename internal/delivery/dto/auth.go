@@ -1,11 +1,25 @@
 package dto
 
+import "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+
 type LoginData struct {
-	Login    string `json:"login"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
 type UpdatePasswordInput struct {
 	Password    string `json:"password"`
 	NewPassword string `json:"newPassword"`
+}
+
+type SignupData struct {
+	Password string `json:"password"`
+	Email    string `json:"email"`
+}
+
+func ConvertSignupDataToModel(data SignupData) models.SignupData {
+	return models.SignupData{
+		Password: data.Password,
+		Email:    data.Email,
+	}
 }

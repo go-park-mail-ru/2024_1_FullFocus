@@ -8,8 +8,8 @@ import (
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 
-	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 	"github.com/gorilla/mux"
 )
 
@@ -76,6 +76,14 @@ func GetCreateReviewData(r *http.Request) (dto.CreateReviewInput, error) {
 	var data dto.CreateReviewInput
 	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 		return dto.CreateReviewInput{}, err
+	}
+	return data, nil
+}
+
+func GetSignupData(r *http.Request) (dto.SignupData, error) {
+	var data dto.SignupData
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		return dto.SignupData{}, err
 	}
 	return data, nil
 }

@@ -7,4 +7,5 @@ var (
 	ErrInvalidInput         = errors.New("invalid input")
 	ErrNoProfile            = errors.New("profile not found")
 	ErrInternal             = errors.New("internal error")
+	ErrPhoneAlreadyExists   = errors.New("phone number already exists")
 )

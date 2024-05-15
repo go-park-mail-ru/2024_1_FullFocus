@@ -20,9 +20,6 @@ service Profile {
 
 message CreateProfileRequest {
   uint32 ProfileID = 1;
-  string Name = 2;
-  string Email = 3;
-  string PhoneNumber = 4;
 }
 
 message GetProfileByIDRequest {
@@ -31,9 +28,10 @@ message GetProfileByIDRequest {
 
 message GetProfileByIDResponse {
   string Name = 1;
-  string Email = 2;
-  string PhoneNumber = 3;
-  string AvatarName = 4;
+  string PhoneNum = 2;
+  string Address = 3;
+  uint32 Gender = 4;
+  string AvatarName = 5;
 }
 
 message GetProfileNamesByIDsRequest {
@@ -73,8 +71,9 @@ message UpdateAvatarByProfileIDResponse {
 message UpdateProfileRequest {
   uint32 ProfileID = 1;
   string Name = 2;
-  string Email = 3;
-  string PhoneNumber = 4;
+  string PhoneNum = 3;
+  string Address = 4;
+  uint32 Gender = 5;
 }
 
 message DeleteAvatarByProfileIDRequest {

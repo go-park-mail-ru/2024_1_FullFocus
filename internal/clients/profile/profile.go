@@ -7,7 +7,7 @@ import (
 )
 
 type ProfileClient interface {
-	CreateProfile(ctx context.Context, profile models.Profile) error
+	CreateProfile(ctx context.Context, pID uint) error
 	DeleteAvatarByProfileID(ctx context.Context, pID uint) (string, error)
 	GetAvatarByID(ctx context.Context, pID uint) (string, error)
 	GetProfileByID(ctx context.Context, pID uint) (models.Profile, error)

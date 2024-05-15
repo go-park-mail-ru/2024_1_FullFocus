@@ -2,11 +2,15 @@ package repository
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"strings"
 
 	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/profile/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/profile/repository/dao"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 type Repo struct {
@@ -19,9 +23,10 @@ func NewRepo(dbClient db.Database) *Repo {
 	}
 }
 
-func (r *Repo) CreateProfile(ctx context.Context, profile models.Profile) error {
-	q := `INSERT INTO user_profile (id, full_name, email, phone_number) VALUES (?, ?, ?, ?);`
-	_, err := r.storage.Exec(ctx, q, profile.ID, profile.FullName, profile.Email, profile.PhoneNumber)
+func (r *Repo) CreateProfile(ctx context.Context, pID uint) error {
+	q := `INSERT INTO user_profile (id) VALUES (?);`
+
+	_, err := r.storage.Exec(ctx, q, pID)
 	if err != nil {
 		logger.Error(ctx, err.Error())
 		return models.ErrProfileAlreadyExists
@@ -30,7 +35,14 @@ func (r *Repo) CreateProfile(ctx context.Context, profile models.Profile) error 
 }
 
 func (r *Repo) GetProfile(ctx context.Context, uID uint) (models.Profile, error) {
-	q := `SELECT id, full_name, email, phone_number, imgsrc FROM user_profile WHERE id = ?;`
+	q := `SELECT id, full_name, address, gender, imgsrc,
+	CASE 
+		WHEN phone_number IS null THEN ''
+		ELSE phone_number
+	END AS phone_number
+	FROM user_profile
+	WHERE id = ?;`
+
 	var profileRow dao.ProfileTable
 	if err := r.storage.Get(ctx, &profileRow, q, uID); err != nil {
 		logger.Error(ctx, err.Error())
@@ -40,9 +52,13 @@ func (r *Repo) GetProfile(ctx context.Context, uID uint) (models.Profile, error)
 }
 
 func (r *Repo) GetProfileNamesByIDs(ctx context.Context, pIDs []uint) ([]string, error) {
-	q := `SELECT full_name FROM user_profile WHERE id = ANY (?);`
+	q := `SELECT full_name
+	FROM user_profile
+	WHERE id = ANY (?)
+	ORDER BY array_position(?, id);`
+
 	var names []string
-	if err := r.storage.Select(ctx, &names, q, pIDs); err != nil {
+	if err := r.storage.Select(ctx, &names, q, pIDs, pIDs); err != nil {
 		logger.Error(ctx, err.Error())
 		return nil, models.ErrNoProfile
 	}
@@ -53,7 +69,9 @@ func (r *Repo) GetProfileNamesByIDs(ctx context.Context, pIDs []uint) ([]string,
 }
 
 func (r *Repo) GetProfileMetaInfo(ctx context.Context, pID uint) (models.ProfileMetaInfo, error) {
-	q := `SELECT full_name, imgsrc FROM user_profile WHERE id = ?;`
+	q := `SELECT full_name, imgsrc
+	FROM user_profile
+	WHERE id = ?;`
 
 	var info dao.ProfileMetaInfo
 	if err := r.storage.Get(ctx, &info, q, pID); err != nil {
@@ -65,9 +83,9 @@ func (r *Repo) GetProfileMetaInfo(ctx context.Context, pID uint) (models.Profile
 
 func (r *Repo) GetProfileNamesAvatarsByIDs(ctx context.Context, pIDs []uint) ([]models.ProfileNameAvatar, error) {
 	q := `SELECT full_name, imgsrc
-		FROM user_profile
-		WHERE id = ANY(?)
-		ORDER BY array_position(?, id);`
+	FROM user_profile
+	WHERE id = ANY(?)
+	ORDER BY array_position(?, id);`
 
 	profileData := make([]dao.ProfileNameAvatar, 0)
 	if err := r.storage.Select(ctx, &profileData, q, pIDs, pIDs); err != nil {
@@ -81,15 +99,29 @@ func (r *Repo) GetProfileNamesAvatarsByIDs(ctx context.Context, pIDs []uint) ([]
 }
 
 func (r *Repo) UpdateProfile(ctx context.Context, uID uint, profileNew models.ProfileUpdateInput) error {
-	q := `UPDATE user_profile SET full_name = ?, email = ?, phone_number = ? WHERE id = ? RETURNING id;`
-	_, err := r.storage.Exec(ctx, q,
-		profileNew.FullName,
-		profileNew.Email,
-		profileNew.PhoneNumber,
-		uID)
+	q := `UPDATE user_profile
+	SET full_name = ?, address = ?, gender = ? %s
+	WHERE id = ?
+	RETURNING id;`
+
+	var err error
+	if profileNew.PhoneNumber != "" {
+		q = fmt.Sprintf(q, ", phone_number = ?")
+		_, err = r.storage.Exec(ctx, q, profileNew.FullName, profileNew.Address, profileNew.Gender, profileNew.PhoneNumber, uID)
+	} else {
+		q := fmt.Sprintf(q, "")
+		_, err = r.storage.Exec(ctx, q, profileNew.FullName, profileNew.Address, profileNew.Gender, uID)
+	}
 	if err != nil {
-		logger.Error(ctx, err.Error())
-		return models.ErrNoProfile
+		logger.Info(ctx, "Error:"+err.Error())
+		var sqlErr *pgconn.PgError
+		if errors.As(err, &sqlErr) {
+			if strings.Contains(sqlErr.Message, "unique") {
+				println("ERRORORORORORORO")
+				return models.ErrPhoneAlreadyExists
+			}
+			return models.ErrNoProfile
+		}
 	}
 	return nil
 }
@@ -104,6 +136,7 @@ func (r *Repo) UpdateAvatarByProfileID(ctx context.Context, uID uint, imgSrc str
 		  SET imgsrc = ?
 		  WHERE id = ?
 		  RETURNING (SELECT imgsrc FROM prev_imgsrc);`
+
 	var prevImgSrc string
 	if err := r.storage.Get(ctx, &prevImgSrc, q, uID, imgSrc, uID); err != nil {
 		logger.Error(ctx, err.Error())
@@ -113,7 +146,10 @@ func (r *Repo) UpdateAvatarByProfileID(ctx context.Context, uID uint, imgSrc str
 }
 
 func (r *Repo) GetAvatarByProfileID(ctx context.Context, uID uint) (string, error) {
-	q := `SELECT imgsrc FROM user_profile WHERE id = ?;`
+	q := `SELECT imgsrc
+	FROM user_profile
+	WHERE id = ?;`
+
 	var imgSrc string
 	err := r.storage.Get(ctx, &imgSrc, q, uID)
 	if err != nil {
@@ -133,6 +169,7 @@ func (r *Repo) DeleteAvatarByProfileID(ctx context.Context, uID uint) (string, e
 	  	  SET imgsrc = ''
 		  WHERE id = ?
 		  RETURNING (SELECT imgsrc FROM prev_imgsrc);`
+
 	var prevImgSrc string
 	if err := r.storage.Get(ctx, &prevImgSrc, q, uID, uID); err != nil {
 		logger.Error(ctx, err.Error())

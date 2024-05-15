@@ -48,12 +48,9 @@ func New(ctx context.Context, log *slog.Logger, cfg config.ClientConfig) (*Clien
 	return c, nil
 }
 
-func (c *Client) CreateProfile(ctx context.Context, profile models.Profile) error {
+func (c *Client) CreateProfile(ctx context.Context, pID uint) error {
 	_, err := c.api.CreateProfile(ctx, &profilev1.CreateProfileRequest{
-		ProfileID:   uint32(profile.ID),
-		Name:        profile.FullName,
-		Email:       profile.Email,
-		PhoneNumber: profile.PhoneNumber,
+		ProfileID: uint32(pID),
 	})
 	st, ok := status.FromError(err)
 	if !ok {
@@ -80,11 +77,12 @@ func (c *Client) GetProfileByID(ctx context.Context, pID uint) (models.Profile, 
 	switch st.Code() {
 	case codes.OK:
 		profile := models.Profile{
-			ID:          pID,
-			FullName:    res.GetName(),
-			Email:       res.GetEmail(),
-			PhoneNumber: res.GetPhoneNumber(),
-			AvatarName:  res.GetAvatarName(),
+			ID:         pID,
+			FullName:   res.GetName(),
+			Address:    res.GetAddress(),
+			PhoneNum:   res.GetPhoneNum(),
+			Gender:     uint(res.GetGender()),
+			AvatarName: res.GetAvatarName(),
 		}
 		return profile, nil
 	case codes.NotFound:
@@ -175,10 +173,11 @@ func (c *Client) UpdateAvatarByProfileID(ctx context.Context, pID uint, avatarNa
 
 func (c *Client) UpdateProfile(ctx context.Context, pID uint, newProfile models.ProfileUpdateInput) error {
 	_, err := c.api.UpdateProfile(ctx, &profilev1.UpdateProfileRequest{
-		ProfileID:   uint32(pID),
-		Name:        newProfile.FullName,
-		Email:       newProfile.Email,
-		PhoneNumber: newProfile.PhoneNumber,
+		ProfileID: uint32(pID),
+		Name:      newProfile.FullName,
+		Address:   newProfile.Address,
+		PhoneNum:  newProfile.PhoneNum,
+		Gender:    uint32(newProfile.Gender),
 	})
 	st, ok := status.FromError(err)
 	if !ok {
@@ -191,6 +190,8 @@ func (c *Client) UpdateProfile(ctx context.Context, pID uint, newProfile models.
 		return models.ErrNoProfile
 	case codes.InvalidArgument:
 		return models.ErrInvalidField
+	case codes.AlreadyExists:
+		return models.ErrPhoneAlreadyExists
 	default:
 		return st.Err()
 	}
