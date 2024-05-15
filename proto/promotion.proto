@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package promotion;
+option go_package = "github.com/go-park-mail-ru/2024_1_FullFocus/microservices/promotion/delivery/gen;gen";
+import "google/protobuf/empty.proto";
+
+// protoc --go_out=../gen/promotion/ --go_opt=paths=source_relative --go-grpc_out=../gen/promotion/ --go-grpc_opt=paths=source_relative promotion.proto
+
+service Promotion {
+  rpc AddPromoProduct(AddPromoProductRequest) returns (google.protobuf.Empty) {}
+  rpc GetPromoProducts(GetPromoProductsRequest) returns (GetPromoProductsResponse) {}
+  rpc DeletePromoProduct(DeletePromoProductRequest) returns (google.protobuf.Empty) {};
+}
+
+message AddPromoProductRequest {
+  uint32 ProductID = 1;
+  oneof BenefitType {
+    uint32 Percentage = 2;
+    uint32 PriceDiscount = 3;
+    uint32 FinalPrice = 4;
+  }
+  uint32 Deadline = 5;
+}
+
+message GetPromoProductsRequest {
+    uint32 Amount = 1;
+}
+
+message GetPromoProductsResponse {
+    repeated PromoProduct Products = 1;
+}
+
+message PromoProduct {
+    ProductData ProductInfo = 1;
+    PromoData PromoInfo = 2;
+}
+
+message ProductData {
+    uint32 ProductID = 1;
+    string Name = 2;
+    string Description = 3;
+    string Seller = 4;
+    uint32 Rating = 5;
+    uint32 Price = 6;
+} 
+
+message PromoData {
+    string BenefitType = 1;
+    uint32 BenefitValue = 2;
+    uint32 NewPrice = 3;
+    uint32 Deadline = 4;
+}
+
+message DeletePromoProductRequest {
+    uint32 ProductID = 1;
+}
