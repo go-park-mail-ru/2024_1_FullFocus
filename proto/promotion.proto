@@ -3,9 +3,9 @@ syntax = "proto3";
 package promotion;
 option go_package = "github.com/go-park-mail-ru/2024_1_FullFocus/microservices/promotion/delivery/gen;gen";
 import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
 
 // protoc --go_out=../gen/promotion/ --go_opt=paths=source_relative --go-grpc_out=../gen/promotion/ --go-grpc_opt=paths=source_relative promotion.proto
-
 service Promotion {
   rpc AddPromoProduct(AddPromoProductRequest) returns (google.protobuf.Empty) {}
   rpc GetPromoProducts(GetPromoProductsRequest) returns (GetPromoProductsResponse) {}
@@ -14,12 +14,9 @@ service Promotion {
 
 message AddPromoProductRequest {
   uint32 ProductID = 1;
-  oneof BenefitType {
-    uint32 Percentage = 2;
-    uint32 PriceDiscount = 3;
-    uint32 FinalPrice = 4;
-  }
-  uint32 Deadline = 5;
+  string BenefitType = 2;
+  uint32 BenefitValue = 3;
+  google.protobuf.Timestamp Deadline = 4;
 }
 
 message GetPromoProductsRequest {
