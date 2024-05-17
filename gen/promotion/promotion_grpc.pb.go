@@ -20,18 +20,18 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Promotion_AddPromoProduct_FullMethodName    = "/promotion.Promotion/AddPromoProduct"
-	Promotion_GetPromoProducts_FullMethodName   = "/promotion.Promotion/GetPromoProducts"
-	Promotion_DeletePromoProduct_FullMethodName = "/promotion.Promotion/DeletePromoProduct"
+	Promotion_AddPromoProductInfo_FullMethodName    = "/promotion.Promotion/AddPromoProductInfo"
+	Promotion_GetPromoProductsInfo_FullMethodName   = "/promotion.Promotion/GetPromoProductsInfo"
+	Promotion_DeletePromoProductInfo_FullMethodName = "/promotion.Promotion/DeletePromoProductInfo"
 )
 
 // PromotionClient is the client API for Promotion service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PromotionClient interface {
-	AddPromoProduct(ctx context.Context, in *AddPromoProductRequest, opts ...grpc.CallOption) (*empty.Empty, error)
-	GetPromoProducts(ctx context.Context, in *GetPromoProductsRequest, opts ...grpc.CallOption) (*GetPromoProductsResponse, error)
-	DeletePromoProduct(ctx context.Context, in *DeletePromoProductRequest, opts ...grpc.CallOption) (*empty.Empty, error)
+	AddPromoProductInfo(ctx context.Context, in *AddPromoProductRequest, opts ...grpc.CallOption) (*empty.Empty, error)
+	GetPromoProductsInfo(ctx context.Context, in *GetPromoProductsRequest, opts ...grpc.CallOption) (*GetPromoProductsResponse, error)
+	DeletePromoProductInfo(ctx context.Context, in *DeletePromoProductRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 }
 
 type promotionClient struct {
@@ -42,27 +42,27 @@ func NewPromotionClient(cc grpc.ClientConnInterface) PromotionClient {
 	return &promotionClient{cc}
 }
 
-func (c *promotionClient) AddPromoProduct(ctx context.Context, in *AddPromoProductRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (c *promotionClient) AddPromoProductInfo(ctx context.Context, in *AddPromoProductRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
 	out := new(empty.Empty)
-	err := c.cc.Invoke(ctx, Promotion_AddPromoProduct_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Promotion_AddPromoProductInfo_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *promotionClient) GetPromoProducts(ctx context.Context, in *GetPromoProductsRequest, opts ...grpc.CallOption) (*GetPromoProductsResponse, error) {
+func (c *promotionClient) GetPromoProductsInfo(ctx context.Context, in *GetPromoProductsRequest, opts ...grpc.CallOption) (*GetPromoProductsResponse, error) {
 	out := new(GetPromoProductsResponse)
-	err := c.cc.Invoke(ctx, Promotion_GetPromoProducts_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Promotion_GetPromoProductsInfo_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *promotionClient) DeletePromoProduct(ctx context.Context, in *DeletePromoProductRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (c *promotionClient) DeletePromoProductInfo(ctx context.Context, in *DeletePromoProductRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
 	out := new(empty.Empty)
-	err := c.cc.Invoke(ctx, Promotion_DeletePromoProduct_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Promotion_DeletePromoProductInfo_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -73,9 +73,9 @@ func (c *promotionClient) DeletePromoProduct(ctx context.Context, in *DeleteProm
 // All implementations must embed UnimplementedPromotionServer
 // for forward compatibility
 type PromotionServer interface {
-	AddPromoProduct(context.Context, *AddPromoProductRequest) (*empty.Empty, error)
-	GetPromoProducts(context.Context, *GetPromoProductsRequest) (*GetPromoProductsResponse, error)
-	DeletePromoProduct(context.Context, *DeletePromoProductRequest) (*empty.Empty, error)
+	AddPromoProductInfo(context.Context, *AddPromoProductRequest) (*empty.Empty, error)
+	GetPromoProductsInfo(context.Context, *GetPromoProductsRequest) (*GetPromoProductsResponse, error)
+	DeletePromoProductInfo(context.Context, *DeletePromoProductRequest) (*empty.Empty, error)
 	mustEmbedUnimplementedPromotionServer()
 }
 
@@ -83,14 +83,14 @@ type PromotionServer interface {
 type UnimplementedPromotionServer struct {
 }
 
-func (UnimplementedPromotionServer) AddPromoProduct(context.Context, *AddPromoProductRequest) (*empty.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AddPromoProduct not implemented")
+func (UnimplementedPromotionServer) AddPromoProductInfo(context.Context, *AddPromoProductRequest) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method AddPromoProductInfo not implemented")
 }
-func (UnimplementedPromotionServer) GetPromoProducts(context.Context, *GetPromoProductsRequest) (*GetPromoProductsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetPromoProducts not implemented")
+func (UnimplementedPromotionServer) GetPromoProductsInfo(context.Context, *GetPromoProductsRequest) (*GetPromoProductsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetPromoProductsInfo not implemented")
 }
-func (UnimplementedPromotionServer) DeletePromoProduct(context.Context, *DeletePromoProductRequest) (*empty.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeletePromoProduct not implemented")
+func (UnimplementedPromotionServer) DeletePromoProductInfo(context.Context, *DeletePromoProductRequest) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeletePromoProductInfo not implemented")
 }
 func (UnimplementedPromotionServer) mustEmbedUnimplementedPromotionServer() {}
 
@@ -105,56 +105,56 @@ func RegisterPromotionServer(s grpc.ServiceRegistrar, srv PromotionServer) {
 	s.RegisterService(&Promotion_ServiceDesc, srv)
 }
 
-func _Promotion_AddPromoProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Promotion_AddPromoProductInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddPromoProductRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PromotionServer).AddPromoProduct(ctx, in)
+		return srv.(PromotionServer).AddPromoProductInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Promotion_AddPromoProduct_FullMethodName,
+		FullMethod: Promotion_AddPromoProductInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PromotionServer).AddPromoProduct(ctx, req.(*AddPromoProductRequest))
+		return srv.(PromotionServer).AddPromoProductInfo(ctx, req.(*AddPromoProductRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Promotion_GetPromoProducts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Promotion_GetPromoProductsInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetPromoProductsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PromotionServer).GetPromoProducts(ctx, in)
+		return srv.(PromotionServer).GetPromoProductsInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Promotion_GetPromoProducts_FullMethodName,
+		FullMethod: Promotion_GetPromoProductsInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PromotionServer).GetPromoProducts(ctx, req.(*GetPromoProductsRequest))
+		return srv.(PromotionServer).GetPromoProductsInfo(ctx, req.(*GetPromoProductsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Promotion_DeletePromoProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Promotion_DeletePromoProductInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeletePromoProductRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PromotionServer).DeletePromoProduct(ctx, in)
+		return srv.(PromotionServer).DeletePromoProductInfo(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Promotion_DeletePromoProduct_FullMethodName,
+		FullMethod: Promotion_DeletePromoProductInfo_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PromotionServer).DeletePromoProduct(ctx, req.(*DeletePromoProductRequest))
+		return srv.(PromotionServer).DeletePromoProductInfo(ctx, req.(*DeletePromoProductRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -167,16 +167,16 @@ var Promotion_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*PromotionServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "AddPromoProduct",
-			Handler:    _Promotion_AddPromoProduct_Handler,
+			MethodName: "AddPromoProductInfo",
+			Handler:    _Promotion_AddPromoProductInfo_Handler,
 		},
 		{
-			MethodName: "GetPromoProducts",
-			Handler:    _Promotion_GetPromoProducts_Handler,
+			MethodName: "GetPromoProductsInfo",
+			Handler:    _Promotion_GetPromoProductsInfo_Handler,
 		},
 		{
-			MethodName: "DeletePromoProduct",
-			Handler:    _Promotion_DeletePromoProduct_Handler,
+			MethodName: "DeletePromoProductInfo",
+			Handler:    _Promotion_DeletePromoProductInfo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

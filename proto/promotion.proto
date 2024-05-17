@@ -7,9 +7,9 @@ import "google/protobuf/timestamp.proto";
 
 // protoc --go_out=../gen/promotion/ --go_opt=paths=source_relative --go-grpc_out=../gen/promotion/ --go-grpc_opt=paths=source_relative promotion.proto
 service Promotion {
-  rpc AddPromoProduct(AddPromoProductRequest) returns (google.protobuf.Empty) {}
-  rpc GetPromoProducts(GetPromoProductsRequest) returns (GetPromoProductsResponse) {}
-  rpc DeletePromoProduct(DeletePromoProductRequest) returns (google.protobuf.Empty) {};
+  rpc AddPromoProductInfo(AddPromoProductRequest) returns (google.protobuf.Empty) {}
+  rpc GetPromoProductsInfo(GetPromoProductsRequest) returns (GetPromoProductsResponse) {}
+  rpc DeletePromoProductInfo(DeletePromoProductRequest) returns (google.protobuf.Empty) {};
 }
 
 message AddPromoProductRequest {
@@ -24,27 +24,13 @@ message GetPromoProductsRequest {
 }
 
 message GetPromoProductsResponse {
-    repeated PromoProduct Products = 1;
+    repeated PromoData PromoProductsInfo = 1;
 }
-
-message PromoProduct {
-    ProductData ProductInfo = 1;
-    PromoData PromoInfo = 2;
-}
-
-message ProductData {
-    uint32 ProductID = 1;
-    string Name = 2;
-    string Description = 3;
-    string Seller = 4;
-    uint32 Rating = 5;
-    uint32 Price = 6;
-} 
 
 message PromoData {
-    string BenefitType = 1;
-    uint32 BenefitValue = 2;
-    uint32 NewPrice = 3;
+    uint32 ProductID = 1;
+    string BenefitType = 2;
+    uint32 BenefitValue = 3;
     uint32 Deadline = 4;
 }
 
