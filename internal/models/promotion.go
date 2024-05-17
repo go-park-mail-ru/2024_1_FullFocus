@@ -3,7 +3,14 @@ package models
 import "time"
 
 type PromoProduct struct {
-	ProductData  Product
+	ProductData  ProductCard
+	BenefitType  string
+	BenefitValue uint
+	Deadline     time.Time
+}
+
+type PromoData struct {
+	ProductID    uint
 	BenefitType  string
 	BenefitValue uint
 	Deadline     time.Time
