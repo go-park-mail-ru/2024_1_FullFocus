@@ -63,4 +63,8 @@ type (
 	Suggests interface {
 		GetSuggestions(ctx context.Context, query string) (models.Suggestion, error)
 	}
+
+	Promotion interface {
+		GetPromoProducts(ctx context.Context, amount uint) ([]models.PromoProduct, error)
+	}
 )
