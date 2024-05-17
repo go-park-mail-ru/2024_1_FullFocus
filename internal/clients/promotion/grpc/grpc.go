@@ -15,7 +15,6 @@ import (
 	promotionv1 "github.com/go-park-mail-ru/2024_1_FullFocus/gen/promotion"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 )
 
@@ -66,8 +65,6 @@ func (c *Client) CreatePromoProductInfo(ctx context.Context, input models.PromoD
 		return models.ErrPromoProductAlreadyExists
 	case codes.NotFound:
 		return models.ErrNoProduct
-	case codes.InvalidArgument:
-		return helper.NewValidationError(st.Proto().GetMessage(), st.Proto().GetMessage())
 	default:
 		return models.ErrInternal
 	}
