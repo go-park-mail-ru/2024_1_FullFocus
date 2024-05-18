@@ -165,11 +165,11 @@ func MustInit() *App {
 	profileHandler := delivery.NewProfileHandler(profileUsecase)
 	profileHandler.InitRouter(apiRouter)
 
-	// Order
-	orderRepo := repository.NewOrderRepo(pgxClient)
-	orderUsecase := usecase.NewOrderUsecase(orderRepo, cartRepo)
-	orderHandler := delivery.NewOrderHandler(orderUsecase)
-	orderHandler.InitRouter(apiRouter)
+	// Promocode
+	promocodeRepo := repository.NewPromocodeRepo(pgxClient)
+	promocodeUsecase := usecase.NewPromocodeUsecase(promocodeRepo)
+	promocodeHandler := delivery.NewPromocodeHandler(promocodeUsecase)
+	promocodeHandler.InitRouter(apiRouter)
 
 	// Avatar
 	avatarStorage := repository.NewAvatarStorage(minioClient, cfg.Minio)
@@ -193,6 +193,12 @@ func MustInit() *App {
 	productUsecase := usecase.NewProductUsecase(productRepo, categoryRepo)
 	productHandler := delivery.NewProductHandler(productUsecase)
 	productHandler.InitRouter(apiRouter)
+
+	// Order
+	orderRepo := repository.NewOrderRepo(pgxClient)
+	orderUsecase := usecase.NewOrderUsecase(orderRepo, cartRepo, productRepo, promocodeRepo)
+	orderHandler := delivery.NewOrderHandler(orderUsecase)
+	orderHandler.InitRouter(apiRouter)
 
 	// Suggests
 	suggestRepo := repository.NewSuggestRepo(elasticClient)
