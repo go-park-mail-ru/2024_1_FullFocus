@@ -40,7 +40,7 @@ func (s *serverAPI) AddPromoProductInfo(ctx context.Context, r *promotionv1.AddP
 		switch {
 		case errors.Is(err, models.ErrProductNotFound):
 			return nil, status.Error(codes.NotFound, err.Error())
-		case errors.Is(err, models.ErrPromoAlreadyExists):
+		case errors.Is(err, models.ErrPromoProductAlreadyExists):
 			return nil, status.Error(codes.AlreadyExists, err.Error())
 		default:
 			return nil, status.Error(codes.Internal, commonError.ErrInternal.Error())
