@@ -23,7 +23,7 @@ func NewOrderRepo(dbClient db.Database) *OrderRepo {
 	}
 }
 
-func (r *OrderRepo) Create(ctx context.Context, userID uint, orderItems []models.OrderItem) (uint, error) {
+func (r *OrderRepo) Create(ctx context.Context, userID uint, sum uint, orderItems []models.OrderItem) (uint, error) {
 	tx, err := r.storage.Begin(ctx, nil)
 	if err != nil {
 		return 0, err
@@ -58,16 +58,11 @@ func (r *OrderRepo) Create(ctx context.Context, userID uint, orderItems []models
 	logger.Info(ctx, fmt.Sprintf("inserted in %s", time.Since(start)))
 
 	q = `UPDATE ordering
-		 SET sum = (
-		 	 SELECT SUM(p.price * o.count)
-        	 FROM order_item o
-                 INNER JOIN product p ON o.product_id = p.id
-           	 WHERE o.ordering_id = $1
-    	 )
+		 SET sum = $1
 		 WHERE id = $2;`
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d", orderID)))
 	start = time.Now()
-	_, err = tx.ExecContext(ctx, q, orderID, orderID)
+	_, err = tx.ExecContext(ctx, q, sum, orderID)
 	if err != nil {
 		logger.Error(ctx, "error while inserting sum: "+err.Error())
 		return 0, err

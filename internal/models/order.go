@@ -32,9 +32,15 @@ type Order struct {
 // Create
 
 type CreateOrderInput struct {
-	UserID   uint
-	Items    []OrderItem
-	FromCart bool
+	UserID      uint
+	Items       []OrderItem
+	PromocodeID uint
+	FromCart    bool
+}
+
+type CreateOrderPayload struct {
+	OrderID        uint
+	NewPromocodeID uint
 }
 
 // Get

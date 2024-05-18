@@ -58,7 +58,7 @@ func (h *OrderHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	createInput := dto.ConvertCreateOrderInputToModel(uID, createOrderInput)
-	orderID, err := h.usecase.Create(ctx, createInput)
+	orderInfo, err := h.usecase.Create(ctx, createInput)
 	if err != nil {
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 500,
@@ -67,11 +67,10 @@ func (h *OrderHandler) Create(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	data := dto.ConvertCreatePayload(orderInfo)
 	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
-		Data: dto.CreateOrderPayload{
-			OrderID: orderID,
-		},
+		Data:   data,
 	})
 }
 
