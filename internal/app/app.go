@@ -18,6 +18,7 @@ import (
 	authclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/auth/grpc"
 	csatclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/csat/grpc"
 	profileclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/profile/grpc"
+	promotionclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/promotion/grpc"
 	reviewclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/review/grpc"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
@@ -144,7 +145,16 @@ func MustInit() *App {
 
 	reviewClient, err := reviewclient.New(ctx, log, cfg.Main.Clients.ReviewClient)
 	if err != nil {
-		panic("csat service connection error: " + err.Error())
+		panic("review service connection error: " + err.Error())
+	}
+
+	// Promotion
+	ctx, cancel = context.WithTimeout(context.Background(), _connTimeout)
+	defer cancel()
+
+	promotionClient, err := promotionclient.New(ctx, log, cfg.Main.Clients.PromotionClient)
+	if err != nil {
+		panic("promotion service connection error: " + err.Error())
 	}
 
 	// Layers
@@ -204,6 +214,11 @@ func MustInit() *App {
 	csatUsecase := usecase.NewCsatUsecase(csatClient)
 	csatHandler := delivery.NewCsatHandler(csatUsecase)
 	csatHandler.InitRouter(apiRouter)
+
+	// Promotion
+	promotionUsecase := usecase.NewPromotionUsecase(productRepo, promotionClient)
+	promotionHandler := delivery.NewPromotionHandler(promotionUsecase)
+	promotionHandler.InitRouter(apiRouter)
 
 	// Middleware
 	reg := prometheus.NewRegistry()

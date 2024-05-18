@@ -52,6 +52,10 @@ review:
   server:
     port: "9094"
     timeout: 5s
+promotion:
+  server:
+    port: "9095"
+    timeout: 5s
 
 # Data
 minio:
