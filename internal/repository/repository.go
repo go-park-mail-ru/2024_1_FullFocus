@@ -26,6 +26,8 @@ type (
 		GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error)
 		GetProductsByQuery(ctx context.Context, input models.GetProductsByQueryInput) ([]models.ProductCard, error)
 		GetProductsByIDs(ctx context.Context, IDs []uint) ([]models.ProductCard, error)
+		GetProductPriceByID(ctx context.Context, ID uint) (uint, error)
+		MarkProduct(ctx context.Context, ID uint, promo bool) error
 	}
 
 	Avatars interface {
