@@ -54,7 +54,6 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 			})
 			return
 		}
-		logger.Error(ctx, err.Error())
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 500,
 			Msg:    "Internal error",
