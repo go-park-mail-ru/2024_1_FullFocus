@@ -3,12 +3,19 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"math/rand"
+	"slices"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/promotion"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
 )
+
+type PromotionCache interface {
+	Get(ctx context.Context, productID uint) (product models.CachePromoProduct, found bool)
+	Set(ctx context.Context, productID uint, product models.CachePromoProduct)
+}
 
 const (
 	defaultPromoProductsAmount = 3
@@ -20,12 +27,16 @@ const (
 type PromotionUsecase struct {
 	productRepo     repository.Products
 	promotionClient promotion.PromotionClient
+	cache           PromotionCache
+	promoProductIDs []uint
 }
 
-func NewPromotionUsecase(pr repository.Products, pc promotion.PromotionClient) *PromotionUsecase {
+func NewPromotionUsecase(pr repository.Products, pc promotion.PromotionClient, c PromotionCache) *PromotionUsecase {
 	return &PromotionUsecase{
 		productRepo:     pr,
 		promotionClient: pc,
+		cache:           c,
+		promoProductIDs: make([]uint, 0),
 	}
 }
 
@@ -63,6 +74,18 @@ func (u *PromotionUsecase) CreatePromoProduct(ctx context.Context, input models.
 		}
 		return err
 	}
+	if len(u.promoProductIDs) == 0 {
+		u.promoProductIDs = append(u.promoProductIDs, input.ProductID)
+	}
+	var i int
+	for i = 0; i < len(u.promoProductIDs); i++ {
+		if u.promoProductIDs[i] == 0 {
+			u.promoProductIDs[i] = input.ProductID
+		}
+	}
+	if i == 0 || i > len(u.promoProductIDs) {
+		u.promoProductIDs = append(u.promoProductIDs, input.ProductID)
+	}
 	return nil
 }
 
@@ -70,31 +93,58 @@ func (u *PromotionUsecase) GetPromoProducts(ctx context.Context, amount uint) ([
 	if amount == 0 {
 		amount = defaultPromoProductsAmount
 	}
-	promoInfo, err := u.promotionClient.GetPromoProductsInfo(ctx, amount)
+	if len(u.promoProductIDs) == 0 {
+		return nil, models.ErrProductNotFound
+	}
+	randomProductIDs := make([]uint, 0, amount)
+	for i := 0; i < int(amount) && i < len(u.promoProductIDs); i++ {
+		randomIdx := rand.Int() % len(u.promoProductIDs)
+		randomID := u.promoProductIDs[randomIdx]
+		found := slices.Contains(randomProductIDs, randomID)
+		for found {
+			randomIdx = rand.Int() % len(u.promoProductIDs)
+			randomID = u.promoProductIDs[randomIdx]
+		}
+		randomProductIDs = append(randomProductIDs, randomID)
+	}
+	res := make([]models.PromoProduct, 0, amount)
+	prIDs := make([]uint, 0)
+	for _, id := range randomProductIDs {
+		if product, found := u.cache.Get(ctx, id); found {
+			res = append(res, product.Product)
+		} else {
+			prIDs = append(prIDs, id)
+		}
+	}
+	promoInfo, err := u.promotionClient.GetPromoProductsInfoByIDs(ctx, prIDs)
 	if err != nil {
 		return nil, err
 	}
-	IDs := make([]uint, 0, len(promoInfo))
-	for _, promo := range promoInfo {
-		IDs = append(IDs, promo.ProductID)
-	}
-	productsData, err := u.productRepo.GetProductsByIDs(ctx, IDs)
+	productsData, err := u.productRepo.GetProductsByIDs(ctx, prIDs)
 	if err != nil {
 		return nil, err
 	}
-	res := make([]models.PromoProduct, len(productsData))
 	for i, product := range productsData {
-		res[i].ProductData = product
-		res[i].BenefitType = promoInfo[i].BenefitType
-		res[i].BenefitValue = promoInfo[i].BenefitValue
+		var newPrice uint
 		switch promoInfo[i].BenefitType {
 		case percentSale:
-			res[i].NewPrice = product.Price / 100 * (100 - promoInfo[i].BenefitValue)
+			newPrice = product.Price / 100 * (100 - promoInfo[i].BenefitValue)
 		case priceSale:
-			res[i].NewPrice = product.Price - promoInfo[i].BenefitValue
+			newPrice = product.Price - promoInfo[i].BenefitValue
 		case finalPrice:
-			res[i].NewPrice = promoInfo[i].BenefitValue
+			newPrice = promoInfo[i].BenefitValue
 		}
+		promoProduct := models.PromoProduct{
+			ProductData:  product,
+			BenefitType:  promoInfo[i].BenefitType,
+			BenefitValue: promoInfo[i].BenefitValue,
+			NewPrice:     newPrice,
+		}
+		res = append(res, promoProduct)
+		u.cache.Set(ctx, product.ID, models.CachePromoProduct{
+			Product: promoProduct,
+			Empty:   false,
+		})
 	}
 	return res, nil
 }
@@ -103,5 +153,12 @@ func (u *PromotionUsecase) DeletePromoProduct(ctx context.Context, productID uin
 	if err := u.productRepo.MarkProduct(ctx, productID, false); err != nil {
 		return err
 	}
-	return u.promotionClient.DeletePromoProductInfo(ctx, productID)
+	if err := u.promotionClient.DeletePromoProductInfo(ctx, productID); err != nil {
+		return err
+	}
+	u.cache.Set(ctx, productID, models.CachePromoProduct{
+		Empty: true,
+	})
+	u.promoProductIDs[slices.Index(u.promoProductIDs, productID)] = 0
+	return nil
 }

@@ -22,6 +22,7 @@ import (
 	reviewclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/review/grpc"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/cache"
 	elasticsetup "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/elasticsearch"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware"
 	miniosetup "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/minio"
@@ -216,7 +217,8 @@ func MustInit() *App {
 	csatHandler.InitRouter(apiRouter)
 
 	// Promotion
-	promotionUsecase := usecase.NewPromotionUsecase(productRepo, promotionClient)
+	promotionCache := cache.NewPromoProductsCache()
+	promotionUsecase := usecase.NewPromotionUsecase(productRepo, promotionClient, promotionCache)
 	promotionHandler := delivery.NewPromotionHandler(promotionUsecase)
 	promotionHandler.InitRouter(apiRouter)
 

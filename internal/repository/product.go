@@ -46,6 +46,7 @@ func (r *ProductRepo) GetProductByID(ctx context.Context, profileID uint, produc
 			FROM product p
 				 LEFT JOIN cart_item ci ON ci.product_id = p.id AND ci.profile_id = ?
 			WHERE p.id = ?;`
+
 	var product dao.Product
 	if err := r.storage.Get(ctx, &product, q, profileID, productID); err != nil {
 		logger.Error(ctx, "error while selecting product: "+err.Error())
@@ -56,6 +57,7 @@ func (r *ProductRepo) GetProductByID(ctx context.Context, profileID uint, produc
 		  FROM product_category pc
     	  	  INNER JOIN category c ON c.id = pc.category_id
 		  WHERE pc.product_id = ?;`
+
 	var categories []string
 	if err := r.storage.Select(ctx, &categories, q, productID); err != nil {
 		logger.Info(ctx, "error while selecting categories: "+err.Error())
@@ -73,6 +75,7 @@ func (r *ProductRepo) GetProductsByCategoryID(ctx context.Context, input models.
 				LEFT JOIN cart_item ci
 					ON p.id = ci.product_id
 				   	AND ci.profile_id = ?
+			WHERE on_sale = FALSE
 			%s
 			OFFSET ?
 			LIMIT ?;`
@@ -92,7 +95,7 @@ func (r *ProductRepo) GetProductsByQuery(ctx context.Context, input models.GetPr
     			LEFT JOIN cart_item ci
         			ON p.id = ci.product_id
         			AND ci.profile_id = ?
-		  WHERE p.product_name ILIKE '%%%s%%'`
+		  WHERE p.product_name ILIKE '%%%s%%' AND on_sale = FALSE`
 	q1 := `%s
 		OFFSET ?
 		LIMIT ?;`

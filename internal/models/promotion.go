@@ -12,3 +12,8 @@ type PromoData struct {
 	BenefitType  string
 	BenefitValue uint
 }
+
+type CachePromoProduct struct {
+	Product PromoProduct
+	Empty   bool
+}
