@@ -8,6 +8,7 @@ import "google/protobuf/empty.proto";
 service Promotion {
   rpc AddPromoProductInfo(AddPromoProductRequest) returns (google.protobuf.Empty) {}
   rpc GetPromoProductsInfoByIDs(GetPromoProductsRequest) returns (GetPromoProductsResponse) {}
+  rpc GetAllPromoProductsIDs(google.protobuf.Empty) returns (GetAllPromoProductIDsResponse) {}
   rpc DeletePromoProductInfo(DeletePromoProductRequest) returns (google.protobuf.Empty) {};
 }
 
@@ -29,6 +30,10 @@ message PromoData {
   uint32 ProductID = 1;
   string BenefitType = 2;
   uint32 BenefitValue = 3;
+}
+
+message GetAllPromoProductIDsResponse {
+  repeated uint32 ProductIDs = 1;
 }
 
 message DeletePromoProductRequest {

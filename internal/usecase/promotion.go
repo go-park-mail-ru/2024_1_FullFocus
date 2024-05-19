@@ -94,7 +94,7 @@ func (u *PromotionUsecase) GetPromoProducts(ctx context.Context, amount uint) ([
 		amount = defaultPromoProductsAmount
 	}
 	if len(u.promoProductIDs) == 0 {
-		avaliablePrIDs, err := u.productRepo.GetAllPromoProducts(ctx)
+		avaliablePrIDs, err := u.promotionClient.GetAllPromoProductsIDs(ctx)
 		if err != nil {
 			return nil, models.ErrNoProduct
 		}

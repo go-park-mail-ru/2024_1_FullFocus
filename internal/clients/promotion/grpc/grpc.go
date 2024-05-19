@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	promotionv1 "github.com/go-park-mail-ru/2024_1_FullFocus/gen/promotion"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
@@ -67,6 +68,26 @@ func (c *Client) CreatePromoProductInfo(ctx context.Context, input models.PromoD
 		return models.ErrNoProduct
 	default:
 		return models.ErrInternal
+	}
+}
+
+func (c *Client) GetAllPromoProductsIDs(ctx context.Context) ([]uint, error) {
+	promoResp, err := c.api.GetAllPromoProductsIDs(ctx, &emptypb.Empty{})
+	st, ok := status.FromError(err)
+	if !ok {
+		return nil, err
+	}
+	switch st.Code() {
+	case codes.OK:
+		prIDs := make([]uint, 0, len(promoResp.GetProductIDs()))
+		for _, id := range promoResp.GetProductIDs() {
+			prIDs = append(prIDs, uint(id))
+		}
+		return prIDs, nil
+	case codes.NotFound:
+		return nil, models.ErrNoProduct
+	default:
+		return nil, models.ErrInternal
 	}
 }
 
