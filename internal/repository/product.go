@@ -27,6 +27,7 @@ func (r *ProductRepo) GetAllProductCards(ctx context.Context, input models.GetAl
 				LEFT JOIN cart_item ci
 					ON p.id = ci.product_id
 					   AND ci.profile_id = ?
+			WHERE on_sale = FALSE
 			%s
 			OFFSET ?
 			LIMIT ?;`
@@ -105,4 +106,42 @@ func (r *ProductRepo) GetProductsByQuery(ctx context.Context, input models.GetPr
 		return nil, models.ErrNoRowsFound
 	}
 	return dao.ConvertProductCardsFromTable(products), nil
+}
+
+func (r *ProductRepo) GetProductsByIDs(ctx context.Context, IDs []uint) ([]models.ProductCard, error) {
+	q := `SELECT id, product_name, price, imgsrc, seller, rating
+	FROM product
+	WHERE id = ANY(?)
+	ORDER BY array_position(?, id);`
+
+	products := make([]dao.ProductCard, 0, len(IDs))
+	if err := r.storage.Select(ctx, &products, q, IDs, IDs); err != nil {
+		logger.Error(ctx, err.Error())
+		return nil, models.ErrInternal
+	}
+	if len(products) == 0 {
+		return nil, models.ErrNoProduct
+	}
+	return dao.ConvertProductCardsFromTable(products), nil
+}
+
+func (r *ProductRepo) GetProductPriceByID(ctx context.Context, ID uint) (uint, error) {
+	q := `SELECT price FROM product WHERE id = ?;`
+
+	var price uint
+	if err := r.storage.Get(ctx, &price, q, ID); err != nil {
+		logger.Error(ctx, err.Error())
+		return 0, models.ErrNoProduct
+	}
+	return price, nil
+}
+
+func (r *ProductRepo) MarkProduct(ctx context.Context, ID uint, promo bool) error {
+	q := `UPDATE product SET on_sale = ? WHERE id = ?;`
+
+	if _, err := r.storage.Exec(ctx, q, promo, ID); err != nil {
+		logger.Error(ctx, err.Error())
+		return models.ErrInternal
+	}
+	return nil
 }
