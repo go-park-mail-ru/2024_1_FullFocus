@@ -45,3 +45,23 @@ func NewAuthMiddleware(c *auth.Client) mux.MiddlewareFunc {
 		})
 	}
 }
+
+func NewAuthorizationMiddleware(accessToken string) mux.MiddlewareFunc {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			isAdmin := strings.Contains(r.URL.Path, "admin")
+			if isAdmin {
+				if s2s := r.Header.Get("s2s"); s2s != accessToken {
+					helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+						Status: 403,
+						Msg:    "method not allowed",
+						MsgRus: "Нет прав на выполнение этого запроса",
+					})
+					return
+				}
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+}

@@ -225,6 +225,7 @@ func MustInit() *App {
 	r.Use(middleware.NewLoggingMiddleware(metrics.NewMetrics(reg), log))
 	r.Use(middleware.NewCORSMiddleware([]string{}))
 	r.Use(middleware.NewAuthMiddleware(authClient))
+	r.Use(middleware.NewAuthorizationMiddleware(cfg.Env))
 
 	return &App{
 		config:   cfg,

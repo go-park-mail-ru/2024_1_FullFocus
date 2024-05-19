@@ -23,6 +23,7 @@ type Config struct {
 	Minio         MinioConfig         `yaml:"minio"`
 	Postgres      PostgresConfig      `yaml:"postgres"`
 	Elasticsearch ElasticsearchConfig `yaml:"elasticsearch"`
+	AccessToken   string              `yaml:"accessToken"`
 }
 
 // Main app

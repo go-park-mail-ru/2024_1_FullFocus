@@ -80,3 +80,5 @@ elasticsearch:
   port: "9200"
   user: ${ELASTIC_USER}
   password: ${ELASTIC_PASSWORD}
+
+accessToken: ${ACCESS_TOKEN}
