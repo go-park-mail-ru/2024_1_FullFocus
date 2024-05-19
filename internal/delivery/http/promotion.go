@@ -36,16 +36,22 @@ func (h *PromotionHandler) InitRouter(r *mux.Router) {
 func (h *PromotionHandler) GetPromoProducts(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	amountStr := r.URL.Query().Get("amount")
-	amount, err := strconv.ParseUint(amountStr, 10, 32)
-	if err != nil {
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 400,
-			Msg:    "invalid amount value",
-			MsgRus: "Невалидный параметр количества",
-		})
-		return
+	var amount uint
+	if amountStr == "" {
+		amount = 0
+	} else {
+		amnt, err := strconv.ParseUint(amountStr, 10, 32)
+		if err != nil {
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 400,
+				Msg:    "invalid amount value",
+				MsgRus: "Невалидный параметр количества",
+			})
+			return
+		}
+		amount = uint(amnt)
 	}
-	products, err := h.promotionUsecase.GetPromoProducts(ctx, uint(amount))
+	products, err := h.promotionUsecase.GetPromoProducts(ctx, amount)
 	if err != nil {
 		if errors.Is(err, models.ErrNoProduct) {
 			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{

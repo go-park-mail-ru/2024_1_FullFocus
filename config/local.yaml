@@ -24,6 +24,10 @@ main:
       addr: "localhost:9094"
       retries: 3
       retry_timeout: 2s
+    promotion:
+      addr: "localhost:9095"
+      retries: 3
+      retry_timeout: 2s
 auth:
   server:
     port: "9091"

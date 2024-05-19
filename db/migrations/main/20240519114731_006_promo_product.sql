@@ -25,8 +25,8 @@ ADD COLUMN on_sale BOOLEAN DEFAULT FALSE;
 
 SET search_path TO ozon, public;
 
-DROP TYPE promotion_product_sale_type;
 DROP TABLE promo_product;
+DROP TYPE promotion_product_sale_type;
 
 ALTER TABLE product
 DROP COLUMN on_sale;

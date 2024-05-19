@@ -12,6 +12,7 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 )
 
 func NewAuthMiddleware(c *auth.Client) mux.MiddlewareFunc {
@@ -53,6 +54,7 @@ func NewAuthorizationMiddleware(accessToken string) mux.MiddlewareFunc {
 			isAdmin := strings.Contains(r.URL.Path, "admin")
 			if isAdmin {
 				if s2s := r.Header.Get("s2s"); s2s != accessToken {
+					logger.Info(ctx, "Access error")
 					helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 						Status: 403,
 						Msg:    "method not allowed",

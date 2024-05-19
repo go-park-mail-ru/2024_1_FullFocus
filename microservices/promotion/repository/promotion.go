@@ -46,7 +46,7 @@ func (r *Repo) GetPromoProductsInfo(ctx context.Context, amount uint32) ([]model
 	q := `SELECT product_id, benefit_type, benefit_value FROM promo_product LIMIT ?;`
 
 	promoData := make([]dao.PromoProductTable, 0, amount)
-	if err := r.storage.Select(ctx, promoData, q, amount); err != nil {
+	if err := r.storage.Select(ctx, &promoData, q, amount); err != nil {
 		logger.Info(ctx, "Error:"+err.Error())
 		return nil, commonError.ErrInternal
 	}
@@ -57,12 +57,13 @@ func (r *Repo) GetPromoProductsInfo(ctx context.Context, amount uint32) ([]model
 }
 
 func (r *Repo) DeletePromoProductInfo(ctx context.Context, pID uint32) error {
-	q := `DELETE FROM promo_product WHERE product_id = ?;`
+	q := `DELETE FROM promo_product WHERE product_id = ? RETURNING product_id;`
 
 	//TODO not found
-	if _, err := r.storage.Exec(ctx, q, pID); err != nil {
+	var id uint
+	if err := r.storage.Get(ctx, &id, q, pID); err != nil {
 		logger.Info(ctx, "Error:"+err.Error())
-		return commonError.ErrInternal
+		return models.ErrProductNotFound
 	}
 	return nil
 }
