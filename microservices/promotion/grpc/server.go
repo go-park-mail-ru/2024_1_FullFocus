@@ -55,7 +55,7 @@ func (s *serverAPI) GetPromoProductsInfo(ctx context.Context, r *promotionv1.Get
 		if errors.Is(err, models.ErrProductNotFound) {
 			return nil, status.Error(codes.NotFound, err.Error())
 		}
-		return nil, status.Error(codes.Internal, commonError.ErrInternal.Error())
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 	promoProductsInfo := make([]*promotionv1.PromoData, 0, len(promoResp))
 	for _, promoInfo := range promoResp {

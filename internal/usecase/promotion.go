@@ -87,6 +87,14 @@ func (u *PromotionUsecase) GetPromoProducts(ctx context.Context, amount uint) ([
 		res[i].ProductData = product
 		res[i].BenefitType = promoInfo[i].BenefitType
 		res[i].BenefitValue = promoInfo[i].BenefitValue
+		switch promoInfo[i].BenefitType {
+		case percentSale:
+			res[i].NewPrice = product.Price / 100 * (100 - promoInfo[i].BenefitValue)
+		case priceSale:
+			res[i].NewPrice = product.Price - promoInfo[i].BenefitValue
+		case finalPrice:
+			res[i].NewPrice = promoInfo[i].BenefitValue
+		}
 	}
 	return res, nil
 }
