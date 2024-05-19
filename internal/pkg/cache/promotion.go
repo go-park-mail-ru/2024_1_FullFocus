@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
@@ -25,7 +26,7 @@ func (c *PromoProductsCache) Get(ctx context.Context, prID uint) (models.CachePr
 	defer c.mu.RUnlock()
 	product, found := c.storage[prID]
 	if found && !product.Empty {
-		logger.Info(ctx, "Product %v found in cache", prID)
+		logger.Info(ctx, fmt.Sprintf("Product %v found in cache", prID))
 	} else {
 		found = false
 	}
@@ -36,7 +37,7 @@ func (c *PromoProductsCache) Set(ctx context.Context, prID uint, product models.
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if !product.Empty {
-		logger.Info(ctx, "Product %v set in cache", prID)
+		logger.Info(ctx, fmt.Sprintf("Product %v set in cache", prID))
 	}
 	c.storage[prID] = product
 }

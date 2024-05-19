@@ -49,7 +49,7 @@ func (s *serverAPI) AddPromoProductInfo(ctx context.Context, r *promotionv1.AddP
 	return nil, status.Error(codes.OK, "")
 }
 
-func (s *serverAPI) GetPromoProductsInfo(ctx context.Context, r *promotionv1.GetPromoProductsRequest) (*promotionv1.GetPromoProductsResponse, error) {
+func (s *serverAPI) GetPromoProductsInfoByIDs(ctx context.Context, r *promotionv1.GetPromoProductsRequest) (*promotionv1.GetPromoProductsResponse, error) {
 	uint32PrIDs := r.GetProductIDs()
 	prIDs := make([]uint, 0, len(uint32PrIDs))
 	for _, id := range uint32PrIDs {

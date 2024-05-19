@@ -94,7 +94,11 @@ func (u *PromotionUsecase) GetPromoProducts(ctx context.Context, amount uint) ([
 		amount = defaultPromoProductsAmount
 	}
 	if len(u.promoProductIDs) == 0 {
-		return nil, models.ErrProductNotFound
+		avaliablePrIDs, err := u.productRepo.GetAllPromoProducts(ctx)
+		if err != nil {
+			return nil, models.ErrNoProduct
+		}
+		u.promoProductIDs = avaliablePrIDs
 	}
 	randomProductIDs := make([]uint, 0, amount)
 	for i := 0; i < int(amount) && i < len(u.promoProductIDs); i++ {
@@ -159,6 +163,9 @@ func (u *PromotionUsecase) DeletePromoProduct(ctx context.Context, productID uin
 	u.cache.Set(ctx, productID, models.CachePromoProduct{
 		Empty: true,
 	})
-	u.promoProductIDs[slices.Index(u.promoProductIDs, productID)] = 0
+	idx := slices.Index(u.promoProductIDs, productID)
+	if idx != -1 {
+		u.promoProductIDs[idx] = 0
+	}
 	return nil
 }
