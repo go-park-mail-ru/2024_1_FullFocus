@@ -47,3 +47,27 @@ func ConvertPromocodes(promos []models.PromocodeItem) []PromocodeItem {
 	}
 	return result
 }
+
+type Promocode struct {
+	ID               uint      `json:"id"`
+	Name             string    `json:"name"`
+	Description      string    `json:"description"`
+	MinSumGive       uint      `json:"minSumGive"`
+	MinSumActivation uint      `json:"minSumActivation"`
+	BenefitType      string    `json:"benefitType"`
+	Value            uint      `json:"value"`
+	TTL              time.Time `json:"ttl"`
+}
+
+func ConvertPromocode(promo models.Promocode) Promocode {
+	return Promocode{
+		ID:               promo.ID,
+		Name:             promo.Name,
+		Description:      promo.Description,
+		MinSumGive:       promo.MinSumGive,
+		MinSumActivation: promo.MinSumActivation,
+		BenefitType:      promo.BenefitType,
+		Value:            promo.Value,
+		TTL:              promo.TTL,
+	}
+}

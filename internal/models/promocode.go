@@ -10,7 +10,7 @@ type Promocode struct {
 	MinSumActivation uint
 	BenefitType      string
 	Value            uint
-	TimeLeft         time.Time
+	TTL              time.Time
 }
 
 type PromocodeItem struct {

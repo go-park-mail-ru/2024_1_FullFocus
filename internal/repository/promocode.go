@@ -79,18 +79,18 @@ func (r *PromocodeRepo) GetPromocodeItemByActivationCode(ctx context.Context, pI
 	return dao.ConvertTerms(promocodeItem), nil
 }
 
-//func (r *PromocodeRepo) GetPromocodeOwnerID(ctx context.Context, promocodeID uint) (uint, error) {
-//	q := `SELECT pi.profile_id
-//		  FROM promocode_item pi
-//		  WHERE pi.id = ?;`
-//
-//	var ownerID uint
-//	if err := r.storage.Get(ctx, &ownerID, q, promocodeID); err != nil {
-//		logger.Error(ctx, err.Error())
-//		return 0, models.ErrNoPromocode
-//	}
-//	return ownerID, nil
-//}
+func (r *PromocodeRepo) GetPromocodeByID(ctx context.Context, promocodeID uint) (models.Promocode, error) {
+	q := `SELECT p.id, p.name, p.description, p.min_sum_give, p.min_sum_activation, p.benefit_type, p.value, p.ttl_hours
+		  FROM promocode p
+		  WHERE p.id = ?;`
+
+	var promocode dao.Promocode
+	if err := r.storage.Get(ctx, &promocode, q, promocodeID); err != nil {
+		logger.Error(ctx, err.Error())
+		return models.Promocode{}, models.ErrNoPromocode
+	}
+	return dao.ConvertPromocode(promocode), nil
+}
 
 func (r *PromocodeRepo) GetAvailablePromocodes(ctx context.Context, profileID uint) ([]models.PromocodeItem, error) {
 	q := `SELECT p.id,

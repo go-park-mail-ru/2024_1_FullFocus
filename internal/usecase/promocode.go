@@ -21,6 +21,10 @@ func (u *PromocodeUsecase) GetPromocodeItemByActivationCode(ctx context.Context,
 	return u.promocodeRepo.GetPromocodeItemByActivationCode(ctx, pID, code)
 }
 
+func (u *PromocodeUsecase) GetPromocodeByID(ctx context.Context, promocodeID uint) (models.Promocode, error) {
+	return u.promocodeRepo.GetPromocodeByID(ctx, promocodeID)
+}
+
 func (u *PromocodeUsecase) GetAvailablePromocodes(ctx context.Context, profileID uint) ([]models.PromocodeItem, error) {
 	return u.promocodeRepo.GetAvailablePromocodes(ctx, profileID)
 }
