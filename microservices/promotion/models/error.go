@@ -6,5 +6,5 @@ import (
 
 var (
 	ErrProductNotFound           = errors.New("product not found")
-	ErrPromoProductAlreadyExists = errors.New("tnis product already has sales")
+	ErrPromoProductAlreadyExists = errors.New("promo product already added")
 )

@@ -35,3 +35,21 @@ func ConvertPromoProductsToDTOs(mm []models.PromoProduct) []PromoProduct {
 	}
 	return data
 }
+
+type PromoData struct {
+	ProductID    uint   `json:"productID"`
+	BenefitType  string `json:"benefitType"`
+	BenefitValue uint   `json:"benefitValue"`
+}
+
+func ConvertPromoDataToModel(d PromoData) models.PromoData {
+	return models.PromoData{
+		ProductID:    d.ProductID,
+		BenefitType:  d.BenefitType,
+		BenefitValue: d.BenefitValue,
+	}
+}
+
+type DeletePromoProductInput struct {
+	ProductID uint `json:"productID"`
+}

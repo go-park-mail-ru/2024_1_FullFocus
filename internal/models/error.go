@@ -27,4 +27,5 @@ var (
 	ErrPollAlreadyRated          = errors.New("poll is already rated")
 	ErrInvalidBenefitValue       = errors.New("invalid benefit value")
 	ErrPromoProductAlreadyExists = errors.New("promo product already added")
+	ErrProductNotFound           = errors.New("product not found")
 )
