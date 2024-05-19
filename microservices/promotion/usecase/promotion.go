@@ -8,8 +8,8 @@ import (
 
 type Promotion interface {
 	CreatePromoProductInfo(ctx context.Context, input models.PromoData) error
-	GetPromoProductsInfo(ctx context.Context, amount uint32) ([]models.PromoData, error)
-	DeletePromoProductInfo(ctx context.Context, pID uint32) error
+	GetPromoProductsInfoByIDs(ctx context.Context, prIDs []uint) ([]models.PromoData, error)
+	DeletePromoProductInfo(ctx context.Context, prID uint) error
 }
 
 type Usecase struct {
@@ -26,10 +26,10 @@ func (u *Usecase) CreatePromoProductInfo(ctx context.Context, input models.Promo
 	return u.repo.CreatePromoProductInfo(ctx, input)
 }
 
-func (u *Usecase) GetPromoProductsInfo(ctx context.Context, amount uint32) ([]models.PromoData, error) {
-	return u.repo.GetPromoProductsInfo(ctx, amount)
+func (u *Usecase) GetPromoProductsInfoByIDs(ctx context.Context, prIDs []uint) ([]models.PromoData, error) {
+	return u.repo.GetPromoProductsInfoByIDs(ctx, prIDs)
 }
 
-func (u *Usecase) DeletePromoProductInfo(ctx context.Context, pID uint32) error {
-	return u.repo.DeletePromoProductInfo(ctx, pID)
+func (u *Usecase) DeletePromoProductInfo(ctx context.Context, prID uint) error {
+	return u.repo.DeletePromoProductInfo(ctx, prID)
 }

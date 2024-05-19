@@ -42,11 +42,14 @@ func (r *Repo) CreatePromoProductInfo(ctx context.Context, input models.PromoDat
 	return nil
 }
 
-func (r *Repo) GetPromoProductsInfo(ctx context.Context, amount uint32) ([]models.PromoData, error) {
-	q := `SELECT product_id, benefit_type, benefit_value FROM promo_product LIMIT ?;`
+func (r *Repo) GetPromoProductsInfoByIDs(ctx context.Context, prIDs []uint) ([]models.PromoData, error) {
+	q := `SELECT product_id, benefit_type, benefit_value
+	FROM promo_product
+	WHERE product_id = ANY(?)
+	ORDER BY array_position(?, product_id);`
 
-	promoData := make([]dao.PromoProductTable, 0, amount)
-	if err := r.storage.Select(ctx, &promoData, q, amount); err != nil {
+	promoData := make([]dao.PromoProductTable, 0, len(prIDs))
+	if err := r.storage.Select(ctx, &promoData, q, prIDs, prIDs); err != nil {
 		logger.Info(ctx, "Error:"+err.Error())
 		return nil, commonError.ErrInternal
 	}
@@ -56,12 +59,11 @@ func (r *Repo) GetPromoProductsInfo(ctx context.Context, amount uint32) ([]model
 	return dao.ConvertPromoProductTablesToModels(promoData), nil
 }
 
-func (r *Repo) DeletePromoProductInfo(ctx context.Context, pID uint32) error {
+func (r *Repo) DeletePromoProductInfo(ctx context.Context, prID uint) error {
 	q := `DELETE FROM promo_product WHERE product_id = ? RETURNING product_id;`
 
-	//TODO not found
 	var id uint
-	if err := r.storage.Get(ctx, &id, q, pID); err != nil {
+	if err := r.storage.Get(ctx, &id, q, prID); err != nil {
 		logger.Info(ctx, "Error:"+err.Error())
 		return models.ErrProductNotFound
 	}

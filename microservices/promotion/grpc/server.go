@@ -16,8 +16,8 @@ import (
 
 type Promotion interface {
 	CreatePromoProductInfo(ctx context.Context, input models.PromoData) error
-	GetPromoProductsInfo(ctx context.Context, amount uint32) ([]models.PromoData, error)
-	DeletePromoProductInfo(ctx context.Context, pID uint32) error
+	GetPromoProductsInfoByIDs(ctx context.Context, prIDs []uint) ([]models.PromoData, error)
+	DeletePromoProductInfo(ctx context.Context, pID uint) error
 }
 
 type serverAPI struct {
@@ -50,7 +50,12 @@ func (s *serverAPI) AddPromoProductInfo(ctx context.Context, r *promotionv1.AddP
 }
 
 func (s *serverAPI) GetPromoProductsInfo(ctx context.Context, r *promotionv1.GetPromoProductsRequest) (*promotionv1.GetPromoProductsResponse, error) {
-	promoResp, err := s.usecase.GetPromoProductsInfo(ctx, r.GetAmount())
+	uint32PrIDs := r.GetProductIDs()
+	prIDs := make([]uint, 0, len(uint32PrIDs))
+	for _, id := range uint32PrIDs {
+		prIDs = append(prIDs, uint(id))
+	}
+	promoResp, err := s.usecase.GetPromoProductsInfoByIDs(ctx, prIDs)
 	if err != nil {
 		if errors.Is(err, models.ErrProductNotFound) {
 			return nil, status.Error(codes.NotFound, err.Error())
@@ -71,7 +76,7 @@ func (s *serverAPI) GetPromoProductsInfo(ctx context.Context, r *promotionv1.Get
 }
 
 func (s *serverAPI) DeletePromoProductInfo(ctx context.Context, r *promotionv1.DeletePromoProductRequest) (*empty.Empty, error) {
-	if err := s.usecase.DeletePromoProductInfo(ctx, r.GetProductID()); err != nil {
+	if err := s.usecase.DeletePromoProductInfo(ctx, uint(r.GetProductID())); err != nil {
 		if errors.Is(err, models.ErrProductNotFound) {
 			return nil, status.Error(codes.NotFound, err.Error())
 		}
