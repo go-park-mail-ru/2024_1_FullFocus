@@ -8,6 +8,6 @@ import (
 
 type PromotionClient interface {
 	CreatePromoProductInfo(ctx context.Context, input models.PromoData) error
-	GetPromoProductsInfo(ctx context.Context, amount uint) ([]models.PromoData, error)
+	GetPromoProductsInfoByIDs(ctx context.Context, prIDs []uint) ([]models.PromoData, error)
 	DeletePromoProductInfo(ctx context.Context, ID uint) error
 }

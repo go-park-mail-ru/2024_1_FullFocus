@@ -7,7 +7,7 @@ import "google/protobuf/empty.proto";
 // protoc --go_out=../gen/promotion/ --go_opt=paths=source_relative --go-grpc_out=../gen/promotion/ --go-grpc_opt=paths=source_relative promotion.proto
 service Promotion {
   rpc AddPromoProductInfo(AddPromoProductRequest) returns (google.protobuf.Empty) {}
-  rpc GetPromoProductsInfo(GetPromoProductsRequest) returns (GetPromoProductsResponse) {}
+  rpc GetPromoProductsInfoByIDs(GetPromoProductsRequest) returns (GetPromoProductsResponse) {}
   rpc DeletePromoProductInfo(DeletePromoProductRequest) returns (google.protobuf.Empty) {};
 }
 
@@ -18,19 +18,19 @@ message AddPromoProductRequest {
 }
 
 message GetPromoProductsRequest {
-    uint32 Amount = 1;
+  repeated uint32 ProductIDs = 1;
 }
 
 message GetPromoProductsResponse {
-    repeated PromoData PromoProductsInfo = 1;
+  repeated PromoData PromoProductsInfo = 1;
 }
 
 message PromoData {
-    uint32 ProductID = 1;
-    string BenefitType = 2;
-    uint32 BenefitValue = 3;
+  uint32 ProductID = 1;
+  string BenefitType = 2;
+  uint32 BenefitValue = 3;
 }
 
 message DeletePromoProductRequest {
-    uint32 ProductID = 1;
+  uint32 ProductID = 1;
 }

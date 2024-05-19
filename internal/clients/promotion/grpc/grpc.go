@@ -70,9 +70,13 @@ func (c *Client) CreatePromoProductInfo(ctx context.Context, input models.PromoD
 	}
 }
 
-func (c *Client) GetPromoProductsInfo(ctx context.Context, amount uint) ([]models.PromoData, error) {
-	promoResp, err := c.api.GetPromoProductsInfo(ctx, &promotionv1.GetPromoProductsRequest{
-		Amount: uint32(amount),
+func (c *Client) GetPromoProductsInfoByIDs(ctx context.Context, prIDs []uint) ([]models.PromoData, error) {
+	uint32PrIDs := make([]uint32, 0, len(prIDs))
+	for _, id := range prIDs {
+		uint32PrIDs = append(uint32PrIDs, uint32(id))
+	}
+	promoResp, err := c.api.GetPromoProductsInfoByIDs(ctx, &promotionv1.GetPromoProductsRequest{
+		ProductIDs: uint32PrIDs,
 	})
 	st, ok := status.FromError(err)
 	if !ok {
