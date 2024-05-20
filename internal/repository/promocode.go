@@ -78,7 +78,7 @@ func (r *PromocodeRepo) GetPromocodeItemByActivationCode(ctx context.Context, pI
 }
 
 func (r *PromocodeRepo) GetPromocodeByID(ctx context.Context, promocodeID uint) (models.Promocode, error) {
-	q := `SELECT p.id, p.name, p.description, p.min_sum_give, p.min_sum_activation, p.benefit_type, p.value, p.ttl_hours
+	q := `SELECT p.id, p.description, p.min_sum_give, p.min_sum_activation, p.benefit_type, p.value, p.ttl_hours
 		  FROM promocode p
 		  WHERE p.id = ?;`
 
@@ -95,7 +95,6 @@ func (r *PromocodeRepo) GetPromocodeByID(ctx context.Context, promocodeID uint) 
 
 func (r *PromocodeRepo) GetAvailablePromocodes(ctx context.Context, profileID uint) ([]models.PromocodeItem, error) {
 	q := `SELECT pi.id,
-			   p.name,
 			   p.description,
 			   pi.created_at + interval '1 hour' * p.ttl_hours - NOW() AS time_left,
 			   pi.code,

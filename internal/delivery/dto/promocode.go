@@ -22,7 +22,6 @@ func ConvertTerms(terms models.PromocodeActivationTerms) PromocodeActivationTerm
 
 type PromocodeItem struct {
 	ID               uint   `json:"id"`
-	Name             string `json:"name"`
 	Description      string `json:"description"`
 	Code             string `json:"code"`
 	MinSumActivation uint   `json:"minSumActivation"`
@@ -36,7 +35,6 @@ func ConvertPromocodes(promos []models.PromocodeItem) []PromocodeItem {
 	for _, promo := range promos {
 		result = append(result, PromocodeItem{
 			ID:               promo.ID,
-			Name:             promo.Name,
 			Description:      promo.Description,
 			Code:             promo.Code,
 			MinSumActivation: promo.MinSumActivation,
@@ -50,7 +48,6 @@ func ConvertPromocodes(promos []models.PromocodeItem) []PromocodeItem {
 
 type Promocode struct {
 	ID               uint   `json:"id"`
-	Name             string `json:"name"`
 	Description      string `json:"description"`
 	MinSumGive       uint   `json:"minSumGive"`
 	MinSumActivation uint   `json:"minSumActivation"`
@@ -62,7 +59,6 @@ type Promocode struct {
 func ConvertPromocode(promo models.Promocode) Promocode {
 	return Promocode{
 		ID:               promo.ID,
-		Name:             promo.Name,
 		Description:      promo.Description,
 		MinSumGive:       promo.MinSumGive,
 		MinSumActivation: promo.MinSumActivation,

@@ -11,8 +11,7 @@ CREATE TYPE promo_benefit_type AS ENUM (
 
 CREATE TABLE IF NOT EXISTS promocode (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    name TEXT NOT NULL UNIQUE CHECK (char_length(name) > 4),
-    description TEXT NOT NULL DEFAULT '',
+    description TEXT NOT NULL UNIQUE CHECK (char_length(description) > 4),
     min_sum_give INTEGER NOT NULL DEFAULT 0,
     min_sum_activation INTEGER NOT NULL DEFAULT 0,
     benefit_type promo_benefit_type NOT NULL,

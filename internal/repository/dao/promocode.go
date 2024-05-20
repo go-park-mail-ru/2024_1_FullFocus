@@ -8,7 +8,6 @@ import (
 
 type Promocode struct {
 	ID               uint   `db:"id"`
-	Name             string `db:"name"`
 	Description      string `db:"description"`
 	MinSumGive       uint   `db:"min_sum_give"`
 	MinSumActivation uint   `db:"min_sum_activation"`
@@ -20,7 +19,6 @@ type Promocode struct {
 func ConvertPromocode(code Promocode) models.Promocode {
 	return models.Promocode{
 		ID:               code.ID,
-		Name:             code.Name,
 		Description:      code.Description,
 		MinSumGive:       code.MinSumGive,
 		MinSumActivation: code.MinSumActivation,
@@ -32,7 +30,6 @@ func ConvertPromocode(code Promocode) models.Promocode {
 
 type PromocodeItemInfo struct {
 	ID               uint   `db:"id"`
-	Name             string `db:"name"`
 	Description      string `db:"description"`
 	TimeLeft         string `db:"time_left"`
 	Code             string `db:"code"`
@@ -44,7 +41,6 @@ type PromocodeItemInfo struct {
 func ConvertPromocodeItem(item PromocodeItemInfo) models.PromocodeItem {
 	return models.PromocodeItem{
 		ID:               item.ID,
-		Name:             item.Name,
 		Description:      item.Description,
 		TimeLeft:         item.TimeLeft,
 		Code:             item.Code,

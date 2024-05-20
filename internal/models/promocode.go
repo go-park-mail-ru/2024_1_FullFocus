@@ -2,7 +2,6 @@ package models
 
 type Promocode struct {
 	ID               uint
-	Name             string
 	Description      string
 	MinSumGive       uint
 	MinSumActivation uint
@@ -13,7 +12,6 @@ type Promocode struct {
 
 type PromocodeItem struct {
 	ID               uint
-	Name             string
 	Description      string
 	Code             string
 	MinSumActivation uint
