@@ -42,6 +42,20 @@ func (r *Repo) CreatePromoProductInfo(ctx context.Context, input models.PromoDat
 	return nil
 }
 
+func (r *Repo) GetAllPromoProductsIDs(ctx context.Context) ([]uint, error) {
+	q := `SELECT product_id FROM promo_product;`
+
+	prIDs := make([]uint, 0)
+	if err := r.storage.Select(ctx, &prIDs, q); err != nil {
+		logger.Info(ctx, "Error:"+err.Error())
+		return nil, commonError.ErrInternal
+	}
+	if len(prIDs) == 0 {
+		return nil, models.ErrProductNotFound
+	}
+	return prIDs, nil
+}
+
 func (r *Repo) GetPromoProductsInfoByIDs(ctx context.Context, prIDs []uint) ([]models.PromoData, error) {
 	q := `SELECT product_id, benefit_type, benefit_value
 	FROM promo_product

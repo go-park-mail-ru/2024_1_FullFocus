@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	promotionv1 "github.com/go-park-mail-ru/2024_1_FullFocus/gen/promotion"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/promotion/models"
@@ -16,6 +17,7 @@ import (
 
 type Promotion interface {
 	CreatePromoProductInfo(ctx context.Context, input models.PromoData) error
+	GetAllPromoProductsIDs(ctx context.Context) ([]uint, error)
 	GetPromoProductsInfoByIDs(ctx context.Context, prIDs []uint) ([]models.PromoData, error)
 	DeletePromoProductInfo(ctx context.Context, pID uint) error
 }
@@ -47,6 +49,23 @@ func (s *serverAPI) AddPromoProductInfo(ctx context.Context, r *promotionv1.AddP
 		}
 	}
 	return nil, status.Error(codes.OK, "")
+}
+
+func (s *serverAPI) GetAllPromoProductsIDs(ctx context.Context, r *emptypb.Empty) (*promotionv1.GetAllPromoProductIDsResponse, error) {
+	prIDs, err := s.usecase.GetAllPromoProductsIDs(ctx)
+	if err != nil {
+		if errors.Is(err, models.ErrProductNotFound) {
+			return nil, status.Error(codes.NotFound, err.Error())
+		}
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	uint32PrIDs := make([]uint32, 0, len(prIDs))
+	for _, id := range prIDs {
+		uint32PrIDs = append(uint32PrIDs, uint32(id))
+	}
+	return &promotionv1.GetAllPromoProductIDsResponse{
+		ProductIDs: uint32PrIDs,
+	}, nil
 }
 
 func (s *serverAPI) GetPromoProductsInfoByIDs(ctx context.Context, r *promotionv1.GetPromoProductsRequest) (*promotionv1.GetPromoProductsResponse, error) {
