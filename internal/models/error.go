@@ -28,4 +28,5 @@ var (
 	ErrPromocodeAlreadyExists = errors.New("promocode already exists")
 	ErrNoPromocode            = errors.New("no promocode found")
 	ErrPromocodeExpired       = errors.New("promocode expired")
+	ErrInvalidPromocode       = errors.New("invalid promocode")
 )

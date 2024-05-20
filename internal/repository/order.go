@@ -86,20 +86,15 @@ func (r *OrderRepo) GetOrderByID(ctx context.Context, orderID uint) (models.GetO
 		return models.GetOrderPayload{}, models.ErrNoRowsFound
 	}
 
-	var sum uint
-	for _, product := range orderProducts {
-		sum += product.Price * product.Count
-	}
-
 	var orderInfo dao.OrderInfo
-	q = `SELECT order_status, DATE(created_at) AS created_at FROM ordering WHERE id = ?;`
+	q = `SELECT sum, order_status, DATE(created_at) AS created_at FROM ordering WHERE id = ?;`
 	if err := r.storage.Get(ctx, &orderInfo, q, orderID); err != nil {
 		logger.Error(ctx, "error while reading order status: "+err.Error())
 		return models.GetOrderPayload{}, models.ErrNoRowsFound
 	}
 	return models.GetOrderPayload{
 		Products:   dao.ConvertOrderProductsToModels(orderProducts),
-		Sum:        sum,
+		Sum:        orderInfo.Sum,
 		Status:     orderInfo.Status,
 		ItemsCount: uint(len(orderProducts)),
 		CreatedAt:  orderInfo.CreatedAt,

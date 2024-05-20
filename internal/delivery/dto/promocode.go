@@ -1,8 +1,6 @@
 package dto
 
 import (
-	"time"
-
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 )
 
@@ -23,14 +21,14 @@ func ConvertTerms(terms models.PromocodeActivationTerms) PromocodeActivationTerm
 }
 
 type PromocodeItem struct {
-	ID               uint      `json:"id"`
-	Name             string    `json:"name"`
-	Description      string    `json:"description"`
-	Code             string    `json:"code"`
-	MinSumActivation uint      `json:"minSumActivation"`
-	BenefitType      string    `json:"benefitType"`
-	Value            uint      `json:"value"`
-	TimeLeft         time.Time `json:"timeLeft"`
+	ID               uint   `json:"id"`
+	Name             string `json:"name"`
+	Description      string `json:"description"`
+	Code             string `json:"code"`
+	MinSumActivation uint   `json:"minSumActivation"`
+	BenefitType      string `json:"benefitType"`
+	Value            uint   `json:"value"`
+	TimeLeft         string `json:"timeLeft"`
 }
 
 func ConvertPromocodes(promos []models.PromocodeItem) []PromocodeItem {
@@ -43,20 +41,22 @@ func ConvertPromocodes(promos []models.PromocodeItem) []PromocodeItem {
 			Code:             promo.Code,
 			MinSumActivation: promo.MinSumActivation,
 			BenefitType:      promo.BenefitType,
+			Value:            promo.Value,
+			TimeLeft:         promo.TimeLeft,
 		})
 	}
 	return result
 }
 
 type Promocode struct {
-	ID               uint      `json:"id"`
-	Name             string    `json:"name"`
-	Description      string    `json:"description"`
-	MinSumGive       uint      `json:"minSumGive"`
-	MinSumActivation uint      `json:"minSumActivation"`
-	BenefitType      string    `json:"benefitType"`
-	Value            uint      `json:"value"`
-	TTL              time.Time `json:"ttl"`
+	ID               uint   `json:"id"`
+	Name             string `json:"name"`
+	Description      string `json:"description"`
+	MinSumGive       uint   `json:"minSumGive"`
+	MinSumActivation uint   `json:"minSumActivation"`
+	BenefitType      string `json:"benefitType"`
+	Value            uint   `json:"value"`
+	TTL              int    `json:"ttl"`
 }
 
 func ConvertPromocode(promo models.Promocode) Promocode {

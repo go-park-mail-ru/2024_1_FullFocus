@@ -59,7 +59,7 @@ type (
 		GetPromocodeItemByActivationCode(ctx context.Context, pID uint, code string) (models.PromocodeActivationTerms, error)
 		GetAvailablePromocodes(ctx context.Context, profileID uint) ([]models.PromocodeItem, error)
 		GetPromocodeByID(ctx context.Context, promocodeID uint) (models.Promocode, error)
-		ApplyPromocode(ctx context.Context, sum uint, promoID uint) (uint, error)
+		ApplyPromocode(ctx context.Context, input models.ApplyPromocodeInput) (uint, error)
 		DeleteUsedPromocode(ctx context.Context, id uint) error
 	}
 

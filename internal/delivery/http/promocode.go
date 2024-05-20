@@ -28,9 +28,9 @@ func NewPromocodeHandler(u usecase.Promocodes) *PromocodeHandler {
 func (h *PromocodeHandler) InitRouter(r *mux.Router) {
 	h.router = r.PathPrefix("/v1/promocode").Subrouter()
 	{
-		h.router.Handle("/info/{code}", http.HandlerFunc(h.GetPromocodeActivationTerms)).Methods("GET", "OPTIONS")
 		h.router.Handle("/all", http.HandlerFunc(h.GetAllPromocodes)).Methods("GET", "OPTIONS")
-		h.router.Handle("/public/{id:[1-9]+[0-9]*}", http.HandlerFunc(h.GetPromocodeByID)).Methods("GET", "OPTIONS")
+		h.router.Handle("/info/{code}", http.HandlerFunc(h.GetPromocodeActivationTerms)).Methods("GET", "OPTIONS")
+		h.router.Handle("/{id:[1-9]+[0-9]*}", http.HandlerFunc(h.GetPromocodeByID)).Methods("GET", "OPTIONS")
 	}
 }
 
@@ -56,11 +56,18 @@ func (h *PromocodeHandler) GetPromocodeActivationTerms(w http.ResponseWriter, r 
 	}
 	promo, err := h.usecase.GetPromocodeItemByActivationCode(ctx, uID, code)
 	if err != nil {
-		if errors.Is(err, models.ErrNoAccess) {
+		if errors.Is(err, models.ErrPromocodeExpired) {
 			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-				Status: 403,
+				Status: 400,
 				Msg:    err.Error(),
-				MsgRus: "Ошибка доступа",
+				MsgRus: "Срок действия промокода истек",
+			})
+			return
+		} else if errors.Is(err, models.ErrNoPromocode) {
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 400,
+				Msg:    err.Error(),
+				MsgRus: "Промокод не найден",
 			})
 			return
 		}
@@ -95,7 +102,7 @@ func (h *PromocodeHandler) GetPromocodeByID(w http.ResponseWriter, r *http.Reque
 			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 				Status: 400,
 				Msg:    err.Error(),
-				MsgRus: "Промокоды не найдены",
+				MsgRus: "Промокод не найден",
 			})
 			return
 		}

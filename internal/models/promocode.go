@@ -1,7 +1,5 @@
 package models
 
-import "time"
-
 type Promocode struct {
 	ID               uint
 	Name             string
@@ -10,7 +8,7 @@ type Promocode struct {
 	MinSumActivation uint
 	BenefitType      string
 	Value            uint
-	TTL              time.Time
+	TTL              int
 }
 
 type PromocodeItem struct {
@@ -21,7 +19,7 @@ type PromocodeItem struct {
 	MinSumActivation uint
 	BenefitType      string
 	Value            uint
-	TimeLeft         time.Time
+	TimeLeft         string
 }
 
 type CreatePromocodeItemInput struct {
@@ -35,4 +33,10 @@ type PromocodeActivationTerms struct {
 	MinSumActivation uint
 	BenefitType      string
 	Value            uint
+}
+
+type ApplyPromocodeInput struct {
+	Sum       uint
+	PromoID   uint
+	ProfileID uint
 }

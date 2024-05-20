@@ -6,6 +6,7 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
+	"github.com/pkg/errors"
 )
 
 const _activationStringLen = 6
@@ -41,33 +42,45 @@ func (u *OrderUsecase) Create(ctx context.Context, input models.CreateOrderInput
 	if err != nil {
 		return models.CreateOrderPayload{}, err
 	}
-	sum, err = u.promocodeRepo.ApplyPromocode(ctx, sum, input.PromocodeID)
-	if err != nil {
-		return models.CreateOrderPayload{}, err
+	var promoUsed bool
+	if input.PromocodeID != 0 {
+		info := models.ApplyPromocodeInput{
+			Sum:       sum,
+			PromoID:   input.PromocodeID,
+			ProfileID: input.UserID,
+		}
+		sum, err = u.promocodeRepo.ApplyPromocode(ctx, info)
+		if err != nil {
+			return models.CreateOrderPayload{}, err
+		}
+		promoUsed = true
 	}
 	orderID, err := u.orderRepo.Create(ctx, input.UserID, sum, orderItems)
 	if err != nil {
 		return models.CreateOrderPayload{}, err
 	}
-	if err = u.promocodeRepo.DeleteUsedPromocode(ctx, input.PromocodeID); err != nil {
-		return models.CreateOrderPayload{}, err
-	}
 	result := models.CreateOrderPayload{
 		OrderID: orderID,
 	}
+	if promoUsed {
+		if err = u.promocodeRepo.DeleteUsedPromocode(ctx, input.PromocodeID); err != nil {
+			return models.CreateOrderPayload{}, err
+		}
+	}
 	availablePromoID, err := u.promocodeRepo.GetNewPromocode(ctx, sum)
-	if err != nil {
-		return result, err
+	if err == nil {
+		promoInfo := models.CreatePromocodeItemInput{
+			PromocodeID: availablePromoID,
+			ProfileID:   input.UserID,
+			Code:        helper.RandActivationCode(_activationStringLen),
+		}
+		if err = u.promocodeRepo.CreatePromocodeItem(ctx, promoInfo); err != nil {
+			return result, err
+		}
+		result.NewPromocodeID = availablePromoID
+	} else if !errors.Is(err, models.ErrNoPromocode) {
+		return models.CreateOrderPayload{}, err
 	}
-	promoInfo := models.CreatePromocodeItemInput{
-		PromocodeID: availablePromoID,
-		ProfileID:   input.UserID,
-		Code:        helper.RandActivationCode(_activationStringLen),
-	}
-	if err = u.promocodeRepo.CreatePromocodeItem(ctx, promoInfo); err != nil {
-		return result, err
-	}
-	result.NewPromocodeID = availablePromoID
 	if input.FromCart {
 		return result, u.cartRepo.DeleteAllCartItems(ctx, input.UserID)
 	}

@@ -60,6 +60,28 @@ func (h *OrderHandler) Create(w http.ResponseWriter, r *http.Request) {
 	createInput := dto.ConvertCreateOrderInputToModel(uID, createOrderInput)
 	orderInfo, err := h.usecase.Create(ctx, createInput)
 	if err != nil {
+		if errors.Is(err, models.ErrInvalidPromocode) {
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 400,
+				Msg:    err.Error(),
+				MsgRus: "Недостаточная сумма заказа для активации промокода",
+			})
+			return
+		} else if errors.Is(err, models.ErrNoPromocode) {
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 400,
+				Msg:    err.Error(),
+				MsgRus: "Промокод не найден",
+			})
+			return
+		} else if errors.Is(err, models.ErrPromocodeExpired) {
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 400,
+				Msg:    err.Error(),
+				MsgRus: "Промокод просрочен",
+			})
+			return
+		}
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 500,
 			Msg:    err.Error(),

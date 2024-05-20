@@ -7,14 +7,14 @@ import (
 )
 
 type Promocode struct {
-	ID               uint      `db:"id"`
-	Name             string    `db:"name"`
-	Description      string    `db:"description"`
-	MinSumGive       uint      `db:"min_sum_give"`
-	MinSumActivation uint      `db:"min_sum_activation"`
-	BenefitType      string    `db:"benefit_type"`
-	Value            uint      `db:"value"`
-	TTL              time.Time `db:"ttl_hours"`
+	ID               uint   `db:"id"`
+	Name             string `db:"name"`
+	Description      string `db:"description"`
+	MinSumGive       uint   `db:"min_sum_give"`
+	MinSumActivation uint   `db:"min_sum_activation"`
+	BenefitType      string `db:"benefit_type"`
+	Value            uint   `db:"value"`
+	TTL              int    `db:"ttl_hours"`
 }
 
 func ConvertPromocode(code Promocode) models.Promocode {
@@ -31,14 +31,14 @@ func ConvertPromocode(code Promocode) models.Promocode {
 }
 
 type PromocodeItemInfo struct {
-	ID               uint      `db:"id"`
-	Name             string    `db:"name"`
-	Description      string    `db:"description"`
-	TimeLeft         time.Time `db:"time_left"`
-	Code             string    `db:"code"`
-	MinSumActivation uint      `db:"min_sum_activation"`
-	BenefitValue     string    `db:"benefit_value"`
-	Value            uint      `db:"value"`
+	ID               uint   `db:"id"`
+	Name             string `db:"name"`
+	Description      string `db:"description"`
+	TimeLeft         string `db:"time_left"`
+	Code             string `db:"code"`
+	MinSumActivation uint   `db:"min_sum_activation"`
+	BenefitType      string `db:"benefit_type"`
+	Value            uint   `db:"value"`
 }
 
 func ConvertPromocodeItem(item PromocodeItemInfo) models.PromocodeItem {
@@ -49,7 +49,7 @@ func ConvertPromocodeItem(item PromocodeItemInfo) models.PromocodeItem {
 		TimeLeft:         item.TimeLeft,
 		Code:             item.Code,
 		MinSumActivation: item.MinSumActivation,
-		BenefitType:      item.BenefitValue,
+		BenefitType:      item.BenefitType,
 		Value:            item.Value,
 	}
 }
@@ -63,8 +63,10 @@ func ConvertPromocodeItems(item []PromocodeItemInfo) []models.PromocodeItem {
 }
 
 type PromocodeBenefit struct {
-	Type  string `db:"benefit_type"`
-	Value uint   `db:"value"`
+	MinSum    uint      `db:"min_sum_activation"`
+	Type      string    `db:"benefit_type"`
+	Value     uint      `db:"value"`
+	ExpiresAt time.Time `db:"expires_at"`
 }
 
 type PromocodeActivationTerms struct {
