@@ -13,8 +13,9 @@ import (
 )
 
 type PromotionCache interface {
-	Get(ctx context.Context, productID uint) (product models.CachePromoProduct, found bool)
-	Set(ctx context.Context, productID uint, product models.CachePromoProduct)
+	Get(ctx context.Context, productID uint) (product models.PromoProduct, found bool)
+	Set(ctx context.Context, productID uint, product models.PromoProduct)
+	Remove(ctx context.Context, productID uint)
 }
 
 const (
@@ -74,16 +75,14 @@ func (u *PromotionUsecase) CreatePromoProduct(ctx context.Context, input models.
 		}
 		return err
 	}
-	if len(u.promoProductIDs) == 0 {
-		u.promoProductIDs = append(u.promoProductIDs, input.ProductID)
-	}
 	var i int
 	for i = 0; i < len(u.promoProductIDs); i++ {
 		if u.promoProductIDs[i] == 0 {
 			u.promoProductIDs[i] = input.ProductID
+			return nil
 		}
 	}
-	if i == 0 || i > len(u.promoProductIDs) {
+	if i == 0 || i >= len(u.promoProductIDs) {
 		u.promoProductIDs = append(u.promoProductIDs, input.ProductID)
 	}
 	return nil
@@ -120,7 +119,7 @@ func (u *PromotionUsecase) GetPromoProducts(ctx context.Context, amount uint) ([
 	prIDs := make([]uint, 0)
 	for _, id := range randomProductIDs {
 		if product, found := u.cache.Get(ctx, id); found {
-			res = append(res, product.Product)
+			res = append(res, product)
 		} else {
 			prIDs = append(prIDs, id)
 		}
@@ -151,10 +150,7 @@ func (u *PromotionUsecase) GetPromoProducts(ctx context.Context, amount uint) ([
 				NewPrice:     newPrice,
 			}
 			res = append(res, promoProduct)
-			u.cache.Set(ctx, product.ID, models.CachePromoProduct{
-				Product: promoProduct,
-				Empty:   false,
-			})
+			u.cache.Set(ctx, product.ID, promoProduct)
 		}
 	}
 	return res, nil
@@ -167,9 +163,7 @@ func (u *PromotionUsecase) DeletePromoProduct(ctx context.Context, productID uin
 	if err := u.promotionClient.DeletePromoProductInfo(ctx, productID); err != nil {
 		return err
 	}
-	u.cache.Set(ctx, productID, models.CachePromoProduct{
-		Empty: true,
-	})
+	u.cache.Remove(ctx, productID)
 	idx := slices.Index(u.promoProductIDs, productID)
 	if idx != -1 {
 		u.promoProductIDs[idx] = 0
