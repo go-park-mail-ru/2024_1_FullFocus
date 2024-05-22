@@ -12,18 +12,22 @@ type ProductCard struct {
 	Amount uint   `db:"count"`
 }
 
+func ConvertProductCardToModel(card ProductCard) models.ProductCard {
+	return models.ProductCard{
+		ID:     card.ID,
+		Name:   card.Name,
+		Price:  card.Price,
+		ImgSrc: card.ImgSrc,
+		Seller: card.Seller,
+		Rating: card.Rating,
+		Amount: card.Amount,
+	}
+}
+
 func ConvertProductCardsFromTable(cards []ProductCard) []models.ProductCard {
-	var productCards []models.ProductCard
+	productCards := make([]models.ProductCard, 0, len(cards))
 	for _, card := range cards {
-		productCards = append(productCards, models.ProductCard{
-			ID:     card.ID,
-			Name:   card.Name,
-			Price:  card.Price,
-			ImgSrc: card.ImgSrc,
-			Seller: card.Seller,
-			Rating: card.Rating,
-			Amount: card.Amount,
-		})
+		productCards = append(productCards, ConvertProductCardToModel(card))
 	}
 	return productCards
 }
