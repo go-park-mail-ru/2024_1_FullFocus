@@ -42,6 +42,19 @@ func (r *Repo) CreatePromoProductInfo(ctx context.Context, input models.PromoDat
 	return nil
 }
 
+func (r *Repo) GetPromoProductInfoByID(ctx context.Context, prID uint) (models.PromoData, error) {
+	q := `SELECT product_id, benefit_type, benefit_value
+	FROM promo_product
+	WHERE product_id = ?;`
+
+	var data dao.PromoProductTable
+	if err := r.storage.Get(ctx, &data, q, prID); err != nil {
+		logger.Error(ctx, err.Error())
+		return models.PromoData{}, models.ErrProductNotFound
+	}
+	return dao.ConvertPromoProductTableToModel(data), nil
+}
+
 func (r *Repo) GetAllPromoProductsIDs(ctx context.Context) ([]uint, error) {
 	q := `SELECT product_id FROM promo_product;`
 

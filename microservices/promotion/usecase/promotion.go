@@ -8,6 +8,7 @@ import (
 
 type Promotion interface {
 	CreatePromoProductInfo(ctx context.Context, input models.PromoData) error
+	GetPromoProductInfoByID(ctx context.Context, prID uint) (models.PromoData, error)
 	GetAllPromoProductsIDs(ctx context.Context) ([]uint, error)
 	GetPromoProductsInfoByIDs(ctx context.Context, prIDs []uint) ([]models.PromoData, error)
 	DeletePromoProductInfo(ctx context.Context, prID uint) error
@@ -25,6 +26,10 @@ func NewUsecase(r Promotion) *Usecase {
 
 func (u *Usecase) CreatePromoProductInfo(ctx context.Context, input models.PromoData) error {
 	return u.repo.CreatePromoProductInfo(ctx, input)
+}
+
+func (u *Usecase) GetPromoProductInfoByID(ctx context.Context, prID uint) (models.PromoData, error) {
+	return u.repo.GetPromoProductInfoByID(ctx, prID)
 }
 
 func (u *Usecase) GetAllPromoProductsIDs(ctx context.Context) ([]uint, error) {

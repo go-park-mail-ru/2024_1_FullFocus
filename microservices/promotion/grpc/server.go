@@ -17,6 +17,7 @@ import (
 
 type Promotion interface {
 	CreatePromoProductInfo(ctx context.Context, input models.PromoData) error
+	GetPromoProductInfoByID(ctx context.Context, prID uint) (models.PromoData, error)
 	GetAllPromoProductsIDs(ctx context.Context) ([]uint, error)
 	GetPromoProductsInfoByIDs(ctx context.Context, prIDs []uint) ([]models.PromoData, error)
 	DeletePromoProductInfo(ctx context.Context, pID uint) error
@@ -51,6 +52,23 @@ func (s *serverAPI) AddPromoProductInfo(ctx context.Context, r *promotionv1.AddP
 	return nil, status.Error(codes.OK, "")
 }
 
+func (s *serverAPI) GetPromoProductInfoByID(ctx context.Context, r *promotionv1.GetPromoProductInfoByIDRequest) (*promotionv1.GetPromoProductInfoByIDResponse, error) {
+	promoData, err := s.usecase.GetPromoProductInfoByID(ctx, uint(r.GetProductID()))
+	if err != nil {
+		if errors.Is(err, models.ErrProductNotFound) {
+			return nil, status.Error(codes.NotFound, err.Error())
+		}
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &promotionv1.GetPromoProductInfoByIDResponse{
+		PromoProductInfo: &promotionv1.PromoData{
+			ProductID:    uint32(promoData.ProductID),
+			BenefitType:  promoData.BenefitType,
+			BenefitValue: uint32(promoData.BenefitValue),
+		},
+	}, status.Error(codes.OK, "")
+}
+
 func (s *serverAPI) GetAllPromoProductsIDs(ctx context.Context, r *emptypb.Empty) (*promotionv1.GetAllPromoProductIDsResponse, error) {
 	prIDs, err := s.usecase.GetAllPromoProductsIDs(ctx)
 	if err != nil {
@@ -65,7 +83,7 @@ func (s *serverAPI) GetAllPromoProductsIDs(ctx context.Context, r *emptypb.Empty
 	}
 	return &promotionv1.GetAllPromoProductIDsResponse{
 		ProductIDs: uint32PrIDs,
-	}, nil
+	}, status.Error(codes.OK, "")
 }
 
 func (s *serverAPI) GetPromoProductsInfoByIDs(ctx context.Context, r *promotionv1.GetPromoProductsRequest) (*promotionv1.GetPromoProductsResponse, error) {
