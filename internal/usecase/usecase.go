@@ -66,6 +66,7 @@ type (
 
 	Promotion interface {
 		CreatePromoProduct(ctx context.Context, input models.PromoData) error
+		GetPromoProductInfoByID(ctx context.Context, productID uint) (models.PromoProduct, error)
 		GetPromoProducts(ctx context.Context, amount uint) ([]models.PromoProduct, error)
 		DeletePromoProduct(ctx context.Context, productID uint) error
 	}

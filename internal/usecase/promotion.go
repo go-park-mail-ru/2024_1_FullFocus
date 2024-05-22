@@ -88,6 +88,30 @@ func (u *PromotionUsecase) CreatePromoProduct(ctx context.Context, input models.
 	return nil
 }
 
+func (u *PromotionUsecase) GetPromoProductInfoByID(ctx context.Context, productID uint) (models.PromoProduct, error) {
+	if !slices.Contains(u.promoProductIDs, productID) {
+		return models.PromoProduct{}, models.ErrNoProduct
+	}
+	if promoData, found := u.cache.Get(ctx, productID); found {
+		return promoData, nil
+	}
+	promoData, err := u.promotionClient.GetPromoProductInfoByID(ctx, productID)
+	if err != nil {
+		return models.PromoProduct{}, err
+	}
+	productData, err := u.productRepo.GetProductCardByID(ctx, productID)
+	if err != nil {
+		return models.PromoProduct{}, err
+	}
+	newPrice := calculateDiscountPrice(promoData.BenefitType, promoData.BenefitValue, productData.Price)
+	return models.PromoProduct{
+		ProductData:  productData,
+		BenefitType:  promoData.BenefitType,
+		BenefitValue: promoData.BenefitValue,
+		NewPrice:     newPrice,
+	}, nil
+}
+
 func (u *PromotionUsecase) GetPromoProducts(ctx context.Context, amount uint) ([]models.PromoProduct, error) {
 	if amount == 0 {
 		amount = defaultPromoProductsAmount
@@ -134,15 +158,7 @@ func (u *PromotionUsecase) GetPromoProducts(ctx context.Context, amount uint) ([
 			return nil, err
 		}
 		for i, product := range productsData {
-			var newPrice uint
-			switch promoInfo[i].BenefitType {
-			case percentSale:
-				newPrice = product.Price / 100 * (100 - promoInfo[i].BenefitValue)
-			case priceSale:
-				newPrice = product.Price - promoInfo[i].BenefitValue
-			case finalPrice:
-				newPrice = promoInfo[i].BenefitValue
-			}
+			newPrice := calculateDiscountPrice(promoInfo[i].BenefitType, promoInfo[i].BenefitValue, product.Price)
 			promoProduct := models.PromoProduct{
 				ProductData:  product,
 				BenefitType:  promoInfo[i].BenefitType,
@@ -179,4 +195,17 @@ func (u *PromotionUsecase) getAvailiablePromoProductCount() int {
 		}
 	}
 	return count
+}
+
+func calculateDiscountPrice(benefitType string, benefitValue, oldPrice uint) uint {
+	var newPrice uint
+	switch benefitType {
+	case percentSale:
+		newPrice = oldPrice / 100 * (100 - benefitValue)
+	case priceSale:
+		newPrice = oldPrice - benefitValue
+	case finalPrice:
+		newPrice = benefitValue
+	}
+	return newPrice
 }
