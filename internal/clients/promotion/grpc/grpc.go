@@ -91,6 +91,28 @@ func (c *Client) GetAllPromoProductsIDs(ctx context.Context) ([]uint, error) {
 	}
 }
 
+func (c *Client) GetPromoProductInfoByID(ctx context.Context, prID uint) (models.PromoData, error) {
+	promoResp, err := c.api.GetPromoProductInfoByID(ctx, &promotionv1.GetPromoProductInfoByIDRequest{
+		ProductID: uint32(prID),
+	})
+	st, ok := status.FromError(err)
+	if !ok {
+		return models.PromoData{}, err
+	}
+	switch st.Code() {
+	case codes.OK:
+		return models.PromoData{
+			ProductID:    prID,
+			BenefitType:  promoResp.GetPromoProductInfo().GetBenefitType(),
+			BenefitValue: uint(promoResp.GetPromoProductInfo().GetBenefitValue()),
+		}, nil
+	case codes.NotFound:
+		return models.PromoData{}, models.ErrNoProduct
+	default:
+		return models.PromoData{}, models.ErrInternal
+	}
+}
+
 func (c *Client) GetPromoProductsInfoByIDs(ctx context.Context, prIDs []uint) ([]models.PromoData, error) {
 	uint32PrIDs := make([]uint32, 0, len(prIDs))
 	for _, id := range prIDs {
