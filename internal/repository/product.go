@@ -63,6 +63,28 @@ func (r *ProductRepo) GetProductByID(ctx context.Context, profileID uint, produc
 	return dao.ConvertProductFromTable(categories, product), nil
 }
 
+func (r *ProductRepo) GetTotalPrice(ctx context.Context, items []models.OrderItem) (uint, error) {
+	q := `SELECT price
+			FROM product p
+			WHERE p.id = ANY(?)
+			ORDER BY array_position(?, p.id);`
+
+	pIDs := make([]uint, 0, len(items))
+	for _, item := range items {
+		pIDs = append(pIDs, item.ProductID)
+	}
+	var price []uint
+	if err := r.storage.Select(ctx, &price, q, pIDs, pIDs); err != nil {
+		logger.Error(ctx, err.Error())
+		return 0, err
+	}
+	var sum uint
+	for i := range items {
+		sum += price[i] * items[i].Count
+	}
+	return sum, nil
+}
+
 func (r *ProductRepo) GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error) {
 	q := `SELECT p.id, p.product_name, p.price, p.imgsrc, p.seller, p.rating, COALESCE(ci.count, 0) AS count
 			FROM product p

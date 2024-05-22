@@ -27,6 +27,7 @@ func ConvertOrdersFromTable(orders []Order) []models.Order {
 }
 
 type OrderInfo struct {
+	Sum       uint   `db:"sum"`
 	Status    string `db:"order_status"`
 	CreatedAt string `db:"created_at"`
 }

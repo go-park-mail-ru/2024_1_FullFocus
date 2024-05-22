@@ -56,14 +56,16 @@ type OrderItem struct {
 }
 
 type CreateOrderInput struct {
-	Items    []OrderItem `json:"items"`
-	FromCart bool        `json:"fromCart"`
+	Items       []OrderItem `json:"items"`
+	PromocodeID uint        `json:"promocodeID"`
+	FromCart    bool        `json:"fromCart"`
 }
 
 func ConvertCreateOrderInputToModel(userID uint, input CreateOrderInput) models.CreateOrderInput {
 	createInput := models.CreateOrderInput{
-		UserID:   userID,
-		FromCart: input.FromCart,
+		UserID:      userID,
+		PromocodeID: input.PromocodeID,
+		FromCart:    input.FromCart,
 	}
 	for _, item := range input.Items {
 		createInput.Items = append(createInput.Items, models.OrderItem{
@@ -75,7 +77,15 @@ func ConvertCreateOrderInputToModel(userID uint, input CreateOrderInput) models.
 }
 
 type CreateOrderPayload struct {
-	OrderID uint `json:"orderID"`
+	OrderID        uint `json:"orderID"`
+	NewPromocodeID uint `json:"newPromocodeID"`
+}
+
+func ConvertCreatePayload(payload models.CreateOrderPayload) CreateOrderPayload {
+	return CreateOrderPayload{
+		OrderID:        payload.OrderID,
+		NewPromocodeID: payload.NewPromocodeID,
+	}
 }
 
 // Get
