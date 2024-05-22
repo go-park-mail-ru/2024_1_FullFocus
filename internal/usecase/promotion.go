@@ -88,6 +88,7 @@ func (u *PromotionUsecase) CreatePromoProduct(ctx context.Context, input models.
 	return nil
 }
 
+// TODO handle profile id
 func (u *PromotionUsecase) GetPromoProductInfoByID(ctx context.Context, productID uint) (models.PromoProduct, error) {
 	if !slices.Contains(u.promoProductIDs, productID) {
 		return models.PromoProduct{}, models.ErrNoProduct
@@ -99,7 +100,7 @@ func (u *PromotionUsecase) GetPromoProductInfoByID(ctx context.Context, productI
 	if err != nil {
 		return models.PromoProduct{}, err
 	}
-	productData, err := u.productRepo.GetProductCardByID(ctx, productID)
+	productData, err := u.productRepo.GetProductByID(ctx, productID)
 	if err != nil {
 		return models.PromoProduct{}, err
 	}

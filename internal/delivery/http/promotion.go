@@ -24,6 +24,7 @@ func NewPromotionHandler(u usecase.Promotion) *PromotionHandler {
 	}
 }
 
+// TODO add GetPromoById
 func (h *PromotionHandler) InitRouter(r *mux.Router) {
 	h.router = r.PathPrefix("/promo").Subrouter()
 	{
@@ -33,6 +34,7 @@ func (h *PromotionHandler) InitRouter(r *mux.Router) {
 	}
 }
 
+// TODO handle profile for cart_count
 func (h *PromotionHandler) GetPromoProducts(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	amountStr := r.URL.Query().Get("amount")

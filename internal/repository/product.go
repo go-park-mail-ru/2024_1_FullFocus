@@ -66,19 +66,6 @@ func (r *ProductRepo) GetProductByID(ctx context.Context, profileID uint, produc
 	return dao.ConvertProductFromTable(categories, product), nil
 }
 
-func (r *ProductRepo) GetProductCardByID(ctx context.Context, productID uint) (models.ProductCard, error) {
-	q := `SELECT id, product_description, product_name, price, imgsrc, seller, rating
-	FROM product
-	WHERE id = ?;`
-
-	var data dao.ProductCard
-	if err := r.storage.Get(ctx, &data, q, productID); err != nil {
-		logger.Error(ctx, err.Error())
-		return models.ProductCard{}, models.ErrNoProduct
-	}
-	return dao.ConvertProductCardToModel(data), nil
-}
-
 func (r *ProductRepo) GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error) {
 	q := `SELECT p.id, p.product_name, p.price, p.imgsrc, p.seller, p.rating, COALESCE(ci.count, 0) AS count
 			FROM product p
@@ -124,6 +111,7 @@ func (r *ProductRepo) GetProductsByQuery(ctx context.Context, input models.GetPr
 	return dao.ConvertProductCardsFromTable(products), nil
 }
 
+// TODO count from cart
 func (r *ProductRepo) GetProductsByIDs(ctx context.Context, IDs []uint) ([]models.ProductCard, error) {
 	q := `SELECT id, product_name, price, imgsrc, seller, rating
 	FROM product
