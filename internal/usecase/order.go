@@ -102,6 +102,10 @@ func (u *OrderUsecase) GetAllOrders(ctx context.Context, profileID uint) ([]mode
 	return u.orderRepo.GetAllOrders(ctx, profileID)
 }
 
+func (u *OrderUsecase) UpdateStatus(ctx context.Context, orderID uint, newStatus string) error {
+	return u.orderRepo.UpdateStatus(ctx, orderID, newStatus)
+}
+
 func (u *OrderUsecase) Delete(ctx context.Context, profileID uint, orderID uint) error {
 	trueProfileID, err := u.orderRepo.GetProfileIDByOrderID(ctx, orderID)
 	if err != nil {

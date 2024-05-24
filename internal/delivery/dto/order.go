@@ -104,6 +104,11 @@ type GetAllOrdersPayload struct {
 
 // Update
 
+type UpdateOrderStatusInput struct {
+	OrderID   uint   `json:"orderID"`
+	NewStatus string `json:"newStatus"`
+}
+
 type CancelOrderInput struct {
 	OrderID uint `json:"orderID"`
 }

@@ -33,6 +33,7 @@ type (
 		GetOrderByID(ctx context.Context, orderID uint) (models.GetOrderPayload, error)
 		GetAllOrders(ctx context.Context, profileID uint) ([]models.Order, error)
 		GetProfileIDByOrderID(ctx context.Context, orderID uint) (uint, error)
+		UpdateStatus(ctx context.Context, orderID uint, newStatus string) error
 		Delete(ctx context.Context, orderID uint) error
 	}
 

@@ -150,6 +150,16 @@ services:
       TZ: "Europe/Moscow"
     networks:
       - services_data_access_network
+  centrifugo:
+    container_name: centrifugo
+    image: centrifugo/centrifugo:v5
+    volumes:
+      - ./cenrifugo.json:/centrifugo/config.json
+    command: centrifugo -c config.json --port=8000 --admin
+    ports:
+      - '8000:8000'
+    networks:
+      - services_data_access_network
 
 volumes:
   redis-data:
