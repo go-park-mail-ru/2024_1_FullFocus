@@ -18,3 +18,8 @@ func ConvertTablesToCategories(tt []CategoryTable) []models.Category {
 	}
 	return categories
 }
+
+type ProductCategories struct {
+	ProductID uint   `db:"product_id"`
+	Names     string `db:"categories"`
+}

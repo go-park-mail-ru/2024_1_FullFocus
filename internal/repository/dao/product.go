@@ -56,3 +56,11 @@ func ConvertProductFromTable(categories []string, product Product) models.Produc
 		Categories:  categories,
 	}
 }
+
+func ConvertProductsFromTables(categories [][]string, products []Product) []models.Product {
+	res := make([]models.Product, 0, len(products))
+	for i, p := range products {
+		res = append(res, ConvertProductFromTable(categories[i], p))
+	}
+	return res
+}

@@ -49,3 +49,15 @@ type GetProductsByCategoryIDPayload struct {
 	CategoryName string
 	Products     []ProductCard
 }
+
+func ConvertProductToCard(data Product) ProductCard {
+	return ProductCard{
+		ID:     data.ID,
+		Name:   data.Name,
+		Price:  data.Price,
+		ImgSrc: data.ImgSrc,
+		Seller: data.Seller,
+		Rating: data.Rating,
+		Amount: data.Amount,
+	}
+}

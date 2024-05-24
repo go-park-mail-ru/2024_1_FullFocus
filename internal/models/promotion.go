@@ -19,3 +19,12 @@ type PromoData struct {
 	BenefitType  string
 	BenefitValue uint
 }
+
+func ConvertPromoProductToCard(data PromoProduct) PromoProductCard {
+	return PromoProductCard{
+		ProductData:  ConvertProductToCard(data.ProductData),
+		BenefitType:  data.BenefitType,
+		BenefitValue: data.BenefitValue,
+		NewPrice:     data.NewPrice,
+	}
+}

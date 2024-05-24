@@ -53,7 +53,7 @@ func (h *PromotionHandler) GetPromoProducts(w http.ResponseWriter, r *http.Reque
 		}
 		amount = uint(amnt)
 	}
-	products, err := h.promotionUsecase.GetPromoProducts(ctx, amount, uID)
+	products, err := h.promotionUsecase.GetPromoProductCards(ctx, amount, uID)
 	if err != nil {
 		if errors.Is(err, models.ErrNoProduct) {
 			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
@@ -70,7 +70,7 @@ func (h *PromotionHandler) GetPromoProducts(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
-		Data: dto.ConvertPromoProductsToDTOs(products),
+		Data: dto.ConvertPromoProductCardsToDTOs(products),
 	})
 }
 
