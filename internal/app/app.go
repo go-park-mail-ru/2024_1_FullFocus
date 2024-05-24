@@ -218,7 +218,7 @@ func MustInit() *App {
 
 	// Promotion
 	promotionCache := cache.NewPromoProductsCache()
-	promotionUsecase := usecase.NewPromotionUsecase(productRepo, promotionClient, promotionCache)
+	promotionUsecase := usecase.NewPromotionUsecase(ctx, productRepo, promotionClient, promotionCache)
 	promotionHandler := delivery.NewPromotionHandler(promotionUsecase)
 	promotionHandler.InitRouter(apiRouter)
 

@@ -32,13 +32,18 @@ type PromotionUsecase struct {
 	promoProductIDs []uint
 }
 
-func NewPromotionUsecase(pr repository.Products, pc promotion.PromotionClient, c PromotionCache) *PromotionUsecase {
-	return &PromotionUsecase{
+func NewPromotionUsecase(ctx context.Context, pr repository.Products, pc promotion.PromotionClient, c PromotionCache) *PromotionUsecase {
+	u := &PromotionUsecase{
 		productRepo:     pr,
 		promotionClient: pc,
 		cache:           c,
 		promoProductIDs: make([]uint, 0),
 	}
+	avaliablePrIDs, _ := u.promotionClient.GetAllPromoProductsIDs(ctx)
+	if len(avaliablePrIDs) != 0 {
+		u.promoProductIDs = avaliablePrIDs
+	}
+	return u
 }
 
 func (u *PromotionUsecase) CreatePromoProduct(ctx context.Context, input models.PromoData) error {
@@ -88,8 +93,7 @@ func (u *PromotionUsecase) CreatePromoProduct(ctx context.Context, input models.
 	return nil
 }
 
-// TODO handle profile id
-func (u *PromotionUsecase) GetPromoProductInfoByID(ctx context.Context, productID uint) (models.PromoProduct, error) {
+func (u *PromotionUsecase) GetPromoProductInfoByID(ctx context.Context, productID uint, profileID uint) (models.PromoProduct, error) {
 	if !slices.Contains(u.promoProductIDs, productID) {
 		return models.PromoProduct{}, models.ErrNoProduct
 	}
@@ -100,7 +104,7 @@ func (u *PromotionUsecase) GetPromoProductInfoByID(ctx context.Context, productI
 	if err != nil {
 		return models.PromoProduct{}, err
 	}
-	productData, err := u.productRepo.GetProductByID(ctx, productID)
+	productData, err := u.productRepo.GetProductCardByID(ctx, profileID, productID)
 	if err != nil {
 		return models.PromoProduct{}, err
 	}
@@ -113,16 +117,12 @@ func (u *PromotionUsecase) GetPromoProductInfoByID(ctx context.Context, productI
 	}, nil
 }
 
-func (u *PromotionUsecase) GetPromoProducts(ctx context.Context, amount uint) ([]models.PromoProduct, error) {
+func (u *PromotionUsecase) GetPromoProducts(ctx context.Context, amount uint, profileID uint) ([]models.PromoProduct, error) {
 	if amount == 0 {
 		amount = defaultPromoProductsAmount
 	}
 	if u.getAvailiablePromoProductCount() == 0 {
-		avaliablePrIDs, err := u.promotionClient.GetAllPromoProductsIDs(ctx)
-		if err != nil {
-			return nil, models.ErrNoProduct
-		}
-		u.promoProductIDs = avaliablePrIDs
+		return nil, models.ErrNoProduct
 	}
 	randomProductIDs := make([]uint, 0, amount)
 	for i := 0; i < int(amount) && i < u.getAvailiablePromoProductCount(); i++ {
@@ -154,7 +154,7 @@ func (u *PromotionUsecase) GetPromoProducts(ctx context.Context, amount uint) ([
 		if err != nil {
 			return nil, err
 		}
-		productsData, err := u.productRepo.GetProductsByIDs(ctx, prIDs)
+		productsData, err := u.productRepo.GetProductCardsByIDs(ctx, profileID, prIDs)
 		if err != nil {
 			return nil, err
 		}
