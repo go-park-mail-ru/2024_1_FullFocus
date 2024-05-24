@@ -66,6 +66,20 @@ func (r *ProductRepo) GetProductByID(ctx context.Context, profileID uint, produc
 	return dao.ConvertProductFromTable(categories, product), nil
 }
 
+func (r *ProductRepo) GetProductCardByID(ctx context.Context, profileID uint, productID uint) (models.ProductCard, error) {
+	q := `SELECT p.id, p.product_description, p.product_name, p.price, p.imgsrc, p.seller, p.rating, COALESCE(ci.count, 0) AS count
+			FROM product p
+				 LEFT JOIN cart_item ci ON ci.product_id = p.id AND ci.profile_id = ?
+			WHERE p.id = ?;`
+
+	var product dao.ProductCard
+	if err := r.storage.Get(ctx, &product, q, profileID, productID); err != nil {
+		logger.Error(ctx, "error while selecting product: "+err.Error())
+		return models.ProductCard{}, models.ErrNoProduct
+	}
+	return dao.ConvertProductCardToModel(product), nil
+}
+
 func (r *ProductRepo) GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error) {
 	q := `SELECT p.id, p.product_name, p.price, p.imgsrc, p.seller, p.rating, COALESCE(ci.count, 0) AS count
 			FROM product p
@@ -111,15 +125,17 @@ func (r *ProductRepo) GetProductsByQuery(ctx context.Context, input models.GetPr
 	return dao.ConvertProductCardsFromTable(products), nil
 }
 
-// TODO count from cart
-func (r *ProductRepo) GetProductsByIDs(ctx context.Context, IDs []uint) ([]models.ProductCard, error) {
-	q := `SELECT id, product_name, price, imgsrc, seller, rating
-	FROM product
-	WHERE id = ANY(?)
-	ORDER BY array_position(?, id);`
+func (r *ProductRepo) GetProductCardsByIDs(ctx context.Context, profileID uint, IDs []uint) ([]models.ProductCard, error) {
+	q := `SELECT p.id, p.product_name, p.price, p.imgsrc, p.seller, p.rating, COALESCE(ci.count, 0) AS count
+			FROM product p
+				LEFT JOIN cart_item ci
+					ON p.id = ci.product_id
+					   AND ci.profile_id = ?
+			WHERE p.id = ANY(?)
+			ORDER BY array_position(?, p.id);`
 
 	products := make([]dao.ProductCard, 0, len(IDs))
-	if err := r.storage.Select(ctx, &products, q, IDs, IDs); err != nil {
+	if err := r.storage.Select(ctx, &products, q, profileID, IDs, IDs); err != nil {
 		logger.Error(ctx, err.Error())
 		return nil, models.ErrInternal
 	}
