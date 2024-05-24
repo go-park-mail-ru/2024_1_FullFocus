@@ -93,7 +93,9 @@ func (u *PromotionUsecase) CreatePromoProduct(ctx context.Context, input models.
 	return nil
 }
 
+// TODO full product
 func (u *PromotionUsecase) GetPromoProductInfoByID(ctx context.Context, productID uint, profileID uint) (models.PromoProduct, error) {
+	fmt.Printf("%v\n\n", u.promoProductIDs)
 	if !slices.Contains(u.promoProductIDs, productID) {
 		return models.PromoProduct{}, models.ErrNoProduct
 	}
@@ -104,20 +106,23 @@ func (u *PromotionUsecase) GetPromoProductInfoByID(ctx context.Context, productI
 	if err != nil {
 		return models.PromoProduct{}, err
 	}
-	productData, err := u.productRepo.GetProductCardByID(ctx, profileID, productID)
+	productData, err := u.productRepo.GetProductByID(ctx, profileID, productID)
 	if err != nil {
 		return models.PromoProduct{}, err
 	}
 	newPrice := calculateDiscountPrice(promoData.BenefitType, promoData.BenefitValue, productData.Price)
-	return models.PromoProduct{
+	promoProduct := models.PromoProduct{
 		ProductData:  productData,
 		BenefitType:  promoData.BenefitType,
 		BenefitValue: promoData.BenefitValue,
 		NewPrice:     newPrice,
-	}, nil
+	}
+	u.cache.Set(ctx, productID, promoProduct)
+	return promoProduct, nil
 }
 
-func (u *PromotionUsecase) GetPromoProducts(ctx context.Context, amount uint, profileID uint) ([]models.PromoProduct, error) {
+// TODO product_cards
+func (u *PromotionUsecase) GetPromoProducts(ctx context.Context, amount uint, profileID uint) ([]models.PromoProductCard, error) {
 	if amount == 0 {
 		amount = defaultPromoProductsAmount
 	}
@@ -140,7 +145,7 @@ func (u *PromotionUsecase) GetPromoProducts(ctx context.Context, amount uint, pr
 		}
 		randomProductIDs = append(randomProductIDs, randomID)
 	}
-	res := make([]models.PromoProduct, 0, amount)
+	res := make([]models.PromoProductCard, 0, amount)
 	prIDs := make([]uint, 0)
 	for _, id := range randomProductIDs {
 		if product, found := u.cache.Get(ctx, id); found {
@@ -160,7 +165,7 @@ func (u *PromotionUsecase) GetPromoProducts(ctx context.Context, amount uint, pr
 		}
 		for i, product := range productsData {
 			newPrice := calculateDiscountPrice(promoInfo[i].BenefitType, promoInfo[i].BenefitValue, product.Price)
-			promoProduct := models.PromoProduct{
+			promoProduct := models.PromoProductCard{
 				ProductData:  product,
 				BenefitType:  promoInfo[i].BenefitType,
 				BenefitValue: promoInfo[i].BenefitValue,
