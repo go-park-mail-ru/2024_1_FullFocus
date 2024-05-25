@@ -70,6 +70,10 @@ stop-all: ## Остановить все контейнеры
 build: ## Сбилдить бинарь приложения (TARGET=binary_name)
 	go build -o ./bin/$(TARGET) ./cmd/$(TARGET)/main.go
 
+.PHONY: gen
+gen: ## Сгенерировать easyjson
+	easyjson -all -pkg internal/delivery/dto
+
 .PHONY: lint
 lint: ## Проверить код линтерами
 	golangci-lint run ./... -c golangci.local.yaml
