@@ -70,7 +70,8 @@ func (h *PromotionHandler) GetPromoProducts(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
-		Data: dto.ConvertPromoProductCardsToDTOs(products),
+		Status: 200,
+		Data:   dto.ConvertPromoProductCardsToDTOs(products),
 	})
 }
 
