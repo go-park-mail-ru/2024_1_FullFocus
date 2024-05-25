@@ -22,7 +22,7 @@ func NewCartRepo(dbClient db.Database) *CartRepo {
 }
 
 func (r *CartRepo) GetAllCartItems(ctx context.Context, uID uint) ([]models.CartProduct, error) {
-	q := `SELECT p.id, p.product_name, p.price, p.imgsrc, c.count
+	q := `SELECT p.id, p.product_name, p.price, p.imgsrc, p.on_sale, c.count
 	FROM product AS p JOIN cart_item AS c ON p.id = c.product_id
 	WHERE profile_id = $1;`
 

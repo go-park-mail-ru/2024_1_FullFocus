@@ -19,10 +19,11 @@ func ConvertContentToDto(m models.CartContent) CartContent {
 type CartProduct struct {
 	ProductID uint   `json:"productId"`
 	Name      string `json:"name"`
-	Price     uint   `json:"price"`
+	Price     uint   `json:"oldPrice"`
 	Count     uint   `json:"count"`
 	Img       string `json:"imgsrc"`
 	Cost      uint   `json:"cost"`
+	NewPrice  uint   `json:"newPrice"`
 }
 
 func ConvertProductsToDto(mm []models.CartProduct) []CartProduct {
@@ -35,6 +36,7 @@ func ConvertProductsToDto(mm []models.CartProduct) []CartProduct {
 			Count:     m.Count,
 			Img:       m.Img,
 			Cost:      m.Cost,
+			NewPrice:  m.NewPrice,
 		})
 	}
 	return cartProduct

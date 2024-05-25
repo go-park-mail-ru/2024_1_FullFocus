@@ -6,12 +6,16 @@ type CartItem struct {
 }
 
 type CartProduct struct {
-	ProductID uint
-	Name      string
-	Price     uint
-	Count     uint
-	Img       string
-	Cost      uint
+	ProductID    uint
+	Name         string
+	Price        uint
+	Count        uint
+	Img          string
+	Cost         uint
+	OnSale       bool
+	BenefitType  string
+	BenefitValue uint
+	NewPrice     uint
 }
 
 type CartContent struct {

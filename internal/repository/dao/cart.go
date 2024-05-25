@@ -29,11 +29,12 @@ func ConvertTablesToCartItems(tt []CartItemTable) []models.CartItem {
 }
 
 type CartProductTable struct {
-	PrID  uint   `db:"id"`
-	Name  string `db:"product_name"`
-	Price uint   `db:"price"`
-	Count uint   `db:"count"`
-	Img   string `db:"imgsrc"`
+	PrID   uint   `db:"id"`
+	Name   string `db:"product_name"`
+	Price  uint   `db:"price"`
+	Count  uint   `db:"count"`
+	Img    string `db:"imgsrc"`
+	OnSale bool   `db:"on_sale"`
 }
 
 func ConvertTablesToCartProducts(tt []CartProductTable) []models.CartProduct {
@@ -45,6 +46,7 @@ func ConvertTablesToCartProducts(tt []CartProductTable) []models.CartProduct {
 			Price:     t.Price,
 			Count:     t.Count,
 			Img:       t.Img,
+			OnSale:    t.OnSale,
 		}
 		cartProducts = append(cartProducts, cartProduct)
 	}
