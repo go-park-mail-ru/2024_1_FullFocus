@@ -39,6 +39,20 @@ func (r *NotificationRepo) GetAllNotifications(ctx context.Context, profileID ui
 	return dao.ConvertNotifications(notifications), nil
 }
 
+func (r *NotificationRepo) GetNotificationsAmount(ctx context.Context, profileID uint) (uint, error) {
+	q := `SELECT count(*)
+		  FROM notification n
+		  WHERE n.profile_id = ?
+		  	  AND n.read_status IS false`
+
+	var amount uint
+	if err := r.storage.Get(ctx, &amount, q, profileID); err != nil {
+		logger.Error(ctx, err.Error())
+		return 0, models.ErrNoNotifications
+	}
+	return amount, nil
+}
+
 func (r *NotificationRepo) MarkNotificationRead(ctx context.Context, id uint) error {
 	q := `UPDATE notification n
 		  SET read_status = true

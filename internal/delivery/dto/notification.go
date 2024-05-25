@@ -9,7 +9,7 @@ import (
 type Notification struct {
 	ID         uint      `json:"id"`
 	Type       string    `json:"type"`
-	ReadStatus string    `json:"readStatus"`
+	ReadStatus bool      `json:"readStatus"`
 	Payload    string    `json:"payload"`
 	CreatedAt  time.Time `json:"createdAt"`
 }

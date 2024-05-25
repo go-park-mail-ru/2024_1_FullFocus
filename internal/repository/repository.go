@@ -31,6 +31,7 @@ type (
 	Notifications interface {
 		// SendNotification(ctx context.Context, profileID uint, data []byte) error
 		GetAllNotifications(ctx context.Context, profileID uint) ([]models.Notification, error)
+		GetNotificationsAmount(ctx context.Context, profileID uint) (uint, error)
 		MarkNotificationRead(ctx context.Context, id uint) error
 	}
 
@@ -66,6 +67,7 @@ type (
 		GetPromocodeItemByActivationCode(ctx context.Context, pID uint, code string) (models.PromocodeActivationTerms, error)
 		GetAvailablePromocodes(ctx context.Context, profileID uint) ([]models.PromocodeItem, error)
 		GetPromocodeByID(ctx context.Context, promocodeID uint) (models.Promocode, error)
+		GetPromocodesAmount(ctx context.Context, profileID uint) (uint, error)
 		ApplyPromocode(ctx context.Context, input models.ApplyPromocodeInput) (uint, error)
 		DeleteUsedPromocode(ctx context.Context, id uint) error
 	}

@@ -9,9 +9,11 @@ type Profile struct {
 }
 
 type ProfileMetaInfo struct {
-	FullName        string
-	CartItemsAmount uint
-	AvatarName      string
+	FullName            string
+	CartItemsAmount     uint
+	AvatarName          string
+	UnreadNotifications uint
+	PromocodesAvailable uint
 }
 
 type ProfileUpdateInput struct {

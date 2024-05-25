@@ -9,7 +9,7 @@ import (
 type Notification struct {
 	ID         uint      `db:"id"`
 	Type       string    `db:"type"`
-	ReadStatus string    `db:"read_status"`
+	ReadStatus bool      `db:"read_status"`
 	Payload    string    `db:"payload"`
 	CreatedAt  time.Time `db:"created_at"`
 }

@@ -5,7 +5,7 @@ import "time"
 type Notification struct {
 	ID         uint
 	Type       string
-	ReadStatus string
+	ReadStatus bool
 	Payload    string
 	CreatedAt  time.Time
 }

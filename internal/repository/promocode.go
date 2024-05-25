@@ -118,6 +118,21 @@ func (r *PromocodeRepo) GetAvailablePromocodes(ctx context.Context, profileID ui
 	return dao.ConvertPromocodeItems(promocodes), nil
 }
 
+func (r *PromocodeRepo) GetPromocodesAmount(ctx context.Context, profileID uint) (uint, error) {
+	q := `SELECT count(*)
+		  FROM promocode_item pi
+			INNER JOIN promocode p ON pi.promocode_type = p.id
+				AND profile_id = ?
+		  WHERE pi.created_at + interval '1 hour' * p.ttl_hours >= NOW();`
+
+	var amount uint
+	if err := r.storage.Get(ctx, &amount, q, profileID); err != nil {
+		logger.Error(ctx, err.Error())
+		return 0, models.ErrNoPromocode
+	}
+	return amount, nil
+}
+
 func (r *PromocodeRepo) ApplyPromocode(ctx context.Context, input models.ApplyPromocodeInput) (uint, error) {
 	q := `SELECT p.min_sum_activation,
        			p.benefit_type,
