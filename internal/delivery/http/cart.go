@@ -33,6 +33,7 @@ func (h *CartHandler) InitRouter(r *mux.Router) {
 	}
 }
 
+// TODO cart items with sales
 func (h *CartHandler) GetAllCartItems(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	uID, err := helper.GetUserIDFromContext(ctx)

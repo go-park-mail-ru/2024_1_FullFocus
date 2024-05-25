@@ -42,7 +42,7 @@ func (r *ProductRepo) GetAllProductCards(ctx context.Context, input models.GetAl
 }
 
 func (r *ProductRepo) GetProductByID(ctx context.Context, profileID uint, productID uint) (models.Product, error) {
-	q := `SELECT p.id, p.product_description, p.product_name, p.price, p.imgsrc, p.seller, p.rating, COALESCE(ci.count, 0) AS count
+	q := `SELECT p.id, p.product_description, p.product_name, p.price, p.imgsrc, p.seller, p.rating, COALESCE(ci.count, 0) AS count, p.on_sale
 			FROM product p
 				 LEFT JOIN cart_item ci ON ci.product_id = p.id AND ci.profile_id = ?
 			WHERE p.id = ?;`

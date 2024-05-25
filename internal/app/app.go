@@ -201,7 +201,7 @@ func MustInit() *App {
 
 	// Products
 	productRepo := repository.NewProductRepo(pgxClient)
-	productUsecase := usecase.NewProductUsecase(productRepo, categoryRepo)
+	productUsecase := usecase.NewProductUsecase(productRepo, categoryRepo, promotionClient)
 	productHandler := delivery.NewProductHandler(productUsecase)
 	productHandler.InitRouter(apiRouter)
 

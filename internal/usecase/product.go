@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/promotion"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
@@ -13,14 +14,16 @@ const (
 )
 
 type ProductUsecase struct {
-	productRepo  repository.Products
-	categoryRepo repository.Categories
+	productRepo     repository.Products
+	categoryRepo    repository.Categories
+	promotionClient promotion.PromotionClient
 }
 
-func NewProductUsecase(pr repository.Products, cr repository.Categories) *ProductUsecase {
+func NewProductUsecase(pr repository.Products, cr repository.Categories, pc promotion.PromotionClient) *ProductUsecase {
 	return &ProductUsecase{
-		productRepo:  pr,
-		categoryRepo: cr,
+		productRepo:     pr,
+		categoryRepo:    cr,
+		promotionClient: pc,
 	}
 }
 
@@ -36,8 +39,27 @@ func (u *ProductUsecase) GetAllProductCards(ctx context.Context, input models.Ge
 	return u.productRepo.GetAllProductCards(ctx, input)
 }
 
-func (u *ProductUsecase) GetProductByID(ctx context.Context, profileID uint, productID uint) (models.Product, error) {
-	return u.productRepo.GetProductByID(ctx, profileID, productID)
+func (u *ProductUsecase) GetProductByID(ctx context.Context, profileID uint, productID uint) (models.PromoProduct, error) {
+	productData, err := u.productRepo.GetProductByID(ctx, profileID, productID)
+	if err != nil {
+		return models.PromoProduct{}, err
+	}
+	if productData.OnSale {
+		discountData, err := u.promotionClient.GetPromoProductInfoByID(ctx, productID)
+		if err != nil {
+			return models.PromoProduct{}, err
+		}
+		newPrice := CalculateDiscountPrice(discountData.BenefitType, discountData.BenefitValue, productData.Price)
+		return models.PromoProduct{
+			ProductData:  productData,
+			BenefitType:  discountData.BenefitType,
+			BenefitValue: discountData.BenefitValue,
+			NewPrice:     newPrice,
+		}, nil
+	}
+	return models.PromoProduct{
+		ProductData: productData,
+	}, nil
 }
 
 func (u *ProductUsecase) GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) (models.GetProductsByCategoryIDPayload, error) {

@@ -41,6 +41,7 @@ type Product struct {
 	Seller      string `db:"seller"`
 	Rating      uint   `db:"rating"`
 	Amount      uint   `db:"count"`
+	OnSale      bool   `db:"on_sale"`
 }
 
 func ConvertProductFromTable(categories []string, product Product) models.Product {
@@ -54,6 +55,7 @@ func ConvertProductFromTable(categories []string, product Product) models.Produc
 		Rating:      product.Rating,
 		Amount:      product.Amount,
 		Categories:  categories,
+		OnSale:      product.OnSale,
 	}
 }
 

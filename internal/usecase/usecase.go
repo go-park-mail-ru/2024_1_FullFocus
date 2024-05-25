@@ -43,7 +43,7 @@ type (
 
 	Products interface {
 		GetAllProductCards(ctx context.Context, input models.GetAllProductsInput) ([]models.ProductCard, error)
-		GetProductByID(ctx context.Context, profileID uint, productID uint) (models.Product, error)
+		GetProductByID(ctx context.Context, profileID uint, productID uint) (models.PromoProduct, error)
 		GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) (models.GetProductsByCategoryIDPayload, error)
 		GetProductsByQuery(ctx context.Context, input models.GetProductsByQueryInput) ([]models.ProductCard, error)
 	}

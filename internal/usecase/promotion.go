@@ -108,7 +108,7 @@ func (u *PromotionUsecase) GetPromoProductInfoByID(ctx context.Context, productI
 	if err != nil {
 		return models.PromoProduct{}, err
 	}
-	newPrice := calculateDiscountPrice(promoData.BenefitType, promoData.BenefitValue, productData.Price)
+	newPrice := CalculateDiscountPrice(promoData.BenefitType, promoData.BenefitValue, productData.Price)
 	promoProduct := models.PromoProduct{
 		ProductData:  productData,
 		BenefitType:  promoData.BenefitType,
@@ -161,7 +161,7 @@ func (u *PromotionUsecase) GetPromoProductCards(ctx context.Context, amount uint
 			return nil, err
 		}
 		for i, product := range productsData {
-			newPrice := calculateDiscountPrice(promoInfo[i].BenefitType, promoInfo[i].BenefitValue, product.Price)
+			newPrice := CalculateDiscountPrice(promoInfo[i].BenefitType, promoInfo[i].BenefitValue, product.Price)
 			promoProduct := models.PromoProduct{
 				ProductData:  product,
 				BenefitType:  promoInfo[i].BenefitType,
@@ -200,7 +200,7 @@ func (u *PromotionUsecase) getAvailiablePromoProductsCount() int {
 	return count
 }
 
-func calculateDiscountPrice(benefitType string, benefitValue, oldPrice uint) uint {
+func CalculateDiscountPrice(benefitType string, benefitValue, oldPrice uint) uint {
 	var newPrice uint
 	switch benefitType {
 	case percentSale:

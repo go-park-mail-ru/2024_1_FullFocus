@@ -20,6 +20,7 @@ type Product struct {
 	Rating      uint
 	Amount      uint
 	Categories  []string
+	OnSale      bool
 }
 
 type GetAllProductsInput struct {
