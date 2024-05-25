@@ -33,6 +33,7 @@ func (h *OrderHandler) InitRouter(r *mux.Router) {
 		h.router.Handle("/create", http.HandlerFunc(h.Create)).Methods("POST", "OPTIONS")
 		h.router.Handle("/{id:[0-9]+}", http.HandlerFunc(h.GetOrder)).Methods("GET", "OPTIONS")
 		h.router.Handle("/all", http.HandlerFunc(h.GetAllOrders)).Methods("GET", "OPTIONS")
+		h.router.Handle("/public/update", http.HandlerFunc(h.UpdateStatus)).Methods("POST", "OPTIONS")
 		h.router.Handle("/cancel", http.HandlerFunc(h.Delete)).Methods("POST", "OPTIONS")
 	}
 }

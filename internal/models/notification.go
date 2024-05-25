@@ -9,3 +9,10 @@ type Notification struct {
 	Payload    string
 	CreatedAt  time.Time
 }
+
+type OrderNotification struct {
+	ProfileID uint
+	OrderID   uint
+	OldStatus string
+	NewStatus string
+}

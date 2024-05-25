@@ -19,6 +19,8 @@ func NewNotificationRepo(dbClient db.Database) *NotificationRepo {
 	}
 }
 
+func (r *NotificationRepo) CreateNotification(ctx context.Context, input)
+
 // SendNotification is TODO
 // func (r *NotificationRepo) SendNotification(ctx context.Context, profileID uint, data []byte) error {}
 

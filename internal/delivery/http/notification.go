@@ -26,7 +26,7 @@ func NewNotificationHandler(uc usecase.Notifications) *NotificationHandler {
 }
 
 func (h *NotificationHandler) InitRouter(r *mux.Router) {
-	h.router = r.PathPrefix("/private/v1/notifications").Subrouter()
+	h.router = r.PathPrefix("/v1/notifications").Subrouter()
 	{
 		h.router.Handle("", http.HandlerFunc(h.GetAllNotifications)).Methods("GET", "OPTIONS")
 		h.router.Handle("/read", http.HandlerFunc(h.MarkNotificationAsRead)).Methods("POST", "OPTIONS")

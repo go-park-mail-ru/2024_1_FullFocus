@@ -12,18 +12,20 @@ import (
 const _activationStringLen = 6
 
 type OrderUsecase struct {
-	orderRepo     repository.Orders
-	cartRepo      repository.Carts
-	productRepo   repository.Products
-	promocodeRepo repository.Promocodes
+	orderRepo        repository.Orders
+	cartRepo         repository.Carts
+	productRepo      repository.Products
+	promocodeRepo    repository.Promocodes
+	notificationRepo repository.Notifications
 }
 
-func NewOrderUsecase(or repository.Orders, cr repository.Carts, pr repository.Products, pcr repository.Promocodes) *OrderUsecase {
+func NewOrderUsecase(or repository.Orders, cr repository.Carts, pr repository.Products, pcr repository.Promocodes, nr repository.Notifications) *OrderUsecase {
 	return &OrderUsecase{
-		orderRepo:     or,
-		cartRepo:      cr,
-		productRepo:   pr,
-		promocodeRepo: pcr,
+		orderRepo:        or,
+		cartRepo:         cr,
+		productRepo:      pr,
+		promocodeRepo:    pcr,
+		notificationRepo: nr,
 	}
 }
 
@@ -103,7 +105,11 @@ func (u *OrderUsecase) GetAllOrders(ctx context.Context, profileID uint) ([]mode
 }
 
 func (u *OrderUsecase) UpdateStatus(ctx context.Context, orderID uint, newStatus string) error {
-	return u.orderRepo.UpdateStatus(ctx, orderID, newStatus)
+	if err := u.orderRepo.UpdateStatus(ctx, orderID, newStatus); err != nil {
+		return err
+	}
+	u.notificationRepo.CreateNotification()
+	//u.notificationRepo.SendNotification()
 }
 
 func (u *OrderUsecase) Delete(ctx context.Context, profileID uint, orderID uint) error {
