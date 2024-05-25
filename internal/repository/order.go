@@ -76,7 +76,7 @@ func (r *OrderRepo) Create(ctx context.Context, userID uint, sum uint, orderItem
 
 func (r *OrderRepo) GetOrderByID(ctx context.Context, orderID uint) (models.GetOrderPayload, error) {
 	var orderProducts []dao.OrderProduct
-	q := `SELECT p.id, p.product_name, p.price, i.count, p.imgsrc
+	q := `SELECT p.id, p.product_name, i.actual_price as price, i.count, p.imgsrc
 		  FROM order_item as i
 			  INNER JOIN ordering AS o ON i.ordering_id = o.id
 		      INNER JOIN product AS p ON i.product_id = p.id
