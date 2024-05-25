@@ -7,9 +7,11 @@ CREATE TYPE notification_type AS ENUM (
 
 CREATE TABLE IF NOT EXISTS notification (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    profile_id BIGINT NOT NULL REFERENCES user_profile(id) ON DELETE CASCADE ON UPDATE CASCADE,
     type notification_type NOT NULL,
     read_status BOOLEAN DEFAULT FALSE,
-    payload JSONB NOT NULL CHECK (length(payload::TEXT) > 0)
+    payload JSONB NOT NULL CHECK (length(payload::TEXT) > 0),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- +goose StatementEnd

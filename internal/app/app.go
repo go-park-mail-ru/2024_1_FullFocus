@@ -194,6 +194,12 @@ func MustInit() *App {
 	productHandler := delivery.NewProductHandler(productUsecase)
 	productHandler.InitRouter(apiRouter)
 
+	// Notifications
+	notificationRepo := repository.NewNotificationRepo(pgxClient)
+	notificationUsecase := usecase.NewNotificationUsecase(notificationRepo)
+	notificationHandler := delivery.NewNotificationHandler(notificationUsecase)
+	notificationHandler.InitRouter(apiRouter)
+
 	// Order
 	orderRepo := repository.NewOrderRepo(pgxClient)
 	orderUsecase := usecase.NewOrderUsecase(orderRepo, cartRepo, productRepo, promocodeRepo)

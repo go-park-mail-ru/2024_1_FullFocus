@@ -28,6 +28,12 @@ type (
 		GetCategoryNameById(ctx context.Context, categoryID uint) (string, error)
 	}
 
+	Notifications interface {
+		// SendNotification(ctx context.Context, profileID uint, data []byte) error
+		GetAllNotifications(ctx context.Context, profileID uint) ([]models.Notification, error)
+		MarkNotificationRead(ctx context.Context, id uint) error
+	}
+
 	Orders interface {
 		Create(ctx context.Context, userID uint, sum uint, orderItems []models.OrderItem) (uint, error)
 		GetOrderByID(ctx context.Context, orderID uint) (models.GetOrderPayload, error)
