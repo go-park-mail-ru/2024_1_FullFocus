@@ -8,49 +8,10 @@ import (
 )
 
 type (
-	Users interface {
-		CreateUser(ctx context.Context, user models.User) (uint, error)
-		GetUser(ctx context.Context, login string) (models.User, error)
-	}
-
-	Sessions interface {
-		CreateSession(ctx context.Context, userID uint) string
-		GetUserIDBySessionID(ctx context.Context, sID string) (uint, error)
-		SessionExists(ctx context.Context, sID string) bool
-		DeleteSession(ctx context.Context, sID string) error
-	}
-
-	Products interface {
-		GetAllProductCards(ctx context.Context, input models.GetAllProductsInput) ([]models.ProductCard, error)
-		GetProductByID(ctx context.Context, profileID uint, productID uint) (models.Product, error)
-		GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error)
-		GetProductsByQuery(ctx context.Context, input models.GetProductsByQueryInput) ([]models.ProductCard, error)
-		GetProductsByIDs(ctx context.Context, profileID uint, IDs []uint) ([]models.Product, error)
-		GetProductPriceByID(ctx context.Context, ID uint) (uint, error)
-		MarkProduct(ctx context.Context, ID uint, promo bool) error
-	}
-
 	Avatars interface {
 		GetAvatar(ctx context.Context, fileName string) (models.Avatar, error)
 		UploadAvatar(ctx context.Context, fileName string, img models.Avatar) error
 		DeleteAvatar(ctx context.Context, imageName string) error
-	}
-
-	Orders interface {
-		Create(ctx context.Context, userID uint, orderItems []models.OrderItem) (uint, error)
-		GetOrderByID(ctx context.Context, orderID uint) (models.GetOrderPayload, error)
-		GetAllOrders(ctx context.Context, profileID uint) ([]models.Order, error)
-		GetProfileIDByOrderID(ctx context.Context, orderID uint) (uint, error)
-		Delete(ctx context.Context, orderID uint) error
-	}
-
-	Profiles interface {
-		UpdateProfile(ctx context.Context, uID uint, profileNew models.ProfileUpdateInput) error
-		GetProfile(ctx context.Context, uID uint) (models.Profile, error)
-		CreateProfile(ctx context.Context, profile models.Profile) (uint, error)
-		UpdateAvatarByProfileID(ctx context.Context, uID uint, imgSrc string) (string, error)
-		GetAvatarByProfileID(ctx context.Context, uID uint) (string, error)
-		DeleteAvatarByProfileID(ctx context.Context, uID uint) (string, error)
 	}
 
 	Carts interface {
@@ -67,13 +28,37 @@ type (
 		GetCategoryNameById(ctx context.Context, categoryID uint) (string, error)
 	}
 
+	Orders interface {
+		Create(ctx context.Context, userID uint, sum uint, orderItems []models.OrderItem) (uint, error)
+		GetOrderByID(ctx context.Context, orderID uint) (models.GetOrderPayload, error)
+		GetAllOrders(ctx context.Context, profileID uint) ([]models.Order, error)
+		GetProfileIDByOrderID(ctx context.Context, orderID uint) (uint, error)
+		Delete(ctx context.Context, orderID uint) error
+	}
+
+	Products interface {
+		GetAllProductCards(ctx context.Context, input models.GetAllProductsInput) ([]models.ProductCard, error)
+		GetProductByID(ctx context.Context, profileID uint, productID uint) (models.Product, error)
+		GetTotalPrice(ctx context.Context, items []models.OrderItem) (uint, error)
+		GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) ([]models.ProductCard, error)
+		GetProductsByQuery(ctx context.Context, input models.GetProductsByQueryInput) ([]models.ProductCard, error)
+		GetProductsByIDs(ctx context.Context, profileID uint, IDs []uint) ([]models.Product, error)
+		GetProductPriceByID(ctx context.Context, ID uint) (uint, error)
+		MarkProduct(ctx context.Context, ID uint, promo bool) error
+	}
+
+	Promocodes interface {
+		CreatePromocodeItem(ctx context.Context, info models.CreatePromocodeItemInput) error
+		GetNewPromocode(ctx context.Context, sum uint) (uint, error)
+		GetPromocodeItemByActivationCode(ctx context.Context, pID uint, code string) (models.PromocodeActivationTerms, error)
+		GetAvailablePromocodes(ctx context.Context, profileID uint) ([]models.PromocodeItem, error)
+		GetPromocodeByID(ctx context.Context, promocodeID uint) (models.Promocode, error)
+		ApplyPromocode(ctx context.Context, input models.ApplyPromocodeInput) (uint, error)
+		DeleteUsedPromocode(ctx context.Context, id uint) error
+	}
+
 	Suggests interface {
 		GetCategorySuggests(ctx context.Context, query string) ([]models.CategorySuggest, error)
 		GetProductSuggests(ctx context.Context, query string) ([]string, error)
-	}
-
-	Reviews interface {
-		GetProductReviews(ctx context.Context, input models.GetProductReviewsInput) ([]models.ProductReview, error)
-		CreateProductReview(ctx context.Context, uID uint, input models.ProductReview) error
 	}
 )
