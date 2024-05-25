@@ -3,6 +3,8 @@ package models
 type CartItem struct {
 	ProductID uint
 	Count     uint
+	Price     uint
+	OnSale    bool
 }
 
 type CartProduct struct {

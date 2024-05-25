@@ -33,18 +33,20 @@ type OrderInfo struct {
 }
 
 type OrderItem struct {
-	OrderingID uint `db:"ordering_id"`
-	ProductID  uint `db:"product_id"`
-	Count      uint `db:"count"`
+	OrderingID  uint `db:"ordering_id"`
+	ProductID   uint `db:"product_id"`
+	Count       uint `db:"count"`
+	ActualPrice uint `db:"actual_price"`
 }
 
 func ConvertOrderItemsToTables(orderID uint, items []models.OrderItem) []OrderItem {
 	orderItems := make([]OrderItem, 0, len(items))
 	for _, item := range items {
 		orderItems = append(orderItems, OrderItem{
-			OrderingID: orderID,
-			ProductID:  item.ProductID,
-			Count:      item.Count,
+			OrderingID:  orderID,
+			ProductID:   item.ProductID,
+			Count:       item.Count,
+			ActualPrice: item.ActualPrice,
 		})
 	}
 	return orderItems

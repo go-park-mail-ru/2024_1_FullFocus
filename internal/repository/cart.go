@@ -38,10 +38,13 @@ func (r *CartRepo) GetAllCartItems(ctx context.Context, uID uint) ([]models.Cart
 	return dao.ConvertTablesToCartProducts(cartProductRows), nil
 }
 
-func (r *CartRepo) GetAllCartItemsID(ctx context.Context, uID uint) ([]models.CartItem, error) {
-	q := `SELECT product_id, count FROM cart_item WHERE profile_id = $1;`
+func (r *CartRepo) GetAllCartItemsInfo(ctx context.Context, uID uint) ([]models.CartItem, error) {
+	q := `SELECT product_id, count, p.price, p.on_sale
+	FROM cart_item
+	JOIN product p ON cart_item.product_id = p.id
+	WHERE profile_id = $1;`
 
-	var cartItemRows []dao.CartItemTable
+	var cartItemRows []dao.CartItem
 	err := r.storage.Select(ctx, &cartItemRows, q, uID)
 	if err != nil {
 		logger.Error(ctx, err.Error())
@@ -70,7 +73,7 @@ func (r *CartRepo) UpdateCartItem(ctx context.Context, uID, prID uint) (uint, er
 	DO UPDATE set count = cart_item.count + 1
 	returning cart_item.count AS count;`
 
-	resRow := dao.CartItemTable{}
+	resRow := dao.CartItem{}
 	err := r.storage.Get(ctx, &resRow, q, uID, prID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -88,7 +91,7 @@ func (r *CartRepo) DeleteCartItem(ctx context.Context, uID, prID uint) (uint, er
 	WHERE profile_id = $1 AND product_id = $2
 	returning cart_item.count AS count;`
 
-	resRow := dao.CartItemTable{}
+	resRow := dao.CartItem{}
 	err := r.storage.Get(ctx, &resRow, q, uID, prID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {

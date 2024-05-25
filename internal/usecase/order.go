@@ -2,7 +2,9 @@ package usecase
 
 import (
 	"context"
+	"slices"
 
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/promotion"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
@@ -12,35 +14,96 @@ import (
 const _activationStringLen = 6
 
 type OrderUsecase struct {
-	orderRepo     repository.Orders
-	cartRepo      repository.Carts
-	productRepo   repository.Products
-	promocodeRepo repository.Promocodes
+	orderRepo       repository.Orders
+	cartRepo        repository.Carts
+	productRepo     repository.Products
+	promocodeRepo   repository.Promocodes
+	promotionClient promotion.PromotionClient
 }
 
-func NewOrderUsecase(or repository.Orders, cr repository.Carts, pr repository.Products, pcr repository.Promocodes) *OrderUsecase {
+func NewOrderUsecase(or repository.Orders, cr repository.Carts, pr repository.Products, pcr repository.Promocodes, pc promotion.PromotionClient) *OrderUsecase {
 	return &OrderUsecase{
-		orderRepo:     or,
-		cartRepo:      cr,
-		productRepo:   pr,
-		promocodeRepo: pcr,
+		orderRepo:       or,
+		cartRepo:        cr,
+		productRepo:     pr,
+		promocodeRepo:   pcr,
+		promotionClient: pc,
 	}
 }
 
 func (u *OrderUsecase) Create(ctx context.Context, input models.CreateOrderInput) (models.CreateOrderPayload, error) {
 	var orderItems []models.OrderItem
 	if input.FromCart {
-		cartItems, err := u.cartRepo.GetAllCartItemsID(ctx, input.UserID)
+		cartItems, err := u.cartRepo.GetAllCartItemsInfo(ctx, input.UserID)
 		if err != nil {
 			return models.CreateOrderPayload{}, err
 		}
+		promoProductsIDs := make([]uint, 0)
+		for _, product := range cartItems {
+			if product.OnSale {
+				promoProductsIDs = append(promoProductsIDs, product.ProductID)
+			}
+		}
+		if len(promoProductsIDs) != 0 {
+			promoData, err := u.promotionClient.GetPromoProductsInfoByIDs(ctx, promoProductsIDs)
+			if err != nil {
+				return models.CreateOrderPayload{}, nil
+			}
+			for i, product := range cartItems {
+				if product.OnSale {
+					idx := slices.Index(promoProductsIDs, product.ProductID)
+					if idx == -1 {
+						return models.CreateOrderPayload{}, models.ErrInternal
+					}
+					cartItems[i].Price = CalculateDiscountPrice(promoData[idx].BenefitType, promoData[idx].BenefitValue, product.Price)
+				}
+			}
+		}
 		orderItems = models.ConvertCartItemsToOrderItems(cartItems)
 	} else {
-		orderItems = input.Items
+		productIDs := make([]uint, 0, len(input.Items))
+		for _, item := range input.Items {
+			productIDs = append(productIDs, item.ProductID)
+		}
+		productsData, err := u.productRepo.GetProductsByIDs(ctx, input.UserID, productIDs)
+		if err != nil {
+			return models.CreateOrderPayload{}, err
+		}
+		promoProductsIDs := make([]uint, 0)
+		for _, product := range productsData {
+			if product.OnSale {
+				promoProductsIDs = append(promoProductsIDs, product.ID)
+			}
+		}
+		if len(promoProductsIDs) != 0 {
+			promoData, err := u.promotionClient.GetPromoProductsInfoByIDs(ctx, promoProductsIDs)
+			if err != nil {
+				return models.CreateOrderPayload{}, nil
+			}
+			for i, product := range productsData {
+				if product.OnSale {
+					idx := slices.Index(promoProductsIDs, product.ID)
+					if idx == -1 {
+						return models.CreateOrderPayload{}, models.ErrInternal
+					}
+					productsData[i].Price = CalculateDiscountPrice(promoData[idx].BenefitType, promoData[idx].BenefitValue, product.Price)
+				}
+			}
+		}
+		for i, product := range productsData {
+			orderItems = append(orderItems, models.OrderItem{
+				ProductID:   product.ID,
+				Count:       input.Items[i].Count,
+				ActualPrice: product.Price,
+			})
+		}
 	}
-	sum, err := u.productRepo.GetTotalPrice(ctx, orderItems)
-	if err != nil {
-		return models.CreateOrderPayload{}, err
+	var (
+		sum uint
+		err error
+	)
+	for _, item := range orderItems {
+		sum += item.ActualPrice * item.Count
 	}
 	var promoUsed bool
 	if input.PromocodeID != 0 {

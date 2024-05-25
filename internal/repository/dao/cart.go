@@ -4,26 +4,26 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 )
 
-type CartItemTable struct {
-	PrID  uint `db:"product_id"`
-	Count uint `db:"count"`
+type CartItem struct {
+	PrID   uint `db:"product_id"`
+	Count  uint `db:"count"`
+	Price  uint `db:"price"`
+	OnSale bool `db:"on_sale"`
 }
 
-func ConvertTableToCartItem(t CartItemTable) models.CartItem {
+func ConvertTableToCartItem(t CartItem) models.CartItem {
 	return models.CartItem{
 		ProductID: t.PrID,
 		Count:     t.Count,
+		Price:     t.Price,
+		OnSale:    t.OnSale,
 	}
 }
 
-func ConvertTablesToCartItems(tt []CartItemTable) []models.CartItem {
-	cartItems := make([]models.CartItem, 0)
+func ConvertTablesToCartItems(tt []CartItem) []models.CartItem {
+	cartItems := make([]models.CartItem, 0, len(tt))
 	for _, t := range tt {
-		cartItem := models.CartItem{
-			ProductID: t.PrID,
-			Count:     t.Count,
-		}
-		cartItems = append(cartItems, cartItem)
+		cartItems = append(cartItems, ConvertTableToCartItem(t))
 	}
 	return cartItems
 }

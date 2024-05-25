@@ -46,7 +46,7 @@ func (r *OrderRepo) Create(ctx context.Context, userID uint, sum uint, orderItem
 	}
 	logger.Info(ctx, fmt.Sprintf("inserted in %s", time.Since(start)))
 
-	q = `INSERT INTO order_item (ordering_id, product_id, count) VALUES (:ordering_id, :product_id, :count)`
+	q = `INSERT INTO order_item (ordering_id, product_id, count, actual_price) VALUES (:ordering_id, :product_id, :count, :actual_price)`
 	items := dao.ConvertOrderItemsToTables(orderID, orderItems)
 	logger.Info(ctx, q, slog.Int("orders_amount", len(items)))
 	start = time.Now()
