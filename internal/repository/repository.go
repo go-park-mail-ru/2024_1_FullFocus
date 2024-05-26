@@ -29,7 +29,8 @@ type (
 	}
 
 	Notifications interface {
-		// SendNotification(ctx context.Context, profileID uint, data []byte) error
+		SendNotification(ctx context.Context, profileID uint, payload string) error
+		CreateNotification(ctx context.Context, profileID uint, input models.CreateNotificationInput) error
 		GetAllNotifications(ctx context.Context, profileID uint) ([]models.Notification, error)
 		GetNotificationsAmount(ctx context.Context, profileID uint) (uint, error)
 		MarkNotificationRead(ctx context.Context, id uint) error
@@ -40,7 +41,7 @@ type (
 		GetOrderByID(ctx context.Context, orderID uint) (models.GetOrderPayload, error)
 		GetAllOrders(ctx context.Context, profileID uint) ([]models.Order, error)
 		GetProfileIDByOrderID(ctx context.Context, orderID uint) (uint, error)
-		UpdateStatus(ctx context.Context, orderID uint, newStatus string) error
+		UpdateStatus(ctx context.Context, orderID uint, newStatus string) (string, error)
 		Delete(ctx context.Context, orderID uint) error
 	}
 

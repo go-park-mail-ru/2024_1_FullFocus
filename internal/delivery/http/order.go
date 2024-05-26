@@ -200,7 +200,7 @@ func (h *OrderHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	if err := h.usecase.UpdateStatus(ctx, input.OrderID, input.NewStatus); err != nil {
+	if err := h.usecase.UpdateStatus(ctx, dto.ConvertUpdateOrderStatusInput(input)); err != nil {
 		if errors.Is(err, models.ErrInvalidField) {
 			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 				Status: 400,

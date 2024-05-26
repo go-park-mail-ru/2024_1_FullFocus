@@ -127,17 +127,26 @@ func (r *OrderRepo) GetProfileIDByOrderID(ctx context.Context, orderID uint) (ui
 	return profileID, nil
 }
 
-func (r *OrderRepo) UpdateStatus(ctx context.Context, orderID uint, newStatus string) error {
-	q := `UPDATE ordering SET order_status = ? WHERE id = ?`
+func (r *OrderRepo) UpdateStatus(ctx context.Context, orderID uint, newStatus string) (string, error) {
+	q := `WITH prev_name AS (
+			  SELECT order_status
+			  FROM ordering
+			  WHERE id = ?
+		  )
+		  UPDATE ordering
+		  SET order_status = ?
+		  WHERE id = ?
+		  RETURNING (SELECT order_status FROM prev_name);`
 
-	if _, err := r.storage.Exec(ctx, q, newStatus, orderID); err != nil {
+	var prevStatus string
+	if err := r.storage.Get(ctx, &prevStatus, q, orderID, newStatus, orderID); err != nil {
 		logger.Error(ctx, err.Error())
 		if strings.Contains(err.Error(), "invalid input value") {
-			return models.ErrInvalidField
+			return "", models.ErrInvalidField
 		}
-		return err
+		return "", err
 	}
-	return nil
+	return prevStatus, nil
 }
 
 func (r *OrderRepo) Delete(ctx context.Context, orderID uint) error {

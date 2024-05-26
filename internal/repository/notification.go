@@ -19,10 +19,24 @@ func NewNotificationRepo(dbClient db.Database) *NotificationRepo {
 	}
 }
 
-func (r *NotificationRepo) CreateNotification(ctx context.Context, input)
+func (r *NotificationRepo) CreateNotification(ctx context.Context, profileID uint, input models.CreateNotificationInput) error {
+	q := `INSERT INTO notification (profile_id, type, payload)
+		  VALUES (?, ?, ?);`
+
+	if _, err := r.storage.Exec(ctx, q, profileID, input.Type, input.Payload); err != nil {
+		logger.Error(ctx, err.Error())
+		return models.ErrInternal
+	}
+	return nil
+}
 
 // SendNotification is TODO
-// func (r *NotificationRepo) SendNotification(ctx context.Context, profileID uint, data []byte) error {}
+func (r *NotificationRepo) SendNotification(ctx context.Context, profileID uint, payload string) error {
+	_ = ctx
+	_ = profileID
+	_ = payload
+	return nil
+}
 
 func (r *NotificationRepo) GetAllNotifications(ctx context.Context, profileID uint) ([]models.Notification, error) {
 	q := `SELECT n.id, n.type, n.read_status, n.payload, n.created_at

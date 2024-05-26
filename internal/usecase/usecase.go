@@ -43,7 +43,7 @@ type (
 		Create(ctx context.Context, input models.CreateOrderInput) (models.CreateOrderPayload, error)
 		GetOrderByID(ctx context.Context, profileID uint, orderingID uint) (models.GetOrderPayload, error)
 		GetAllOrders(ctx context.Context, profileID uint) ([]models.Order, error)
-		UpdateStatus(ctx context.Context, orderID uint, newStatus string) error
+		UpdateStatus(ctx context.Context, input models.UpdateOrderStatusInput) error
 		Delete(ctx context.Context, profileID uint, orderingID uint) error
 	}
 

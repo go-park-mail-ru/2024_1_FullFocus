@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
@@ -104,12 +105,31 @@ func (u *OrderUsecase) GetAllOrders(ctx context.Context, profileID uint) ([]mode
 	return u.orderRepo.GetAllOrders(ctx, profileID)
 }
 
-func (u *OrderUsecase) UpdateStatus(ctx context.Context, orderID uint, newStatus string) error {
-	if err := u.orderRepo.UpdateStatus(ctx, orderID, newStatus); err != nil {
+func (u *OrderUsecase) UpdateStatus(ctx context.Context, input models.UpdateOrderStatusInput) error {
+	profileID, err := u.orderRepo.GetProfileIDByOrderID(ctx, input.OrderID)
+	if err != nil {
 		return err
 	}
-	u.notificationRepo.CreateNotification()
-	//u.notificationRepo.SendNotification()
+	prevStatus, err := u.orderRepo.UpdateStatus(ctx, input.OrderID, input.NewStatus)
+	if err != nil {
+		return err
+	}
+	payload := fmt.Sprintf(`{
+		"type": "orderStatusChange",
+		"data": {
+			  "orderID": %d,
+			  "oldStatus": "%s",
+			  "newStatus": "%s"
+		 }
+	}`, input.OrderID, prevStatus, input.NewStatus)
+	notification := models.CreateNotificationInput{
+		Type:    "order_status_change",
+		Payload: payload,
+	}
+	if err = u.notificationRepo.CreateNotification(ctx, profileID, notification); err != nil {
+		return err
+	}
+	return u.notificationRepo.SendNotification(ctx, profileID, payload) // for now does nothing
 }
 
 func (u *OrderUsecase) Delete(ctx context.Context, profileID uint, orderID uint) error {

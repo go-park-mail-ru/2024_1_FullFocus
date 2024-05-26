@@ -10,9 +10,7 @@ type Notification struct {
 	CreatedAt  time.Time
 }
 
-type OrderNotification struct {
-	ProfileID uint
-	OrderID   uint
-	OldStatus string
-	NewStatus string
+type CreateNotificationInput struct {
+	Type    string
+	Payload string
 }

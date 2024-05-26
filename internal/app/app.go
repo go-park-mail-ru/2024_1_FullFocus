@@ -202,7 +202,7 @@ func MustInit() *App {
 
 	// Order
 	orderRepo := repository.NewOrderRepo(pgxClient)
-	orderUsecase := usecase.NewOrderUsecase(orderRepo, cartRepo, productRepo, promocodeRepo)
+	orderUsecase := usecase.NewOrderUsecase(orderRepo, cartRepo, productRepo, promocodeRepo, notificationRepo)
 	orderHandler := delivery.NewOrderHandler(orderUsecase)
 	orderHandler.InitRouter(apiRouter)
 
