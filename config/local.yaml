@@ -85,4 +85,7 @@ elasticsearch:
   user: "elastic"
   password: "elastic"
 
+centrifugo:
+  host: "ws://localhost:8900/connection/websocket"
+
 accessToken: ${ACCESS_TOKEN}
