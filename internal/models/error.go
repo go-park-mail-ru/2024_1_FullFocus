@@ -29,4 +29,5 @@ var (
 	ErrNoPromocode            = errors.New("no promocode found")
 	ErrPromocodeExpired       = errors.New("promocode expired")
 	ErrInvalidPromocode       = errors.New("invalid promocode")
+	ErrNoNotifications        = errors.New("no notifications found")
 )

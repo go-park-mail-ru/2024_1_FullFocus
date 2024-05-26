@@ -52,3 +52,10 @@ type GetOrderPayload struct {
 	ItemsCount uint
 	CreatedAt  string
 }
+
+// Update
+
+type UpdateOrderStatusInput struct {
+	OrderID   uint
+	NewStatus string
+}

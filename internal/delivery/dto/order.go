@@ -104,6 +104,18 @@ type GetAllOrdersPayload struct {
 
 // Update
 
+type UpdateOrderStatusInput struct {
+	OrderID   uint   `json:"orderID"`
+	NewStatus string `json:"newStatus"`
+}
+
+func ConvertUpdateOrderStatusInput(input UpdateOrderStatusInput) models.UpdateOrderStatusInput {
+	return models.UpdateOrderStatusInput{
+		OrderID:   input.OrderID,
+		NewStatus: input.NewStatus,
+	}
+}
+
 type CancelOrderInput struct {
 	OrderID uint `json:"orderID"`
 }
