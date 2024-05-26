@@ -29,6 +29,7 @@ var (
 	ErrNoPromocode               = errors.New("no promocode found")
 	ErrPromocodeExpired          = errors.New("promocode expired")
 	ErrInvalidPromocode          = errors.New("invalid promocode")
+	ErrNoNotifications           = errors.New("no notifications found")
 	ErrInvalidBenefitValue       = errors.New("invalid benefit value")
 	ErrPromoProductAlreadyExists = errors.New("promo product already added")
 	ErrProductNotFound           = errors.New("product not found")

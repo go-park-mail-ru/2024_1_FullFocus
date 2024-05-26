@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"slices"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/promotion"
@@ -14,20 +15,22 @@ import (
 const _activationStringLen = 6
 
 type OrderUsecase struct {
-	orderRepo       repository.Orders
-	cartRepo        repository.Carts
-	productRepo     repository.Products
-	promocodeRepo   repository.Promocodes
-	promotionClient promotion.PromotionClient
+	orderRepo        repository.Orders
+	cartRepo         repository.Carts
+	productRepo      repository.Products
+	promocodeRepo    repository.Promocodes
+	notificationRepo repository.Notifications
+	promotionClient  promotion.PromotionClient
 }
 
-func NewOrderUsecase(or repository.Orders, cr repository.Carts, pr repository.Products, pcr repository.Promocodes, pc promotion.PromotionClient) *OrderUsecase {
+func NewOrderUsecase(or repository.Orders, cr repository.Carts, pr repository.Products, pcr repository.Promocodes, nr repository.Notifications, pc promotion.PromotionClient) *OrderUsecase {
 	return &OrderUsecase{
-		orderRepo:       or,
-		cartRepo:        cr,
-		productRepo:     pr,
-		promocodeRepo:   pcr,
-		promotionClient: pc,
+		orderRepo:        or,
+		cartRepo:         cr,
+		productRepo:      pr,
+		promocodeRepo:    pcr,
+		notificationRepo: nr,
+		promotionClient:  pc,
 	}
 }
 
@@ -163,6 +166,33 @@ func (u *OrderUsecase) GetOrderByID(ctx context.Context, profileID uint, orderID
 
 func (u *OrderUsecase) GetAllOrders(ctx context.Context, profileID uint) ([]models.Order, error) {
 	return u.orderRepo.GetAllOrders(ctx, profileID)
+}
+
+func (u *OrderUsecase) UpdateStatus(ctx context.Context, input models.UpdateOrderStatusInput) error {
+	profileID, err := u.orderRepo.GetProfileIDByOrderID(ctx, input.OrderID)
+	if err != nil {
+		return err
+	}
+	prevStatus, err := u.orderRepo.UpdateStatus(ctx, input.OrderID, input.NewStatus)
+	if err != nil {
+		return err
+	}
+	payload := fmt.Sprintf(`{
+		"type": "orderStatusChange",
+		"data": {
+			  "orderID": %d,
+			  "oldStatus": "%s",
+			  "newStatus": "%s"
+		 }
+	}`, input.OrderID, prevStatus, input.NewStatus)
+	notification := models.CreateNotificationInput{
+		Type:    "order_status_change",
+		Payload: payload,
+	}
+	if err = u.notificationRepo.CreateNotification(ctx, profileID, notification); err != nil {
+		return err
+	}
+	return u.notificationRepo.SendNotification(ctx, profileID, payload) // for now does nothing
 }
 
 func (u *OrderUsecase) Delete(ctx context.Context, profileID uint, orderID uint) error {

@@ -34,10 +34,16 @@ type (
 		GetAllCategories(ctx context.Context) ([]models.Category, error)
 	}
 
+	Notifications interface {
+		GetAllNotifications(ctx context.Context, profileID uint) ([]models.Notification, error)
+		MarkNotificationRead(ctx context.Context, id uint) error
+	}
+
 	Orders interface {
 		Create(ctx context.Context, input models.CreateOrderInput) (models.CreateOrderPayload, error)
 		GetOrderByID(ctx context.Context, profileID uint, orderingID uint) (models.GetOrderPayload, error)
 		GetAllOrders(ctx context.Context, profileID uint) ([]models.Order, error)
+		UpdateStatus(ctx context.Context, input models.UpdateOrderStatusInput) error
 		Delete(ctx context.Context, profileID uint, orderingID uint) error
 	}
 

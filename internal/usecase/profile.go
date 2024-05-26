@@ -12,14 +12,18 @@ import (
 )
 
 type ProfileUsecase struct {
-	profileClient profile.ProfileClient
-	cartRepo      repository.Carts
+	profileClient    profile.ProfileClient
+	cartRepo         repository.Carts
+	promocodeRepo    repository.Promocodes
+	notificationRepo repository.Notifications
 }
 
-func NewProfileUsecase(pr profile.ProfileClient, cr repository.Carts) *ProfileUsecase {
+func NewProfileUsecase(prf profile.ProfileClient, cr repository.Carts, prm repository.Promocodes, nr repository.Notifications) *ProfileUsecase {
 	return &ProfileUsecase{
-		profileClient: pr,
-		cartRepo:      cr,
+		profileClient:    prf,
+		cartRepo:         cr,
+		promocodeRepo:    prm,
+		notificationRepo: nr,
 	}
 }
 
@@ -60,11 +64,21 @@ func (u *ProfileUsecase) GetProfileMetaInfo(ctx context.Context, uID uint) (mode
 	if err != nil {
 		return models.ProfileMetaInfo{}, err
 	}
-	amount, err := u.cartRepo.GetCartItemsAmount(ctx, uID)
+	cartItemsAmount, err := u.cartRepo.GetCartItemsAmount(ctx, uID)
 	if err != nil {
 		return models.ProfileMetaInfo{}, err
 	}
-	info.CartItemsAmount = amount
+	info.CartItemsAmount = cartItemsAmount
+	notificationsAmount, err := u.notificationRepo.GetNotificationsAmount(ctx, uID)
+	if err != nil {
+		return models.ProfileMetaInfo{}, err
+	}
+	info.UnreadNotifications = notificationsAmount
+	promocodesAmount, err := u.promocodeRepo.GetPromocodesAmount(ctx, uID)
+	if err != nil {
+		return models.ProfileMetaInfo{}, err
+	}
+	info.PromocodesAvailable = promocodesAmount
 	return info, nil
 }
 

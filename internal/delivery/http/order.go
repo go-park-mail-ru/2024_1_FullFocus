@@ -33,6 +33,7 @@ func (h *OrderHandler) InitRouter(r *mux.Router) {
 		h.router.Handle("/create", http.HandlerFunc(h.Create)).Methods("POST", "OPTIONS")
 		h.router.Handle("/{id:[0-9]+}", http.HandlerFunc(h.GetOrder)).Methods("GET", "OPTIONS")
 		h.router.Handle("/all", http.HandlerFunc(h.GetAllOrders)).Methods("GET", "OPTIONS")
+		h.router.Handle("/public/update", http.HandlerFunc(h.UpdateStatus)).Methods("POST", "OPTIONS")
 		h.router.Handle("/cancel", http.HandlerFunc(h.Delete)).Methods("POST", "OPTIONS")
 	}
 }
@@ -60,6 +61,14 @@ func (h *OrderHandler) Create(w http.ResponseWriter, r *http.Request) {
 	createInput := dto.ConvertCreateOrderInputToModel(uID, createOrderInput)
 	orderInfo, err := h.usecase.Create(ctx, createInput)
 	if err != nil {
+		if errors.Is(err, models.ErrNoProduct) || errors.Is(err, models.ErrProductNotFound) {
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 404,
+				Msg:    err.Error(),
+				MsgRus: "Товар не найден",
+			})
+			return
+		}
 		if errors.Is(err, models.ErrInvalidPromocode) {
 			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 				Status: 400,
@@ -118,6 +127,14 @@ func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
 	}
 	orderInfo, err := h.usecase.GetOrderByID(ctx, uID, uint(orderID))
 	if err != nil {
+		if errors.Is(err, models.ErrNoProduct) || errors.Is(err, models.ErrProductNotFound) {
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 404,
+				Msg:    err.Error(),
+				MsgRus: "Товар не найден",
+			})
+			return
+		}
 		if errors.Is(err, models.ErrNoAccess) {
 			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 				Status: 403,
@@ -185,6 +202,38 @@ func (h *OrderHandler) GetAllOrders(w http.ResponseWriter, r *http.Request) {
 	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
 		Data:   dto.ConvertOrdersToDTO(orders),
+	})
+}
+
+func (h *OrderHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	var input dto.UpdateOrderStatusInput
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 400,
+			Msg:    err.Error(),
+			MsgRus: "Ошибка обработки данных",
+		})
+		return
+	}
+	if err := h.usecase.UpdateStatus(ctx, dto.ConvertUpdateOrderStatusInput(input)); err != nil {
+		if errors.Is(err, models.ErrInvalidField) {
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 400,
+				Msg:    err.Error(),
+				MsgRus: "Неверный статус заказа",
+			})
+			return
+		}
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 500,
+			Msg:    err.Error(),
+			MsgRus: "Ошибка обновления статуса",
+		})
+		return
+	}
+	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
+		Status: 200,
 	})
 }
 

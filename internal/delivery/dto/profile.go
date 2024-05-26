@@ -35,15 +35,19 @@ func ConvertProfileToProfileData(profile ProfileUpdateInput) model.ProfileUpdate
 }
 
 type ProfileMetaInfo struct {
-	FullName        string `json:"fullName"`
-	CartItemsAmount uint   `json:"cartItemsAmount"`
-	AvatarName      string `json:"avatarName"`
+	FullName            string `json:"fullName"`
+	CartItemsAmount     uint   `json:"cartItemsAmount"`
+	AvatarName          string `json:"avatarName"`
+	UnreadNotifications uint   `json:"unreadNotifications"`
+	PromocodesAvailable uint   `json:"promocodesAvailable"`
 }
 
 func ConvertProfileToMetaInfo(profile model.ProfileMetaInfo) ProfileMetaInfo {
 	return ProfileMetaInfo{
-		FullName:        profile.FullName,
-		CartItemsAmount: profile.CartItemsAmount,
-		AvatarName:      profile.AvatarName,
+		FullName:            profile.FullName,
+		CartItemsAmount:     profile.CartItemsAmount,
+		AvatarName:          profile.AvatarName,
+		UnreadNotifications: profile.UnreadNotifications,
+		PromocodesAvailable: profile.PromocodesAvailable,
 	}
 }

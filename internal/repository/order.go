@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
@@ -124,6 +125,28 @@ func (r *OrderRepo) GetProfileIDByOrderID(ctx context.Context, orderID uint) (ui
 		return 0, models.ErrNoRowsFound
 	}
 	return profileID, nil
+}
+
+func (r *OrderRepo) UpdateStatus(ctx context.Context, orderID uint, newStatus string) (string, error) {
+	q := `WITH prev_name AS (
+			  SELECT order_status
+			  FROM ordering
+			  WHERE id = ?
+		  )
+		  UPDATE ordering
+		  SET order_status = ?
+		  WHERE id = ?
+		  RETURNING (SELECT order_status FROM prev_name);`
+
+	var prevStatus string
+	if err := r.storage.Get(ctx, &prevStatus, q, orderID, newStatus, orderID); err != nil {
+		logger.Error(ctx, err.Error())
+		if strings.Contains(err.Error(), "invalid input value") {
+			return "", models.ErrInvalidField
+		}
+		return "", err
+	}
+	return prevStatus, nil
 }
 
 func (r *OrderRepo) Delete(ctx context.Context, orderID uint) error {

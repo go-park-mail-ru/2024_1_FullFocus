@@ -28,11 +28,20 @@ type (
 		GetCategoryNameById(ctx context.Context, categoryID uint) (string, error)
 	}
 
+	Notifications interface {
+		SendNotification(ctx context.Context, profileID uint, payload string) error
+		CreateNotification(ctx context.Context, profileID uint, input models.CreateNotificationInput) error
+		GetAllNotifications(ctx context.Context, profileID uint) ([]models.Notification, error)
+		GetNotificationsAmount(ctx context.Context, profileID uint) (uint, error)
+		MarkNotificationRead(ctx context.Context, id uint) error
+	}
+
 	Orders interface {
 		Create(ctx context.Context, userID uint, sum uint, orderItems []models.OrderItem) (uint, error)
 		GetOrderByID(ctx context.Context, orderID uint) (models.GetOrderPayload, error)
 		GetAllOrders(ctx context.Context, profileID uint) ([]models.Order, error)
 		GetProfileIDByOrderID(ctx context.Context, orderID uint) (uint, error)
+		UpdateStatus(ctx context.Context, orderID uint, newStatus string) (string, error)
 		Delete(ctx context.Context, orderID uint) error
 	}
 
@@ -53,6 +62,7 @@ type (
 		GetPromocodeItemByActivationCode(ctx context.Context, pID uint, code string) (models.PromocodeActivationTerms, error)
 		GetAvailablePromocodes(ctx context.Context, profileID uint) ([]models.PromocodeItem, error)
 		GetPromocodeByID(ctx context.Context, promocodeID uint) (models.Promocode, error)
+		GetPromocodesAmount(ctx context.Context, profileID uint) (uint, error)
 		ApplyPromocode(ctx context.Context, input models.ApplyPromocodeInput) (uint, error)
 		DeleteUsedPromocode(ctx context.Context, id uint) error
 	}
