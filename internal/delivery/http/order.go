@@ -209,6 +209,15 @@ func (h *OrderHandler) GetAllOrders(w http.ResponseWriter, r *http.Request) {
 
 func (h *OrderHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	uID, err := helper.GetUserIDFromContext(ctx)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 403,
+			Msg:    err.Error(),
+			MsgRus: "Пользователь не авторизован",
+		})
+		return
+	}
 	var input dto.UpdateOrderStatusInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
@@ -235,11 +244,10 @@ func (h *OrderHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	h.notificationUsecase.SendOrderUpdateNotification(ctx, uID, data)
 	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
 	})
-	uID, err := helper.GetUserIDFromContext(ctx)
-	h.notificationUsecase.SendOrderUpdateNotification(ctx, uID, data)
 }
 
 func (h *OrderHandler) Delete(w http.ResponseWriter, r *http.Request) {
