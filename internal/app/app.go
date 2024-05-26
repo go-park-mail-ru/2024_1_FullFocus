@@ -18,9 +18,11 @@ import (
 	authclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/auth/grpc"
 	csatclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/csat/grpc"
 	profileclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/profile/grpc"
+	promotionclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/promotion/grpc"
 	reviewclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/review/grpc"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/cache"
 	elasticsetup "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/elasticsearch"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware"
 	miniosetup "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/minio"
@@ -144,7 +146,16 @@ func MustInit() *App {
 
 	reviewClient, err := reviewclient.New(ctx, log, cfg.Main.Clients.ReviewClient)
 	if err != nil {
-		panic("csat service connection error: " + err.Error())
+		panic("review service connection error: " + err.Error())
+	}
+
+	// Promotion
+	ctx, cancel = context.WithTimeout(context.Background(), _connTimeout)
+	defer cancel()
+
+	promotionClient, err := promotionclient.New(ctx, log, cfg.Main.Clients.PromotionClient)
+	if err != nil {
+		panic("promotion service connection error: " + err.Error())
 	}
 
 	// Layers
@@ -156,7 +167,7 @@ func MustInit() *App {
 
 	// Cart
 	cartRepo := repository.NewCartRepo(pgxClient)
-	cartUsecase := usecase.NewCartUsecase(cartRepo)
+	cartUsecase := usecase.NewCartUsecase(cartRepo, promotionClient)
 	cartHandler := delivery.NewCartHandler(cartUsecase)
 	cartHandler.InitRouter(apiRouter)
 
@@ -185,7 +196,7 @@ func MustInit() *App {
 
 	// Products
 	productRepo := repository.NewProductRepo(pgxClient)
-	productUsecase := usecase.NewProductUsecase(productRepo, categoryRepo)
+	productUsecase := usecase.NewProductUsecase(productRepo, categoryRepo, promotionClient)
 	productHandler := delivery.NewProductHandler(productUsecase)
 	productHandler.InitRouter(apiRouter)
 
@@ -202,7 +213,7 @@ func MustInit() *App {
 
 	// Order
 	orderRepo := repository.NewOrderRepo(pgxClient)
-	orderUsecase := usecase.NewOrderUsecase(orderRepo, cartRepo, productRepo, promocodeRepo, notificationRepo)
+	orderUsecase := usecase.NewOrderUsecase(orderRepo, cartRepo, productRepo, promocodeRepo, notificationRepo, promotionClient)
 	orderHandler := delivery.NewOrderHandler(orderUsecase)
 	orderHandler.InitRouter(apiRouter)
 
@@ -217,11 +228,18 @@ func MustInit() *App {
 	csatHandler := delivery.NewCsatHandler(csatUsecase)
 	csatHandler.InitRouter(apiRouter)
 
+	// Promotion
+	promotionCache := cache.NewPromoProductsCache()
+	promotionUsecase := usecase.NewPromotionUsecase(ctx, productRepo, promotionClient, promotionCache)
+	promotionHandler := delivery.NewPromotionHandler(promotionUsecase)
+	promotionHandler.InitRouter(apiRouter)
+
 	// Middleware
 	reg := prometheus.NewRegistry()
 	r.Use(middleware.NewLoggingMiddleware(metrics.NewMetrics(reg), log))
 	r.Use(middleware.NewCORSMiddleware([]string{}))
 	r.Use(middleware.NewAuthMiddleware(authClient))
+	r.Use(middleware.NewAuthorizationMiddleware(cfg.AccessToken))
 
 	return &App{
 		config:   cfg,

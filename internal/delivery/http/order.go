@@ -61,6 +61,14 @@ func (h *OrderHandler) Create(w http.ResponseWriter, r *http.Request) {
 	createInput := dto.ConvertCreateOrderInputToModel(uID, createOrderInput)
 	orderInfo, err := h.usecase.Create(ctx, createInput)
 	if err != nil {
+		if errors.Is(err, models.ErrNoProduct) || errors.Is(err, models.ErrProductNotFound) {
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 404,
+				Msg:    err.Error(),
+				MsgRus: "Товар не найден",
+			})
+			return
+		}
 		if errors.Is(err, models.ErrInvalidPromocode) {
 			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 				Status: 400,
@@ -119,6 +127,14 @@ func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
 	}
 	orderInfo, err := h.usecase.GetOrderByID(ctx, uID, uint(orderID))
 	if err != nil {
+		if errors.Is(err, models.ErrNoProduct) || errors.Is(err, models.ErrProductNotFound) {
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 404,
+				Msg:    err.Error(),
+				MsgRus: "Товар не найден",
+			})
+			return
+		}
 		if errors.Is(err, models.ErrNoAccess) {
 			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 				Status: 403,

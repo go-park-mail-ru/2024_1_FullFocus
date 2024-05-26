@@ -73,6 +73,24 @@ services:
       - '${PWD}/config:/project/config'
     networks:
       - services_data_access_network
+  bizon-promotion:
+    image: b0pof/bizon-promotion
+    environment:
+      - CONFIG_PATH=./config/prod.yaml
+    ports:
+     - '9095:9095'
+     - '8085:8085'
+    healthcheck:
+      test: [ "CMD", "bash", "-c", "echo -n '' > /dev/tcp/127.0.0.1/9095" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    volumes:
+      - '${PWD}/.env:/project/.env'
+      - '${PWD}/logs:/project/logs'
+      - '${PWD}/config:/project/config'
+    networks:
+      - services_data_access_network
   bizon-main:
     image: b0pof/bizon-main
     depends_on:

@@ -4,7 +4,7 @@ DB_NAME := postgres
 
 LOCAL_COMPOSE=docker-compose.local.yaml
 
-ALLOWED_TARGETS := main auth profile csat review
+ALLOWED_TARGETS := main auth profile csat review promotion
 TARGET ?= main
 
 ifndef TARGET

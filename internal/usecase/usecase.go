@@ -49,7 +49,7 @@ type (
 
 	Products interface {
 		GetAllProductCards(ctx context.Context, input models.GetAllProductsInput) ([]models.ProductCard, error)
-		GetProductByID(ctx context.Context, profileID uint, productID uint) (models.Product, error)
+		GetProductByID(ctx context.Context, profileID uint, productID uint) (models.PromoProduct, error)
 		GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) (models.GetProductsByCategoryIDPayload, error)
 		GetProductsByQuery(ctx context.Context, input models.GetProductsByQueryInput) ([]models.ProductCard, error)
 	}
@@ -74,5 +74,12 @@ type (
 
 	Suggests interface {
 		GetSuggestions(ctx context.Context, query string) (models.Suggestion, error)
+	}
+
+	Promotion interface {
+		CreatePromoProduct(ctx context.Context, input models.PromoData) error
+		GetPromoProductInfoByID(ctx context.Context, productID uint, profileID uint) (models.PromoProduct, error)
+		GetPromoProductCards(ctx context.Context, amount uint, profileID uint) ([]models.PromoProductCard, error)
+		DeletePromoProduct(ctx context.Context, productID uint) error
 	}
 )

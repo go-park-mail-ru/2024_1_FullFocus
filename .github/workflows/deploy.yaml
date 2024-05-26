@@ -63,6 +63,10 @@ jobs:
         run: docker build -t b0pof/bizon-review -f ./build/review.Dockerfile .
       - name: Push the image
         run: docker push b0pof/bizon-review
+      - name: Build promotion
+        run: docker build -t b0pof/bizon-promotion -f ./build/promotion.Dockerfile .
+      - name: Push the image
+        run: docker push b0pof/bizon-promotion
   deploy:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest

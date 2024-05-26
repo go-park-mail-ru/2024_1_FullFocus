@@ -24,6 +24,10 @@ main:
       addr: "bizon-review:9094"
       retries: 3
       retry_timeout: 2s
+    promotion:
+      addr: "bizon-promotion:9095"
+      retries: 3
+      retry_timeout: 2s
 auth:
   server:
     port: "9091"
@@ -52,6 +56,10 @@ review:
   server:
     port: "9094"
     timeout: 5s
+promotion:
+  server:
+    port: "9095"
+    timeout: 5s
 
 # Data
 minio:
@@ -76,3 +84,5 @@ elasticsearch:
   port: "9200"
   user: ${ELASTIC_USER}
   password: ${ELASTIC_PASSWORD}
+
+accessToken: ${ACCESS_TOKEN}
