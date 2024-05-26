@@ -37,13 +37,14 @@ type (
 	Notifications interface {
 		GetAllNotifications(ctx context.Context, profileID uint) ([]models.Notification, error)
 		MarkNotificationRead(ctx context.Context, id uint) error
+		SendOrderUpdateNotification(ctx context.Context, uID uint, input models.UpdateOrderStatusPayload)
 	}
 
 	Orders interface {
 		Create(ctx context.Context, input models.CreateOrderInput) (models.CreateOrderPayload, error)
 		GetOrderByID(ctx context.Context, profileID uint, orderingID uint) (models.GetOrderPayload, error)
 		GetAllOrders(ctx context.Context, profileID uint) ([]models.Order, error)
-		UpdateStatus(ctx context.Context, input models.UpdateOrderStatusInput) error
+		UpdateStatus(ctx context.Context, input models.UpdateOrderStatusInput) (models.UpdateOrderStatusPayload, error)
 		Delete(ctx context.Context, profileID uint, orderingID uint) error
 	}
 
