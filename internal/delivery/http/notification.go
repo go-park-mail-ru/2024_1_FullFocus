@@ -3,7 +3,6 @@ package delivery
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -32,7 +31,7 @@ func (h *NotificationHandler) InitRouter(r *mux.Router) {
 	{
 		h.router.Handle("", http.HandlerFunc(h.GetAllNotifications)).Methods("GET", "OPTIONS")
 		h.router.Handle("/read", http.HandlerFunc(h.MarkNotificationAsRead)).Methods("POST", "OPTIONS")
-		h.router.Handle("/connect", http.HandlerFunc(h.ConnectToNotifications)).Methods("POST", "OPTIONS")
+		h.router.Handle("/public/connect", http.HandlerFunc(h.ConnectToNotifications)).Methods("POST", "OPTIONS")
 	}
 }
 
@@ -111,19 +110,26 @@ func (h *NotificationHandler) MarkNotificationAsRead(w http.ResponseWriter, r *h
 }
 
 func (h *NotificationHandler) ConnectToNotifications(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-	uID, err := helper.GetUserIDFromContext(ctx)
-	if err != nil {
-		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte("{\n  \"disconnect\": {\n    \"code\": 4501,\n    \"reason\": \"unauthorized\"\n  }\n}"))
-		return
-	}
-	uIDstr := strconv.FormatUint(uint64(uID), 10)
+	// ctx := r.Context()
+	// uID, err := helper.GetUserIDFromContext(ctx)
+	// if err != nil {
+	// 	w.WriteHeader(http.StatusUnauthorized)
+	// 	w.Write([]byte("{\n  \"disconnect\": {\n    \"code\": 4501,\n    \"reason\": \"unauthorized\"\n  }\n}"))
+	// 	return
+	// }
+	// uIDstr := strconv.FormatUint(uint64(uID), 10)
+	// json.NewEncoder(w).Encode(dto.CentrifugoConnectResponse{
+	// 	Result: dto.CentrifugoConnectResponseData{
+	// 		User:     uIDstr,
+	// 		ExpireAt: int(time.Now().Add(time.Hour * 24).Unix()),
+	// 		Channels: []string{uIDstr},
+	// 	},
+	// })
 	json.NewEncoder(w).Encode(dto.CentrifugoConnectResponse{
 		Result: dto.CentrifugoConnectResponseData{
-			User:     uIDstr,
+			User:     "1",
 			ExpireAt: int(time.Now().Add(time.Hour * 24).Unix()),
-			Channels: []string{uIDstr},
+			Channels: []string{"1"},
 		},
 	})
 }

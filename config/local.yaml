@@ -86,6 +86,7 @@ elasticsearch:
   password: "elastic"
 
 centrifugo:
-  host: "ws://localhost:8900/connection/websocket"
+  host: "http://localhost:8000/api"
+  api_key: ${CENTRIFUGO_API_KEY}
 
 accessToken: ${ACCESS_TOKEN}

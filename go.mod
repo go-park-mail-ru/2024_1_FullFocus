@@ -4,6 +4,7 @@ go 1.22.0
 
 require (
 	github.com/centrifugal/centrifuge-go v0.10.2
+	github.com/centrifugal/gocent/v3 v3.2.0
 	github.com/elastic/go-elasticsearch/v8 v8.13.1
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/golang/mock v1.6.0

@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/centrifugal/centrifuge-go"
+	centrifuge "github.com/centrifugal/gocent/v3"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 )
 
 type NotificationUsecase struct {
@@ -31,6 +32,7 @@ func (u *NotificationUsecase) MarkNotificationRead(ctx context.Context, id uint)
 }
 
 func (u *NotificationUsecase) SendOrderUpdateNotification(ctx context.Context, uID uint, input models.UpdateOrderStatusPayload) error {
+	// TODO json pkg
 	payload := fmt.Sprintf(`{
 		"type": "orderStatusChange",
 		"data": {
@@ -47,5 +49,8 @@ func (u *NotificationUsecase) SendOrderUpdateNotification(ctx context.Context, u
 		return err
 	}
 	_, err := u.centrifugoClient.Publish(ctx, strconv.FormatUint(uint64(uID), 10), []byte(payload))
+	if err != nil {
+		logger.Error(ctx, err.Error())
+	}
 	return err
 }

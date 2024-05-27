@@ -125,8 +125,11 @@ type ElasticsearchConfig struct {
 	Password string `yaml:"password" env:"ELASTIC_PASSWORD"`
 }
 
+// Centrifugo
+
 type CentrifugoConfig struct {
-	Host string `yaml:"host"`
+	Host   string `yaml:"host"`
+	ApiKey string `yaml:"api_key" env:"CENTRIFUGO_API_KEY"`
 }
 
 func MustLoad() *Config {

@@ -114,7 +114,9 @@ func MustInit() *App {
 	defer cancel()
 
 	centrifugoClient := centrifuge.NewCentrifugeClient(ctx, cfg.Centrifugo)
-	defer centrifugoClient.Close()
+	if centrifugoClient == nil {
+		panic("centrifugo connection error")
+	}
 
 	// Server
 
