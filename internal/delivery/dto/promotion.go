@@ -59,7 +59,7 @@ func ConvertPromoProductToDTO(m models.PromoProduct) PromoProduct {
 		Name:         m.ProductData.Name,
 		OldPrice:     m.ProductData.Price,
 		Description:  m.ProductData.Description,
-		ImgSrc:       m.ProductData.Description,
+		ImgSrc:       m.ProductData.ImgSrc,
 		Seller:       m.ProductData.Seller,
 		Rating:       m.ProductData.Rating,
 		Amount:       m.ProductData.Amount,
