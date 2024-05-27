@@ -31,3 +31,13 @@ func ConvertNotifications(notifications []models.Notification) []Notification {
 type ReadNotificationInput struct {
 	NotificationID uint `json:"notificationId"`
 }
+
+type CentrifugoConnectResponse struct {
+	Result CentrifugoConnectResponseData `json:"result"`
+}
+
+type CentrifugoConnectResponseData struct {
+	User     string   `json:"user"`
+	ExpireAt int      `json:"expire_at"`
+	Channels []string `json:"channels"`
+}

@@ -9,14 +9,19 @@ type OrderProduct struct {
 }
 
 type OrderItem struct {
-	ProductID uint
-	Count     uint
+	ProductID   uint
+	Count       uint
+	ActualPrice uint
 }
 
 func ConvertCartItemsToOrderItems(cartItems []CartItem) []OrderItem {
 	orderItems := make([]OrderItem, 0, len(cartItems))
 	for _, item := range cartItems {
-		orderItems = append(orderItems, OrderItem(item))
+		orderItems = append(orderItems, OrderItem{
+			ProductID:   item.ProductID,
+			Count:       item.Count,
+			ActualPrice: item.Price,
+		})
 	}
 	return orderItems
 }
@@ -57,5 +62,11 @@ type GetOrderPayload struct {
 
 type UpdateOrderStatusInput struct {
 	OrderID   uint
+	NewStatus string
+}
+
+type UpdateOrderStatusPayload struct {
+	OrderID   uint
+	OldStatus string
 	NewStatus string
 }

@@ -37,19 +37,20 @@ type (
 	Notifications interface {
 		GetAllNotifications(ctx context.Context, profileID uint) ([]models.Notification, error)
 		MarkNotificationRead(ctx context.Context, id uint) error
+		SendOrderUpdateNotification(ctx context.Context, uID uint, input models.UpdateOrderStatusPayload) error
 	}
 
 	Orders interface {
 		Create(ctx context.Context, input models.CreateOrderInput) (models.CreateOrderPayload, error)
 		GetOrderByID(ctx context.Context, profileID uint, orderingID uint) (models.GetOrderPayload, error)
 		GetAllOrders(ctx context.Context, profileID uint) ([]models.Order, error)
-		UpdateStatus(ctx context.Context, input models.UpdateOrderStatusInput) error
+		UpdateStatus(ctx context.Context, input models.UpdateOrderStatusInput) (models.UpdateOrderStatusPayload, error)
 		Delete(ctx context.Context, profileID uint, orderingID uint) error
 	}
 
 	Products interface {
 		GetAllProductCards(ctx context.Context, input models.GetAllProductsInput) ([]models.ProductCard, error)
-		GetProductByID(ctx context.Context, profileID uint, productID uint) (models.Product, error)
+		GetProductByID(ctx context.Context, profileID uint, productID uint) (models.PromoProduct, error)
 		GetProductsByCategoryID(ctx context.Context, input models.GetProductsByCategoryIDInput) (models.GetProductsByCategoryIDPayload, error)
 		GetProductsByQuery(ctx context.Context, input models.GetProductsByQueryInput) ([]models.ProductCard, error)
 	}
@@ -74,5 +75,12 @@ type (
 
 	Suggests interface {
 		GetSuggestions(ctx context.Context, query string) (models.Suggestion, error)
+	}
+
+	Promotion interface {
+		CreatePromoProduct(ctx context.Context, input models.PromoData) error
+		GetPromoProductInfoByID(ctx context.Context, productID uint, profileID uint) (models.PromoProduct, error)
+		GetPromoProductCards(ctx context.Context, amount uint, profileID uint) ([]models.PromoProductCard, error)
+		DeletePromoProduct(ctx context.Context, productID uint) error
 	}
 )

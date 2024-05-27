@@ -19,9 +19,12 @@ type Config struct {
 	Profile       Profile             `yaml:"profile"`
 	CSAT          CSAT                `yaml:"csat"`
 	Review        Review              `yaml:"review"`
+	Promotion     Promotion           `yaml:"promotion"`
 	Minio         MinioConfig         `yaml:"minio"`
 	Postgres      PostgresConfig      `yaml:"postgres"`
 	Elasticsearch ElasticsearchConfig `yaml:"elasticsearch"`
+	AccessToken   string              `yaml:"accessToken" env:"ACCESS_TOKEN"`
+	Centrifugo    CentrifugoConfig    `yaml:"centrifugo"`
 }
 
 // Main app
@@ -38,10 +41,11 @@ type ServerConfig struct {
 }
 
 type ClientsConfig struct {
-	AuthClient    ClientConfig `yaml:"auth"`
-	ProfileClient ClientConfig `yaml:"profile"`
-	CSATClient    ClientConfig `yaml:"csat"`
-	ReviewClient  ClientConfig `yaml:"review"`
+	AuthClient      ClientConfig `yaml:"auth"`
+	ProfileClient   ClientConfig `yaml:"profile"`
+	CSATClient      ClientConfig `yaml:"csat"`
+	ReviewClient    ClientConfig `yaml:"review"`
+	PromotionClient ClientConfig `yaml:"promotion"`
 }
 
 type ClientConfig struct {
@@ -85,6 +89,12 @@ type Review struct {
 	Server GRPCServer `yaml:"server"`
 }
 
+// Promotion service
+
+type Promotion struct {
+	Server GRPCServer `yaml:"server"`
+}
+
 // Data storage
 
 type MinioConfig struct {
@@ -113,6 +123,13 @@ type ElasticsearchConfig struct {
 	Port     string `yaml:"port"`
 	User     string `yaml:"user" env:"ELASTIC_USER"`
 	Password string `yaml:"password" env:"ELASTIC_PASSWORD"`
+}
+
+// Centrifugo
+
+type CentrifugoConfig struct {
+	Host   string `yaml:"host"`
+	ApiKey string `yaml:"api_key" env:"CENTRIFUGO_API_KEY"`
 }
 
 func MustLoad() *Config {

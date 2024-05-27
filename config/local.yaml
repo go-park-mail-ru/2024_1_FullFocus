@@ -24,6 +24,10 @@ main:
       addr: "localhost:9094"
       retries: 3
       retry_timeout: 2s
+    promotion:
+      addr: "localhost:9095"
+      retries: 3
+      retry_timeout: 2s
 auth:
   server:
     port: "9091"
@@ -52,6 +56,10 @@ review:
   server:
     port: "9094"
     timeout: 5s
+promotion:
+  server:
+    port: "9095"
+    timeout: 5s
 
 # Data
 minio:
@@ -76,3 +84,9 @@ elasticsearch:
   port: "9200"
   user: "elastic"
   password: "elastic"
+
+centrifugo:
+  host: "http://localhost:8000/api"
+  api_key: ${CENTRIFUGO_API_KEY}
+
+accessToken: ${ACCESS_TOKEN}

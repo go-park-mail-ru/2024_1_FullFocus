@@ -12,18 +12,22 @@ type ProductCard struct {
 	Amount uint   `db:"count"`
 }
 
+func ConvertProductCardToModel(card ProductCard) models.ProductCard {
+	return models.ProductCard{
+		ID:     card.ID,
+		Name:   card.Name,
+		Price:  card.Price,
+		ImgSrc: card.ImgSrc,
+		Seller: card.Seller,
+		Rating: card.Rating,
+		Amount: card.Amount,
+	}
+}
+
 func ConvertProductCardsFromTable(cards []ProductCard) []models.ProductCard {
-	var productCards []models.ProductCard
+	productCards := make([]models.ProductCard, 0, len(cards))
 	for _, card := range cards {
-		productCards = append(productCards, models.ProductCard{
-			ID:     card.ID,
-			Name:   card.Name,
-			Price:  card.Price,
-			ImgSrc: card.ImgSrc,
-			Seller: card.Seller,
-			Rating: card.Rating,
-			Amount: card.Amount,
-		})
+		productCards = append(productCards, ConvertProductCardToModel(card))
 	}
 	return productCards
 }
@@ -37,6 +41,7 @@ type Product struct {
 	Seller      string `db:"seller"`
 	Rating      uint   `db:"rating"`
 	Amount      uint   `db:"count"`
+	OnSale      bool   `db:"on_sale"`
 }
 
 func ConvertProductFromTable(categories []string, product Product) models.Product {
@@ -50,5 +55,14 @@ func ConvertProductFromTable(categories []string, product Product) models.Produc
 		Rating:      product.Rating,
 		Amount:      product.Amount,
 		Categories:  categories,
+		OnSale:      product.OnSale,
 	}
+}
+
+func ConvertProductsFromTables(categories [][]string, products []Product) []models.Product {
+	res := make([]models.Product, 0, len(products))
+	for i, p := range products {
+		res = append(res, ConvertProductFromTable(categories[i], p))
+	}
+	return res
 }
