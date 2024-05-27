@@ -54,6 +54,7 @@ func (r *PromocodeRepo) GetNewPromocode(ctx context.Context, sum uint) (uint, er
 
 func (r *PromocodeRepo) GetPromocodeItemByActivationCode(ctx context.Context, pID uint, code string) (models.PromocodeActivationTerms, error) {
 	q := `SELECT pi.id,
+       			p.description,
 				pi.created_at + interval '1 hour' * p.ttl_hours AS expires_at,
 				p.min_sum_activation,
 				p.benefit_type,

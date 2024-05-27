@@ -67,6 +67,7 @@ type PromocodeBenefit struct {
 
 type PromocodeActivationTerms struct {
 	ID               uint      `db:"id"`
+	Description      string    `db:"description"`
 	ExpiresAt        time.Time `db:"expires_at"`
 	MinSumActivation uint      `db:"min_sum_activation"`
 	BenefitType      string    `db:"benefit_type"`
@@ -76,6 +77,7 @@ type PromocodeActivationTerms struct {
 func ConvertTerms(terms PromocodeActivationTerms) models.PromocodeActivationTerms {
 	return models.PromocodeActivationTerms{
 		ID:               terms.ID,
+		Description:      terms.Description,
 		MinSumActivation: terms.MinSumActivation,
 		BenefitType:      terms.BenefitType,
 		Value:            terms.Value,

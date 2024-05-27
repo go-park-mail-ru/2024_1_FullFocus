@@ -28,6 +28,7 @@ type CreatePromocodeItemInput struct {
 
 type PromocodeActivationTerms struct {
 	ID               uint
+	Description      string
 	MinSumActivation uint
 	BenefitType      string
 	Value            uint

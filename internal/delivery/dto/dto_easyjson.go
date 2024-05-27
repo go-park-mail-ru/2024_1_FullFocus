@@ -785,6 +785,8 @@ func easyjson56de76c1DecodeGithubComGoParkMailRu20241FullFocusInternalDeliveryDt
 		switch key {
 		case "id":
 			out.ID = uint(in.Uint())
+		case "description":
+			out.Description = string(in.String())
 		case "min_sum_activation":
 			out.MinSumActivation = uint(in.Uint())
 		case "benefit_type":
@@ -809,6 +811,11 @@ func easyjson56de76c1EncodeGithubComGoParkMailRu20241FullFocusInternalDeliveryDt
 		const prefix string = ",\"id\":"
 		out.RawString(prefix[1:])
 		out.Uint(uint(in.ID))
+	}
+	{
+		const prefix string = ",\"description\":"
+		out.RawString(prefix)
+		out.String(string(in.Description))
 	}
 	{
 		const prefix string = ",\"min_sum_activation\":"

@@ -6,6 +6,7 @@ import (
 
 type PromocodeActivationTerms struct {
 	ID               uint   `json:"id"`
+	Description      string `json:"description"`
 	MinSumActivation uint   `json:"min_sum_activation"`
 	BenefitType      string `json:"benefit_type"`
 	Value            uint   `json:"value"`
@@ -14,6 +15,7 @@ type PromocodeActivationTerms struct {
 func ConvertTerms(terms models.PromocodeActivationTerms) PromocodeActivationTerms {
 	return PromocodeActivationTerms{
 		ID:               terms.ID,
+		Description:      terms.Description,
 		MinSumActivation: terms.MinSumActivation,
 		BenefitType:      terms.BenefitType,
 		Value:            terms.Value,
