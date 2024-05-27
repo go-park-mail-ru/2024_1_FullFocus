@@ -34,7 +34,7 @@ func (r *NotificationRepo) GetAllNotifications(ctx context.Context, profileID ui
 	q := `SELECT n.id, n.type, n.read_status, n.payload, n.created_at
 		  FROM notification n
 		  WHERE profile_id = ?
-		  ORDER BY created_at;`
+		  ORDER BY created_at DESC;`
 
 	var notifications []dao.Notification
 	if err := r.storage.Select(ctx, &notifications, q, profileID); err != nil {
@@ -51,7 +51,7 @@ func (r *NotificationRepo) GetNotificationsAmount(ctx context.Context, profileID
 	q := `SELECT count(*)
 		  FROM notification n
 		  WHERE n.profile_id = ?
-		  	  AND n.read_status IS false`
+		  	  AND n.read_status IS false;`
 
 	var amount uint
 	if err := r.storage.Get(ctx, &amount, q, profileID); err != nil {

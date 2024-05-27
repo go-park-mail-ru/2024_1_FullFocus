@@ -86,7 +86,7 @@ elasticsearch:
   password: ${ELASTIC_PASSWORD}
 
 centrifugo:
-  host: "http://localhost:8000/api"
+  host: "http://centrifugo:8000/api"
   api_key: ${CENTRIFUGO_API_KEY}
 
 accessToken: ${ACCESS_TOKEN}
