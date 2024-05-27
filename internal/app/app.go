@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/centrifuge"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/metrics"
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
@@ -107,6 +108,16 @@ func MustInit() *App {
 		panic("elasticsearch init data error: " + err.Error())
 	}
 
+	// Centrifugo
+
+	ctx, cancel = context.WithTimeout(context.Background(), _timeout)
+	defer cancel()
+
+	centrifugoClient := centrifuge.NewCentrifugeClient(ctx, cfg.Centrifugo)
+	if centrifugoClient == nil {
+		panic("centrifugo connection error")
+	}
+
 	// Server
 
 	srv := server.NewServer(cfg.Main.Server, r)
@@ -202,7 +213,7 @@ func MustInit() *App {
 
 	// Notifications
 	notificationRepo := repository.NewNotificationRepo(pgxClient)
-	notificationUsecase := usecase.NewNotificationUsecase(notificationRepo)
+	notificationUsecase := usecase.NewNotificationUsecase(notificationRepo, centrifugoClient)
 	notificationHandler := delivery.NewNotificationHandler(notificationUsecase)
 	notificationHandler.InitRouter(apiRouter)
 
@@ -214,7 +225,7 @@ func MustInit() *App {
 	// Order
 	orderRepo := repository.NewOrderRepo(pgxClient)
 	orderUsecase := usecase.NewOrderUsecase(orderRepo, cartRepo, productRepo, promocodeRepo, notificationRepo, promotionClient)
-	orderHandler := delivery.NewOrderHandler(orderUsecase)
+	orderHandler := delivery.NewOrderHandler(orderUsecase, notificationUsecase)
 	orderHandler.InitRouter(apiRouter)
 
 	// Suggests

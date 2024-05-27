@@ -24,6 +24,7 @@ type Config struct {
 	Postgres      PostgresConfig      `yaml:"postgres"`
 	Elasticsearch ElasticsearchConfig `yaml:"elasticsearch"`
 	AccessToken   string              `yaml:"accessToken" env:"ACCESS_TOKEN"`
+	Centrifugo    CentrifugoConfig    `yaml:"centrifugo"`
 }
 
 // Main app
@@ -122,6 +123,13 @@ type ElasticsearchConfig struct {
 	Port     string `yaml:"port"`
 	User     string `yaml:"user" env:"ELASTIC_USER"`
 	Password string `yaml:"password" env:"ELASTIC_PASSWORD"`
+}
+
+// Centrifugo
+
+type CentrifugoConfig struct {
+	Host   string `yaml:"host"`
+	ApiKey string `yaml:"api_key" env:"CENTRIFUGO_API_KEY"`
 }
 
 func MustLoad() *Config {

@@ -28,9 +28,11 @@ func (u *CartUsecase) GetAllCartItems(ctx context.Context, uID uint) (models.Car
 		return models.CartContent{}, err
 	}
 	promoProductsIDs := make([]uint, 0)
-	for _, product := range products {
+	for i, product := range products {
 		if product.OnSale {
 			promoProductsIDs = append(promoProductsIDs, product.ProductID)
+		} else {
+			products[i].NewPrice = product.Price
 		}
 	}
 	if len(promoProductsIDs) != 0 {
@@ -47,8 +49,6 @@ func (u *CartUsecase) GetAllCartItems(ctx context.Context, uID uint) (models.Car
 				products[i].BenefitType = promoData[idx].BenefitType
 				products[i].BenefitValue = promoData[idx].BenefitValue
 				products[i].NewPrice = CalculateDiscountPrice(promoData[idx].BenefitType, promoData[idx].BenefitValue, product.Price)
-			} else {
-				products[i].NewPrice = product.Price
 			}
 		}
 	}

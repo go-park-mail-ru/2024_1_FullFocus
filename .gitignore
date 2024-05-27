@@ -32,3 +32,5 @@ centrifugo.json
 tmp/
 
 .idea
+
+/centrifugo/

@@ -29,7 +29,6 @@ type (
 	}
 
 	Notifications interface {
-		SendNotification(ctx context.Context, profileID uint, payload string) error
 		CreateNotification(ctx context.Context, profileID uint, input models.CreateNotificationInput) error
 		GetAllNotifications(ctx context.Context, profileID uint) ([]models.Notification, error)
 		GetNotificationsAmount(ctx context.Context, profileID uint) (uint, error)

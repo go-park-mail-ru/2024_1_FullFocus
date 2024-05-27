@@ -16,14 +16,16 @@ import (
 )
 
 type OrderHandler struct {
-	router  *mux.Router
-	usecase usecase.Orders
+	router              *mux.Router
+	orderUsecase        usecase.Orders
+	notificationUsecase usecase.Notifications
 }
 
-func NewOrderHandler(uc usecase.Orders) *OrderHandler {
+func NewOrderHandler(ou usecase.Orders, nu usecase.Notifications) *OrderHandler {
 	return &OrderHandler{
-		router:  mux.NewRouter(),
-		usecase: uc,
+		router:              mux.NewRouter(),
+		orderUsecase:        ou,
+		notificationUsecase: nu,
 	}
 }
 
@@ -33,7 +35,7 @@ func (h *OrderHandler) InitRouter(r *mux.Router) {
 		h.router.Handle("/create", http.HandlerFunc(h.Create)).Methods("POST", "OPTIONS")
 		h.router.Handle("/{id:[0-9]+}", http.HandlerFunc(h.GetOrder)).Methods("GET", "OPTIONS")
 		h.router.Handle("/all", http.HandlerFunc(h.GetAllOrders)).Methods("GET", "OPTIONS")
-		h.router.Handle("/public/update", http.HandlerFunc(h.UpdateStatus)).Methods("POST", "OPTIONS")
+		h.router.Handle("/update", http.HandlerFunc(h.UpdateStatus)).Methods("POST", "OPTIONS")
 		h.router.Handle("/cancel", http.HandlerFunc(h.Delete)).Methods("POST", "OPTIONS")
 	}
 }
@@ -59,7 +61,7 @@ func (h *OrderHandler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	createInput := dto.ConvertCreateOrderInputToModel(uID, createOrderInput)
-	orderInfo, err := h.usecase.Create(ctx, createInput)
+	orderInfo, err := h.orderUsecase.Create(ctx, createInput)
 	if err != nil {
 		if errors.Is(err, models.ErrNoProduct) || errors.Is(err, models.ErrProductNotFound) {
 			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
@@ -125,7 +127,7 @@ func (h *OrderHandler) GetOrder(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	orderInfo, err := h.usecase.GetOrderByID(ctx, uID, uint(orderID))
+	orderInfo, err := h.orderUsecase.GetOrderByID(ctx, uID, uint(orderID))
 	if err != nil {
 		if errors.Is(err, models.ErrNoProduct) || errors.Is(err, models.ErrProductNotFound) {
 			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
@@ -182,7 +184,7 @@ func (h *OrderHandler) GetAllOrders(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	orders, err := h.usecase.GetAllOrders(ctx, uID)
+	orders, err := h.orderUsecase.GetAllOrders(ctx, uID)
 	if err != nil {
 		if errors.Is(err, models.ErrNoRowsFound) {
 			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
@@ -207,6 +209,15 @@ func (h *OrderHandler) GetAllOrders(w http.ResponseWriter, r *http.Request) {
 
 func (h *OrderHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	uID, err := helper.GetUserIDFromContext(ctx)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 403,
+			Msg:    err.Error(),
+			MsgRus: "Пользователь не авторизован",
+		})
+		return
+	}
 	var input dto.UpdateOrderStatusInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
@@ -216,7 +227,8 @@ func (h *OrderHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	if err := h.usecase.UpdateStatus(ctx, dto.ConvertUpdateOrderStatusInput(input)); err != nil {
+	data, err := h.orderUsecase.UpdateStatus(ctx, dto.ConvertUpdateOrderStatusInput(input))
+	if err != nil {
 		if errors.Is(err, models.ErrInvalidField) {
 			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 				Status: 400,
@@ -232,6 +244,7 @@ func (h *OrderHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	h.notificationUsecase.SendOrderUpdateNotification(ctx, uID, data)
 	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
 	})
@@ -257,7 +270,7 @@ func (h *OrderHandler) Delete(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	if err = h.usecase.Delete(ctx, uID, cancelOrderInput.OrderID); err != nil {
+	if err = h.orderUsecase.Delete(ctx, uID, cancelOrderInput.OrderID); err != nil {
 		if errors.Is(err, models.ErrNoAccess) {
 			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 				Status: 403,
