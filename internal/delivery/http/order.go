@@ -261,15 +261,6 @@ func (h *OrderHandler) Cancel(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	var input dto.UpdateOrderStatusInput
-	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 400,
-			Msg:    err.Error(),
-			MsgRus: "Ошибка обработки данных",
-		})
-		return
-	}
 	orderID, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 32)
 	if err != nil {
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
