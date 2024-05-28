@@ -35,8 +35,8 @@ func (h *OrderHandler) InitRouter(r *mux.Router) {
 		h.router.Handle("/create", http.HandlerFunc(h.Create)).Methods("POST", "OPTIONS")
 		h.router.Handle("/{id:[0-9]+}", http.HandlerFunc(h.GetOrder)).Methods("GET", "OPTIONS")
 		h.router.Handle("/all", http.HandlerFunc(h.GetAllOrders)).Methods("GET", "OPTIONS")
-		h.router.Handle("/update", http.HandlerFunc(h.UpdateStatus)).Methods("POST", "OPTIONS")
-		h.router.Handle("/cancel", http.HandlerFunc(h.Delete)).Methods("POST", "OPTIONS")
+		h.router.Handle("/admin/update", http.HandlerFunc(h.UpdateStatus)).Methods("POST", "OPTIONS")
+		h.router.Handle("/{id:[0-9]+}/cancel", http.HandlerFunc(h.Cancel)).Methods("POST", "OPTIONS")
 	}
 }
 
@@ -178,7 +178,7 @@ func (h *OrderHandler) GetAllOrders(w http.ResponseWriter, r *http.Request) {
 	uID, err := helper.GetUserIDFromContext(ctx)
 	if err != nil {
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 403,
+			Status: 401,
 			Msg:    err.Error(),
 			MsgRus: "Пользователь не авторизован",
 		})
@@ -209,10 +209,10 @@ func (h *OrderHandler) GetAllOrders(w http.ResponseWriter, r *http.Request) {
 
 func (h *OrderHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	uID, err := helper.GetUserIDFromContext(ctx)
+	_, err := helper.GetUserIDFromContext(ctx)
 	if err != nil {
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-			Status: 403,
+			Status: 401,
 			Msg:    err.Error(),
 			MsgRus: "Пользователь не авторизован",
 		})
@@ -244,7 +244,68 @@ func (h *OrderHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	h.notificationUsecase.SendOrderUpdateNotification(ctx, uID, data)
+	h.notificationUsecase.SendOrderUpdateNotification(ctx, data)
+	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
+		Status: 200,
+	})
+}
+
+func (h *OrderHandler) Cancel(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	uID, err := helper.GetUserIDFromContext(ctx)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 401,
+			Msg:    err.Error(),
+			MsgRus: "Пользователь не авторизован",
+		})
+		return
+	}
+	var input dto.UpdateOrderStatusInput
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 400,
+			Msg:    err.Error(),
+			MsgRus: "Ошибка обработки данных",
+		})
+		return
+	}
+	orderID, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 32)
+	if err != nil {
+		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+			Status: 400,
+			Msg:    "invalid orderID",
+			MsgRus: "Невалидный параметр",
+		})
+		return
+	}
+	data, err := h.orderUsecase.CancelOrder(ctx, uID, uint(orderID))
+	if err != nil {
+		switch {
+		case errors.Is(err, models.ErrInvalidField):
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 400,
+				Msg:    err.Error(),
+				MsgRus: "Неверный статус заказа",
+			})
+			return
+		case errors.Is(err, models.ErrNoAccess):
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 403,
+				Msg:    err.Error(),
+				MsgRus: "Доступ запрещен",
+			})
+			return
+		default:
+			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+				Status: 500,
+				Msg:    err.Error(),
+				MsgRus: "Ошибка обновления статуса",
+			})
+			return
+		}
+	}
+	h.notificationUsecase.SendOrderUpdateNotification(ctx, data)
 	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
 	})

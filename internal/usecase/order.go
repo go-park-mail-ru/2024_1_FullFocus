@@ -11,7 +11,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-const _activationStringLen = 6
+const (
+	_activationStringLen = 6
+	cancelStatus         = "cancelled"
+)
 
 type OrderUsecase struct {
 	orderRepo        repository.Orders
@@ -168,14 +171,39 @@ func (u *OrderUsecase) GetAllOrders(ctx context.Context, profileID uint) ([]mode
 }
 
 func (u *OrderUsecase) UpdateStatus(ctx context.Context, input models.UpdateOrderStatusInput) (models.UpdateOrderStatusPayload, error) {
+	ownerID, err := u.orderRepo.GetProfileIDByOrderID(ctx, input.OrderID)
+	if err != nil {
+		return models.UpdateOrderStatusPayload{}, err
+	}
 	prevStatus, err := u.orderRepo.UpdateStatus(ctx, input.OrderID, input.NewStatus)
 	if err != nil {
 		return models.UpdateOrderStatusPayload{}, err
 	}
 	return models.UpdateOrderStatusPayload{
+		OwnerID:   ownerID,
 		OrderID:   input.OrderID,
 		OldStatus: prevStatus,
 		NewStatus: input.NewStatus,
+	}, nil
+}
+
+func (u *OrderUsecase) CancelOrder(ctx context.Context, uID uint, orderID uint) (models.UpdateOrderStatusPayload, error) {
+	ownerID, err := u.orderRepo.GetProfileIDByOrderID(ctx, orderID)
+	if err != nil {
+		return models.UpdateOrderStatusPayload{}, err
+	}
+	if ownerID != uID {
+		return models.UpdateOrderStatusPayload{}, models.ErrNoAccess
+	}
+	prevStatus, err := u.orderRepo.UpdateStatus(ctx, orderID, cancelStatus)
+	if err != nil {
+		return models.UpdateOrderStatusPayload{}, err
+	}
+	return models.UpdateOrderStatusPayload{
+		OwnerID:   ownerID,
+		OrderID:   orderID,
+		OldStatus: prevStatus,
+		NewStatus: cancelStatus,
 	}, nil
 }
 
