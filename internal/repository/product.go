@@ -27,7 +27,9 @@ func (r *ProductRepo) GetAllProductCards(ctx context.Context, input models.GetAl
 				LEFT JOIN cart_item ci
 					ON p.id = ci.product_id
 					   AND ci.profile_id = ?
-			WHERE on_sale = FALSE
+			WHERE on_sale IS FALSE
+			
+			
 			%s
 			OFFSET ?
 			LIMIT ?;`
@@ -117,7 +119,10 @@ func (r *ProductRepo) GetProductsByQuery(ctx context.Context, input models.GetPr
     			LEFT JOIN cart_item ci
         			ON p.id = ci.product_id
         			AND ci.profile_id = ?
-		  WHERE p.product_name ILIKE '%%%s%%' AND on_sale = FALSE`
+		  WHERE p.product_name ILIKE '%%%s%%'
+		  `
+
+	// on_sale = FALSE
 	q1 := `%s
 		OFFSET ?
 		LIMIT ?;`
