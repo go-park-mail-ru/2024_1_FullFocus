@@ -66,6 +66,7 @@ type UpdateOrderStatusInput struct {
 }
 
 type UpdateOrderStatusPayload struct {
+	OwnerID   uint
 	OrderID   uint
 	OldStatus string
 	NewStatus string

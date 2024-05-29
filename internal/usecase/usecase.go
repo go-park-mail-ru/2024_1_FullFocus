@@ -37,7 +37,7 @@ type (
 	Notifications interface {
 		GetAllNotifications(ctx context.Context, profileID uint) ([]models.Notification, error)
 		MarkNotificationRead(ctx context.Context, id uint) error
-		SendOrderUpdateNotification(ctx context.Context, uID uint, input models.UpdateOrderStatusPayload) error
+		SendOrderUpdateNotification(ctx context.Context, input models.UpdateOrderStatusPayload) error
 	}
 
 	Orders interface {
@@ -45,6 +45,7 @@ type (
 		GetOrderByID(ctx context.Context, profileID uint, orderingID uint) (models.GetOrderPayload, error)
 		GetAllOrders(ctx context.Context, profileID uint) ([]models.Order, error)
 		UpdateStatus(ctx context.Context, input models.UpdateOrderStatusInput) (models.UpdateOrderStatusPayload, error)
+		CancelOrder(ctx context.Context, uID uint, orderID uint) (models.UpdateOrderStatusPayload, error)
 		Delete(ctx context.Context, profileID uint, orderingID uint) error
 	}
 

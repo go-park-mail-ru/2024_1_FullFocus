@@ -14,15 +14,21 @@ const (
 	_defaultReviewSortType = 4
 )
 
-type ReviewUsecase struct {
-	profileClient profile.ProfileClient
-	reviewClient  review.ReviewClient
+type PromotionProductsCache interface {
+	Remove(ctx context.Context, productID uint)
 }
 
-func NewReviewUsecase(pc profile.ProfileClient, rc review.ReviewClient) *ReviewUsecase {
+type ReviewUsecase struct {
+	profileClient      profile.ProfileClient
+	reviewClient       review.ReviewClient
+	promoProductsCache PromotionProductsCache
+}
+
+func NewReviewUsecase(pc profile.ProfileClient, rc review.ReviewClient, promoCache PromotionProductsCache) *ReviewUsecase {
 	return &ReviewUsecase{
-		profileClient: pc,
-		reviewClient:  rc,
+		profileClient:      pc,
+		reviewClient:       rc,
+		promoProductsCache: promoCache,
 	}
 }
 
@@ -68,7 +74,11 @@ func (u *ReviewUsecase) GetProductReviews(ctx context.Context, input models.GetP
 }
 
 func (u *ReviewUsecase) CreateProductReview(ctx context.Context, uID uint, input models.CreateProductReviewInput) error {
-	return u.reviewClient.CreateProductReview(ctx, uID, input)
+	if err := u.reviewClient.CreateProductReview(ctx, uID, input); err != nil {
+		return err
+	}
+	u.promoProductsCache.Remove(ctx, input.ProductID)
+	return nil
 }
 
 func validateReviewSorting(input models.SortType) (string, error) {

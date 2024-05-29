@@ -31,8 +31,7 @@ func (u *NotificationUsecase) MarkNotificationRead(ctx context.Context, id uint)
 	return u.notificationRepo.MarkNotificationRead(ctx, id)
 }
 
-func (u *NotificationUsecase) SendOrderUpdateNotification(ctx context.Context, uID uint, input models.UpdateOrderStatusPayload) error {
-	// TODO json pkg
+func (u *NotificationUsecase) SendOrderUpdateNotification(ctx context.Context, input models.UpdateOrderStatusPayload) error {
 	payload := fmt.Sprintf(`{
 		"type": "orderStatusChange",
 		"data": {
@@ -45,10 +44,10 @@ func (u *NotificationUsecase) SendOrderUpdateNotification(ctx context.Context, u
 		Type:    "order_status_change",
 		Payload: payload,
 	}
-	if err := u.notificationRepo.CreateNotification(ctx, uID, notification); err != nil {
+	if err := u.notificationRepo.CreateNotification(ctx, input.OwnerID, notification); err != nil {
 		return err
 	}
-	_, err := u.centrifugoClient.Publish(ctx, strconv.FormatUint(uint64(uID), 10), []byte(payload))
+	_, err := u.centrifugoClient.Publish(ctx, strconv.FormatUint(uint64(input.OwnerID), 10), []byte(payload))
 	if err != nil {
 		logger.Error(ctx, err.Error())
 	}
