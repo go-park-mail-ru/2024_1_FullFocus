@@ -122,6 +122,10 @@ func MustInit() *App {
 
 	srv := server.NewServer(cfg.Main.Server, r)
 
+	// Cache
+
+	promotionCache := cache.NewPromoProductsCache()
+
 	// Clients
 
 	// Auth
@@ -201,7 +205,7 @@ func MustInit() *App {
 	categoryHandler.InitRouter(apiRouter)
 
 	// Reviews
-	reviewUsecase := usecase.NewReviewUsecase(profileClient, reviewClient)
+	reviewUsecase := usecase.NewReviewUsecase(profileClient, reviewClient, promotionCache)
 	reviewHandler := delivery.NewReviewHandler(reviewUsecase)
 	reviewHandler.InitRouter(apiRouter)
 
@@ -240,7 +244,6 @@ func MustInit() *App {
 	csatHandler.InitRouter(apiRouter)
 
 	// Promotion
-	promotionCache := cache.NewPromoProductsCache()
 	promotionUsecase := usecase.NewPromotionUsecase(ctx, productRepo, promotionClient, promotionCache)
 	promotionHandler := delivery.NewPromotionHandler(promotionUsecase)
 	promotionHandler.InitRouter(apiRouter)
