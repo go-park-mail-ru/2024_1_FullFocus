@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgxpool"
+
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	grpcapp "github.com/go-park-mail-ru/2024_1_FullFocus/microservices/auth/app/grpc"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/auth/repository"
@@ -33,9 +35,15 @@ func New() *App {
 
 	// Postgres
 
+	dbCfg, err := pgxpool.ParseConfig(postgres.GetDSN(cfg.Postgres))
+	if err != nil {
+		panic("(auth) postgres connection error: " + err.Error())
+	}
+	dbCfg.MaxConns = 15
+
 	ctx, cancel := context.WithTimeout(context.Background(), _connTimeout)
 	defer cancel()
-	pgxClient, err := postgres.NewPgxDatabase(ctx, cfg.Postgres)
+	pgxClient, err := postgres.NewPgxDatabase(ctx, dbCfg)
 	if err != nil {
 		panic("(auth) postgres connection error: " + err.Error())
 	}
@@ -44,7 +52,7 @@ func New() *App {
 
 	redisClient := redis.NewClient(cfg.Auth.Redis)
 
-	if err := redisClient.Ping().Err(); err != nil {
+	if err = redisClient.Ping().Err(); err != nil {
 		panic("(auth) redis error: " + err.Error())
 	}
 

@@ -11,18 +11,19 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
+	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/jmoiron/sqlx"
 )
 
 type PgxDatabase struct {
 	dsn    string
-	client *sqlx.DB
+	client *pgxpool.Pool
 }
 
-func NewPgxDatabase(ctx context.Context, cfg config.PostgresConfig) (database.Database, error) {
+func GetDSN(cfg config.PostgresConfig) string {
 	hostPort := net.JoinHostPort(cfg.Host, cfg.Port)
-	dsn := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s&search_path=%s",
+	return fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s&search_path=%s",
 		cfg.User,
 		cfg.Password,
 		hostPort,
@@ -30,19 +31,20 @@ func NewPgxDatabase(ctx context.Context, cfg config.PostgresConfig) (database.Da
 		cfg.Sslmode,
 		cfg.SearchPath,
 	)
-	dbClient, err := sqlx.ConnectContext(ctx, "pgx", dsn)
+}
+
+func NewPgxDatabase(ctx context.Context, dbCfg *pgxpool.Config) (database.Database, error) {
+	dbClient, err := pgxpool.NewWithConfig(ctx, dbCfg)
 	if err != nil {
 		return nil, err
 	}
-	dbClient.SetMaxOpenConns(cfg.MaxOpenConns)
-	dbClient.SetConnMaxIdleTime(time.Second * time.Duration(cfg.MaxIdleTime))
 	return &PgxDatabase{
-		dsn:    dsn,
+		dsn:    dbClient.Config().ConnString(),
 		client: dbClient,
 	}, nil
 }
 
-func (db *PgxDatabase) GetRawDB() *sqlx.DB {
+func (db *PgxDatabase) GetRawDB() *pgxpool.Pool {
 	return db.client
 }
 

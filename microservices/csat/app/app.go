@@ -10,6 +10,7 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/microservices/csat/usecase"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/postgres"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 const (
@@ -32,11 +33,17 @@ func New() *App {
 
 	// Postgres
 
+	dbCfg, err := pgxpool.ParseConfig(postgres.GetDSN(cfg.Postgres))
+	if err != nil {
+		panic("(auth) postgres connection error: " + err.Error())
+	}
+	dbCfg.MaxConns = 15
+
 	ctx, cancel := context.WithTimeout(context.Background(), _connTimeout)
 	defer cancel()
-	pgxClient, err := postgres.NewPgxDatabase(ctx, cfg.CSAT.Postgres)
+	pgxClient, err := postgres.NewPgxDatabase(ctx, dbCfg)
 	if err != nil {
-		panic("(csat) postgres connection error: " + err.Error())
+		panic("(auth) postgres connection error: " + err.Error())
 	}
 
 	// Layers

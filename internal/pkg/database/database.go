@@ -5,6 +5,7 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -13,7 +14,7 @@ type Database interface {
 	Exec(ctx context.Context, q string, args ...interface{}) (sql.Result, error)
 	Get(ctx context.Context, dest interface{}, q string, args ...interface{}) error
 	Select(ctx context.Context, dest interface{}, q string, args ...interface{}) error
-	GetRawDB() *sqlx.DB // tmp solution
+	GetRawDB() *pgxpool.Pool // tmp solution
 	NamedExec(ctx context.Context, q string, arg interface{}) (sql.Result, error)
 	Begin(ctx context.Context, opts *sql.TxOptions) (*sqlx.Tx, error)
 }
