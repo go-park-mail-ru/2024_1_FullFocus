@@ -2,7 +2,7 @@ local wrk = require("wrk")
 
 wrk.method = "POST"
 wrk.headers["Content-Type"] = "application/json"
-wrk.headers["Cookie"] = "session_id=96a51ab1-181b-4ef0-94b6-eda4db5c9f16"
+wrk.headers["Cookie"] = "session_id=7c8c0db2-838d-4a3d-9506-745cb8dd42f9"
 
 request = function()
     math.randomseed(os.time())

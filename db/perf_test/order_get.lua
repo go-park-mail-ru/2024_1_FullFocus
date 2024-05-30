@@ -2,11 +2,10 @@ local wrk = require("wrk")
 
 wrk.method = "GET"
 wrk.headers["Content-Type"] = "application/json"
-wrk.headers["Cookie"] = "session_id=96a51ab1-181b-4ef0-94b6-eda4db5c9f16"
+wrk.headers["Cookie"] = "session_id=90ae8f3c-7f13-43fe-aed3-72ae9dc48105"
 
-local orderId = 0
 request = function()
-    orderId = orderId + 1
-    local path = string.format('/api/v1/order/%d', orderId)
-    return wrk.format(nil, body, nil, nil)
+    math.randomseed(os.time())
+    local path = string.format("/api/v1/order/%d", math.random(100, 10000))
+    return wrk.format(nil, path, nil, nil)
 end
