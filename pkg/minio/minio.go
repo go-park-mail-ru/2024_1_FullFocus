@@ -8,7 +8,7 @@ import (
 )
 
 func NewClient(cfg config.MinioConfig) (*minio.Client, error) {
-	return minio.New("127.0.0.1"+cfg.Port, &minio.Options{
-		Creds: credentials.NewStaticV4(cfg.MinioUser, cfg.MinioPassword, ""),
+	return minio.New(cfg.Addr, &minio.Options{
+		Creds: credentials.NewStaticV4(cfg.MinioAccessKey, cfg.MinioSecretKey, ""),
 	})
 }

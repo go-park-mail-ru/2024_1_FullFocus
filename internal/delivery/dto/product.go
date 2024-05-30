@@ -1,8 +1,8 @@
 package dto
 
-import "github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
-
-// TODO: inCart
+import (
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
+)
 
 type ProductCard struct {
 	ID     uint   `json:"id"`
@@ -11,7 +11,7 @@ type ProductCard struct {
 	ImgSrc string `json:"imgSrc"`
 	Seller string `json:"seller"`
 	Rating uint   `json:"rating"`
-	InCart bool   `json:"inCart"`
+	Amount uint   `json:"amount"`
 }
 
 func ConvertProductCardsToDTO(cards []models.ProductCard) []ProductCard {
@@ -24,7 +24,7 @@ func ConvertProductCardsToDTO(cards []models.ProductCard) []ProductCard {
 			ImgSrc: card.ImgSrc,
 			Seller: card.Seller,
 			Rating: card.Rating,
-			InCart: card.InCart,
+			Amount: card.Amount,
 		})
 	}
 	return productCards
@@ -34,9 +34,6 @@ type GetAllProductsPayload struct {
 	ProductCards []ProductCard `json:"productCards"`
 }
 
-// TODO: inCart
-// TODO: how to handle ErrNoRows
-
 type Product struct {
 	ID          uint     `json:"id"`
 	Name        string   `json:"name"`
@@ -45,7 +42,7 @@ type Product struct {
 	ImgSrc      string   `json:"imgSrc"`
 	Seller      string   `json:"seller"`
 	Rating      uint     `json:"rating"`
-	InCart      bool     `json:"inCart"`
+	Amount      uint     `json:"amount"`
 	Categories  []string `json:"categories"`
 }
 
@@ -58,7 +55,24 @@ func ConvertProductToDTO(product models.Product) Product {
 		ImgSrc:      product.ImgSrc,
 		Seller:      product.Seller,
 		Rating:      product.Rating,
-		InCart:      product.InCart,
+		Amount:      product.Amount,
 		Categories:  product.Categories,
 	}
+}
+
+type GetProductsByCategoryIDPayload struct {
+	CategoryName string        `json:"categoryName"`
+	Products     []ProductCard `json:"productCards"`
+}
+
+func ConvertProductsByCategoryIDPayload(payload models.GetProductsByCategoryIDPayload) GetProductsByCategoryIDPayload {
+	return GetProductsByCategoryIDPayload{
+		CategoryName: payload.CategoryName,
+		Products:     ConvertProductCardsToDTO(payload.Products),
+	}
+}
+
+type GetProductsByQueryPayload struct {
+	Query    string        `json:"query"`
+	Products []ProductCard `json:"productCards"`
 }

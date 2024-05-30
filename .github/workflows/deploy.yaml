@@ -43,10 +43,30 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build image
-        run: docker build -t b0pof/bizon-main .
+      - name: Build main
+        run: docker build -t b0pof/bizon-main -f ./build/main.Dockerfile .
       - name: Push the image
         run: docker push b0pof/bizon-main
+      - name: Build auth
+        run: docker build -t b0pof/bizon-auth -f ./build/auth.Dockerfile .
+      - name: Push the image
+        run: docker push b0pof/bizon-auth
+      - name: Build profile
+        run: docker build -t b0pof/bizon-profile -f ./build/profile.Dockerfile .
+      - name: Push the image
+        run: docker push b0pof/bizon-profile
+      - name: Build CSAT
+        run: docker build -t b0pof/bizon-csat -f ./build/csat.Dockerfile .
+      - name: Push the image
+        run: docker push b0pof/bizon-csat
+      - name: Build review
+        run: docker build -t b0pof/bizon-review -f ./build/review.Dockerfile .
+      - name: Push the image
+        run: docker push b0pof/bizon-review
+      - name: Build promotion
+        run: docker build -t b0pof/bizon-promotion -f ./build/promotion.Dockerfile .
+      - name: Push the image
+        run: docker push b0pof/bizon-promotion
   deploy:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
@@ -55,8 +75,8 @@ jobs:
       - name: Pull the image
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
+          host: ${{ vars.HOST }}
+          username: ${{ vars.USER }}
           password: ${{ secrets.PASSWORD }}
           script: |
             cd ~/ozon_project/backend/

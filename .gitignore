@@ -5,6 +5,8 @@
 *.so
 *.dylib
 
+./bin
+
 # Test binary, built with `go test -c`
 *.test
 *.txt
@@ -24,8 +26,11 @@ logs/
 
 # Env files
 .env
+centrifugo.json
 
 # tmp
 tmp/
 
 .idea
+
+/centrifugo/

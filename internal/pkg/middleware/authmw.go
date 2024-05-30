@@ -8,19 +8,21 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 
+	auth "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/auth/grpc"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/dto"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/helper"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/usecase"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 )
 
-func NewAuthMiddleware(uc usecase.Auth) mux.MiddlewareFunc {
+func NewAuthMiddleware(c *auth.Client) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
-			if !strings.Contains(r.URL.Path, "public") {
-				sessionID, err := r.Cookie("session_id")
-				if errors.Is(err, http.ErrNoCookie) {
+			isPublic := strings.Contains(r.URL.Path, "public")
+			sessionID, err := r.Cookie("session_id")
+			if err != nil {
+				if errors.Is(err, http.ErrNoCookie) && !isPublic {
 					helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 						Status: 401,
 						Msg:    "no session",
@@ -28,8 +30,9 @@ func NewAuthMiddleware(uc usecase.Auth) mux.MiddlewareFunc {
 					})
 					return
 				}
-				userID, err := uc.GetUserIDBySessionID(ctx, sessionID.Value)
-				if errors.Is(err, models.ErrNoSession) {
+			} else {
+				userID, err := c.GetUserIDBySessionID(ctx, sessionID.Value)
+				if errors.Is(err, models.ErrNoSession) && !isPublic {
 					helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 						Status: 401,
 						Msg:    "no session",
@@ -40,6 +43,27 @@ func NewAuthMiddleware(uc usecase.Auth) mux.MiddlewareFunc {
 				ctx = context.WithValue(ctx, helper.UserID{}, userID)
 			}
 			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
+func NewAuthorizationMiddleware(accessToken string) mux.MiddlewareFunc {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			isAdmin := strings.Contains(r.URL.Path, "admin")
+			if isAdmin {
+				if s2s := r.Header.Get("s2s"); s2s != accessToken {
+					logger.Info(ctx, "Access error")
+					helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
+						Status: 403,
+						Msg:    "method not allowed",
+						MsgRus: "Нет прав на выполнение этого запроса",
+					})
+					return
+				}
+			}
+			next.ServeHTTP(w, r)
 		})
 	}
 }

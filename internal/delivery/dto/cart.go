@@ -17,24 +17,30 @@ func ConvertContentToDto(m models.CartContent) CartContent {
 }
 
 type CartProduct struct {
-	ProductID uint   `json:"productId"`
-	Name      string `json:"name"`
-	Price     uint   `json:"price"`
-	Count     uint   `json:"count"`
-	Img       string `json:"imgsrc"`
-	Cost      uint   `json:"cost"`
+	ProductID    uint   `json:"productId"`
+	Name         string `json:"name"`
+	Price        uint   `json:"oldPrice"`
+	Count        uint   `json:"count"`
+	Img          string `json:"imgsrc"`
+	Cost         uint   `json:"cost"`
+	BenefitType  string `json:"benefitType"`
+	BenefitValue uint   `json:"benefitValue"`
+	NewPrice     uint   `json:"newPrice"`
 }
 
 func ConvertProductsToDto(mm []models.CartProduct) []CartProduct {
 	cartProduct := make([]CartProduct, 0)
 	for _, m := range mm {
 		cartProduct = append(cartProduct, CartProduct{
-			ProductID: m.ProductID,
-			Name:      m.Name,
-			Price:     m.Price,
-			Count:     m.Count,
-			Img:       m.Img,
-			Cost:      m.Cost,
+			ProductID:    m.ProductID,
+			Name:         m.Name,
+			Price:        m.Price,
+			Count:        m.Count,
+			Img:          m.Img,
+			Cost:         m.Cost,
+			BenefitType:  m.BenefitType,
+			BenefitValue: m.BenefitValue,
+			NewPrice:     m.NewPrice,
 		})
 	}
 	return cartProduct

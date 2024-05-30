@@ -2,14 +2,16 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/models"
 	db "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/database"
-	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/logger"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/repository/dao"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/logger"
 )
 
 type OrderRepo struct {
@@ -22,11 +24,19 @@ func NewOrderRepo(dbClient db.Database) *OrderRepo {
 	}
 }
 
-func (r *OrderRepo) Create(ctx context.Context, userID uint, orderItems []models.OrderItem) (uint, error) {
+func (r *OrderRepo) Create(ctx context.Context, userID uint, sum uint, orderItems []models.OrderItem) (uint, error) {
 	tx, err := r.storage.Begin(ctx, nil)
 	if err != nil {
 		return 0, err
 	}
+	defer func() {
+		if err != nil {
+			rollbackErr := tx.Rollback()
+			if rollbackErr != nil {
+				err = errors.Join(err, rollbackErr)
+			}
+		}
+	}()
 	q := `INSERT INTO ordering (profile_id, order_status) VALUES ($1, $2) RETURNING id;`
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d $2 = %s", userID, "created")))
 	start := time.Now()
@@ -37,7 +47,7 @@ func (r *OrderRepo) Create(ctx context.Context, userID uint, orderItems []models
 	}
 	logger.Info(ctx, fmt.Sprintf("inserted in %s", time.Since(start)))
 
-	q = `INSERT INTO order_item (ordering_id, product_id, count) VALUES (:ordering_id, :product_id, :count)`
+	q = `INSERT INTO order_item (ordering_id, product_id, count, actual_price) VALUES (:ordering_id, :product_id, :count, :actual_price)`
 	items := dao.ConvertOrderItemsToTables(orderID, orderItems)
 	logger.Info(ctx, q, slog.Int("orders_amount", len(items)))
 	start = time.Now()
@@ -49,16 +59,11 @@ func (r *OrderRepo) Create(ctx context.Context, userID uint, orderItems []models
 	logger.Info(ctx, fmt.Sprintf("inserted in %s", time.Since(start)))
 
 	q = `UPDATE ordering
-		 SET sum = (
-		 	 SELECT SUM(p.price * o.count)
-        	 FROM order_item o
-                 INNER JOIN product p ON o.product_id = p.id
-           	 WHERE o.ordering_id = $1
-    	 )
+		 SET sum = $1
 		 WHERE id = $2;`
 	logger.Info(ctx, q, slog.String("args", fmt.Sprintf("$1 = %d", orderID)))
 	start = time.Now()
-	_, err = tx.ExecContext(ctx, q, orderID, orderID)
+	_, err = tx.ExecContext(ctx, q, sum, orderID)
 	if err != nil {
 		logger.Error(ctx, "error while inserting sum: "+err.Error())
 		return 0, err
@@ -67,12 +72,12 @@ func (r *OrderRepo) Create(ctx context.Context, userID uint, orderItems []models
 	if err = tx.Commit(); err != nil {
 		return 0, err
 	}
-	return orderID, nil
+	return orderID, err
 }
 
 func (r *OrderRepo) GetOrderByID(ctx context.Context, orderID uint) (models.GetOrderPayload, error) {
 	var orderProducts []dao.OrderProduct
-	q := `SELECT p.id, p.product_name, p.price, i.count, p.imgsrc
+	q := `SELECT p.id, p.product_name, i.actual_price as price, i.count, p.imgsrc
 		  FROM order_item as i
 			  INNER JOIN ordering AS o ON i.ordering_id = o.id
 		      INNER JOIN product AS p ON i.product_id = p.id
@@ -82,20 +87,15 @@ func (r *OrderRepo) GetOrderByID(ctx context.Context, orderID uint) (models.GetO
 		return models.GetOrderPayload{}, models.ErrNoRowsFound
 	}
 
-	var sum uint
-	for _, product := range orderProducts {
-		sum += product.Price * product.Count
-	}
-
 	var orderInfo dao.OrderInfo
-	q = `SELECT order_status, DATE(created_at) AS created_at FROM ordering WHERE id = ?;`
+	q = `SELECT sum, order_status, DATE(created_at) AS created_at FROM ordering WHERE id = ?;`
 	if err := r.storage.Get(ctx, &orderInfo, q, orderID); err != nil {
 		logger.Error(ctx, "error while reading order status: "+err.Error())
 		return models.GetOrderPayload{}, models.ErrNoRowsFound
 	}
 	return models.GetOrderPayload{
 		Products:   dao.ConvertOrderProductsToModels(orderProducts),
-		Sum:        sum,
+		Sum:        orderInfo.Sum,
 		Status:     orderInfo.Status,
 		ItemsCount: uint(len(orderProducts)),
 		CreatedAt:  orderInfo.CreatedAt,
@@ -125,6 +125,28 @@ func (r *OrderRepo) GetProfileIDByOrderID(ctx context.Context, orderID uint) (ui
 		return 0, models.ErrNoRowsFound
 	}
 	return profileID, nil
+}
+
+func (r *OrderRepo) UpdateStatus(ctx context.Context, orderID uint, newStatus string) (string, error) {
+	q := `WITH prev_name AS (
+			  SELECT order_status
+			  FROM ordering
+			  WHERE id = ?
+		  )
+		  UPDATE ordering
+		  SET order_status = ?
+		  WHERE id = ?
+		  RETURNING (SELECT order_status FROM prev_name);`
+
+	var prevStatus string
+	if err := r.storage.Get(ctx, &prevStatus, q, orderID, newStatus, orderID); err != nil {
+		logger.Error(ctx, err.Error())
+		if strings.Contains(err.Error(), "invalid input value") {
+			return "", models.ErrInvalidField
+		}
+		return "", err
+	}
+	return prevStatus, nil
 }
 
 func (r *OrderRepo) Delete(ctx context.Context, orderID uint) error {

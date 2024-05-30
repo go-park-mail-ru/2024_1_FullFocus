@@ -12,12 +12,26 @@ import (
 )
 
 type Config struct {
-	Env        string         `yaml:"env" env-required:"true"`
-	SessionTTL time.Duration  `yaml:"session_ttl"`
-	Server     ServerConfig   `yaml:"server"`
-	Redis      RedisConfig    `yaml:"redis"`
-	Minio      MinioConfig    `yaml:"minio"`
-	Postgres   PostgresConfig `yaml:"postgres"`
+	Env           string              `yaml:"env" env-required:"true"`
+	SessionTTL    time.Duration       `yaml:"session_ttl"`
+	Main          Main                `yaml:"main"`
+	Auth          Auth                `yaml:"auth"`
+	Profile       Profile             `yaml:"profile"`
+	CSAT          CSAT                `yaml:"csat"`
+	Review        Review              `yaml:"review"`
+	Promotion     Promotion           `yaml:"promotion"`
+	Minio         MinioConfig         `yaml:"minio"`
+	Postgres      PostgresConfig      `yaml:"postgres"`
+	Elasticsearch ElasticsearchConfig `yaml:"elasticsearch"`
+	AccessToken   string              `yaml:"accessToken" env:"ACCESS_TOKEN"`
+	Centrifugo    CentrifugoConfig    `yaml:"centrifugo"`
+}
+
+// Main app
+
+type Main struct {
+	Server  ServerConfig  `yaml:"server"`
+	Clients ClientsConfig `yaml:"clients"`
 }
 
 type ServerConfig struct {
@@ -26,22 +40,77 @@ type ServerConfig struct {
 	IdleTimeout time.Duration `yaml:"idle_timeout"`
 }
 
+type ClientsConfig struct {
+	AuthClient      ClientConfig `yaml:"auth"`
+	ProfileClient   ClientConfig `yaml:"profile"`
+	CSATClient      ClientConfig `yaml:"csat"`
+	ReviewClient    ClientConfig `yaml:"review"`
+	PromotionClient ClientConfig `yaml:"promotion"`
+}
+
+type ClientConfig struct {
+	Addr         string        `yaml:"addr"`
+	Retries      int           `yaml:"retries"`
+	RetryTimeout time.Duration `yaml:"retry_timeout"`
+}
+
+// Auth service
+
+type Auth struct {
+	Server GRPCServer  `yaml:"server"`
+	Redis  RedisConfig `yaml:"redis"`
+}
+
+type GRPCServer struct {
+	Port    string        `yaml:"port"`
+	Timeout time.Duration `yaml:"timeout"`
+}
+
 type RedisConfig struct {
 	Addr string `yaml:"addr"`
 }
 
+// Profile service
+
+type Profile struct {
+	Server GRPCServer `yaml:"server"`
+}
+
+// CSAT service
+
+type CSAT struct {
+	Server   GRPCServer     `yaml:"server"`
+	Postgres PostgresConfig `yaml:"postgres"`
+}
+
+// Review service
+
+type Review struct {
+	Server GRPCServer `yaml:"server"`
+}
+
+// Promotion service
+
+type Promotion struct {
+	Server GRPCServer `yaml:"server"`
+}
+
+// Data storage
+
 type MinioConfig struct {
-	Port          string `yaml:"port"`
-	MinioUser     string `yaml:"minio_user"`
-	MinioPassword string `yaml:"minio_password"`
-	AvatarBucket  string `yaml:"avatar_bucket"`
+	Addr           string `yaml:"addr"`
+	MinioUser      string `yaml:"minio_user" env:"MINIO_USER"`
+	MinioPassword  string `yaml:"minio_password" env:"MINIO_PASSWORD"`
+	MinioAccessKey string `yaml:"minio_access_key" env:"MINIO_ACCESS_KEY"`
+	MinioSecretKey string `yaml:"minio_secret_key" env:"MINIO_SECRET_KEY"`
+	AvatarBucket   string `yaml:"avatar_bucket"`
 }
 
 type PostgresConfig struct {
 	Host         string `yaml:"host"`
 	Port         string `yaml:"port"`
-	User         string `yaml:"user"`
-	Password     string `yaml:"password"`
+	User         string `yaml:"user" env:"POSTGRES_USER"`
+	Password     string `yaml:"password" env:"POSTGRES_PASSWORD"`
 	Database     string `yaml:"database"`
 	Sslmode      string `yaml:"sslmode"`
 	SearchPath   string `yaml:"search_path"`
@@ -49,10 +118,24 @@ type PostgresConfig struct {
 	MaxIdleTime  int    `yaml:"max_idle_time"`
 }
 
+type ElasticsearchConfig struct {
+	Host     string `yaml:"host"`
+	Port     string `yaml:"port"`
+	User     string `yaml:"user" env:"ELASTIC_USER"`
+	Password string `yaml:"password" env:"ELASTIC_PASSWORD"`
+}
+
+// Centrifugo
+
+type CentrifugoConfig struct {
+	Host   string `yaml:"host"`
+	ApiKey string `yaml:"api_key" env:"CENTRIFUGO_API_KEY"`
+}
+
 func MustLoad() *Config {
 	err := godotenv.Load()
 	if err != nil {
-		log.Println(".env file not found")
+		log.Println(".env file reading error:", err.Error())
 	}
 	path := parseConfigPath()
 	if path == "" {

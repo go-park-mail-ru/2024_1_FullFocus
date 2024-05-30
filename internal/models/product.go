@@ -7,7 +7,7 @@ type ProductCard struct {
 	ImgSrc string
 	Seller string
 	Rating uint
-	InCart bool
+	Amount uint
 }
 
 type Product struct {
@@ -18,14 +18,24 @@ type Product struct {
 	ImgSrc      string
 	Seller      string
 	Rating      uint
-	InCart      bool
+	Amount      uint
 	Categories  []string
+	OnSale      bool
 }
 
 type GetAllProductsInput struct {
 	ProfileID uint
 	PageNum   uint
 	PageSize  uint
+	Sorting   SortType
+}
+
+type GetProductsByQueryInput struct {
+	Query     string
+	ProfileID uint
+	PageNum   uint
+	PageSize  uint
+	Sorting   SortType
 }
 
 type GetProductsByCategoryIDInput struct {
@@ -33,4 +43,22 @@ type GetProductsByCategoryIDInput struct {
 	ProfileID  uint
 	PageNum    uint
 	PageSize   uint
+	Sorting    SortType
+}
+
+type GetProductsByCategoryIDPayload struct {
+	CategoryName string
+	Products     []ProductCard
+}
+
+func ConvertProductToCard(data Product) ProductCard {
+	return ProductCard{
+		ID:     data.ID,
+		Name:   data.Name,
+		Price:  data.Price,
+		ImgSrc: data.ImgSrc,
+		Seller: data.Seller,
+		Rating: data.Rating,
+		Amount: data.Amount,
+	}
 }
