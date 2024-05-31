@@ -51,3 +51,15 @@ func ConvertProfileToMetaInfo(profile model.ProfileMetaInfo) ProfileMetaInfo {
 		PromocodesAvailable: profile.PromocodesAvailable,
 	}
 }
+
+type FullProfile struct {
+	Login       string `json:"login"`
+	ProfileData Profile
+}
+
+func ConvertFullProfileToDto(m model.FullProfile) FullProfile {
+	return FullProfile{
+		Login:       m.Login,
+		ProfileData: ConvertProfileDataToProfile(m.ProfileData),
+	}
+}

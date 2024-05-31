@@ -32,6 +32,20 @@ func (r *AuthRepo) GetUser(ctx context.Context, username string) (models.User, e
 	return dao.ConvertTableToUser(userRow), nil
 }
 
+func (r *AuthRepo) GetUserLoginByID(ctx context.Context, uID uint) (string, error) {
+	q := `SELECT user_login FROM default_user WHERE id = ?;`
+
+	var login string
+	if err := r.storage.Get(ctx, &login, q, uID); err != nil {
+		logger.Error(ctx, err.Error())
+		return "", models.ErrUserNotFound
+	}
+	if login == "" {
+		return "", models.ErrUserNotFound
+	}
+	return login, nil
+}
+
 func (r *AuthRepo) GetUserPassword(ctx context.Context, userID uint) (string, error) {
 	q := `SELECT password_hash FROM default_user WHERE id = ?;`
 
