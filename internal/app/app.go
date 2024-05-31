@@ -13,6 +13,7 @@ import (
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/centrifuge"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/metrics"
 	"github.com/gorilla/mux"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
@@ -81,12 +82,17 @@ func MustInit() *App {
 
 	// Postgres
 
+	dbCfg, err := pgxpool.ParseConfig(postgres.GetDSN(cfg.Postgres))
+	if err != nil {
+		panic("(scat) postgres connection error: " + err.Error())
+	}
+	dbCfg.MaxConns = 10
+
 	ctx, cancel := context.WithTimeout(context.Background(), _connTimeout)
 	defer cancel()
-
-	pgxClient, err := postgres.NewPgxDatabase(ctx, cfg.Postgres)
+	pgxClient, err := postgres.NewPgxDatabase(ctx, dbCfg)
 	if err != nil {
-		panic("postgres connection error: " + err.Error())
+		panic("(scat) postgres connection error: " + err.Error())
 	}
 
 	// Elasticsearch

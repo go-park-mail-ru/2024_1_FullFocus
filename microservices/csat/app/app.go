@@ -37,7 +37,7 @@ func New() *App {
 	if err != nil {
 		panic("(scat) postgres connection error: " + err.Error())
 	}
-	dbCfg.MaxConns = 20
+	dbCfg.MaxConns = 10
 
 	ctx, cancel := context.WithTimeout(context.Background(), _connTimeout)
 	defer cancel()
