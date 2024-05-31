@@ -35,15 +35,15 @@ func New() *App {
 
 	dbCfg, err := pgxpool.ParseConfig(postgres.GetDSN(cfg.Postgres))
 	if err != nil {
-		panic("(auth) postgres connection error: " + err.Error())
+		panic("(promotion) postgres connection error: " + err.Error())
 	}
-	dbCfg.MaxConns = 15
+	dbCfg.MaxConns = 20
 
 	ctx, cancel := context.WithTimeout(context.Background(), _connTimeout)
 	defer cancel()
 	pgxClient, err := postgres.NewPgxDatabase(ctx, dbCfg)
 	if err != nil {
-		panic("(auth) postgres connection error: " + err.Error())
+		panic("(promotion) postgres connection error: " + err.Error())
 	}
 
 	// Layers
