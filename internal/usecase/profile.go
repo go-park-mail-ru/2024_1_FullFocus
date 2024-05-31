@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"html"
 
 	auth "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/auth"
@@ -35,14 +36,19 @@ func (u *ProfileUsecase) UpdateProfile(ctx context.Context, uID uint, newProfile
 		return helper.NewValidationError("invalid name input",
 			"Имя не может быть пустым")
 	}
-	if err := helper.ValidateEmail(newProfile.Email); err != nil {
-		return helper.NewValidationError("invalid email input",
-			"Email должен содержать @ и .")
+	if newProfile.Email != "" {
+		if err := helper.ValidateEmail(newProfile.Email); err != nil {
+			return helper.NewValidationError("invalid email input",
+				"Email должен содержать @ и .")
+		}
 	}
-	if err := helper.ValidateNumber(newProfile.PhoneNumber, 5); err != nil {
-		return helper.NewValidationError("invalid phone number",
-			"Неверный номер телефона")
+	if newProfile.PhoneNumber != "" {
+		if err := helper.ValidateNumber(newProfile.PhoneNumber, 5); err != nil {
+			return helper.NewValidationError("invalid phone number",
+				"Неверный номер телефона")
+		}
 	}
+	fmt.Printf("\n\n%v\n\n", newProfile.PhoneNumber)
 	if err := u.profileClient.UpdateProfile(ctx, uID, newProfile); err != nil {
 		if errors.Is(err, models.ErrInvalidField) {
 			return helper.NewValidationError("invalid input",

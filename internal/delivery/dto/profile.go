@@ -54,12 +54,20 @@ func ConvertProfileToMetaInfo(profile model.ProfileMetaInfo) ProfileMetaInfo {
 
 type FullProfile struct {
 	Login       string `json:"login"`
-	ProfileData Profile
+	ID          uint   `json:"id"`
+	FullName    string `json:"fullName"`
+	Email       string `json:"email"`
+	PhoneNumber string `json:"phoneNumber"`
+	AvatarName  string `json:"avatarName"`
 }
 
 func ConvertFullProfileToDto(m model.FullProfile) FullProfile {
 	return FullProfile{
 		Login:       m.Login,
-		ProfileData: ConvertProfileDataToProfile(m.ProfileData),
+		ID:          m.ProfileData.ID,
+		FullName:    m.ProfileData.FullName,
+		Email:       m.ProfileData.Email,
+		PhoneNumber: m.ProfileData.PhoneNumber,
+		AvatarName:  m.ProfileData.AvatarName,
 	}
 }
