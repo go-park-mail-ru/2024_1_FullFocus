@@ -182,7 +182,7 @@ func MustInit() *App {
 
 	// Cart
 	cartRepo := repository.NewCartRepo(pgxClient)
-	cartUsecase := usecase.NewCartUsecase(cartRepo, promotionClient)
+	cartUsecase := usecase.NewCartUsecase(cartRepo, promotionClient, promotionCache)
 	cartHandler := delivery.NewCartHandler(cartUsecase)
 	cartHandler.InitRouter(apiRouter)
 
