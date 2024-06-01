@@ -183,7 +183,7 @@ func MustInit() *App {
 
 	// Cart
 	cartRepo := repository.NewCartRepo(pgxClient)
-	cartUsecase := usecase.NewCartUsecase(cartRepo, promotionClient)
+	cartUsecase := usecase.NewCartUsecase(cartRepo, promotionClient, promotionCache)
 	cartHandler := delivery.NewCartHandler(cartUsecase)
 	cartHandler.InitRouter(apiRouter)
 
@@ -223,7 +223,7 @@ func MustInit() *App {
 	notificationHandler.InitRouter(apiRouter)
 
 	// Profile
-	profileUsecase := usecase.NewProfileUsecase(profileClient, cartRepo, promocodeRepo, notificationRepo)
+	profileUsecase := usecase.NewProfileUsecase(authClient, profileClient, cartRepo, promocodeRepo, notificationRepo)
 	profileHandler := delivery.NewProfileHandler(profileUsecase)
 	profileHandler.InitRouter(apiRouter)
 

@@ -11,14 +11,16 @@ import (
 )
 
 type CartUsecase struct {
-	cartRepo        repository.Carts
-	promotionClient promotion.PromotionClient
+	cartRepo           repository.Carts
+	promotionClient    promotion.PromotionClient
+	promoProductsCache PromotionProductsCache
 }
 
-func NewCartUsecase(cr repository.Carts, pc promotion.PromotionClient) *CartUsecase {
+func NewCartUsecase(cr repository.Carts, pc promotion.PromotionClient, promoCahe PromotionProductsCache) *CartUsecase {
 	return &CartUsecase{
-		cartRepo:        cr,
-		promotionClient: pc,
+		cartRepo:           cr,
+		promotionClient:    pc,
+		promoProductsCache: promoCahe,
 	}
 }
 
@@ -75,6 +77,7 @@ func (u *CartUsecase) UpdateCartItem(ctx context.Context, uID, prID uint) (uint,
 	if errors.Is(err, models.ErrNoProduct) {
 		return 0, err
 	}
+	u.promoProductsCache.Remove(ctx, prID)
 	return newCount, nil
 }
 
@@ -83,6 +86,7 @@ func (u *CartUsecase) DeleteCartItem(ctx context.Context, uID, prID uint) (uint,
 	if errors.Is(err, models.ErrNoProduct) {
 		return 0, err
 	}
+	u.promoProductsCache.Remove(ctx, prID)
 	return newCount, nil
 }
 

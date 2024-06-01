@@ -17,11 +17,6 @@ const (
 	_maxPasswordLength = 32
 )
 
-const (
-	_defaultEmail       = "yourawesome@mail.ru"
-	_defaultPhoneNumber = "70000000000"
-)
-
 type AuthUsecase struct {
 	authClient    auth.AuthClient
 	profileClient profile.ProfileClient
@@ -72,10 +67,8 @@ func (u *AuthUsecase) Signup(ctx context.Context, login string, password string)
 		return "", err
 	}
 	if err = u.profileClient.CreateProfile(ctx, models.Profile{
-		ID:          uID,
-		FullName:    login,
-		Email:       _defaultEmail,
-		PhoneNumber: _defaultPhoneNumber,
+		ID:       uID,
+		FullName: login,
 	}); err != nil {
 		return "", err
 	}

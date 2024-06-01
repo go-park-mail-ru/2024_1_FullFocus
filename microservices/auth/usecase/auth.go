@@ -12,6 +12,7 @@ type auth interface {
 	GetUser(ctx context.Context, login string) (models.User, error)
 	CreateSession(ctx context.Context, userID uint) string
 	GetUserIDBySessionID(ctx context.Context, sID string) (uint, error)
+	GetUserLoginByID(ctx context.Context, uID uint) (string, error)
 	SessionExists(ctx context.Context, sID string) bool
 	DeleteSession(ctx context.Context, sID string) error
 	UpdatePassword(ctx context.Context, userID uint, password string) error
@@ -64,6 +65,10 @@ func (u *Auth) Signup(ctx context.Context, login string, password string) (uint,
 
 func (u *Auth) GetUserIDBySessionID(ctx context.Context, sID string) (uint, error) {
 	return u.repo.GetUserIDBySessionID(ctx, sID)
+}
+
+func (u *Auth) GetUserLoginByID(ctx context.Context, uID uint) (string, error) {
+	return u.repo.GetUserLoginByID(ctx, uID)
 }
 
 func (u *Auth) Logout(ctx context.Context, sID string) error {
