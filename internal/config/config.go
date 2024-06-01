@@ -20,6 +20,7 @@ type Config struct {
 	CSAT          CSAT                `yaml:"csat"`
 	Review        Review              `yaml:"review"`
 	Promotion     Promotion           `yaml:"promotion"`
+	Logger        Logger              `yaml:"logger"`
 	Minio         MinioConfig         `yaml:"minio"`
 	Postgres      PostgresConfig      `yaml:"postgres"`
 	Elasticsearch ElasticsearchConfig `yaml:"elasticsearch"`
@@ -93,6 +94,13 @@ type Review struct {
 
 type Promotion struct {
 	Server GRPCServer `yaml:"server"`
+}
+
+// Logger
+
+type Logger struct {
+	App    string `yaml:"app"`
+	Target string `yaml:"target"`
 }
 
 // Data storage

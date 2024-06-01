@@ -72,8 +72,8 @@ services:
     networks:
      - services_data_access_network
   elasticsearch:
-    image: bitnami/elasticsearch:7.17.20-debian-12-r2
     container_name: elasticsearch
+    image: bitnami/elasticsearch:7.17.20-debian-12-r2
     restart: always
     environment:
       node.name: 'es01'
@@ -150,6 +150,8 @@ services:
       TZ: "Europe/Moscow"
     networks:
       - services_data_access_network
+
+  # WS
   centrifugo:
     container_name: centrifugo
     image: centrifugo/centrifugo:v5
@@ -161,6 +163,66 @@ services:
     networks:
       - services_data_access_network
 
+  # Logs
+  mongodb:
+    image: "mongo:5.0"
+    volumes:
+      - "mongodb_data:/data/db"
+    restart: "on-failure"
+
+  opensearch:
+    image: "opensearchproject/opensearch:2.4.0"
+    environment:
+      - "OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g"
+      - "bootstrap.memory_lock=true"
+      - "discovery.type=single-node"
+      - "action.auto_create_index=false"
+      - "plugins.security.ssl.http.enabled=false"
+      - "plugins.security.disabled=true"
+    ulimits:
+      memlock:
+        hard: -1
+        soft: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - "os_data:/usr/share/opensearch/data"
+    restart: "on-failure"
+
+  graylog:
+    hostname: "server"
+    image: "graylog/graylog:5.2.6"
+    depends_on:
+      opensearch:
+        condition: "service_started"
+      mongodb:
+        condition: "service_started"
+    entrypoint: "/usr/bin/tini -- wait-for-it opensearch:9200 --  /docker-entrypoint.sh"
+    environment:
+      GRAYLOG_NODE_ID_FILE: "/usr/share/graylog/data/config/node-id"
+      GRAYLOG_PASSWORD_SECRET: "6QwoZahGXYFDGAMVlmct7vGvo5vTxD8TVhBbsQrI9THl5sdHvNH7XqrGpHVCif9O2N509pHXqTF0ppAWcKu7hoty8JE45BOT"
+      GRAYLOG_ROOT_PASSWORD_SHA2: "33c5ebbb01d608c254b3b12413bdb03e46c12797e591770ccf20f5e2819929b2"
+      GRAYLOG_HTTP_BIND_ADDRESS: "0.0.0.0:9002"
+      GRAYLOG_HTTP_EXTERNAL_URI: "http://localhost:9002/"
+      GRAYLOG_ELASTICSEARCH_HOSTS: "http://opensearch:9200"
+      GRAYLOG_MONGODB_URI: "mongodb://mongodb:27017/graylog"
+    ports:
+      - "5044:5044/tcp"   # Beats
+      - "5140:5140/udp"   # Syslog
+      - "5140:5140/tcp"   # Syslog
+      - "5555:5555/tcp"   # RAW TCP
+      - "5555:5555/udp"   # RAW TCP
+      - "9002:9002/tcp"   # Server API
+      - "12201:12201/tcp" # GELF TCP
+      - "12201:12201/udp" # GELF UDP
+      - "13301:13301/tcp" # Forwarder data
+      - "13302:13302/tcp" # Forwarder config
+    volumes:
+      - "graylog_data:/usr/share/graylog/data/data"
+      - "graylog_journal:/usr/share/graylog/data/journal"
+    restart: "on-failure"
+
 volumes:
   redis-data:
   minio-data:
@@ -169,7 +231,13 @@ volumes:
   elastic-data:
   grafana-data:
   prometheus-data:
+  mongodb_data:
+  os_data:
+  graylog_data:
+  graylog_journal:
 networks:
   services_data_access_network:
     name: services_data_access_network
     external: true
+  graylog_network:
+    driver: bridge

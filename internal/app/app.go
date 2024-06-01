@@ -56,7 +56,8 @@ func MustInit() *App {
 
 	// Logger
 
-	log := logger.NewLogger(cfg.Env)
+	cfg.Logger.App = "main"
+	log := logger.NewLogger(cfg.Env, cfg.Logger)
 
 	// Router
 

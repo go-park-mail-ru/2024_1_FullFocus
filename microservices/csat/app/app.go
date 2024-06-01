@@ -28,7 +28,8 @@ func New() *App {
 
 	// Logger
 
-	log := logger.NewLogger(cfg.Env)
+	cfg.Logger.App = "csat"
+	log := logger.NewLogger(cfg.Env, cfg.Logger)
 
 	// Postgres
 

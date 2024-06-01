@@ -61,6 +61,11 @@ promotion:
     port: "9095"
     timeout: 5s
 
+# Logger
+logger:
+  app: "main"  # default
+  target: "graylog:12201"
+
 # Data
 minio:
   addr: "minio:9000"

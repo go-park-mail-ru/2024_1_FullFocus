@@ -1,4 +1,4 @@
-env: "local"
+env: "prod"
 session_ttl: 1h
 
 # Services
@@ -60,6 +60,12 @@ promotion:
   server:
     port: "9095"
     timeout: 5s
+
+# Logger
+logger:
+  app: "main"  # default
+  target: "localhost:12201"
+#  target: "logs/info.log"
 
 # Data
 minio:
