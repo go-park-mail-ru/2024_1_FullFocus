@@ -70,6 +70,34 @@ stop-all: ## Остановить все контейнеры
 build: ## Сбилдить бинарь приложения (TARGET=binary_name)
 	go build -o ./bin/$(TARGET) ./cmd/$(TARGET)/main.go
 
+.PHONY: build-all
+build-all: ## Сбилдить все бинари
+	go build -o ./bin/main-service ./cmd/main/main.go
+	go build -o ./bin/auth-service ./cmd/auth/main.go
+	go build -o ./bin/profile-service ./cmd/profile/main.go
+	go build -o ./bin/review-service ./cmd/review/main.go
+	go build -o ./bin/promotion-service ./cmd/promotion/main.go
+
+.PHONY: run-local-all
+run-local-all: ## Локально запустить приложение целиком
+	chmod +x ./bin/*
+	docker compose -f docker-compose.local.yaml up -d
+	sleep 10
+	./bin/main-service --config_path=config/local.yaml &
+	./bin/auth-service --config_path=config/local.yaml &
+	./bin/profile-service --config_path=config/local.yaml &
+	./bin/review-service --config_path=config/local.yaml &
+	./bin/promotion-service --config_path=config/local.yaml &
+
+.PHONY: stop-local-all
+stop-local-all: ## Остановить локально работающее приложение
+	docker compose -f docker-compose.local.yaml down
+	pkill -f main-service
+	pkill -f auth-service
+	pkill -f profile-service
+	pkill -f review-service
+	pkill -f promotion-service
+
 .PHONY: lint
 lint: ## Проверить код линтерами
 	golangci-lint run ./... -c golangci.local.yaml

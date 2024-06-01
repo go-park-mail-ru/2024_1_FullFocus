@@ -14,4 +14,11 @@ Golang-репозиторий команды FullFocus
 
 ## Сссылки
 [Деплой](https://bizonshop.site/)  
-[Фронт](https://github.com/frontend-park-mail-ru/2024_1_FullFocus)  
+[Фронт](https://github.com/frontend-park-mail-ru/2024_1_FullFocus)
+
+## How-to-run
+Запуск приложения локально:
+1. ```make build-all``` - сборка бинарей
+2. ```make run-local-all``` - запуск контейнеров и всех микросервисов
+
+Остановка: ```make stop-local-all```
