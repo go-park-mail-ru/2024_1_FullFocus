@@ -4,7 +4,7 @@ DB_NAME := postgres
 
 LOCAL_COMPOSE=docker-compose.local.yaml
 
-ALLOWED_TARGETS := main auth profile csat review
+ALLOWED_TARGETS := main auth profile csat review promotion
 TARGET ?= main
 
 ifndef TARGET
@@ -69,6 +69,10 @@ stop-all: ## Остановить все контейнеры
 .PHONY: build
 build: ## Сбилдить бинарь приложения (TARGET=binary_name)
 	go build -o ./bin/$(TARGET) ./cmd/$(TARGET)/main.go
+
+.PHONY: gen
+gen: ## Сгенерировать easyjson
+	easyjson -all -pkg internal/delivery/dto
 
 .PHONY: lint
 lint: ## Проверить код линтерами

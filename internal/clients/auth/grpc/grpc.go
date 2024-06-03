@@ -112,6 +112,24 @@ func (c *Client) GetUserIDBySessionID(ctx context.Context, sID string) (uint, er
 	}
 }
 
+func (c *Client) GetUserLoginByID(ctx context.Context, uID uint) (string, error) {
+	res, err := c.api.GetUserLoginByID(ctx, &authv1.GetUserLoginByIDRequest{
+		UserID: uint32(uID),
+	})
+	st, ok := status.FromError(err)
+	if !ok {
+		return "", err
+	}
+	switch st.Code() {
+	case codes.OK:
+		return res.GetLogin(), nil
+	case codes.NotFound:
+		return "", models.ErrUserNotFound
+	default:
+		return "", st.Err()
+	}
+}
+
 func (c *Client) Logout(ctx context.Context, sID string) error {
 	_, err := c.api.Logout(ctx, &authv1.LogoutRequest{
 		SessionID: sID,

@@ -112,7 +112,7 @@ func (h *ProductHandler) GetProductByID(w http.ResponseWriter, r *http.Request) 
 	}
 	product, err := h.usecase.GetProductByID(ctx, uID, uint(productID))
 	if err != nil {
-		if errors.Is(err, models.ErrNoRowsFound) {
+		if errors.Is(err, models.ErrNoRowsFound) || errors.Is(err, models.ErrNoProduct) || errors.Is(err, models.ErrProductNotFound) {
 			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 				Status: 400,
 				Msg:    err.Error(),
@@ -129,7 +129,7 @@ func (h *ProductHandler) GetProductByID(w http.ResponseWriter, r *http.Request) 
 	}
 	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
-		Data:   dto.ConvertProductToDTO(product),
+		Data:   dto.ConvertPromoProductToDTO(product),
 	})
 }
 

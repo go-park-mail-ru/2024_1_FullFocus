@@ -1,4 +1,4 @@
-env: "local"
+env: "prod"
 session_ttl: 1h
 
 # Services
@@ -22,6 +22,10 @@ main:
       retry_timeout: 2s
     review:
       addr: "localhost:9094"
+      retries: 3
+      retry_timeout: 2s
+    promotion:
+      addr: "localhost:9095"
       retries: 3
       retry_timeout: 2s
 auth:
@@ -52,6 +56,16 @@ review:
   server:
     port: "9094"
     timeout: 5s
+promotion:
+  server:
+    port: "9095"
+    timeout: 5s
+
+# Logger
+logger:
+  app: "main"  # default
+  target: "localhost:12201"
+#  target: "logs/info.log"
 
 # Data
 minio:
@@ -76,3 +90,9 @@ elasticsearch:
   port: "9200"
   user: "elastic"
   password: "elastic"
+
+centrifugo:
+  host: "http://localhost:8000/api"
+  api_key: ${CENTRIFUGO_API_KEY}
+
+accessToken: ${ACCESS_TOKEN}

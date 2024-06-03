@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/centrifuge"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/pkg/metrics"
 	"github.com/gorilla/mux"
 	"github.com/prometheus/client_golang/prometheus"
@@ -18,9 +19,11 @@ import (
 	authclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/auth/grpc"
 	csatclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/csat/grpc"
 	profileclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/profile/grpc"
+	promotionclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/promotion/grpc"
 	reviewclient "github.com/go-park-mail-ru/2024_1_FullFocus/internal/clients/review/grpc"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
 	delivery "github.com/go-park-mail-ru/2024_1_FullFocus/internal/delivery/http"
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/cache"
 	elasticsetup "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/elasticsearch"
 	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/middleware"
 	miniosetup "github.com/go-park-mail-ru/2024_1_FullFocus/internal/pkg/minio"
@@ -53,7 +56,8 @@ func MustInit() *App {
 
 	// Logger
 
-	log := logger.NewLogger(cfg.Env)
+	cfg.Logger.App = "main"
+	log := logger.NewLogger(cfg.Env, cfg.Logger)
 
 	// Router
 
@@ -105,9 +109,23 @@ func MustInit() *App {
 		panic("elasticsearch init data error: " + err.Error())
 	}
 
+	// Centrifugo
+
+	ctx, cancel = context.WithTimeout(context.Background(), _timeout)
+	defer cancel()
+
+	centrifugoClient := centrifuge.NewCentrifugeClient(ctx, cfg.Centrifugo)
+	if centrifugoClient == nil {
+		panic("centrifugo connection error")
+	}
+
 	// Server
 
 	srv := server.NewServer(cfg.Main.Server, r)
+
+	// Cache
+
+	promotionCache := cache.NewPromoProductsCache()
 
 	// Clients
 
@@ -144,7 +162,16 @@ func MustInit() *App {
 
 	reviewClient, err := reviewclient.New(ctx, log, cfg.Main.Clients.ReviewClient)
 	if err != nil {
-		panic("csat service connection error: " + err.Error())
+		panic("review service connection error: " + err.Error())
+	}
+
+	// Promotion
+	ctx, cancel = context.WithTimeout(context.Background(), _connTimeout)
+	defer cancel()
+
+	promotionClient, err := promotionclient.New(ctx, log, cfg.Main.Clients.PromotionClient)
+	if err != nil {
+		panic("promotion service connection error: " + err.Error())
 	}
 
 	// Layers
@@ -156,20 +183,15 @@ func MustInit() *App {
 
 	// Cart
 	cartRepo := repository.NewCartRepo(pgxClient)
-	cartUsecase := usecase.NewCartUsecase(cartRepo)
+	cartUsecase := usecase.NewCartUsecase(cartRepo, promotionClient, promotionCache)
 	cartHandler := delivery.NewCartHandler(cartUsecase)
 	cartHandler.InitRouter(apiRouter)
 
-	// Profile
-	profileUsecase := usecase.NewProfileUsecase(profileClient, cartRepo)
-	profileHandler := delivery.NewProfileHandler(profileUsecase)
-	profileHandler.InitRouter(apiRouter)
-
-	// Order
-	orderRepo := repository.NewOrderRepo(pgxClient)
-	orderUsecase := usecase.NewOrderUsecase(orderRepo, cartRepo)
-	orderHandler := delivery.NewOrderHandler(orderUsecase)
-	orderHandler.InitRouter(apiRouter)
+	// Promocode
+	promocodeRepo := repository.NewPromocodeRepo(pgxClient)
+	promocodeUsecase := usecase.NewPromocodeUsecase(promocodeRepo)
+	promocodeHandler := delivery.NewPromocodeHandler(promocodeUsecase)
+	promocodeHandler.InitRouter(apiRouter)
 
 	// Avatar
 	avatarStorage := repository.NewAvatarStorage(minioClient, cfg.Minio)
@@ -184,15 +206,32 @@ func MustInit() *App {
 	categoryHandler.InitRouter(apiRouter)
 
 	// Reviews
-	reviewUsecase := usecase.NewReviewUsecase(profileClient, reviewClient)
+	reviewUsecase := usecase.NewReviewUsecase(profileClient, reviewClient, promotionCache)
 	reviewHandler := delivery.NewReviewHandler(reviewUsecase)
 	reviewHandler.InitRouter(apiRouter)
 
 	// Products
 	productRepo := repository.NewProductRepo(pgxClient)
-	productUsecase := usecase.NewProductUsecase(productRepo, categoryRepo)
+	productUsecase := usecase.NewProductUsecase(productRepo, categoryRepo, promotionClient)
 	productHandler := delivery.NewProductHandler(productUsecase)
 	productHandler.InitRouter(apiRouter)
+
+	// Notifications
+	notificationRepo := repository.NewNotificationRepo(pgxClient)
+	notificationUsecase := usecase.NewNotificationUsecase(notificationRepo, centrifugoClient)
+	notificationHandler := delivery.NewNotificationHandler(notificationUsecase)
+	notificationHandler.InitRouter(apiRouter)
+
+	// Profile
+	profileUsecase := usecase.NewProfileUsecase(authClient, profileClient, cartRepo, promocodeRepo, notificationRepo)
+	profileHandler := delivery.NewProfileHandler(profileUsecase)
+	profileHandler.InitRouter(apiRouter)
+
+	// Order
+	orderRepo := repository.NewOrderRepo(pgxClient)
+	orderUsecase := usecase.NewOrderUsecase(orderRepo, cartRepo, productRepo, promocodeRepo, notificationRepo, promotionClient)
+	orderHandler := delivery.NewOrderHandler(orderUsecase, notificationUsecase)
+	orderHandler.InitRouter(apiRouter)
 
 	// Suggests
 	suggestRepo := repository.NewSuggestRepo(elasticClient)
@@ -205,11 +244,17 @@ func MustInit() *App {
 	csatHandler := delivery.NewCsatHandler(csatUsecase)
 	csatHandler.InitRouter(apiRouter)
 
+	// Promotion
+	promotionUsecase := usecase.NewPromotionUsecase(ctx, productRepo, promotionClient, promotionCache)
+	promotionHandler := delivery.NewPromotionHandler(promotionUsecase)
+	promotionHandler.InitRouter(apiRouter)
+
 	// Middleware
 	reg := prometheus.NewRegistry()
 	r.Use(middleware.NewLoggingMiddleware(metrics.NewMetrics(reg), log))
 	r.Use(middleware.NewCORSMiddleware([]string{}))
 	r.Use(middleware.NewAuthMiddleware(authClient))
+	r.Use(middleware.NewAuthorizationMiddleware(cfg.AccessToken))
 
 	return &App{
 		config:   cfg,

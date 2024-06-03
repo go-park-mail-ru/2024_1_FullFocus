@@ -26,8 +26,11 @@ logs/
 
 # Env files
 .env
+centrifugo.json
 
 # tmp
 tmp/
 
 .idea
+
+/centrifugo/

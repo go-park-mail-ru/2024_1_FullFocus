@@ -24,6 +24,10 @@ main:
       addr: "bizon-review:9094"
       retries: 3
       retry_timeout: 2s
+    promotion:
+      addr: "bizon-promotion:9095"
+      retries: 3
+      retry_timeout: 2s
 auth:
   server:
     port: "9091"
@@ -52,6 +56,15 @@ review:
   server:
     port: "9094"
     timeout: 5s
+promotion:
+  server:
+    port: "9095"
+    timeout: 5s
+
+# Logger
+logger:
+  app: "main"  # default
+  target: "graylog:12201"
 
 # Data
 minio:
@@ -76,3 +89,9 @@ elasticsearch:
   port: "9200"
   user: ${ELASTIC_USER}
   password: ${ELASTIC_PASSWORD}
+
+centrifugo:
+  host: "http://centrifugo:8000/api"
+  api_key: ${CENTRIFUGO_API_KEY}
+
+accessToken: ${ACCESS_TOKEN}

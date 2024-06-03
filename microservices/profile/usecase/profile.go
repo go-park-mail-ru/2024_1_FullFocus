@@ -31,9 +31,6 @@ func NewUsecase(pr Profile) *Usecase {
 }
 
 func (u *Usecase) UpdateProfile(ctx context.Context, uID uint, newProfile models.ProfileUpdateInput) error {
-	if len(newProfile.FullName) == 0 || len(newProfile.Email) == 0 || len(newProfile.PhoneNumber) == 0 {
-		return models.ErrInvalidInput
-	}
 	return u.repo.UpdateProfile(ctx, uID, newProfile)
 }
 
@@ -55,20 +52,7 @@ func (u *Usecase) GetProfileMetaInfo(ctx context.Context, pID uint) (models.Prof
 }
 
 func (u *Usecase) GetProfileNamesAvatarsByIDs(ctx context.Context, pIDs []uint) ([]models.ProfileNameAvatar, error) {
-	profiles, err := u.repo.GetProfileNamesAvatarsByIDs(ctx, pIDs)
-	if err != nil {
-		return nil, err
-	}
-	orderedProfiles := make([]models.ProfileNameAvatar, len(profiles))
-	for i, pID := range pIDs {
-		for _, p := range profiles {
-			if pID == p.ID {
-				orderedProfiles[i] = p
-				break
-			}
-		}
-	}
-	return orderedProfiles, nil
+	return u.repo.GetProfileNamesAvatarsByIDs(ctx, pIDs)
 }
 
 func (u *Usecase) CreateProfile(ctx context.Context, profile models.Profile) error {

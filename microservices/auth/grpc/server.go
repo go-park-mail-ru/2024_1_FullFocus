@@ -17,6 +17,7 @@ type Auth interface {
 	Login(ctx context.Context, login string, password string) (string, error)
 	Signup(ctx context.Context, login string, password string) (uint, string, error)
 	GetUserIDBySessionID(ctx context.Context, sID string) (uint, error)
+	GetUserLoginByID(ctx context.Context, uID uint) (string, error)
 	Logout(ctx context.Context, sID string) error
 	IsLoggedIn(ctx context.Context, sID string) bool
 	UpdatePassword(ctx context.Context, userID uint, password string, newPassword string) error
@@ -81,6 +82,16 @@ func (s *serverAPI) GetUserIDBySessionID(ctx context.Context, r *authv1.GetUserI
 	}
 	return &authv1.GetUserIDResponse{
 		UserID: uint32(uID),
+	}, status.Error(codes.OK, "")
+}
+
+func (s *serverAPI) GetUserLoginByID(ctx context.Context, r *authv1.GetUserLoginByIDRequest) (*authv1.GetUserLoginByIDResponse, error) {
+	login, err := s.authUsecase.GetUserLoginByID(ctx, uint(r.GetUserID()))
+	if err != nil {
+		return &authv1.GetUserLoginByIDResponse{}, status.Error(codes.NotFound, err.Error())
+	}
+	return &authv1.GetUserLoginByIDResponse{
+		Login: login,
 	}, status.Error(codes.OK, "")
 }
 

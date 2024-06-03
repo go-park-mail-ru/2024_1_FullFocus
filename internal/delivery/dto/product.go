@@ -11,7 +11,7 @@ type ProductCard struct {
 	ImgSrc string `json:"imgSrc"`
 	Seller string `json:"seller"`
 	Rating uint   `json:"rating"`
-	InCart bool   `json:"inCart"`
+	Amount uint   `json:"amount"`
 }
 
 func ConvertProductCardsToDTO(cards []models.ProductCard) []ProductCard {
@@ -24,7 +24,7 @@ func ConvertProductCardsToDTO(cards []models.ProductCard) []ProductCard {
 			ImgSrc: card.ImgSrc,
 			Seller: card.Seller,
 			Rating: card.Rating,
-			InCart: card.InCart,
+			Amount: card.Amount,
 		})
 	}
 	return productCards
@@ -42,7 +42,7 @@ type Product struct {
 	ImgSrc      string   `json:"imgSrc"`
 	Seller      string   `json:"seller"`
 	Rating      uint     `json:"rating"`
-	InCart      bool     `json:"inCart"`
+	Amount      uint     `json:"amount"`
 	Categories  []string `json:"categories"`
 }
 
@@ -55,7 +55,7 @@ func ConvertProductToDTO(product models.Product) Product {
 		ImgSrc:      product.ImgSrc,
 		Seller:      product.Seller,
 		Rating:      product.Rating,
-		InCart:      product.InCart,
+		Amount:      product.Amount,
 		Categories:  product.Categories,
 	}
 }

@@ -46,15 +46,14 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	}
 	profile, err := h.usecase.GetProfile(ctx, uID)
 	if err != nil {
-		if errors.Is(err, models.ErrNoProfile) {
+		if errors.Is(err, models.ErrNoProfile) || errors.Is(err, models.ErrUserNotFound) {
 			helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
-				Status: 400,
+				Status: 404,
 				Msg:    err.Error(),
 				MsgRus: "Пользователя не существует",
 			})
 			return
 		}
-		logger.Error(ctx, err.Error())
 		helper.JSONResponse(ctx, w, 200, dto.ErrResponse{
 			Status: 500,
 			Msg:    "Internal error",
@@ -62,7 +61,7 @@ func (h *ProfileHandler) GetProfile(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	data := dto.ConvertProfileDataToProfile(profile)
+	data := dto.ConvertFullProfileToDto(profile)
 	helper.JSONResponse(ctx, w, 200, dto.SuccessResponse{
 		Status: 200,
 		Data:   data,

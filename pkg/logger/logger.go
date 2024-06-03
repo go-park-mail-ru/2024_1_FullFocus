@@ -4,6 +4,9 @@ import (
 	"context"
 	"log/slog"
 	"os"
+
+	"github.com/go-park-mail-ru/2024_1_FullFocus/internal/config"
+	"gopkg.in/Graylog2/go-gelf.v2/gelf"
 )
 
 const (
@@ -11,14 +14,10 @@ const (
 	_envProd  = "prod"
 )
 
-const (
-	_logFile = "logs/info.log"
-)
-
 type ctxLogger struct{}
 
-func NewLogger(env string) *slog.Logger {
-	var log *slog.Logger
+func NewLogger(env string, cfg config.Logger) *slog.Logger {
+	log := &slog.Logger{}
 
 	switch env {
 	case _envLocal:
@@ -26,16 +25,19 @@ func NewLogger(env string) *slog.Logger {
 			Level: slog.LevelDebug,
 		}))
 	case _envProd:
-		logFile, _ := os.OpenFile(_logFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-		log = slog.New(slog.NewJSONHandler(logFile, &slog.HandlerOptions{
+		gelfWriter, err := gelf.NewTCPWriter(cfg.Target)
+		if err != nil {
+			panic(err)
+		}
+		log = slog.New(slog.NewJSONHandler(gelfWriter, &slog.HandlerOptions{
 			Level: slog.LevelDebug,
 		}))
 	}
-	return log
+	return log.With("app_name", cfg.App)
 }
 
 func DefaultLogger() *slog.Logger {
-	return NewLogger(_envProd)
+	return NewLogger(_envProd, config.Logger{})
 }
 
 func Debug(ctx context.Context, msg string, args ...any) {

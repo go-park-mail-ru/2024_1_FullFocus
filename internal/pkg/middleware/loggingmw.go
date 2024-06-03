@@ -97,14 +97,12 @@ func NewLoggingMiddleware(metrics metrics.Collector, l *slog.Logger) mux.Middlew
 				metrics.IncreaseErr(strconv.Itoa(statusCode), r.RequestURI)
 			}
 			path := r.URL.Path
-			println(path)
 			pathVars := mux.Vars(r)
 			for key, value := range pathVars {
 				path, _ = strings.CutSuffix(path, value)
 				path += fmt.Sprintf("{%s}", key)
 
 			}
-			println(path)
 			metrics.AddDurationToHistogram(path, dur)
 			metrics.AddDurationToSummary(strconv.Itoa(statusCode), path, dur)
 			metrics.IncreaseHits(path)
